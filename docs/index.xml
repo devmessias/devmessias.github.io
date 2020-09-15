@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bruno Messias</title><link>/</link><atom:link href="/index.xml" rel="self" type="application/rss+xml"/><description>Bruno Messias</description><generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>en-us</language><lastBuildDate>Wed, 01 Jan 2020 00:00:00 +0000</lastBuildDate><image><url>/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_2.png</url><title>Bruno Messias</title><link>/</link></image><item><title>Characterization and comparison of large directed networks through the spectra of the magnetic Laplacian</title><link>/publication/2020-01-01_chaos2019/</link><pubDate>Wed, 01 Jan 2020 00:00:00 +0000</pubDate><guid>/publication/2020-01-01_chaos2019/</guid><description/></item><item><title>Onset of synchronization of Kuramoto oscillators in scale-free networks</title><link>/publication/2019-01-01_pre_2019/</link><pubDate>Tue, 01 Jan 2019 00:00:00 +0000</pubDate><guid>/publication/2019-01-01_pre_2019/</guid><description/></item><item><title>Bibcure</title><link>/project/bibcure/</link><pubDate>Wed, 13 Sep 2017 17:43:22 +0000</pubDate><guid>/project/bibcure/</guid><description>&lt;a href="https://github.com/bibcure/bibcure">
+Bibcure helps in boring tasks by keeping your bibfile up to date and normalized...also allows you to easily download all papers inside your bibtex
+&lt;/a>
+&lt;p>&lt;img src="https://raw.githubusercontent.com/bibcure/logo/master/gifs/bibcure_op.gif" alt="">&lt;/p>
+&lt;h1 id="requirementsinstall">Requirements/Install&lt;/h1>
+&lt;pre>&lt;code>$ sudo python /usr/bin/pip install bibcure
+&lt;/code>&lt;/pre>
+&lt;h2 id="scihub2pdfbeta">scihub2pdf(beta)&lt;/h2>
+&lt;p>&lt;img src="https://raw.githubusercontent.com/bibcure/logo/master/sci_hub_64.png" alt=""> If you want download articles via a DOI number, article title or a bibtex file, using the
+database of arxiv, libgen or sci-hub, see&lt;/p>
+&lt;p>
+&lt;a href="https://github.com/bibcure/scihub2pdf" target="_blank" rel="noopener">bibcure/scihub2pdf&lt;/a>&lt;/p>
+&lt;h1 id="features-and-how-to-use">Features and how to use&lt;/h1>
+&lt;h2 id="bibcure">bibcure&lt;/h2>
+&lt;p>Given a bib file&amp;hellip;&lt;/p>
+&lt;pre>&lt;code>$ bibcure -i input.bib -o output.bib
+&lt;/code>&lt;/pre>
+&lt;ul>
+&lt;li>
+&lt;p>check sure the Arxiv items have been published, then update them(requires
+internet connection)&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>complete all fields(url, journal, etc) of all bib items using DOI number(requires
+internet connection)&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>find and create DOI number associated with each bib item which has not
+DOI field(requires
+internet connection)&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>abbreviate jorunals names&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="arxivcheck">arxivcheck&lt;/h2>
+&lt;p>Given a arxiv id&amp;hellip;&lt;/p>
+&lt;pre>&lt;code>$ arxivcheck 1601.02785
+&lt;/code>&lt;/pre>
+&lt;ul>
+&lt;li>check if has been published, and then returns the updated bib (requires internet connection)&lt;/li>
+&lt;/ul>
+&lt;p>Given a title&amp;hellip;&lt;/p>
+&lt;pre>&lt;code>$ arxivcheck --title An useful paper published on arxiv
+&lt;/code>&lt;/pre>
+&lt;p>search papers related and return a bib the first item.
+You can easily append a bib into a bibfile, just do&lt;/p>
+&lt;pre>&lt;code>$ arxivcheck --title An useful paper published on arxiv &amp;gt;&amp;gt; file.bib
+&lt;/code>&lt;/pre>
+&lt;p>You also can interact with results, just pass &amp;ndash;ask parameter&lt;/p>
+&lt;pre>&lt;code>$ arxivcheck --ask --title An useful paper published on arxiv
+&lt;/code>&lt;/pre>
+&lt;h2 id="scihub2pdf">scihub2pdf&lt;/h2>
+&lt;p>Given a bibtex file&lt;/p>
+&lt;pre>&lt;code>$ scihub2pdf -i input.bib
+&lt;/code>&lt;/pre>
+&lt;p>Given a DOI number&amp;hellip;&lt;/p>
+&lt;pre>&lt;code>$ scihub2pdf 10.1038/s41524-017-0032-0
+&lt;/code>&lt;/pre>
+&lt;p>Given arxivId&amp;hellip;&lt;/p>
+&lt;pre>&lt;code>$ scihub2pdf arxiv:1708.06891
+&lt;/code>&lt;/pre>
+&lt;p>Given a title&amp;hellip;&lt;/p>
+&lt;pre>&lt;code>$ scihub2bib --title An useful paper
+&lt;/code>&lt;/pre>
+&lt;p>or arxiv&amp;hellip;&lt;/p>
+&lt;pre>&lt;code>$ scihub2bib --title arxiv:An useful paper
+&lt;/code>&lt;/pre>
+&lt;p>Location folder as argument&lt;/p>
+&lt;pre>&lt;code>$ scihub2pdf -i input.bib -l somefoler/
+&lt;/code>&lt;/pre>
+&lt;p>Use libgen instead sci-hub&lt;/p>
+&lt;pre>&lt;code>$ scihub2pdf -i input.bib --uselibgen
+&lt;/code>&lt;/pre>
+&lt;h2 id="doi2bib">doi2bib&lt;/h2>
+&lt;p>Given a DOI number&amp;hellip;&lt;/p>
+&lt;pre>&lt;code>$ doi2bib 10.1038/s41524-017-0032-0
+&lt;/code>&lt;/pre>
+&lt;ul>
+&lt;li>get bib item given a doi(requires
+internet connection)&lt;/li>
+&lt;/ul>
+&lt;p>You can easily append
+a bib into a bibfile, just do&lt;/p>
+&lt;pre>&lt;code>$ doi2bib 10.1038/s41524-017-0032-0 &amp;gt;&amp;gt; file.bib
+&lt;/code>&lt;/pre>
+&lt;p>You also can generate a bibtex from a txt file containing a list of DOIs&lt;/p>
+&lt;pre>&lt;code>$ doi2bib --input file_with_dois.txt --output refs.bib
+&lt;/code>&lt;/pre>
+&lt;h2 id="title2bib">title2bib&lt;/h2>
+&lt;p>Given a title&amp;hellip;&lt;/p>
+&lt;pre>&lt;code>$ title2bib An useful paper
+&lt;/code>&lt;/pre>
+&lt;ul>
+&lt;li>search papers related and return a bib for the selected paper(requires
+internet connection)&lt;/li>
+&lt;/ul>
+&lt;p>You can easily append
+a bib into a bibfile, just do&lt;/p>
+&lt;pre>&lt;code>$ title2bib An useful paper --first &amp;gt;&amp;gt; file.bib
+&lt;/code>&lt;/pre>
+&lt;p>You also can generate a bibtex from a txt file containing a list of &amp;ldquo;titles&amp;rdquo;&lt;/p>
+&lt;pre>&lt;code>$ title2bib --input file_with_titles.txt --output refs.bib --first
+&lt;/code>&lt;/pre>
+&lt;h2 id="sci-hub-vs-libgen">Sci-Hub vs LibGen&lt;/h2>
+&lt;h3 id="sci-hub">Sci-hub:&lt;/h3>
+&lt;ul>
+&lt;li>Stable&lt;/li>
+&lt;li>Annoying CAPTCHA&lt;/li>
+&lt;li>Fast&lt;/li>
+&lt;/ul>
+&lt;h3 id="libgen">Libgen&lt;/h3>
+&lt;ul>
+&lt;li>Unstalbe&lt;/li>
+&lt;li>No CAPTCHA&lt;/li>
+&lt;li>Slow&lt;/li>
+&lt;/ul></description></item><item><title>Confinement and fermion doubling problem in Dirac-like Hamiltonians</title><link>/publication/2017-01-01_prb_2017/</link><pubDate>Sun, 01 Jan 2017 00:00:00 +0000</pubDate><guid>/publication/2017-01-01_prb_2017/</guid><description/></item><item><title>Python Triângulo</title><link>/project/python_triangulo/</link><pubDate>Mon, 15 Aug 2016 11:29:40 -0300</pubDate><guid>/project/python_triangulo/</guid><description/></item><item><title>Projeto Capes - 5K cientistas utilizando</title><link>/project/capes/</link><pubDate>Mon, 18 Jul 2016 14:25:44 +0000</pubDate><guid>/project/capes/</guid><description>&lt;hr>
+&lt;p>O novo sistema de periódicos da Capes (assim como o CAFe) reduz drasticamente a agilidade de busca e acesso a referências bibliográficas, pois é necessário que os usuários acessem o portal de buscas da Capes. O que acaba inutilizando o acesso a publicações via links diretos, links internos dos arquivos PDF e sistemas como o DOI.&lt;/p>
+&lt;p>Por isso o Prof.
+&lt;a href="http://www.infis.ufu.br/gerson" target="_blank" rel="noopener">Gerson Ferreira&lt;/a> e esse que vos fala desenvolveram uma ferramenta que facilita a vida de nos, já aterefados cientistas. A extensão está disponível tanto para firefox quanto para chrome&lt;/p>
+&lt;p>
+&lt;a href="https://chrome.google.com/webstore/detail/redirecionamento-capes-pe/lpfcdddcpijdfghkimmcpkmidafnljbo" target="_blank" rel="noopener">Link para Chrome&lt;/a>&lt;/p>
+&lt;p>
+&lt;a href="https://addons.mozilla.org/pt-BR/firefox/addon/redir-capes-periodicos/" target="_blank" rel="noopener">Link para Firefox&lt;/a>&lt;/p>
+&lt;p>Estamos recebendo um excelente feedback da comunidade ciêntifica, com um total de mais de 5 mil usuários(firefox &amp;amp; chrome)&lt;/p>
+&lt;blockquote>
+&lt;p>Como não fazemos a parte do time de TI da CAPES não possuímos a lista oficial, e ainda não obtivemos resposta do time de TI da CAPES&lt;/p>
+&lt;/blockquote>
+&lt;!--O Primeiro passo foi obter uma lista com os domínios cadastrados no portal periódicos da CAPES. -->
+&lt;!--Criando um pequeno script python conseguimos realizar uma mineração desses domínios, o que nos permitiu pré-cadastar uma lista de domínios-->
+&lt;ul>
+&lt;li>&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="/img/periodicos/domainCapes.png" alt="alt text" title="Logo Title Text 1">&lt;/p>
+&lt;p>&lt;img src="/img/periodicos/subOpcoes.png" alt="alt text" title="Logo Title Text 1">&lt;/p></description></item><item><title>ReciclaAqui</title><link>/project/reciclaaqui/</link><pubDate>Tue, 31 May 2016 10:45:56 +0000</pubDate><guid>/project/reciclaaqui/</guid><description>&lt;p>O Recicla Aqui é um projeto que desenvolvo em parceria com um amigo(Régis Maicon). Tal projeto visa inserir
+tecnologia no processo da coleta seletiva e aumentar a qualidade de vida dos catadores de material reciclável.&lt;/p>
+&lt;p>Temos três eixos norteadores:&lt;/p>
+&lt;h4 id="fornecer-tecnologias-de--gerenciamento-e-formação-técnica--para-as-cooperativas">Fornecer tecnologias de Gerenciamento e Formação técnica para as Cooperativas&lt;/h4>
+&lt;h4 id="criação-de-um-aplicativo-que-permita-conectar-cidadães-e-coletores">Criação de um aplicativo que permita conectar Cidadães e Coletores&lt;/h4>
+&lt;h4 id="revitalização-da-imagem-dos-coletores">&amp;ldquo;Revitalização&amp;rdquo; da imagem dos coletores&lt;/h4>
+&lt;h4 id="alfabetização-tecnológica">&amp;ldquo;Alfabetização Tecnológica&amp;rdquo;&lt;/h4>
+&lt;p>O aplicativo você encontra na Goolge Play (futuramente na Apple Store)&lt;/p>
+&lt;p>Objetivamos utilizar as redes sociais para conscientizar a população da importância dos catadores&lt;/p>
+&lt;p>&lt;img src="/img/reciclaAqui/2.jpeg" alt="Alt text" title="Optional title">
+&lt;img src="/img/reciclaAqui/reciclaaqui3.png" alt="Alt text" title="Optional title">
+&lt;img src="/img/reciclaAqui/reciclaaqui4.png" alt="Alt text" title="Optional title">&lt;/p></description></item><item><title>Parity oscillations of Kondo temperature in a single molecule break junction</title><link>/publication/2012-01-01_apl_2012/</link><pubDate>Sun, 01 Jan 2012 00:00:00 +0000</pubDate><guid>/publication/2012-01-01_apl_2012/</guid><description/></item><item><title>eMaTe</title><link>/project/emate/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>/project/emate/</guid><description>&lt;p>eMaTe it is a python package which the main goal is to provide methods capable of estimating the spectral densities and trace
+functions of large sparse matrices. eMaTe can run in both CPU and GPU and can estimate the spectral density and related trace functions, such as entropy and Estrada index, even in directed or undirected networks with million of nodes.&lt;/p>
+&lt;h2 id="install">Install&lt;/h2>
+&lt;pre>&lt;code>pip install emate
+&lt;/code>&lt;/pre>
+&lt;p>If you a have a GPU you should also install cupy.&lt;/p>
+&lt;h2 id="kernel-polynomial-method-kpm">Kernel Polynomial Method (KPM)&lt;/h2>
+&lt;p>The Kernel Polynomial Method can estimate the spectral density of large sparse Hermitan matrices with a computational cost almost linear. This method combines three key ingredients: the Chebyshev expansion + the stochastic trace estimator + kernel smoothing.&lt;/p>
+&lt;h3 id="example">Example&lt;/h3>
+&lt;pre>&lt;code class="language-python">import networkx as nx
+import numpy as np
+n = 3000
+g = nx.erdos_renyi_graph(n , 3/n)
+W = nx.adjacency_matrix(g)
+vals = np.linalg.eigvals(W.todense()).real
+&lt;/code>&lt;/pre>
+&lt;pre>&lt;code class="language-python">from emate.hermitian import tfkpm
+num_moments = 40
+num_vecs = 40
+extra_points = 10
+ek, rho = tfkpm(W, num_moments, num_vecs, extra_points)
+&lt;/code>&lt;/pre>
+&lt;pre>&lt;code class="language-python">import matplotlib.pyplot as plt
+plt.hist(vals, density=True, bins=100, alpha=.9, color=&amp;quot;steelblue&amp;quot;)
+plt.scatter(ek, rho, c=&amp;quot;tomato&amp;quot;, zorder=999, alpha=0.9, marker=&amp;quot;d&amp;quot;)
+&lt;/code>&lt;/pre>
+&lt;p>If the CUPY package it is available in your machine, you can also use the cupy implementation. When compared to tf-kpm, the
+Cupy-kpm is slower for median matrices (100k) and faster for larger matrices (&amp;gt; 10^6). The main reason it&amp;rsquo;s because the tf-kpm was implemented in order to calc all te moments in a single step.&lt;/p>
+&lt;pre>&lt;code class="language-python">import matplotlib.pyplot as plt
+from emate.hermitian import cupykpm
+num_moments = 40
+num_vecs = 40
+extra_points = 10
+ek, rho = cupykpm(W.tocsr(), num_moments, num_vecs, extra_points)
+plt.hist(vals, density=True, bins=100, alpha=.9, color=&amp;quot;steelblue&amp;quot;)
+plt.scatter(ek.get(), rho.get(), c=&amp;quot;tomato&amp;quot;, zorder=999, alpha=0.9, marker=&amp;quot;d&amp;quot;)
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="docs/source/imgs/kpm.png" alt="">&lt;/p>
+&lt;h2 id="stochastic-lanczos-quadrature-slq">Stochastic Lanczos Quadrature (SLQ)&lt;/h2>
+&lt;blockquote>
+&lt;p>The problem of estimating the trace of matrix functions appears in applications ranging from machine learning and scientific computing, to computational biology.[2]&lt;/p>
+&lt;/blockquote>
+&lt;h3 id="example-1">Example&lt;/h3>
+&lt;h4 id="computing-the-estrada-index">Computing the Estrada index&lt;/h4>
+&lt;pre>&lt;code class="language-python">from emate.symmetric.slq import pyslq
+import tensorflow as tf
+def trace_function(eig_vals):
+return tf.exp(eig_vals)
+num_vecs = 100
+num_steps = 50
+approximated_estrada_index, _ = pyslq(L_sparse, num_vecs, num_steps, trace_function)
+exact_estrada_index = np.sum(np.exp(vals_laplacian))
+approximated_estrada_index, exact_estrada_index
+&lt;/code>&lt;/pre>
+&lt;p>The above code returns&lt;/p>
+&lt;pre>&lt;code>(3058.012, 3063.16457163222)
+&lt;/code>&lt;/pre>
+&lt;h4 id="entropy">Entropy&lt;/h4>
+&lt;pre>&lt;code class="language-python">import scipy
+import scipy.sparse
+def entropy(eig_vals):
+s = 0.
+for val in eig_vals:
+if val &amp;gt; 0:
+s += -val*np.log(val)
+return s
+L = np.array(G.laplacian(normalized=True), dtype=np.float64)
+vals_laplacian = np.linalg.eigvalsh(L).real
+exact_entropy = entropy(vals_laplacian)
+def trace_function(eig_vals):
+def entropy(val):
+return tf.cond(val&amp;gt;0, lambda:-val*tf.log(val), lambda: 0.)
+return tf.map_fn(entropy, eig_vals)
+L_sparse = scipy.sparse.coo_matrix(L)
+num_vecs = 100
+num_steps = 50
+approximated_entropy, _ = pyslq(L_sparse, num_vecs, num_steps, trace_function)
+approximated_entropy, exact_entropy
+&lt;/code>&lt;/pre>
+&lt;pre>&lt;code>(-509.46283, -512.5283224633046)
+&lt;/code>&lt;/pre>
+&lt;p>
+&lt;a href="https://www.tandfonline.com/doi/abs/10.1080/03610919008812866" target="_blank" rel="noopener">[1] Hutchinson, M. F. (1990). A stochastic estimator of the trace of the influence matrix for laplacian smoothing splines. Communications in Statistics-Simulation and Computation, 19(2), 433-450.&lt;/a>&lt;/p>
+&lt;p>
+&lt;a href="https://epubs.siam.org/doi/abs/10.1137/16M1104974" target="_blank" rel="noopener">[2] Ubaru, S., Chen, J., &amp;amp; Saad, Y. (2017). Fast Estimation of tr(f(A)) via Stochastic Lanczos Quadrature. SIAM Journal on Matrix Analysis and Applications, 38(4), 1075-1099.&lt;/a>&lt;/p>
+&lt;p>
+&lt;a href="">[3] The Kernel Polynomial Method applied to
+tight binding systems with
+time-dependence&lt;/a>&lt;/p></description></item></channel></rss>
