@@ -25,9 +25,11 @@ e servidores  REST e alfabetização tecnológica"
 interests:
 - Graphs and Geometry
 - Social Networks
+- Statistical Mechanics
 - HPC/CUDA-GPU
 - Machine Learning
 - Free Software
+- Python, Rust, Js
 
 education:
   courses:
