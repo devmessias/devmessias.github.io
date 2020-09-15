@@ -4,7 +4,7 @@
 title: "Projeto Capes - 5K cientistas utilizando"
 summary: "Extensão que permite ganhar agilidade ao utilizar o novo sistema de periódicos CAPES"
 authors: []
-tags: []
+tags: [open-science, free-software]
 categories: []
 date: 2016-07-18 14:25:44
 

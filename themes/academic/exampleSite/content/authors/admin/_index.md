@@ -18,7 +18,11 @@ organizations:
   url: ""
 
 # Short bio (displayed in user profile at end of posts)
-bio: My research interests include distributed robotics, mobile computing and programmable matter.
+
+bio:  "Meus interesses de pesquisa estão relacionados a área 
+de análise de dados em estruturas do tipo grafo. Tenho experiência
+no setor privado com processamento de imagens, criação de interfaces 
+e servidores  REST."
 
 interests:
 - Artificial Intelligence
