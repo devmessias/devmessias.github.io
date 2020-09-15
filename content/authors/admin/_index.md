@@ -24,8 +24,8 @@ e servidores  REST e alfabetização tecnológica"
 
 interests:
 - Graphs and Geometry
-- Social Networks comparassion and characteriztaion
-- HPC/CUDA and GPU stufs
+- Social Networks
+- HPC/CUDA-GPU
 - Machine Learning
 - Free Software
 
