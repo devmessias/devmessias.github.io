@@ -8,7 +8,10 @@ tags: ["latex", "bibtex", "scihub", "python"]
 #   2 = Compact
 #   3 = Card
 view: 3
-
+image:
+  caption: ""
+  focal_point: ""
+  preview_only: false
 # Optional header image (relative to `static/img/` folder).
 header:
   caption: ""

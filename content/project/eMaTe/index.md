@@ -11,6 +11,11 @@ view: 1
 header:
   caption: "eMaTe: a python package which can estimate spectral propreties of very large matrices and networks"
   image: "emate_cover.png"
+
+image:
+  caption: ""
+  focal_point: ""
+  preview_only: false
 ---
 
 eMaTe it is a python package which the main goal is to provide  methods capable of estimating the spectral densities and trace 

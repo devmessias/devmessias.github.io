@@ -11,7 +11,8 @@ date: 2016-08-15T11:29:40-03:00
 
 # Optional external URL for project (replaces project detail page).
 external_link: ""
-
+header:
+  image: "python_triangulo/faceShare.png"
 # Featured image
 # To use, add an image named `featured.jpg/png` to your page's folder.
 # Focal points: Smart, Center, TopLeft, Top, TopRight, Left, Right, BottomLeft, Bottom, BottomRight.
