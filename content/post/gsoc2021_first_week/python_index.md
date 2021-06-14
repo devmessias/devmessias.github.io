@@ -133,9 +133,10 @@ arr_uint8_repr[:] = new_data_uint8
   to see how this little modification improves the performance.
   </p>
 <h3>The issues with with different Operating Systems</h3>
+<p>
 Serge Koudoro, which is one of my mentors, have pointed an issue of the streaming system running in MacOs.
 I don't know many things about MacOs, and as pointed by Filipi the way that MacOs deals with multiprocessing 
-it's very different than the Linux approach. Altough we solved the issue discoverd by Serge, I need to be more carrefuly 
+it's very different than the Linux approach. Although we solved the issue discovered by Serge, I need to be more carefully 
 to assume that different operating system will behave in the same way. If you want to know more, I recommend you 
 to read this post
 <a href="https://britishgeologicalsurvey.github.io/science/python-forking-vs-spawn/">Python: Forking vs Spawm</a>.
@@ -143,6 +144,6 @@ And it's also important to read the official documentation from python. It can s
 a lot of time. 
 
 Take a look what the official python documentation says about the multiprocessing method
-
-<img src='https://user-images.githubusercontent.com/6979335/121958121-b0ebb780-cd39-11eb-862a-37244f7f635b.png'/>
-<small>Source: <a href='https://docs.python.org/3/library/multiprocessing.html'>https://docs.python.org/3/library/multiprocessing.html</a>
+</p>
+<img src="https://user-images.githubusercontent.com/6979335/121958121-b0ebb780-cd39-11eb-862a-37244f7f635b.png">
+<small>Source: <a href="https://docs.python.org/3/library/multiprocessing.html">https://docs.python.org/3/library/multiprocessing.html</a></small>
