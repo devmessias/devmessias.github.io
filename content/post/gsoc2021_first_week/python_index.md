@@ -1,4 +1,6 @@
 <h1> Post #1 - A Stadia-like system for data visualization </h1>
+
+
 <p>
   Hi all! In this post I'll talk about the PR <a href="https://github.com/fury-gl/fury/pull/437">#437</a>.
 </p>
@@ -34,10 +36,11 @@ There are several reasons to have a streaming system for data visualization. Fro
   After running one of this examples you can easily share the results and interaction with another users.
   
   For example, using the ngrok
-  ```
+</p><pre><code>
   ./ngrok http 8000  
-  ```
-  </p>
+ </code>
+</pre>
+  <p></p>
 <br>
 <h2>How it works?</h2>
 <p>
@@ -51,9 +54,9 @@ One of the hardest part of this PR was to code this sharing between different ob
 </p>
 
 
-<h3>The hard part: sharing data between process</h3>
+<h3>Sharing data between process</h3>
 
-We want to avoiding any kind unecessary duplication of data or 
+We want to avoiding any kind unnecessary duplication of data or 
 expensive copy/write actions. We can achieve this economy of computational 
 resources using the multiprocessing module from python. 
 <h4>multiprocessing RawArray </h4>
@@ -64,10 +67,10 @@ For example,
 <a href="https://github.com/devmessias/fury/tree/6ae82fd239dbde6a577f9cccaa001275dcb58229">
  take a look in my PR in a older stage.
   </a> In this older stage my streaming system was working well. However, one of my mentors (Filipi Nascimento)
-  discoverd that this system had a huge latency for high-resolutions. My first thought was 
-  that latency was caused by the GPU-CPU copy from the opengl context. However, I discoverd that 
+  saw a huge latency for high-resolutions. My first thought was 
+  that latency was caused by the GPU-CPU copy from the opengl context. However, I discovered that 
   I've been using RawArray's wrong in my entire life!
-  </br>
+  <br>
  
   See for example this line of code
   <a href="https://github.com/devmessias/fury/blob/6ae82fd239dbde6a577f9cccaa001275dcb58229/fury/stream/client.py#L101">
@@ -76,9 +79,10 @@ For example,
 The code bellow show how I've been updating the raw arrays
   </p>
   
-```python
+<pre><code>
 raw_arr_buffer[:] = new_data
-```
+</code>
+</pre>
 
 <p>This works fine for small and medium arrays, but for large it's consume a lot of time, more than GPU-CPU copy.
   The explanation for this bad performance it's available here : 
@@ -90,9 +94,10 @@ raw_arr_buffer[:] = new_data
   
   </p>
   
-```python
+<pre><code>
 memview(arr_buffer)[:] = new_data
-```
+</code>
+</pre>
 
 <p>
   The memview it's realy good, but there it's a litte issue. When we are dealing with uint8
@@ -100,18 +105,20 @@ memview(arr_buffer)[:] = new_data
   code will cause an exception
   </p>
 
-```python
+<pre><code>
 memview(arr_buffer_uint8)[:] = new_data_uint8
-```
+</code>
+</pre>
 <p>
  Although there is a solution using just memview and cast methods  
    numpy comes to rescue and offers a simple method to achieve a generic 
   solution. You just to convert to a np representation in the following way
  </p>
-```python
+<pre><code>
 arr_uint8_repr = np.ctypeslib.as_array(arr_buffer_uint8)
 arr_uint8_repr[:] = new_data_uint8
-```
+</code>
+</pre>
 <p>
   You can navigate to my repository in this 
   <a href="https://github.com/devmessias/fury/commit/b1b0caf30db762cc018fc99dd4e77ba0390b2f9e">
