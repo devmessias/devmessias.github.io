@@ -61,13 +61,19 @@ expensive copy/write actions. We can achieve this economy of computational
 resources using the multiprocessing module from python. 
 <h4>multiprocessing RawArray </h4>
 <p>
-The RawArray from multiprocessing allows to share resources between different process. However,the are 
+The 
+  <a href="https://docs.python.org/3/library/multiprocessing.html#multiprocessing.sharedctypes.RawArray">
+    RawArray
+  </a>
+  from multiprocessing allows to share resources between different process. However,the are 
 some tricks to get a better performance when we are dealing with RawArray's. 
 For example, 
 <a href="https://github.com/devmessias/fury/tree/6ae82fd239dbde6a577f9cccaa001275dcb58229">
  take a look in my PR in a older stage.
-  </a> In this older stage my streaming system was working well. However, one of my mentors (Filipi Nascimento)
-  saw a huge latency for high-resolutions. My first thought was 
+  </a> 
+  
+  In this older stage my streaming system was working well. However, one of my mentors (Filipi Nascimento)
+  saw a huge latency for high-resolutions examples. My first thought was 
   that latency was caused by the GPU-CPU copy from the opengl context. However, I discovered that 
   I've been using RawArray's wrong in my entire life!
   <br>
@@ -76,7 +82,7 @@ For example,
   <a href="https://github.com/devmessias/fury/blob/6ae82fd239dbde6a577f9cccaa001275dcb58229/fury/stream/client.py#L101">
   fury/stream/client.py#L101
 </a>
-The code bellow show how I've been updating the raw arrays
+The code bellow shows how I've been updating the raw arrays
   </p>
   
 <pre><code>
@@ -84,12 +90,12 @@ raw_arr_buffer[:] = new_data
 </code>
 </pre>
 
-<p>This works fine for small and medium arrays, but for large it's consume a lot of time, more than GPU-CPU copy.
+<p>This works fine for small and medium sized arrays, but for large takes a large amount of time, more than GPU-CPU copy.
   The explanation for this bad performance it's available here : 
   <a href="https://stackoverflow.com/questions/33853543/demystifying-sharedctypes-performance">
   Demystifying sharedctypes performance.
   </a>
- The solution to a stupendous performance improvement is quite simple. RawArrays implements the buffer
+ The solution which gives a stupendous performance improvement is quite simple. RawArrays implements the buffer
   protocol. Therefore, we just to need the use the memoryview:
   
   </p>
@@ -100,8 +106,8 @@ memview(arr_buffer)[:] = new_data
 </pre>
 
 <p>
-  The memview it's realy good, but there it's a litte issue. When we are dealing with uint8
-  RawArrays the following 
+  The memview it's  realy good, but there it's a litte issue  when we are dealing with uint8
+  RawArrays.  The following 
   code will cause an exception
   </p>
 
@@ -110,9 +116,9 @@ memview(arr_buffer_uint8)[:] = new_data_uint8
 </code>
 </pre>
 <p>
- Although there is a solution using just memview and cast methods  
-   numpy comes to rescue and offers a simple method to achieve a generic 
-  solution. You just to convert to a np representation in the following way
+ There is a solution  for uint8 rawarrays using just memview and cast methods. However, 
+   numpy comes to rescue and offers a simple and a more a generic 
+  solution. You just need to convert the rawarray to a np representation in the following way
  </p>
 <pre><code>
 arr_uint8_repr = np.ctypeslib.as_array(arr_buffer_uint8)
@@ -120,12 +126,23 @@ arr_uint8_repr[:] = new_data_uint8
 </code>
 </pre>
 <p>
-  You can navigate to my repository in this 
+  You can navigate to my repository in this specific
   <a href="https://github.com/devmessias/fury/commit/b1b0caf30db762cc018fc99dd4e77ba0390b2f9e">
-  commit
+  commit position
   </a> and test the streaming examples 
   to see how this little modification improves the performance.
   </p>
-<h5>The issues with forking with different Operating Systems</h5>
+<h3>The issues with with different Operating Systems</h3>
+Serge Koudoro, which is one of my mentors, have pointed an issue of the streaming system running in MacOs.
+I don't know many things about MacOs, and as pointed by Filipi the way that MacOs deals with multiprocessing 
+it's very different than the Linux approach. Altough we solved the issue discoverd by Serge, I need to be more carrefuly 
+to assume that different operating system will behave in the same way. If you want to know more, I recommend you 
+to read this post
+<a href="https://britishgeologicalsurvey.github.io/science/python-forking-vs-spawn/">Python: Forking vs Spawm</a>.
+And it's also important to read the official documentation from python. It can save you 
+a lot of time. 
 
-<h4>Python 3.8 shared_memory and jupyter/vscode integration</h4>
+Take a look what the official python documentation says about the multiprocessing method
+
+<img src='https://user-images.githubusercontent.com/6979335/121958121-b0ebb780-cd39-11eb-862a-37244f7f635b.png'/>
+<small>Source: <a href='https://docs.python.org/3/library/multiprocessing.html'>https://docs.python.org/3/library/multiprocessing.html</a>
