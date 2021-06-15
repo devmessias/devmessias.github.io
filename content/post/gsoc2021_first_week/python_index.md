@@ -132,7 +132,7 @@ arr_uint8_repr[:] = new_data_uint8
   </a> and test the streaming examples 
   to see how this little modification improves the performance.
   </p>
-<h3>The issues with with different Operating Systems</h3>
+<h3>Multiprocessing inside of different Operating Systems</h3>
 <p>
 Serge Koudoro, which is one of my mentors, have pointed an issue of the streaming system running in MacOs.
 I don't know many things about MacOs, and as pointed by Filipi the way that MacOs deals with multiprocessing 
@@ -147,3 +147,11 @@ Take a look what the official python documentation says about the multiprocessin
 </p>
 <img src="https://user-images.githubusercontent.com/6979335/121958121-b0ebb780-cd39-11eb-862a-37244f7f635b.png">
 <small>Source: <a href="https://docs.python.org/3/library/multiprocessing.html">https://docs.python.org/3/library/multiprocessing.html</a></small>
+
+<h3> Shared Memory: fast and problematic</h3>
+
+<pre>
+<code>
+ls -l /dev/shm 
+</code>
+</pre>
