@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>software-livre | Bruno Messias</title>
+    <link>/en/tag/software-livre/</link>
+      <atom:link href="/en/tag/software-livre/index.xml" rel="self" type="application/rss+xml" />
+    <description>software-livre</description>
+    <generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><lastBuildDate>Mon, 15 Aug 2016 11:29:40 -0300</lastBuildDate>
+    <image>
+      <url>/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_3.png</url>
+      <title>software-livre</title>
+      <link>/en/tag/software-livre/</link>
+    </image>
+    
+    <item>
+      <title>Python Triângulo</title>
+      <link>/en/project/python_triangulo/</link>
+      <pubDate>Mon, 15 Aug 2016 11:29:40 -0300</pubDate>
+      <guid>/en/project/python_triangulo/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>

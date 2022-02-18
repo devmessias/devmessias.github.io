@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>B. {Messias de Resende} | Bruno Messias</title>
+    <link>/en/author/b.-messias-de-resende/</link>
+      <atom:link href="/en/author/b.-messias-de-resende/index.xml" rel="self" type="application/rss+xml" />
+    <description>B. {Messias de Resende}</description>
+    <generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><lastBuildDate>Sun, 01 Jan 2017 00:00:00 +0000</lastBuildDate>
+    <image>
+      <url>/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_3.png</url>
+      <title>B. {Messias de Resende}</title>
+      <link>/en/author/b.-messias-de-resende/</link>
+    </image>
+    
+    <item>
+      <title>Confinement and fermion doubling problem in Dirac-like Hamiltonians</title>
+      <link>/en/publication/2017-01-01_prb_2017/</link>
+      <pubDate>Sun, 01 Jan 2017 00:00:00 +0000</pubDate>
+      <guid>/en/publication/2017-01-01_prb_2017/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>

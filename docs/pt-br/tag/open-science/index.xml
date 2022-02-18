@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>open-science | Bruno Messias</title><link>/pt-br/tag/open-science/</link><atom:link href="/pt-br/tag/open-science/index.xml" rel="self" type="application/rss+xml"/><description>open-science</description><generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>pt-br</language><lastBuildDate>Mon, 18 Jul 2016 14:25:44 +0000</lastBuildDate><image><url>/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_3.png</url><title>open-science</title><link>/pt-br/tag/open-science/</link></image><item><title>Projeto Capes - 5K cientistas utilizando</title><link>/pt-br/project/capes/</link><pubDate>Mon, 18 Jul 2016 14:25:44 +0000</pubDate><guid>/pt-br/project/capes/</guid><description>&lt;hr>
+&lt;p>O novo sistema de periódicos da Capes (assim como o CAFe) reduz drasticamente a agilidade de busca e acesso a referências bibliográficas, pois é necessário que os usuários acessem o portal de buscas da Capes. O que acaba inutilizando o acesso a publicações via links diretos, links internos dos arquivos PDF e sistemas como o DOI.&lt;/p>
+&lt;p>Por isso o Prof.
+&lt;a href="http://www.infis.ufu.br/gerson" target="_blank" rel="noopener">Gerson Ferreira&lt;/a> e esse que vos fala desenvolveram uma ferramenta que facilita a vida de nos, já aterefados cientistas. A extensão está disponível tanto para firefox quanto para chrome&lt;/p>
+&lt;p>
+&lt;a href="https://chrome.google.com/webstore/detail/redirecionamento-capes-pe/lpfcdddcpijdfghkimmcpkmidafnljbo" target="_blank" rel="noopener">Link para Chrome&lt;/a>&lt;/p>
+&lt;p>
+&lt;a href="https://addons.mozilla.org/pt-BR/firefox/addon/redir-capes-periodicos/" target="_blank" rel="noopener">Link para Firefox&lt;/a>&lt;/p>
+&lt;p>Estamos recebendo um excelente feedback da comunidade ciêntifica, com um total de mais de 5 mil usuários(firefox &amp;amp; chrome)&lt;/p>
+&lt;blockquote>
+&lt;p>Como não fazemos a parte do time de TI da CAPES não possuímos a lista oficial, e ainda não obtivemos resposta do time de TI da CAPES&lt;/p>
+&lt;/blockquote>
+&lt;!--O Primeiro passo foi obter uma lista com os domínios cadastrados no portal periódicos da CAPES. -->
+&lt;!--Criando um pequeno script python conseguimos realizar uma mineração desses domínios, o que nos permitiu pré-cadastar uma lista de domínios-->
+&lt;ul>
+&lt;li>&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="/img/periodicos/domainCapes.png" alt="alt text" title="Logo Title Text 1">&lt;/p>
+&lt;p>&lt;img src="/img/periodicos/subOpcoes.png" alt="alt text" title="Logo Title Text 1">&lt;/p></description></item></channel></rss>

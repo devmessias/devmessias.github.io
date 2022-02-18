@@ -1,0 +1,7 @@
+.vscode
+# IDEs
+.idea/
+
+# Hugo
+resources/
+#public/

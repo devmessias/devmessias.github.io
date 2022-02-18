@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>data science | Bruno Messias</title><link>/pt-br/tag/data-science/</link><atom:link href="/pt-br/tag/data-science/index.xml" rel="self" type="application/rss+xml"/><description>data science</description><generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>pt-br</language><lastBuildDate>Mon, 13 Sep 2021 17:43:22 +0000</lastBuildDate><image><url>/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_3.png</url><title>data science</title><link>/pt-br/tag/data-science/</link></image><item><title>Helios: graph layout viz and streaming</title><link>/pt-br/project/helios/</link><pubDate>Mon, 13 Sep 2021 17:43:22 +0000</pubDate><guid>/pt-br/project/helios/</guid><description>&lt;a href="https://github.com/fury-gl/helios">
+Helios repo
+&lt;/a>
+&lt;p>Helios is a Python library aiming to provide an easy way to visualize huge networks dynamically. Helios also provides visualizations through an interactive Stadia-like streaming system in which users can be collaboratively access (and share) visualizations created in a server or through Jupyter Notebook/Lab environments. It incorporates state-of-the-art layout algorithms and optimized rendering techniques (powered by
+&lt;a href="https://github.com/fury-gl/" target="_blank" rel="noopener">FURY&lt;/a>).&lt;/p>
+&lt;p>&lt;img src="https://user-images.githubusercontent.com/6979335/125310065-a3a9f480-e308-11eb-98d9-0ff5406a0e96.gif" alt="">&lt;/p>
+&lt;center>&lt;img src="https://user-images.githubusercontent.com/6979335/126175583-c7d85f0a-3d0c-400e-bbdd-4cbcd2a36fed.gif" alt="..." height="300"/>&lt;/center>
+&lt;p align="center">
+&lt;a href="#general-information">General Information&lt;/a> •
+&lt;a href="#key-features">Key Features&lt;/a> •
+&lt;a href="#installation">Installation&lt;/a> •
+&lt;a href="#how-to-use">Usage&lt;/a> •
+&lt;a href="#history">History&lt;/a> •
+&lt;a href="#credits">Credits&lt;/a>
+&lt;/p>
+&lt;h1 id="general-information">General Information&lt;/h1>
+&lt;ul>
+&lt;li>&lt;strong>Website and Documentation:&lt;/strong>
+&lt;a href="https://heliosnetwork.io/" target="_blank" rel="noopener">https://heliosnetwork.io/&lt;/a>&lt;/li>
+&lt;li>&lt;strong>Examples:&lt;/strong>
+&lt;a href="https://heliosnetwork.io/examples_gallery/index.html" target="_blank" rel="noopener">https://heliosnetwork.io/examples_gallery/index.html&lt;/a>&lt;/li>
+&lt;li>&lt;strong>Blog:&lt;/strong>
+&lt;a href="https://heliosnetwork.io/blog.html" target="_blank" rel="noopener">https://heliosnetwork.io/blog.html&lt;/a>&lt;/li>
+&lt;li>&lt;strong>Free software:&lt;/strong> MIT license&lt;/li>
+&lt;li>&lt;strong>Community:&lt;/strong> Come to chat on
+&lt;a href="https://discord.gg/6btFPPj" target="_blank" rel="noopener">Discord&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h1 id="key-features">Key Features&lt;/h1>
+&lt;ul>
+&lt;li>Force-directed layout using octrees&lt;/li>
+&lt;li>Minimum-distortion embeddings&lt;/li>
+&lt;li>ForceAtlas2 using cugraph&lt;/li>
+&lt;li>Interactive local and Remote rendering in Jupyter Notebooks&lt;/li>
+&lt;li>WebRTC or MJPEG interactive streaming system&lt;/li>
+&lt;/ul>
+&lt;h1 id="installation">Installation&lt;/h1>
+&lt;p>Use pip install pointed to this repository:&lt;/p>
+&lt;pre>&lt;code>pip git+https://github.com/fury-gl/helios.git
+&lt;/code>&lt;/pre>
+&lt;p>As an alternative, Helios can be installed from the source code through the following steps:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>&lt;strong>Step 1.&lt;/strong> Get the latest source by cloning this repo:&lt;/p>
+&lt;pre>&lt;code>git clone https://github.com/fury-gl/helios.git
+&lt;/code>&lt;/pre>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>Step 2.&lt;/strong> Install requirements:&lt;/p>
+&lt;pre>&lt;code>pip install -r requirements.txt
+&lt;/code>&lt;/pre>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>Step 3.&lt;/strong> Install Helios&lt;/p>
+&lt;p>As a
+&lt;a href="https://pip.pypa.io/en/stable/reference/pip_install/#id44" target="_blank" rel="noopener">local project installation&lt;/a> using:&lt;/p>
+&lt;pre>&lt;code> pip install .
+&lt;/code>&lt;/pre>
+&lt;p>Or as an
+&lt;a href="https://pip.pypa.io/en/stable/reference/pip_install/#id44" target="_blank" rel="noopener">&amp;ldquo;editable&amp;rdquo; installation&lt;/a> using:&lt;/p>
+&lt;pre>&lt;code> pip install -e .
+&lt;/code>&lt;/pre>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>Step 4:&lt;/strong> Enjoy!&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>For more information, see also
+&lt;a href="https://heliosnetwork.io/latest/installation.html" target="_blank" rel="noopener">installation page on heliosnetwork.io&lt;/a>&lt;/p>
+&lt;h2 id="dependencies">Dependencies&lt;/h2>
+&lt;p>Helios requires Python 3.7+ and the following mandatory dependencies:&lt;/p>
+&lt;ul>
+&lt;li>numpy &amp;gt;= 1.7.1&lt;/li>
+&lt;li>vtk &amp;gt;= 8.1.0&lt;/li>
+&lt;li>fury&lt;/li>
+&lt;/ul>
+&lt;p>To enable WebRTC streaming and enable optimizations to the streaming system, install the following optional packages:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>Required for WebRTC streaming&lt;/p>
+&lt;ul>
+&lt;li>aiohttp&lt;/li>
+&lt;li>aiortc&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>Optional packages that may improve performance&lt;/p>
+&lt;ul>
+&lt;li>cython&lt;/li>
+&lt;li>opencv&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="testing">Testing&lt;/h2>
+&lt;p>After installation, you can install test suite requirements:&lt;/p>
+&lt;pre>&lt;code>pip install -r requirements_dev.txt
+&lt;/code>&lt;/pre>
+&lt;p>And to launch test suite:&lt;/p>
+&lt;pre>&lt;code>pytest -svv helios
+&lt;/code>&lt;/pre>
+&lt;h1 id="usage">Usage&lt;/h1>
+&lt;p>There are many ways to start using Helios:&lt;/p>
+&lt;ul>
+&lt;li>Go to
+&lt;a href="https://heliosnetwork.io/getting_started.html" target="_blank" rel="noopener">Getting Started&lt;/a>&lt;/li>
+&lt;li>Explore our
+&lt;a href="https://heliosnetwork.io/examples_gallery/index.html" target="_blank" rel="noopener">Examples&lt;/a> or
+&lt;a href="https://heliosnetwork.io/latest/auto_examples/index.htmlhttps://heliosnetwork.io/api.html" target="_blank" rel="noopener">API&lt;/a>.&lt;/li>
+&lt;/ul>
+&lt;p>Example usage:&lt;/p>
+&lt;pre>&lt;code class="language-python"> from helios import NetworkDraw
+from helios.layouts import HeliosFr
+import numpy as np
+vertex_count = 8
+edges = np.array([
+[0,1],
+[0,2],
+[1,2],
+[2,3],
+[3,4],
+[3,5],
+[4,5],
+[5,6],
+[6,7],
+[7,0]
+]);
+centers = np.random.normal(size=(vertex_count, 3))
+network_draw = NetworkDraw(
+positions=centers,
+edges=edges,
+colors=(0.25,0.25,0.25),
+scales=1,
+node_edge_width=0,
+marker='s',
+edge_line_color=(0.5,0.5,0.5),
+window_size=(600, 600)
+)
+layout = HeliosFr(edges, network_draw)
+layout.start()
+network_draw.showm.initialize()
+network_draw.showm.start()
+&lt;/code>&lt;/pre>
+&lt;h1 id="history">History&lt;/h1>
+&lt;p>Helios project started as a replacement to the desktop version of the
+&lt;a href="https://filipinascimento.github.io/networks3d/" target="_blank" rel="noopener">Networks 3D&lt;/a> tools. The project evolved quickly along the summer of 2021 due to the GSoC’21 under the responsibility of the Python Software Foundation and the FURY team. The majority of the initial work has been done by
+&lt;a href="https://github.com/devmessias" target="_blank" rel="noopener">@devmessias&lt;/a> mentored by
+&lt;a href="https://github.com/filipinascimento" target="_blank" rel="noopener">@filipinascimento&lt;/a> and
+&lt;a href="https://github.com/skoudoro" target="_blank" rel="noopener">@skoudoro&lt;/a>. The GSoC’21 project associated with Helios is “A system for collaborative visualization of large network layouts using FURY”. Check out the
+&lt;a href="https://gist.github.com/devmessias/1cb802efb0a094686c129259498710b3" target="_blank" rel="noopener">final report&lt;/a> for more information.&lt;/p></description></item></channel></rss>

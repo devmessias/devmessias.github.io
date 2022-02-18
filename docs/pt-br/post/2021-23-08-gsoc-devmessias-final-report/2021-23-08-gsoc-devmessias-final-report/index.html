@@ -1,0 +1,570 @@
+<!doctype html><html lang=pt-br>
+<head>
+<meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<meta http-equiv=x-ua-compatible content="IE=edge">
+<meta name=generator content="Source Themes Academic 4.8.0">
+<meta name=author content="Bruno Messias">
+<meta name=description content="Detailed weekly tasks, progress and work done can be found here
+ Abstract We have changed some points of my project in the first meeting. Specifically, we focused the efforts into developing a streaming system using the WebRTC protocol that could be used in more generic scenarios than just the network visualization.">
+<link rel=alternate hreflang=en href=/post/2021-23-08-gsoc-devmessias-final-report/2021-23-08-gsoc-devmessias-final-report/>
+<link rel=alternate hreflang=pt-br href=/pt-br/post/2021-23-08-gsoc-devmessias-final-report/2021-23-08-gsoc-devmessias-final-report/>
+<meta name=theme-color content="#2962ff">
+<script src=/js/mathjax-config.js></script>
+<link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/academicons/1.8.6/css/academicons.min.css integrity="sha256-uFVgMKfistnJAfoCUQigIl+JfUaP47GrRKjf6CTPVmw=" crossorigin=anonymous>
+<link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.0-1/css/all.min.css integrity="sha256-4w9DunooKSr3MFXHXWyFER38WmPdm361bQS/2KUWZbU=" crossorigin=anonymous>
+<link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css integrity="sha256-Vzbj7sDDS/woiFS3uNKo8eIuni59rjyNGtXfstRzStA=" crossorigin=anonymous>
+<link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/github.min.css crossorigin=anonymous title=hl-light>
+<link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/dracula.min.css crossorigin=anonymous title=hl-dark disabled>
+<link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.5.1/leaflet.css integrity="sha256-SHMGCYmST46SoyGgo4YR/9AlK1vf3ff84Aq9yK4hdqM=" crossorigin=anonymous>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/lazysizes/5.1.2/lazysizes.min.js integrity="sha256-Md1qLToewPeKjfAHU1zyPwOutccPAm5tahnaw7Osw0A=" crossorigin=anonymous async></script>
+<script src=https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js integrity crossorigin=anonymous async></script>
+<link rel=stylesheet href="https://fonts.googleapis.com/css?family=Montserrat:400,700%7CRoboto:400,400italic,700%7CRoboto+Mono&display=swap">
+<link rel=stylesheet href=/css/academic.css>
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-178064356-1"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}function trackOutboundLink(a,b){gtag('event','click',{event_category:'outbound',event_label:a,transport_type:'beacon',event_callback:function(){b!=='_blank'&&(document.location=a)}}),console.debug("Outbound link clicked: "+a)}function onClickCallback(a){if(a.target.tagName!=='A'||a.target.host===window.location.host)return;trackOutboundLink(a.target,a.target.getAttribute('target'))}gtag('js',new Date),gtag('config','UA-178064356-1',{}),document.addEventListener('click',onClickCallback,!1)</script>
+<link rel=manifest href=/pt-br/index.webmanifest>
+<link rel=icon type=image/png href=/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_32x32_fill_lanczos_center_3.png>
+<link rel=apple-touch-icon type=image/png href=/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_192x192_fill_lanczos_center_3.png>
+<link rel=canonical href=/pt-br/post/2021-23-08-gsoc-devmessias-final-report/2021-23-08-gsoc-devmessias-final-report/>
+<meta property="twitter:card" content="summary">
+<meta property="twitter:site" content="@devmessias">
+<meta property="twitter:creator" content="@devmessias">
+<meta property="og:site_name" content="Bruno Messias">
+<meta property="og:url" content="/pt-br/post/2021-23-08-gsoc-devmessias-final-report/2021-23-08-gsoc-devmessias-final-report/">
+<meta property="og:title" content="GSoC-  Google Summer of Code 2021 Final Work Product | Bruno Messias">
+<meta property="og:description" content="Detailed weekly tasks, progress and work done can be found here
+ Abstract We have changed some points of my project in the first meeting. Specifically, we focused the efforts into developing a streaming system using the WebRTC protocol that could be used in more generic scenarios than just the network visualization."><meta property="og:image" content="/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_3.png"><meta property="og:locale" content="pt-br">
+<meta property="article:published_time" content="2021-08-23T00:00:00+00:00">
+<meta property="article:modified_time" content="2021-08-23T00:00:00+00:00">
+<script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"/pt-br/post/2021-23-08-gsoc-devmessias-final-report/2021-23-08-gsoc-devmessias-final-report/"},"headline":"GSoC-  Google Summer of Code 2021 Final Work Product","datePublished":"2021-08-23T00:00:00Z","dateModified":"2021-08-23T00:00:00Z","author":{"@type":"Person","name":"Bruno Messias"},"publisher":{"@type":"Organization","name":"Bruno Messias","logo":{"@type":"ImageObject","url":"/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_192x192_fill_lanczos_center_3.png"}},"description":"Detailed weekly tasks, progress and work done can be found here\n Abstract We have changed some points of my project in the first meeting. Specifically, we focused the efforts into developing a streaming system using the WebRTC protocol that could be used in more generic scenarios than just the network visualization."}</script>
+<title>GSoC- Google Summer of Code 2021 Final Work Product | Bruno Messias</title>
+</head>
+<body id=top data-spy=scroll data-offset=70 data-target=#TableOfContents>
+<aside class=search-results id=search>
+<div class=container>
+<section class=search-header>
+<div class="row no-gutters justify-content-between mb-3">
+<div class=col-6>
+<h1>Pesquisar</h1>
+</div>
+<div class="col-6 col-search-close">
+<a class=js-search href=#><i class="fas fa-times-circle text-muted" aria-hidden=true></i></a>
+</div>
+</div>
+<div id=search-box>
+<input name=q id=search-query placeholder=Pesquisar... autocapitalize=off autocomplete=off autocorrect=off spellcheck=false type=search>
+</div>
+</section>
+<section class=section-search-results>
+<div id=search-hits>
+</div>
+</section>
+</div>
+</aside>
+<nav class="navbar navbar-expand-lg navbar-light compensate-for-scrollbar" id=navbar-main>
+<div class=container>
+<div class="d-none d-lg-inline-flex">
+<a class=navbar-brand href=/pt-br>Bruno Messias</a>
+</div>
+<button type=button class=navbar-toggler data-toggle=collapse data-target=#navbar-content aria-controls=navbar aria-expanded=false aria-label="Alterar navegação">
+<span><i class="fas fa-bars"></i></span>
+</button>
+<div class="navbar-brand-mobile-wrapper d-inline-flex d-lg-none">
+<a class=navbar-brand href=/pt-br>Bruno Messias</a>
+</div>
+<div class="navbar-collapse main-menu-item collapse justify-content-start" id=navbar-content>
+<ul class="navbar-nav d-md-inline-flex">
+<li class=nav-item>
+<a class=nav-link href=/pt-br/#about><span>About</span></a>
+</li>
+<li class=nav-item>
+<a class=nav-link href=/pt-br/#posts><span>Posts</span></a>
+</li>
+<li class=nav-item>
+<a class=nav-link href=/pt-br/#projects><span>Projects</span></a>
+</li>
+<li class=nav-item>
+<a class=nav-link href=/pt-br/#featured><span>Publications</span></a>
+</li>
+</ul>
+</div>
+<ul class="nav-icons navbar-nav flex-row ml-auto d-flex pl-md-2">
+<li class=nav-item>
+<a class="nav-link js-search" href=# aria-label=Pesquisar><i class="fas fa-search" aria-hidden=true></i></a>
+</li>
+<li class="nav-item dropdown theme-dropdown">
+<a href=# class="nav-link js-theme-selector" data-toggle=dropdown aria-haspopup=true>
+<i class="fas fa-palette" aria-hidden=true></i>
+</a>
+<div class=dropdown-menu>
+<a href=# class="dropdown-item js-set-theme-light">
+<span>Light</span>
+</a>
+<a href=# class="dropdown-item js-set-theme-dark">
+<span>Dark</span>
+</a>
+<a href=# class="dropdown-item js-set-theme-auto">
+<span>Automatic</span>
+</a>
+</div>
+</li>
+<li class="nav-item dropdown i18n-dropdown">
+<a href=# class="nav-link dropdown-toggle" data-toggle=dropdown aria-haspopup=true>
+<i class="fas fa-globe mr-1" aria-hidden=true></i><span class="d-none d-lg-inline">Português (Brasil)</span>
+</a>
+<div class=dropdown-menu>
+<div class="dropdown-item dropdown-item-active">
+<span>Português (Brasil)</span>
+</div>
+<a class=dropdown-item href=/post/2021-23-08-gsoc-devmessias-final-report/2021-23-08-gsoc-devmessias-final-report/>
+<span>English</span>
+</a>
+</div>
+</li>
+</ul>
+</div>
+</nav>
+<article class=article>
+<div class="article-container pt-3">
+<h1>GSoC- Google Summer of Code 2021 Final Work Product</h1>
+<div class=article-metadata>
+<span class=article-date>
+Aug 23, 2021
+</span>
+<span class=middot-divider></span>
+<span class=article-reading-time>
+7 minutos de leitura
+</span>
+</div>
+</div>
+<div class=article-container>
+<div class=article-style>
+<blockquote>
+<p>Detailed weekly tasks, progress and work done can be found
+<a href=https://blogs.python-gsoc.org/en/demvessiass-blog/google-summer-of-code-final-work-product-3/ target=_blank rel=noopener>here</a></p>
+</blockquote>
+<h2 id=abstract>Abstract</h2>
+<p>We have changed some points of my project in the first meeting.
+Specifically, we focused the efforts into developing a streaming system
+using the WebRTC protocol that could be used in more generic scenarios
+than just the network visualization. In addition to that, we have opted
+to develop the network visualization for fury as a separated repository
+and package available
+<a href=https://github.com/fury-gl/helios target=_blank rel=noopener>here</a>. The
+name Helios was selected for this new network visualization system based
+on the Fury rendering pipeline.</p>
+<h2 id=proposed-objectives>Proposed Objectives</h2>
+<ul>
+<li>Create a streaming system (stadia-like) for FURY
+<ul>
+<li>Should work in a low-bandwidth scenario</li>
+<li>Should allow user interactions and collaboration across the
+Internet using a web-browser</li>
+</ul>
+</li>
+<li>Helios Network System objectives:
+<ul>
+<li>Implement the Force-Directed Algorithm with examples</li>
+<li>Implement the ForceAtlas2 algorithm using cugraph with examples</li>
+<li>Implement Minimum-Distortion Embeddings algorithm (PyMDE) and
+examples</li>
+<li>Non-blocking network algorithms computation avoiding the GIL
+using the Shared Memory approach</li>
+<li>Create the documentation and the actions for the CI</li>
+</ul>
+</li>
+<li>Stretch Goals:
+<ul>
+<li>Create an actor in FURY to draw text efficiently using shaders</li>
+<li>Add support to draw millions of nodes using FURY</li>
+<li>Add support to control the opengl state on FURY</li>
+</ul>
+</li>
+</ul>
+<h2 id=objectives-completed>Objectives Completed</h2>
+<ul>
+<li>
+<p><strong>Create a streaming system (stadia-like) for FURY</strong></p>
+<p>There are several reasons to have a streaming system for data
+visualization. Because I am doing my Ph.D. in developing country, I
+always need to think of the less expensive solutions to use the
+computational resources available. For example, with the GPU&rsquo;s
+prices increasing, it is necessary to share the a single machine
+with GPU with other users at different locations.</p>
+<p>To construct the streaming system for my project we have opted to
+follow three main properties and behaviors:</p>
+<ol>
+<li>avoid blocking the code execution in the main thread (where the
+vtk/fury instance resides)</li>
+<li>work inside of a low bandwidth environment</li>
+<li>make it easy and cheap to share the rendering result. For
+example, using the free version of <code>ngrok</code></li>
+</ol>
+<p>To achieve the first property we need to circumvent the GIL and
+allow python code to execute in parallel. Using the threading module
+alone is not good enough to reach real parallelism as Python calls
+in the same process can not execute concurrently. In addition to
+that, to achieve better organization it is desirable to define the
+server system as an uncoupled module from the rendering pipeline.
+Therefore, I have chosen to employ the multiprocessing approach for
+that. The second and third property can be only achieved choosing a
+suitable protocol for transfering the rendered results to the
+client. We have opted to implement two streaming protocols: the
+MJPEG and the WebRTC. The latter is more suitable for low-bandwidth
+scenarios [1].</p>
+<p>The image below shows a simple representation of the streaming
+system.</p>
+<pre><code class="language-{=html}">&lt;center&gt;
+</code></pre>
+<pre><code class="language-{=html}">&lt;/center&gt;
+</code></pre>
+<p>The video below shows how our streaming system works smothly and can
+be easily integrated inside of a Jupyter notebook.</p>
+</li>
+</ul>
+<p>
+<a href=https://user-images.githubusercontent.com/6979335/130284952-2ffbf117-7119-4048-b7aa-428e0162fb7a.mp4 target=_blank rel=noopener>Video: WebRTC Streaming +
+Ngrok</a></p>
+<p>
+<a href=https://user-images.githubusercontent.com/6979335/130284261-20e84622-427e-4a59-a46f-6a33f5473025.mp4 target=_blank rel=noopener>Video: WebRTC Streaming +
+Jupyter</a></p>
+<p><em>Pull Requests:</em> *
+<a href=https://github.com/fury-gl/fury/pull/480 target=_blank rel=noopener>https://github.com/fury-gl/fury/pull/480</a></p>
+<ul>
+<li>
+<p><strong>2D and 3D marker actor</strong></p>
+<p>This feature gave FURY the ability to efficiently draw millions of
+markers and impostor 3D spheres. This feature was essential for the
+development of Helios. This feature work with signed distance fields
+(SDFs) you can get more information about how SDFs works here [4]
+.</p>
+<p>The image below shows 1 million of markers rendered using an Intel
+HD graphics 3000.</p>
+</li>
+</ul>
+<p><img src=https://user-images.githubusercontent.com/6979335/116004971-70927780-a5db-11eb-8363-8c0757574eb4.png alt=image1></p>
+<ul>
+<li>
+<p><strong>Fine-Tunning the OpenGl State</strong></p>
+<p>Sometimes users may need to have finer control on how OpenGL will
+render the actors. This can be useful when they need to create
+specialized visualization effects or to improve the performance.</p>
+<p>In this PR I have worked in a feature that allows FURY to control
+the OpenGL context created by VTK</p>
+<p><em>Pull Request:</em></p>
+<ul>
+<li>
+<a href=https://github.com/fury-gl/fury/pull/432 target=_blank rel=noopener>https://github.com/fury-gl/fury/pull/432</a></li>
+</ul>
+</li>
+<li>
+<p><strong>Helios Network Visualization Lib: Network Layout Algorithms</strong></p>
+<p><strong>Case 1:</strong> Suppose that you need to monitor a hashtag and build a
+social graph. You want to interact with the graph and at the same
+time get insights about the structure of the user interactions. To
+get those insights you can perform a node embedding using any kind
+of network layout algorithm, such as force-directed or minimum
+distortion embeddings.</p>
+<p><strong>Case 2:</strong> Suppose that you are modelling a network dynamic such as
+an epidemic spreading or a Kuramoto model. In some of those network
+dynamics a node can change the state and the edges related to the
+node must be deleted. For example, in an epidemic model a node can
+represent a person who died due to a disease. Consequently, the
+layout of the network must be recomputed to give better insights.</p>
+<p>In the described cases, if we want a better (UX) and at the same
+time a more practical and insightful application of Helios, the
+employed layout algorithms should not block any kind of computation
+in the main thread.</p>
+<p>In Helios we already have a lib written in C (with a python wrapper)
+which performs the force-directed layout algorithm using separated
+threads avoiding the GIL problem and consequently avoiding blocking
+the main thread. But what about the other open-source network layout
+libs available on the internet? Unfortunately, most of those libs
+have not been implemented like Helios force-directed methods and
+consequently, if we want to update the network layout the Python
+interpreter will block the computation and user interaction in your
+network visualization.</p>
+<p>My solution for having PyMDE and CuGraph-ForceAtlas not blocking the
+main thread was to break the network layout method into two
+different types of processes: A and B and communicate both process
+using the Shared Memory approach. You can more information about
+this PR through my following posts [2], [3].</p>
+</li>
+</ul>
+<p>The image below show an example that I made and is available at
+<a href=https://github.com/fury-gl/helios/blob/main/docs/examples/viz_mde.py target=_blank rel=noopener>https://github.com/fury-gl/helios/blob/main/docs/examples/viz_mde.py</a></p>
+<p><img src=https://user-images.githubusercontent.com/6979335/125310065-a3a9f480-e308-11eb-98d9-0ff5406a0e96.gif alt=image2>
+<em>Pull Requests:</em></p>
+<ul>
+<li><strong>MDE Layout:</strong>
+<a href=https://github.com/fury-gl/helios/pull/6 target=_blank rel=noopener>https://github.com/fury-gl/helios/pull/6</a></li>
+<li><strong>CuGraph ForceAtlas2</strong>
+<a href=https://github.com/fury-gl/helios/pull/13 target=_blank rel=noopener>https://github.com/fury-gl/helios/pull/13</a></li>
+<li><strong>Force-Directed and MDE improvements</strong>
+<a href=https://github.com/fury-gl/helios/pull/14 target=_blank rel=noopener>https://github.com/fury-gl/helios/pull/14</a></li>
+<li><strong>Helios Network Visualization Lib: Visual Aspects</strong></li>
+</ul>
+<p>I&rsquo;ve made several stuffs to give Helios a better visual aspects. One of
+them was to give a smooth real-time network layout animations. Because
+the layout computations happens into a different process that the
+process responsible to render the network was necessary to record the
+positions and communicate the state of layout between both process.</p>
+<p>The GIF below shows how the network layout through IPC behaved before
+these modification</p>
+<pre><code class="language-{=html}">&lt;center&gt;
+</code></pre>
+<pre><code class="language-{=html}">&lt;/center&gt;
+</code></pre>
+<p>below, you can see how after those modifications the visual aspect is
+better.</p>
+<pre><code class="language-{=html}">&lt;center&gt;
+</code></pre>
+<pre><code class="language-{=html}">&lt;/center&gt;
+</code></pre>
+<p><em>Pull Requests:</em></p>
+<ul>
+<li><strong>OpenGL SuperActors:</strong>
+<a href=https://github.com/fury-gl/helios/pull/1 target=_blank rel=noopener>https://github.com/fury-gl/helios/pull/1</a></li>
+<li><strong>Fixed the flickering effect</strong>
+<a href=https://github.com/fury-gl/helios/pull/10 target=_blank rel=noopener>https://github.com/fury-gl/helios/pull/10</a></li>
+<li><strong>Improvements in the network node visual aspects</strong>
+<a href=https://github.com/fury-gl/helios/pull/15 target=_blank rel=noopener>https://github.com/fury-gl/helios/pull/15</a></li>
+<li><strong>Smooth animations when using IPC layouts</strong>
+<a href=https://github.com/fury-gl/helios/pull/17 target=_blank rel=noopener>https://github.com/fury-gl/helios/pull/17</a></li>
+<li><strong>Helios Network Visualization Lib: CI and Documentation</strong></li>
+</ul>
+<p>Because Helios was an project that begins in my GSoC project It was
+necessary to create the documentation, hosting and more. Now we have a
+online documentation available at
+<a href=https://heliosnetwork.io/ target=_blank rel=noopener>https://heliosnetwork.io/</a> altough
+the documentation still need some improvements.</p>
+<p>Below is presented the Helios Logo which was developed by my mentor
+Filipi Nascimento.</p>
+<pre><code class="language-{=html}">&lt;center&gt;
+</code></pre>
+<pre><code class="language-{=html}">&lt;/center&gt;
+</code></pre>
+<p><em>Pull Requests:</em></p>
+<ul>
+<li>
+<p><strong>CI and pytests:</strong>
+<a href=https://github.com/fury-gl/helios/pull/5 target=_blank rel=noopener>https://github.com/fury-gl/helios/pull/5</a>,
+<a href=https://github.com/fury-gl/helios/pull/20 target=_blank rel=noopener>https://github.com/fury-gl/helios/pull/20</a></p>
+</li>
+<li>
+<p><strong>Helios Logo, Sphinx Gallery and API documentation</strong>
+<a href=https://github.com/fury-gl/helios/pull/18 target=_blank rel=noopener>https://github.com/fury-gl/helios/pull/18</a></p>
+</li>
+<li>
+<p><strong>Documentation improvements:</strong>
+<a href=https://github.com/fury-gl/helios/pull/8 target=_blank rel=noopener>https://github.com/fury-gl/helios/pull/8</a></p>
+</li>
+<li>
+<p><strong>Objectives in Progress</strong></p>
+</li>
+<li>
+<p><strong>Draw texts on FURY and Helios</strong></p>
+<p>This two PRs allows FURY and Helios to draw millions of characters
+in VTK windows instance with low computational resources
+consumptions. I still working on that, finishing the SDF font
+rendering which the theory behinds was developed here [5].</p>
+<p><em>Pull Requests:</em></p>
+<ul>
+<li>
+<p>
+<a href=https://github.com/fury-gl/helios/pull/24 target=_blank rel=noopener>https://github.com/fury-gl/helios/pull/24</a></p>
+</li>
+<li>
+<p>
+<a href=https://github.com/fury-gl/fury/pull/489 target=_blank rel=noopener>https://github.com/fury-gl/fury/pull/489</a></p>
+<pre><code class="language-{=html}">&lt;center&gt;
+</code></pre>
+<pre><code class="language-{=html}">&lt;/center&gt;
+</code></pre>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>GSoC weekly Blogs</strong></p>
+<p>Weekly blogs were added to the FURY Website.</p>
+<p><em>Pull Requests:</em></p>
+<ul>
+<li><strong>First Evaluation:</strong>
+<a href=https://github.com/fury-gl/fury/pull/476 target=_blank rel=noopener>https://github.com/fury-gl/fury/pull/476</a></li>
+<li><strong>Second Evaluation:</strong> TBD</li>
+</ul>
+</li>
+</ul>
+<h3 id=references>References</h3>
+<p>[1] ( Python GSoC - Post #1 - A Stadia-like system for data
+visualization - demvessias s Blog, n.d.;
+<a href=https://blogs.python-gsoc.org/en/demvessiass-blog/post-1-a-stadia-like-system-for-data-visualization/ target=_blank rel=noopener>https://blogs.python-gsoc.org/en/demvessiass-blog/post-1-a-stadia-like-system-for-data-visualization/</a></p>
+<p>[2] Python GSoC - Post #2: SOLID, monkey patching a python issue and
+network layouts through WebRTC - demvessias s Blog, n.d.;
+<a href=https://blogs.python-gsoc.org/en/demvessiass-blog/post-2-solid-monkey-patching-a-python-issue-and-network-layouts-through-webrtc/ target=_blank rel=noopener>https://blogs.python-gsoc.org/en/demvessiass-blog/post-2-solid-monkey-patching-a-python-issue-and-network-layouts-through-webrtc/</a></p>
+<p>[3] Python GSoC - Post #3: Network layout algorithms using IPC
+-demvessias s Blog,
+n.d.)
+<a href=https://blogs.python-gsoc.org/en/demvessiass-blog/post-3-network-layout-algorithms-using-ipc/ target=_blank rel=noopener>https://blogs.python-gsoc.org/en/demvessiass-blog/post-3-network-layout-algorithms-using-ipc/</a></p>
+<p>[4] Rougier, N.P., 2018. An open access book on Python, OpenGL and
+Scientific Visualization [WWW Document]. An open access book on
+Python, OpenGL and Scientific Visualization. URL
+<a href=https://github.com/rougier/python-opengl target=_blank rel=noopener>https://github.com/rougier/python-opengl</a> (accessed 8.21.21).</p>
+<p>[5] Green, C., 2007. Improved alpha-tested magnification for vector
+textures and special effects, in: ACM SIGGRAPH 2007 Courses on -SIGGRAPH
+&lsquo;07. Presented at the ACM SIGGRAPH 2007 courses, ACM Press, San Diego,
+California, p. 9.
+<a href=https://doi.org/10.1145/1281500.1281665 target=_blank rel=noopener>https://doi.org/10.1145/1281500.1281665</a></p>
+</div>
+<div class=article-tags>
+<a class="badge badge-light" href=/pt-br/tag/gsoc/>gsoc</a>
+<a class="badge badge-light" href=/pt-br/tag/python/>python</a>
+<a class="badge badge-light" href=/pt-br/tag/open-source/>open-source</a>
+<a class="badge badge-light" href=/pt-br/tag/data-viz/>data-viz</a>
+<a class="badge badge-light" href=/pt-br/tag/webrtc/>webrtc</a>
+</div>
+<div class=share-box aria-hidden=true>
+<ul class=share>
+<li>
+<a href="https://twitter.com/intent/tweet?url=/pt-br/post/2021-23-08-gsoc-devmessias-final-report/2021-23-08-gsoc-devmessias-final-report/&text=GSoC-%20%20Google%20Summer%20of%20Code%202021%20Final%20Work%20Product" target=_blank rel=noopener class=share-btn-twitter>
+<i class="fab fa-twitter"></i>
+</a>
+</li>
+<li>
+<a href="https://www.facebook.com/sharer.php?u=/pt-br/post/2021-23-08-gsoc-devmessias-final-report/2021-23-08-gsoc-devmessias-final-report/&t=GSoC-%20%20Google%20Summer%20of%20Code%202021%20Final%20Work%20Product" target=_blank rel=noopener class=share-btn-facebook>
+<i class="fab fa-facebook"></i>
+</a>
+</li>
+<li>
+<a href="mailto:?subject=GSoC-%20%20Google%20Summer%20of%20Code%202021%20Final%20Work%20Product&body=/pt-br/post/2021-23-08-gsoc-devmessias-final-report/2021-23-08-gsoc-devmessias-final-report/" target=_blank rel=noopener class=share-btn-email>
+<i class="fas fa-envelope"></i>
+</a>
+</li>
+<li>
+<a href="https://www.linkedin.com/shareArticle?url=/pt-br/post/2021-23-08-gsoc-devmessias-final-report/2021-23-08-gsoc-devmessias-final-report/&title=GSoC-%20%20Google%20Summer%20of%20Code%202021%20Final%20Work%20Product" target=_blank rel=noopener class=share-btn-linkedin>
+<i class="fab fa-linkedin-in"></i>
+</a>
+</li>
+<li>
+<a href="whatsapp://send?text=GSoC-%20%20Google%20Summer%20of%20Code%202021%20Final%20Work%20Product%20/pt-br/post/2021-23-08-gsoc-devmessias-final-report/2021-23-08-gsoc-devmessias-final-report/" target=_blank rel=noopener class=share-btn-whatsapp>
+<i class="fab fa-whatsapp"></i>
+</a>
+</li>
+<li>
+<a href="https://service.weibo.com/share/share.php?url=/pt-br/post/2021-23-08-gsoc-devmessias-final-report/2021-23-08-gsoc-devmessias-final-report/&title=GSoC-%20%20Google%20Summer%20of%20Code%202021%20Final%20Work%20Product" target=_blank rel=noopener class=share-btn-weibo>
+<i class="fab fa-weibo"></i>
+</a>
+</li>
+</ul>
+</div>
+<div class="media author-card content-widget-hr">
+<img class="avatar mr-3 avatar-circle" src=/pt-br/author/bruno-messias/avatar_huacf3e258466895f99c1cf2dac791c4d2_25846_270x270_fill_lanczos_center_3.png alt="Bruno Messias">
+<div class=media-body>
+<h5 class=card-title><a href=/>Bruno Messias</a></h5>
+<h6 class=card-subtitle>Ph.D Student /Software Developer</h6>
+<ul class=network-icon aria-hidden=true>
+<li>
+<a href=mailto:devmessias@gmail.com>
+<i class="fas fa-envelope"></i>
+</a>
+</li>
+<li>
+<a href=https://twitter.com/devmessias target=_blank rel=noopener>
+<i class="fab fa-twitter"></i>
+</a>
+</li>
+<li>
+<a href=https://github.com/devmessias target=_blank rel=noopener>
+<i class="fab fa-github"></i>
+</a>
+</li>
+<li>
+<a href=https://www.linkedin.com/in/bruno-messias-510553193/ target=_blank rel=noopener>
+<i class="fab fa-linkedin"></i>
+</a>
+</li>
+</ul>
+</div>
+</div>
+<div class="article-widget content-widget-hr">
+<h3>Relacionados</h3>
+<ul>
+<li><a href=/pt-br/post/2021-16-08-gsoc-devmessias-11/2021-16-08-gsoc-devmessias-11/>GSoC- SDF fonts and OpenGL</a></li>
+<li><a href=/pt-br/post/2021-07-12-gsoc-devmessias-6/2021-07-12-gsoc-devmessias-6/>GSoC- Network layout algorithms using IPC</a></li>
+<li><a href=/pt-br/post/2021-06-21-gsoc-devmessias-3/2021-06-21-gsoc-devmessias-3/>GSoC- Bugs!</a></li>
+<li><a href=/pt-br/post/2021-06-12-gsoc-devmessias-2/2021-06-12-gsoc-devmessias-2/>GSoC- A Stadia-like system for data visualization</a></li>
+<li><a href=/pt-br/project/helios/>Helios: graph layout viz and streaming</a></li>
+</ul>
+</div>
+</div>
+</article>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin=anonymous></script>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/4.1.4/imagesloaded.pkgd.min.js integrity="sha256-lqvxZrPLtfffUl2G/e7szqSvPBILGbwmsGE1MKlOi0Q=" crossorigin=anonymous></script>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/jquery.isotope/3.0.6/isotope.pkgd.min.js integrity="sha256-CBrpuqrMhXwcLLUd5tvQ4euBHCdh7wGlDfNz8vbu/iI=" crossorigin=anonymous></script>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js integrity="sha256-yt2kYMy0w8AbtF89WXb2P1rfjcP/HTHLT7097U8Y5b8=" crossorigin=anonymous></script>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/mermaid/8.4.8/mermaid.min.js integrity="sha256-lyWCDMnMeZiXRi7Zl54sZGKYmgQs4izcT7+tKc+KUBk=" crossorigin=anonymous title=mermaid></script>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/highlight.min.js integrity="sha256-eOgo0OtLL4cdq7RdwRUiGKLX9XsIJ7nGhWEKbohmVAQ=" crossorigin=anonymous></script>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/languages/r.min.js></script>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.5.1/leaflet.js integrity="sha256-EErZamuLefUnbMBQbsEqu1USa+btR2oIlCpBJbyD4/g=" crossorigin=anonymous></script>
+<script>const code_highlighting=!0</script>
+<script>const isSiteThemeDark=!1</script>
+<script>const search_config={indexURI:"/pt-br/index.json",minLength:1,threshold:.3},i18n={no_results:"Sem resultados",placeholder:"Pesquisar...",results:"Resultados encontrados"},content_type={post:"Posts",project:"Projetos",publication:"Publicações",talk:"Palestras",slides:"Slides"}</script>
+<script id=search-hit-fuse-template type=text/x-template>
+      <div class="search-hit" id="summary-{{key}}">
+      <div class="search-hit-content">
+        <div class="search-hit-name">
+          <a href="{{relpermalink}}">{{title}}</a>
+          <div class="article-metadata search-hit-type">{{type}}</div>
+          <p class="search-hit-description">{{snippet}}</p>
+        </div>
+      </div>
+      </div>
+    </script>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.2.1/fuse.min.js integrity="sha256-VzgmKYmhsGNNN4Ph1kMW+BjoYJM2jV5i4IlFoeZA9XI=" crossorigin=anonymous></script>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin=anonymous></script>
+<script src=/js/academic.min.4aaf2d64e50f8e54cf66dcc54147a22e.js></script>
+<div class=container>
+<footer class=site-footer>
+<p class=powered-by>
+</p>
+<p class=powered-by>
+Powered by the
+<a href=https://sourcethemes.com/academic/ target=_blank rel=noopener>Academic theme</a> for
+<a href=https://gohugo.io target=_blank rel=noopener>Hugo</a>.
+<span class=float-right aria-hidden=true>
+<a href=# class=back-to-top>
+<span class=button_icon>
+<i class="fas fa-chevron-up fa-2x"></i>
+</span>
+</a>
+</span>
+</p>
+</footer>
+</div>
+<div id=modal class="modal fade" role=dialog>
+<div class=modal-dialog>
+<div class=modal-content>
+<div class=modal-header>
+<h5 class=modal-title>Citação</h5>
+<button type=button class=close data-dismiss=modal aria-label=Close>
+<span aria-hidden=true>&#215;</span>
+</button>
+</div>
+<div class=modal-body>
+<pre><code class="tex hljs"></code></pre>
+</div>
+<div class=modal-footer>
+<a class="btn btn-outline-primary my-1 js-copy-cite" href=# target=_blank>
+<i class="fas fa-copy"></i> Copiar
+</a>
+<a class="btn btn-outline-primary my-1 js-download-cite" href=# target=_blank>
+<i class="fas fa-download"></i> Download
+</a>
+<div id=modal-error></div>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>
