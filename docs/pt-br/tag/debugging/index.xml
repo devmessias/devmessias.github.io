@@ -1,6 +1,9 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>debugging | Bruno Messias</title><link>/pt-br/tag/debugging/</link><atom:link href="/pt-br/tag/debugging/index.xml" rel="self" type="application/rss+xml"/><description>debugging</description><generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>pt-br</language><lastBuildDate>Fri, 04 Feb 2022 08:31:00 -0300</lastBuildDate><image><url>/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_3.png</url><title>debugging</title><link>/pt-br/tag/debugging/</link></image><item><title>Dissecando processos e erros no Linux com o lsof e strace: casos para DevOps/MlOps</title><link>/pt-br/post/investigando_processos_e_bugs_strace_lsof_no_linux/</link><pubDate>Fri, 04 Feb 2022 08:31:00 -0300</pubDate><guid>/pt-br/post/investigando_processos_e_bugs_strace_lsof_no_linux/</guid><description>&lt;details class="toc-inpage d-print-none " open>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>debugging | Bruno Messias</title><link>/pt-br/tag/debugging/</link><atom:link href="/pt-br/tag/debugging/index.xml" rel="self" type="application/rss+xml"/><description>debugging</description><generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>pt-br</language><copyright>Bruno Messias</copyright><lastBuildDate>Fri, 04 Feb 2022 08:31:00 -0300</lastBuildDate><image><url>/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_3.png</url><title>debugging</title><link>/pt-br/tag/debugging/</link></image><item><title>Dissecando processos e erros no Linux com o lsof e strace: casos para DevOps/MlOps</title><link>/pt-br/post/investigando_processos_e_bugs_strace_lsof_no_linux/</link><pubDate>Fri, 04 Feb 2022 08:31:00 -0300</pubDate><guid>/pt-br/post/investigando_processos_e_bugs_strace_lsof_no_linux/</guid><description>&lt;details
+class="toc-inpage d-print-none d-none d-sm-block d-md-none " open>
 &lt;summary class="font-weight-bold">Lista de Conteúdos&lt;/summary>
 &lt;nav id="TableOfContents">
+&lt;ul>
+&lt;li>&lt;a href="#conceitos">Conceitos&lt;/a>
 &lt;ul>
 &lt;li>&lt;a href="#everything-is-a-file-mantra-unix">“Everything is a file.” mantra UNIX&lt;/a>
 &lt;ul>
@@ -9,6 +12,8 @@
 &lt;/li>
 &lt;li>&lt;a href="#system-calls-e-strace">System Calls e strace&lt;/a>&lt;/li>
 &lt;/ul>
+&lt;/li>
+&lt;li>&lt;a href="#investigando-problemas">Investigando problemas&lt;/a>
 &lt;ul>
 &lt;li>&lt;a href="#identificando-problemas-de-conexão">Identificando problemas de conexão&lt;/a>
 &lt;ul>
@@ -33,6 +38,8 @@
 &lt;/ul>
 &lt;/li>
 &lt;li>&lt;a href="#agradecimentos--sugestões">Agradecimentos &amp;amp; Sugestões&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;/li>
 &lt;/ul>
 &lt;/nav>
 &lt;/details>

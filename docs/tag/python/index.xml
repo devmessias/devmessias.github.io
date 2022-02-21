@@ -1,6 +1,25 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>python | Bruno Messias</title><link>/tag/python/</link><atom:link href="/tag/python/index.xml" rel="self" type="application/rss+xml"/><description>python</description><generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>en</language><lastBuildDate>Fri, 04 Feb 2022 08:31:00 -0300</lastBuildDate><image><url>/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_3.png</url><title>python</title><link>/tag/python/</link></image><item><title>Dissecting processes and failures in Linux with lsof and strace: cases for MlOps and DevOps</title><link>/post/using_lsof_and_strace_to_investigate_process_and_failures/</link><pubDate>Fri, 04 Feb 2022 08:31:00 -0300</pubDate><guid>/post/using_lsof_and_strace_to_investigate_process_and_failures/</guid><description>&lt;details class="toc-inpage d-print-none " open>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>python | Bruno Messias</title><link>/tag/python/</link><atom:link href="/tag/python/index.xml" rel="self" type="application/rss+xml"/><description>python</description><generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>en</language><copyright>Bruno Messias</copyright><lastBuildDate>Fri, 04 Feb 2022 08:31:00 -0300</lastBuildDate><image><url>/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_3.png</url><title>python</title><link>/tag/python/</link></image><item><title>Dissecting processes and failures in Linux with lsof and strace: cases for MlOps and DevOps</title><link>/post/using_lsof_and_strace_to_investigate_process_and_failures/</link><pubDate>Fri, 04 Feb 2022 08:31:00 -0300</pubDate><guid>/post/using_lsof_and_strace_to_investigate_process_and_failures/</guid><description>&lt;p>In DevOps or MlOps discovering what a process is doing now can save your system from a catastrophe. But sometimes we are already in a failure. When those failures happen, the following questions appear:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>&lt;em>The process it’s hanging and I don’t know why!&lt;/em>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;em>What is the cause of the problem?&lt;/em>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;em>Is it a network issue?&lt;/em>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>…and so on and so forth.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>Being able to answer these questions faster and with a precise answer can save you or give you a promotion. I’ll show you some simple examples of how those questions can be answered.&lt;/p>
+&lt;details
+class="toc-inpage d-print-none d-none d-sm-block d-md-none " open>
 &lt;summary class="font-weight-bold">Table of Contents&lt;/summary>
 &lt;nav id="TableOfContents">
+&lt;ul>
+&lt;li>&lt;a href="#concepts">Concepts&lt;/a>
 &lt;ul>
 &lt;li>&lt;a href="#everything-is-a-file---the-unix-mantra">&lt;em>“Everything is a file.”&lt;/em> - The UNIX mantra.&lt;/a>
 &lt;ul>
@@ -9,6 +28,8 @@
 &lt;/li>
 &lt;li>&lt;a href="#system-calls-and-strace">System Calls and strace&lt;/a>&lt;/li>
 &lt;/ul>
+&lt;/li>
+&lt;li>&lt;a href="#a-deep-dive-into-failures">A deep dive into failures&lt;/a>
 &lt;ul>
 &lt;li>&lt;a href="#network-issues">Network issues&lt;/a>
 &lt;ul>
@@ -40,24 +61,10 @@
 &lt;/li>
 &lt;li>&lt;a href="#conclusion--suggestions">Conclusion &amp;amp; Suggestions&lt;/a>&lt;/li>
 &lt;/ul>
-&lt;/nav>
-&lt;/details>
-&lt;p>In DevOps or MlOps discovering what a process is doing now can save your system from a catastrophe. But sometimes we are already in a failure. When those failures happen, the following questions appear:&lt;/p>
-&lt;ul>
-&lt;li>
-&lt;p>&lt;em>The process it’s hanging and I don’t know why!&lt;/em>&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>&lt;em>What is the cause of the problem?&lt;/em>&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>&lt;em>Is it a network issue?&lt;/em>&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>…and so on and so forth.&lt;/p>
 &lt;/li>
 &lt;/ul>
-&lt;p>Being able to answer these questions faster and with a precise answer can save you or give you a promotion. I’ll show you some simple examples of how those questions can be answered.&lt;/p>
+&lt;/nav>
+&lt;/details>
 &lt;p>&lt;strong>Introduction&lt;/strong>&lt;/p>
 &lt;p>Linux is a very transparent operating system. Transparency means that is easy to dig in the system&amp;rsquo;s behavior to understand how it works. Also, Linux is easy to control even in the low-level behaviors. But how can this help to understand a process and consequently a failure?&lt;/p>
 &lt;p>The first step to understanding a process is to analyze the output. But sometimes the output doesn’t give us enough information to use. Here I’ll talk about how we can extract useful information using the &lt;code>strace&lt;/code> and &lt;code>lsof&lt;/code> commands. To use these commands it is good to know two concepts: the &lt;em>“Everything is a file ”&lt;/em> mantra and the &lt;strong>system call&lt;/strong> mechanism.&lt;/p>

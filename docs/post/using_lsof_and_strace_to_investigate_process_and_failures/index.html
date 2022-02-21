@@ -39,7 +39,7 @@
 <script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"/post/using_lsof_and_strace_to_investigate_process_and_failures/"},"headline":"Dissecting processes and failures in Linux with lsof and strace: cases for MlOps and DevOps","datePublished":"2022-02-04T08:31:00-03:00","dateModified":"2022-02-04T08:31:00-03:00","author":{"@type":"Person","name":"Bruno Messias"},"publisher":{"@type":"Organization","name":"Bruno Messias","logo":{"@type":"ImageObject","url":"/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_192x192_fill_lanczos_center_3.png"}},"description":"Aprenda a identificar problemas silenciosos que envolvam conexões e arquivos usando o strace e lsof. Recupere arquivos deletados e redirecione o output de um processo on-the-fly"}</script>
 <title>Dissecting processes and failures in Linux with lsof and strace: cases for MlOps and DevOps | Bruno Messias</title>
 </head>
-<body id=top data-spy=scroll data-offset=70 data-target=#TableOfContents>
+<body id=top class=page-wrapper data-spy=scroll data-offset=70 data-target=#TableOfContents>
 <aside class=search-results id=search>
 <div class=container>
 <section class=search-header>
@@ -61,6 +61,7 @@
 </section>
 </div>
 </aside>
+<div class=page-header>
 <nav class="navbar navbar-expand-lg navbar-light compensate-for-scrollbar" id=navbar-main>
 <div class=container>
 <div class="d-none d-lg-inline-flex">
@@ -78,13 +79,16 @@
 <a class=nav-link href=/#about><span>About</span></a>
 </li>
 <li class=nav-item>
-<a class=nav-link href=/#posts><span>Posts</span></a>
+<a class=nav-link href=/#posts><span>Recent Posts</span></a>
 </li>
 <li class=nav-item>
 <a class=nav-link href=/#projects><span>Projects</span></a>
 </li>
 <li class=nav-item>
 <a class=nav-link href=/#featured><span>Publications</span></a>
+</li>
+<li class=nav-item>
+<a class=nav-link href=/posts/><span>Posts</span></a>
 </li>
 </ul>
 </div>
@@ -124,21 +128,16 @@
 </ul>
 </div>
 </nav>
-<article class=article>
-<div class=article-header>
-<img src=/img/strace_lsof_twitter.png class=article-banner alt>
-<span class=article-header-caption>The strace logo is an ostrich.</span>
 </div>
-<div class="article-container pt-3">
-<h1>Dissecting processes and failures in Linux with lsof and strace: cases for MlOps and DevOps</h1>
-<p class=page-subtitle>Don&rsquo;t be afraid! In Linux we always can find an answer.</p>
+<div id=macaquinho123 class=page-body>
+<div class="container-fluid docs">
+<div class="row flex-xl-nowrap">
+<div class="col-12 col-md-10 offset-md-2">
+<h1 class=text-left>Dissecting processes and failures in Linux with lsof and strace: cases for MlOps and DevOps</h1>
+<p class="page-subtitle text-left">Don&rsquo;t be afraid! In Linux we always can find an answer.</p>
 <div class=article-metadata>
 <span class=article-date>
 Feb 4, 2022
-</span>
-<span class=middot-divider></span>
-<span class=article-reading-time>
-23 min read
 </span>
 <span class=middot-divider></span>
 <span class=article-categories>
@@ -147,11 +146,15 @@ Feb 4, 2022
 <div class="btn-links mb-3">
 </div>
 </div>
-<div class=article-container>
-<div class=article-style>
-<details class="toc-inpage d-print-none" open>
-<summary class=font-weight-bold>Table of Contents</summary>
+</div>
+<div class="row flex-xl-nowrap">
+<div class="d-none d-md-block col-md-3 docs-toc sidebar-toc">
+<ul class="nav toc-top">
+<li><a href=# id=back_to_top class=docs-toc-title>Contents</a></li>
+</ul>
 <nav id=TableOfContents>
+<ul>
+<li><a href=#concepts>Concepts</a>
 <ul>
 <li><a href=#everything-is-a-file---the-unix-mantra><em>“Everything is a file.”</em> - The UNIX mantra.</a>
 <ul>
@@ -160,6 +163,8 @@ Feb 4, 2022
 </li>
 <li><a href=#system-calls-and-strace>System Calls and strace</a></li>
 </ul>
+</li>
+<li><a href=#a-deep-dive-into-failures>A deep dive into failures</a>
 <ul>
 <li><a href=#network-issues>Network issues</a>
 <ul>
@@ -191,8 +196,18 @@ Feb 4, 2022
 </li>
 <li><a href=#conclusion--suggestions>Conclusion & Suggestions</a></li>
 </ul>
+</li>
+</ul>
 </nav>
-</details>
+</div>
+<main class="col-12 col-md-9 py-md-3 pl-md-5 docs-content" role=main>
+<article class=article>
+<div class=article-header>
+<img src=/img/strace_lsof_twitter.png class=article-banner alt>
+<span class=article-header-caption>The strace logo is an ostrich.</span>
+</div>
+<div class=article-container>
+<div class=article-style>
 <p>In DevOps or MlOps discovering what a process is doing now can save your system from a catastrophe. But sometimes we are already in a failure. When those failures happen, the following questions appear:</p>
 <ul>
 <li>
@@ -209,6 +224,56 @@ Feb 4, 2022
 </li>
 </ul>
 <p>Being able to answer these questions faster and with a precise answer can save you or give you a promotion. I’ll show you some simple examples of how those questions can be answered.</p>
+<details class="toc-inpage d-print-none d-none d-sm-block d-md-none" open>
+<summary class=font-weight-bold>Table of Contents</summary>
+<nav id=TableOfContents>
+<ul>
+<li><a href=#concepts>Concepts</a>
+<ul>
+<li><a href=#everything-is-a-file---the-unix-mantra><em>“Everything is a file.”</em> - The UNIX mantra.</a>
+<ul>
+<li><a href=#lsof>LSOF</a></li>
+</ul>
+</li>
+<li><a href=#system-calls-and-strace>System Calls and strace</a></li>
+</ul>
+</li>
+<li><a href=#a-deep-dive-into-failures>A deep dive into failures</a>
+<ul>
+<li><a href=#network-issues>Network issues</a>
+<ul>
+<li><a href=#is-my-server-alive>Is my server alive?</a></li>
+<li><a href=#is-my-process-stuck-waiting-for-someone-what-is-causing-the-process-hanging>Is my process stuck waiting for someone? What is causing the process hanging?</a></li>
+</ul>
+</li>
+<li><a href=#problems-with-regular-files>Problems with regular files</a>
+<ul>
+<li><a href=#which-processes-is-this-file-attached-to>Which processes is this file attached to?</a></li>
+<li><a href=#i-made-a-mistake-deleted-an-important-file-how-can-i-recover-it>I made a mistake! Deleted an important file! How can I recover it?</a></li>
+<li><a href=#silent-errors-associated-with-files-and-permissions>Silent errors associated with files and permissions</a></li>
+<li><a href=#is-this-process-using-a-cache-where-can-i-find-this-cache-which-configs-files-does-this-process-use>Is this process using a cache? Where can I find this cache? Which configs files does this process use?</a></li>
+</ul>
+</li>
+<li><a href=#dissecting-your-database-system>Dissecting your database system</a>
+<ul>
+<li><a href=#is-this-process--well-behaved-how-many-connections-does-it-have>Is this process well behaved? How many connections does it have?</a></li>
+<li><a href=#everything-is-working-proprely>Everything is working proprely?</a></li>
+</ul>
+</li>
+<li><a href=#extras-related-to-files-proc-and-strace>Extras related to files (<code>/proc/</code>) and <code>strace</code></a>
+<ul>
+<li><a href=#creating-a-sys-call-summary-what-does-my-program-do>Creating a SYS CALL summary: what does my program do?</a></li>
+<li><a href=#did-this-process-start-with-the-correct-environment-variables>Did this process start with the correct environment variables?</a></li>
+<li><a href=#i-forgot-to-redirect-the-outputs-what-can-i-do-now>I forgot to redirect the outputs! What can I do now?</a></li>
+<li><a href=#how-this-program-has-been-called-what-is-the-working-dir-of-the-process>How this program has been called? What is the working dir of the process?</a></li>
+</ul>
+</li>
+<li><a href=#conclusion--suggestions>Conclusion & Suggestions</a></li>
+</ul>
+</li>
+</ul>
+</nav>
+</details>
 <p><strong>Introduction</strong></p>
 <p>Linux is a very transparent operating system. Transparency means that is easy to dig in the system&rsquo;s behavior to understand how it works. Also, Linux is easy to control even in the low-level behaviors. But how can this help to understand a process and consequently a failure?</p>
 <p>The first step to understanding a process is to analyze the output. But sometimes the output doesn’t give us enough information to use. Here I’ll talk about how we can extract useful information using the <code>strace</code> and <code>lsof</code> commands. To use these commands it is good to know two concepts: the <em>“Everything is a file ”</em> mantra and the <strong>system call</strong> mechanism.</p>
@@ -753,6 +818,7 @@ if __name__ == '__main__':
 <a class="badge badge-light" href=/tag/databases/>databases</a>
 </div>
 <div class=share-box aria-hidden=true>
+<h5 class=text-center>Share this page if you like it</h5>
 <ul class=share>
 <li>
 <a href="https://twitter.com/intent/tweet?url=/post/using_lsof_and_strace_to_investigate_process_and_failures/&text=Dissecting%20processes%20and%20failures%20in%20Linux%20with%20lsof%20and%20strace:%20cases%20for%20MlOps%20and%20DevOps" target=_blank rel=noopener class=share-btn-twitter>
@@ -790,8 +856,8 @@ if __name__ == '__main__':
 <img class="avatar mr-3 avatar-circle" src=/author/bruno-messias/avatar_huacf3e258466895f99c1cf2dac791c4d2_25846_270x270_fill_lanczos_center_3.png alt="Bruno Messias">
 <div class=media-body>
 <h5 class=card-title><a href=/>Bruno Messias</a></h5>
-<h6 class=card-subtitle>Ph.D Student/Software Developer</h6>
-<p class=card-text></p>
+<h6 class=card-subtitle>Ph.D Candidate/Software Developer</h6>
+<p class=card-text>Free-software enthusiast, researcher, and software developer. Currently, working in the field of Graphs, Complex Systems and Machine Learning.</p>
 <ul class=network-icon aria-hidden=true>
 <li>
 <a href=mailto:devmessias@gmail.com>
@@ -828,6 +894,10 @@ if __name__ == '__main__':
 </div>
 </div>
 </article>
+</main>
+</div>
+</div>
+</div>
 <script src=https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin=anonymous></script>
 <script src=https://cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/4.1.4/imagesloaded.pkgd.min.js integrity="sha256-lqvxZrPLtfffUl2G/e7szqSvPBILGbwmsGE1MKlOi0Q=" crossorigin=anonymous></script>
 <script src=https://cdnjs.cloudflare.com/ajax/libs/jquery.isotope/3.0.6/isotope.pkgd.min.js integrity="sha256-CBrpuqrMhXwcLLUd5tvQ4euBHCdh7wGlDfNz8vbu/iI=" crossorigin=anonymous></script>
@@ -852,9 +922,16 @@ if __name__ == '__main__':
 <script src=https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.2.1/fuse.min.js integrity="sha256-VzgmKYmhsGNNN4Ph1kMW+BjoYJM2jV5i4IlFoeZA9XI=" crossorigin=anonymous></script>
 <script src=https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin=anonymous></script>
 <script src=/js/academic.min.4aaf2d64e50f8e54cf66dcc54147a22e.js></script>
+<div class=page-footer>
 <div class=container>
 <footer class=site-footer>
 <p class=powered-by>
+<a href=/privacy/>Privacy Policy</a>
+&#183;
+<a href=/terms/>Terms</a>
+</p>
+<p class=powered-by>
+Bruno Messias
 </p>
 <p class=powered-by>
 Powered by the
@@ -869,6 +946,7 @@ Powered by the
 </span>
 </p>
 </footer>
+</div>
 </div>
 <div id=modal class="modal fade" role=dialog>
 <div class=modal-dialog>

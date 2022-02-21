@@ -1,6 +1,9 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bruno Messias</title><link>/pt-br/</link><atom:link href="/pt-br/index.xml" rel="self" type="application/rss+xml"/><description>Bruno Messias</description><generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>pt-br</language><lastBuildDate>Fri, 04 Feb 2022 08:31:00 -0300</lastBuildDate><image><url>/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_3.png</url><title>Bruno Messias</title><link>/pt-br/</link></image><item><title>Dissecando processos e erros no Linux com o lsof e strace: casos para DevOps/MlOps</title><link>/pt-br/post/investigando_processos_e_bugs_strace_lsof_no_linux/</link><pubDate>Fri, 04 Feb 2022 08:31:00 -0300</pubDate><guid>/pt-br/post/investigando_processos_e_bugs_strace_lsof_no_linux/</guid><description>&lt;details class="toc-inpage d-print-none " open>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bruno Messias</title><link>/pt-br/</link><atom:link href="/pt-br/index.xml" rel="self" type="application/rss+xml"/><description>Bruno Messias</description><generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>pt-br</language><copyright>Bruno Messias</copyright><lastBuildDate>Fri, 04 Feb 2022 08:31:00 -0300</lastBuildDate><image><url>/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_3.png</url><title>Bruno Messias</title><link>/pt-br/</link></image><item><title>Dissecando processos e erros no Linux com o lsof e strace: casos para DevOps/MlOps</title><link>/pt-br/post/investigando_processos_e_bugs_strace_lsof_no_linux/</link><pubDate>Fri, 04 Feb 2022 08:31:00 -0300</pubDate><guid>/pt-br/post/investigando_processos_e_bugs_strace_lsof_no_linux/</guid><description>&lt;details
+class="toc-inpage d-print-none d-none d-sm-block d-md-none " open>
 &lt;summary class="font-weight-bold">Lista de Conteúdos&lt;/summary>
 &lt;nav id="TableOfContents">
+&lt;ul>
+&lt;li>&lt;a href="#conceitos">Conceitos&lt;/a>
 &lt;ul>
 &lt;li>&lt;a href="#everything-is-a-file-mantra-unix">“Everything is a file.” mantra UNIX&lt;/a>
 &lt;ul>
@@ -9,6 +12,8 @@
 &lt;/li>
 &lt;li>&lt;a href="#system-calls-e-strace">System Calls e strace&lt;/a>&lt;/li>
 &lt;/ul>
+&lt;/li>
+&lt;li>&lt;a href="#investigando-problemas">Investigando problemas&lt;/a>
 &lt;ul>
 &lt;li>&lt;a href="#identificando-problemas-de-conexão">Identificando problemas de conexão&lt;/a>
 &lt;ul>
@@ -33,6 +38,8 @@
 &lt;/ul>
 &lt;/li>
 &lt;li>&lt;a href="#agradecimentos--sugestões">Agradecimentos &amp;amp; Sugestões&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;/li>
 &lt;/ul>
 &lt;/nav>
 &lt;/details>
@@ -1845,7 +1852,7 @@ It can save you a lot of time. Take a look what the official python
 documentation says about the multiprocessing method&lt;/p>
 &lt;p>&lt;img src="https://user-images.githubusercontent.com/6979335/121958121-b0ebb780-cd39-11eb-862a-37244f7f635b.png" alt="image2">
 Source:
-&lt;a href="https://docs.python.org/3/library/multiprocessing.html" target="_blank" rel="noopener">https://docs.python.org/3/library/multiprocessing.html&lt;/a>&lt;/p></description></item><item><title>Characterization and comparison of large directed networks through the spectra of the magnetic Laplacian</title><link>/pt-br/publication/2020-01-01_chaos2019/</link><pubDate>Wed, 01 Jan 2020 00:00:00 +0000</pubDate><guid>/pt-br/publication/2020-01-01_chaos2019/</guid><description/></item><item><title>Onset of synchronization of Kuramoto oscillators in scale-free networks</title><link>/pt-br/publication/2019-01-01_pre_2019/</link><pubDate>Tue, 01 Jan 2019 00:00:00 +0000</pubDate><guid>/pt-br/publication/2019-01-01_pre_2019/</guid><description/></item><item><title>Bibcure</title><link>/pt-br/project/bibcure/</link><pubDate>Wed, 13 Sep 2017 17:43:22 +0000</pubDate><guid>/pt-br/project/bibcure/</guid><description>&lt;a href="https://github.com/bibcure/bibcure">
+&lt;a href="https://docs.python.org/3/library/multiprocessing.html" target="_blank" rel="noopener">https://docs.python.org/3/library/multiprocessing.html&lt;/a>&lt;/p></description></item><item><title>Characterization and comparison of large directed networks through the spectra of the magnetic Laplacian</title><link>/pt-br/publication/2020-01-01_chaos2019/</link><pubDate>Wed, 01 Jan 2020 00:00:00 +0000</pubDate><guid>/pt-br/publication/2020-01-01_chaos2019/</guid><description/></item><item><title>Onset of synchronization of Kuramoto oscillators in scale-free networks</title><link>/pt-br/publication/2019-01-01_pre_2019/</link><pubDate>Tue, 01 Jan 2019 00:00:00 +0000</pubDate><guid>/pt-br/publication/2019-01-01_pre_2019/</guid><description/></item><item><title>Privacy Policy</title><link>/pt-br/privacy/</link><pubDate>Thu, 28 Jun 2018 00:00:00 +0100</pubDate><guid>/pt-br/privacy/</guid><description>&lt;p>Add your privacy policy here and set &lt;code>draft: false&lt;/code> to publish it. Otherwise, delete this file if you don&amp;rsquo;t need it.&lt;/p></description></item><item><title>Terms</title><link>/pt-br/terms/</link><pubDate>Thu, 28 Jun 2018 00:00:00 +0100</pubDate><guid>/pt-br/terms/</guid><description>&lt;p>Add your terms here and set &lt;code>draft: false&lt;/code> to publish it. Otherwise, delete this file if you don&amp;rsquo;t need it.&lt;/p></description></item><item><title>Bibcure</title><link>/pt-br/project/bibcure/</link><pubDate>Wed, 13 Sep 2017 17:43:22 +0000</pubDate><guid>/pt-br/project/bibcure/</guid><description>&lt;a href="https://github.com/bibcure/bibcure">
 Bibcure helps in boring tasks by keeping your bibfile up to date and normalized...also allows you to easily download all papers inside your bibtex
 &lt;/a>
 &lt;p>&lt;img src="https://raw.githubusercontent.com/bibcure/logo/master/gifs/bibcure_op.gif" alt="">&lt;/p>

@@ -5,7 +5,7 @@
 <meta http-equiv=x-ua-compatible content="IE=edge">
 <meta name=generator content="Source Themes Academic 4.8.0">
 <meta name=author content="Bruno Messias">
-<meta name=description content="Ph.D Student/Software Developer">
+<meta name=description content="Ph.D Candidate/Software Developer">
 <link rel=alternate hreflang=pt-br href=/pt-br/>
 <link rel=alternate hreflang=en href=/>
 <meta name=theme-color content="#2962ff">
@@ -34,12 +34,12 @@
 <meta property="og:site_name" content="Bruno Messias">
 <meta property="og:url" content="/">
 <meta property="og:title" content="Bruno Messias">
-<meta property="og:description" content="Ph.D Student/Software Developer"><meta property="og:image" content="/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_3.png"><meta property="og:locale" content="en">
+<meta property="og:description" content="Ph.D Candidate/Software Developer"><meta property="og:image" content="/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_3.png"><meta property="og:locale" content="en">
 <meta property="og:updated_time" content="2022-02-04T08:31:00-03:00">
 <script type=application/ld+json>{"@context":"https://schema.org","@type":"WebSite","potentialAction":{"@type":"SearchAction","target":"/?q={search_term_string}","query-input":"required name=search_term_string"},"url":"/"}</script>
 <title>Bruno Messias</title>
 </head>
-<body id=top data-spy=scroll data-offset=70 data-target=#navbar-main>
+<body id=top class=page-wrapper data-spy=scroll data-offset=70 data-target=#navbar-main>
 <aside class=search-results id=search>
 <div class=container>
 <section class=search-header>
@@ -61,6 +61,7 @@
 </section>
 </div>
 </aside>
+<div class=page-header>
 <nav class="navbar navbar-expand-lg navbar-light compensate-for-scrollbar" id=navbar-main>
 <div class=container>
 <div class="d-none d-lg-inline-flex">
@@ -78,13 +79,16 @@
 <a class=nav-link href=/#about data-target=#about><span>About</span></a>
 </li>
 <li class=nav-item>
-<a class=nav-link href=/#posts data-target=#posts><span>Posts</span></a>
+<a class=nav-link href=/#posts data-target=#posts><span>Recent Posts</span></a>
 </li>
 <li class=nav-item>
 <a class=nav-link href=/#projects data-target=#projects><span>Projects</span></a>
 </li>
 <li class=nav-item>
 <a class=nav-link href=/#featured data-target=#featured><span>Publications</span></a>
+</li>
+<li class=nav-item>
+<a class=nav-link href=/posts/><span>Posts</span></a>
 </li>
 </ul>
 </div>
@@ -124,6 +128,7 @@
 </ul>
 </div>
 </nav>
+</div>
 <span class="js-widget-page d-none"></span>
 <section id=about class="home-section wg-about">
 <div class=container>
@@ -133,7 +138,7 @@
 <img class="avatar avatar-circle" src=/author/bruno-messias/avatar_huacf3e258466895f99c1cf2dac791c4d2_25846_270x270_fill_lanczos_center_3.png alt="Bruno Messias">
 <div class=portrait-title>
 <h2>Bruno Messias</h2>
-<h3>Ph.D Student/Software Developer</h3>
+<h3>Ph.D Candidate/Software Developer</h3>
 <h3>
 <span>University of São Paulo/Brazil</span>
 </h3>
@@ -164,10 +169,9 @@
 </div>
 <div class="col-12 col-lg-8">
 <h1>Who I am?</h1>
-<p>I’m passionate about how we can use computers and math to solve real and abstract problems. I have experience in the development of open-software projects, community management, and Research & Development. In particular, I worked on different projects involving software engineering, from industry 4.0 to social projects involving cooperatives of trash collectors. Today I’m pursuing my Ph.D. in the topics of graphs aiming to solve problems such as graph characterization and survey analysis.
-Also, I&rsquo;ve started my studies in Machine Learning Operations. You can see some of my working with MlOps
-<a href=https://github.com/Schots/mlops_project/ target=_blank rel=noopener>here</a> and
-<a href=https://devmessias.github.io/tag/machine-learning-operations/ target=_blank rel=noopener>here.</a></p>
+<p>I’m passionate about how we can use computers and math to solve real and abstract problems. I have experience in the development of open-software projects, community management, and Research & Development.</p>
+<p>Today I’m pursuing my Ph.D. in the topics of graphs aiming to solve problems such as graph characterization and survey analysis.
+Also, I&rsquo;ve started my studies in Machine Learning Operations.</p>
 <div class=row>
 <div class=col-md-5>
 <h3>Interests</h3>
@@ -219,10 +223,6 @@ Aprenda a identificar problemas silenciosos que envolvam conexões e arquivos us
 <div class=article-metadata>
 <span class=article-date>
 Feb 4, 2022
-</span>
-<span class=middot-divider></span>
-<span class=article-reading-time>
-23 min read
 </span>
 <span class=middot-divider></span>
 <span class=article-categories>
@@ -398,10 +398,6 @@ See all posts
 Feb 4, 2022
 </span>
 <span class=middot-divider></span>
-<span class=article-reading-time>
-23 min read
-</span>
-<span class=middot-divider></span>
 <span class=article-categories>
 <i class="fas fa-folder mr-1"></i><a href=/category/dissecting-linux/>Dissecting Linux</a></span>
 </div>
@@ -574,9 +570,16 @@ Quickly discover relevant content by <a href=/publication/>filtering publication
 <script src=https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin=anonymous></script>
 <script>window.netlifyIdentity&&window.netlifyIdentity.on("init",a=>{a||window.netlifyIdentity.on("login",()=>{document.location.href="/admin/"})})</script>
 <script src=/js/academic.min.4aaf2d64e50f8e54cf66dcc54147a22e.js></script>
+<div class=page-footer>
 <div class=container>
 <footer class=site-footer>
 <p class=powered-by>
+<a href=/privacy/>Privacy Policy</a>
+&#183;
+<a href=/terms/>Terms</a>
+</p>
+<p class=powered-by>
+Bruno Messias
 </p>
 <p class=powered-by>
 Powered by the
@@ -591,6 +594,7 @@ Powered by the
 </span>
 </p>
 </footer>
+</div>
 </div>
 <div id=modal class="modal fade" role=dialog>
 <div class=modal-dialog>
