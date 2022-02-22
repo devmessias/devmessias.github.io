@@ -690,7 +690,8 @@ graph LR;
     O processo de Dirichlet foi redescoberto  em 2009 com o nome de &lt;strong&gt;filtro de disparidade&lt;/strong&gt;. Embora os autores do filtro de disparidade não citem trabalhos prévios ou o próprio processo Dirichlet em si.
   &lt;/div&gt;
 &lt;/div&gt;
-&lt;p&gt;Certo, vamos tentar entender como usar esse processo para filtrar arestas. Começamos definindo  os pesos efetivos para &lt;strong&gt;cada vértice&lt;/strong&gt; e aresta.  Esse  peso efetivo para uma aresta entre os vértices &lt;strong&gt;A&lt;/strong&gt; e &lt;strong&gt;B&lt;/strong&gt; é dado pela seguinte expressão:
+&lt;p&gt;Certo, vamos tentar entender como usar esse processo para filtrar arestas.&lt;/p&gt;
+&lt;p&gt;Começamos definindo  os pesos efetivos para &lt;strong&gt;cada vértice&lt;/strong&gt; e aresta.  Esse  peso efetivo para uma aresta entre os vértices &lt;strong&gt;A&lt;/strong&gt; e &lt;strong&gt;B&lt;/strong&gt; é dado pela seguinte expressão:
 $$
 p_{AB} = \frac{Peso\ da\ aresta\ (A,B)}{Soma\ dos\ pesos\ de\ todas\ as\ arestas\ de\ A}
 $$
@@ -705,7 +706,7 @@ A---|2|C;
 A---|4|D;
 D---|1|C;
 &lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Vamos começar calculando o peso efetivo para todas as arestas relacionadas ao vértice &lt;strong&gt;A&lt;/strong&gt;.  É fácil  ver que&lt;/p&gt;
+&lt;p&gt;Calculando o peso efetivo para todas as arestas relacionadas ao vértice &lt;strong&gt;A&lt;/strong&gt;.  É fácil  ver que&lt;/p&gt;
 &lt;p&gt;$p_{AB} =1/7$, $p_{AC}=2/7$, e $p_{AD}=4/7$ e claro que $\sum_B p_{AB}=1$.&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&#34;language-mermaid&#34;&gt;graph LR;
 A---|1/7|B;
@@ -715,9 +716,9 @@ A---|4/7|D;
 D---C;
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Iremos decidir se removeremos alguma ou mais  arestas de &lt;strong&gt;A&lt;/strong&gt;.&lt;/p&gt;
-&lt;p&gt;Nossos pesos efetivos somam   1. A ideia do filtro é imaginar que os pesos efetivos são influências do vértice &lt;strong&gt;A&lt;/strong&gt; nos seus vizinhos. O modelo nulo parte da hipótese que os pesos efetivos são distribuídos de forma uniforme entres os vizinhos de &lt;strong&gt;A&lt;/strong&gt;.  Portanto, &lt;strong&gt;podemos modelar a distribuição de pesos nas três arestas de A  como um 
-&lt;a href=&#34;https://en.wikipedia.org/wiki/Dirichlet_process#The_stick-breaking_process&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;stick-breaking process&lt;/a&gt;&lt;/strong&gt;. Desta maneira, podemos escolher manter as arestas cujo os pesos efetivos tenham uma probabilidade maior de ter vindo desse processo. Em essência só estamos mantendo os pesos efetivos dispares do processo.&lt;/p&gt;
-&lt;p&gt;Ok, como fazer isso? Se estamos falando de mais prováveis obviamente precisamos de uma probabilidade, como os pesos efetivos podem ter qualquer valor entre 0 e 1 precisamos de uma densidade de probabilidade. O stick-breaking deve modelar um processo de quebra de um graveto em $k$ pedacinhos. No nosso caso, os $k$ pedacinhos são as $3$ arestas de &lt;strong&gt;A&lt;/strong&gt;. Então a densidade de probabilidade precisa  ter $k$ como parâmetro.&lt;/p&gt;
+&lt;p&gt;Nossos pesos efetivos somam   1. A ideia do filtro é imaginar que os pesos efetivos são influências do vértice &lt;strong&gt;A&lt;/strong&gt; nos seus vizinhos. O modelo  parte da hipótese que os pesos efetivos são distribuídos de forma uniforme entres os vizinhos de &lt;strong&gt;A&lt;/strong&gt;.  Portanto, &lt;strong&gt;podemos modelar a distribuição de pesos nas três arestas de A  como um 
+&lt;a href=&#34;https://en.wikipedia.org/wiki/Dirichlet_process#The_stick-breaking_process&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;stick-breaking process&lt;/a&gt;&lt;/strong&gt;. Desta maneira, podemos escolher remover as arestas cujo os pesos efetivos tenham uma probabilidade maior de ter vindo desse processo. Estamos mantendo os pesos efetivos dispares do processo!&lt;/p&gt;
+&lt;p&gt;Ok, como fazer isso? Como os pesos efetivos podem ter qualquer valor entre 0 e 1 precisamos de uma densidade de probabilidade. O stick-breaking deve modelar um processo de quebra de um graveto em $k$ pedacinhos. No nosso caso, os $k$ pedacinhos são as $3$ arestas de &lt;strong&gt;A&lt;/strong&gt;. Então a densidade de probabilidade precisa  ter $k$ como parâmetro.&lt;/p&gt;
 
 
 
@@ -749,7 +750,7 @@ D---C;
 
 &lt;/figure&gt;
 
-&lt;p&gt;Demonstrar a densidade de probabilidade desse processo de quebra é trabalhoso, mas a expressão final é bem simples. São funções decrescentes que caem mais rápido quanto maior  o $k$. O que faz sentido já que quando mais pedacinhos quebrarmos menos provável é achar um pedacinho quase do tamanho original do graveto!&lt;/p&gt;
+&lt;p&gt;Demonstrar a densidade de probabilidade desse processo de quebra é trabalhoso, mas a expressão final é bem simples. São funções decrescentes que caem mais rápido quanto maior  o $k$. O que faz sentido, já que quanto mais pedacinhos quebrarmos menos provável é achar um pedacinho com um tamanho próximo do original do graveto.&lt;/p&gt;
 &lt;p&gt;A filtragem via stick-breaking (disparidade) baseia-se então em remover somente as arestas cujo os pesos efetivos são mais prováveis (um p-teste)  dado um fator $\alpha$ , um número real entre 0 e 1. Isto é, a aresta AB é mantida se a inequação abaixo é verificada:
 $$
 (1-p_{AB})^{k_A-1} &amp;lt; \alpha
@@ -785,7 +786,7 @@ $$&lt;/p&gt;
 &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
-&lt;p&gt;OK, parece muito bom. Mas veja o seguinte,  ressaltei várias vezes &lt;strong&gt;A&lt;/strong&gt; no texto. Isso por que o filtro é definido por vértice. Bom, e o que acontece se olharmos a partir do vértice &lt;strong&gt;B&lt;/strong&gt;?&lt;/p&gt;
+&lt;p&gt;OK, parece muito bom. Mas veja o seguinte: ressaltei várias vezes &lt;strong&gt;A&lt;/strong&gt; no texto. Isto  por que o filtro é definido por vértice. Bom, e o que acontece se olharmos a partir do vértice &lt;strong&gt;B&lt;/strong&gt;?&lt;/p&gt;
 &lt;p&gt;Partindo de $B$ teremos $p_{BC}=1/2$ e $p_{BA}=1/2$!&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&#34;language-mermaid&#34;&gt;graph LR;
 A---|1/2|B;
@@ -794,7 +795,7 @@ A---C;
 A---D;
 D---C;
 &lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Então  $(1-p_{BA})^{k_b-1} = (1-1/2)^1 = 1/2$. Ok , então se escolhermos $\alpha$ igual 0.52 a tabela anterior diz para remover a aresta (A,B) enquanto  por &lt;strong&gt;B&lt;/strong&gt; o método nos diz que é para manter. Esse problema nos leva a certa ambiguidade em como decidir se vamos manter ou não as arestas. Você pode escolher manter se apenas um caso for verificado ou se os dois. &lt;strong&gt;Essa ambiguidade não aparece no caso de grafos direcionados!&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Então  $(1-p_{BA})^{k_b-1} = (1-1/2)^1 = 1/2$. Ok , então se escolhermos $\alpha$ igual 0.52 a tabela anterior (para &lt;strong&gt;A&lt;/strong&gt;) diz para remover a aresta (A,B) enquanto  por &lt;strong&gt;B&lt;/strong&gt; o método nos diz que é para manter. Isso causa uma  ambiguidade em como decidir se vamos manter ou não as arestas. Você pode escolher manter se os dois concordam ou manter se apenas um passar no teste.  &lt;strong&gt;Essa ambiguidade não aparece no caso de grafos direcionados!&lt;/strong&gt;&lt;/p&gt;
 &lt;h4 id=&#34;pontos-positivos-1&#34;&gt;Pontos positivos&lt;/h4&gt;
 &lt;ul&gt;
 &lt;li&gt;é estabelecido dentro de uma formalização matemática robusta&lt;/li&gt;
@@ -813,7 +814,6 @@ D---C;
 &lt;h2 id=&#34;extras&#34;&gt;Extras:&lt;/h2&gt;
 &lt;p&gt;O próximo exemplo é sobre&lt;/p&gt;
 &lt;h3 id=&#34;matrizes-e--espectro&#34;&gt;Matrizes e  espectro&lt;/h3&gt;
-&lt;p&gt;Sinto muito, mas o estudo de propriedades espectrais de um grafo é um tópico extremamente extenso.&lt;/p&gt;
 &lt;p&gt;Pegue o seguinte grafo&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&#34;language-mermaid&#34;&gt;graph LR;
   A---|1|B;
