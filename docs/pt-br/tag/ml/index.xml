@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>ml | Bruno Messias</title><link>/pt-br/tag/ml/</link><atom:link href="/pt-br/tag/ml/index.xml" rel="self" type="application/rss+xml"/><description>ml</description><generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>pt-br</language><copyright>Bruno Messias</copyright><lastBuildDate>Tue, 15 Feb 2022 00:00:00 +0000</lastBuildDate><image><url>/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_3.png</url><title>ml</title><link>/pt-br/tag/ml/</link></image><item><title>Conceitos e confusões em grafos e filtragem de arestas:</title><link>/pt-br/post/edge_graph_filtering/</link><pubDate>Tue, 15 Feb 2022 00:00:00 +0000</pubDate><guid>/pt-br/post/edge_graph_filtering/</guid><description>&lt;h2 id="introdução">Introdução&lt;/h2>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>ml | Bruno Messias</title><link>/pt-br/tag/ml/</link><atom:link href="/pt-br/tag/ml/index.xml" rel="self" type="application/rss+xml"/><description>ml</description><generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>pt-br</language><copyright>Bruno Messias</copyright><lastBuildDate>Tue, 15 Feb 2022 00:00:00 +0000</lastBuildDate><image><url>/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_3.png</url><title>ml</title><link>/pt-br/tag/ml/</link></image><item><title>Grafos e filgragem de arestas: conceitos e confusões. Parte I</title><link>/pt-br/post/edge_graph_filtering/</link><pubDate>Tue, 15 Feb 2022 00:00:00 +0000</pubDate><guid>/pt-br/post/edge_graph_filtering/</guid><description>&lt;h2 id="introdução">Introdução&lt;/h2>
 &lt;div class="alert alert-note">
 &lt;div>
 Esse post é bem informal e foi feito para o grupo de estudos de MlOps. O conteúdo pode mudar significativamente com o passar do tempo.
@@ -33,7 +33,7 @@ A[A R\$100,00]-->|R\$1|B;
 B[B R\$3,00]-->|R\$2|A;
 C[C R\$0]-->|R\$0,50|A;
 &lt;/div>
-&lt;p>Tais grafos de transações financeiras são usados, por exemplo, para detectar crimes de lavagem de dinheiro, formação de quadrilhas e fraudes quando o comportamento de um dado cliente é anómalo.&lt;/p>
+&lt;p>Tais grafos de transações financeiras são usados, por exemplo, para detectar crimes de lavagem de dinheiro, formação de quadrilhas e fraudes quando o comportamento de um dado cliente é anómalo. Os valores nas arestas são os &lt;strong>pesos&lt;/strong> do grafo.&lt;/p>
 &lt;h2 id="o-que-é-filtragem">O que é filtragem?&lt;/h2>
 &lt;p>Filtro tem origem na palavra feltro. O feltro era o material feito pirncipalmente de lã usado antigamente para separar um líquido de suas impurezas. Um filtro em análise de dados é a mesma coisa: uma ferramenta que separa um conjunto de dados de uma sujeira, ruído. Portanto, assim como para filtrar uma bebida temos que decidir antes algumas coisas:&lt;/p>
 &lt;ul>
@@ -73,11 +73,6 @@ Os princípios da &lt;em>Gestalt&lt;/em> são usados para desenvolver métodos d
 &lt;/figure>
 &lt;p>Na imagem acima é mostrado o resultado de um método baseado na &lt;em>Gestalt&lt;/em> para simplificar uma imagem. Em que um algoritmo exstrair um padrão de linhas de uma imagem. Em redes complexas temos o conceito de &lt;em>backbones&lt;/em> que são uma espécie de espinha dorsal, esqueleto, que representa as relações mais importantes entres os vértices (ficará mais claro na seção sobre
 &lt;a href="#backbone">backbones&lt;/a> . Nesse ponto não necessariamente estamos removendo relações assumindo que elas são um ruído da nossa médida, mas apenas queremos ressaltar esse backbone.&lt;/p>
-&lt;div class="alert alert-warning">
-&lt;div>
-Gestalt
-&lt;/div>
-&lt;/div>
 &lt;h3 id="reduzir-o-custo-computacional">Reduzir o custo computacional&lt;/h3>
 &lt;p>Embora a filtragem possa ser usada para remover uma contaminação em um dado e/ou facilitar termos &lt;em>insights&lt;/em> conseguimos também reduzir o custo computacional de algoritmos que atuam nesses dados. Um exemplo simples é mostrado no código abaixo:&lt;/p>
 &lt;pre>&lt;code class="language-python">import numpy as np
@@ -317,45 +312,9 @@ Tome cuidado ao interpretar um grafo usando apenas métodos de visualização co
 &lt;/div>
 &lt;hr/>
 &lt;p>O tema de comunidades merece alguns posts separados para cada caminho, pois é um assunto denso e com muitos métodos diferentes.&lt;/p>
-&lt;h3 id="matrizes-e--espectro">Matrizes e espectro&lt;/h3>
-&lt;p>Sinto muito, mas o estudo de propriedades espectrais de um grafo é um tópico extremamente extenso.&lt;/p>
-&lt;p>Pegue o seguinte grafo&lt;/p>
-&lt;pre>&lt;code class="language-mermaid">graph LR;
-A---|1|B;
-B---|1/2|C;
-C---|2|A;
-&lt;/code>&lt;/pre>
-&lt;p>Podemos associar com esse grafo uma matriz $3\times 3$ onde as entradas da matriz representam os valores associados às arestas. Essa matriz é conhecida como matriz de pesos,&lt;/p>
-&lt;p>$$
-W=\begin{pmatrix}
-- &amp;amp; A &amp;amp; B &amp;amp; C\\
-A &amp;amp; 0 &amp;amp; 1 &amp;amp; 2\\
-B &amp;amp; 1 &amp;amp; 0 &amp;amp; 1/2\\
-C &amp;amp; 2 &amp;amp; 1/2 &amp;amp; 0
-\end{pmatrix}
-$$&lt;/p>
-&lt;p>$$
-v=\begin{pmatrix}
-x\\
-y\\
-z
-\end{pmatrix}
-$$&lt;/p>
-&lt;pre>&lt;code class="language-mermaid">graph LR;
-A[y+2z]---|1|B;
-B[x+1/2z]---|0.5|C;
-C[2x+0.5y]---|2|A;
-&lt;/code>&lt;/pre>
-&lt;div class="alert alert-note">
-&lt;div>
-A matriz pesos de um grafo pode ser pensada como uma generalização para combinar valores numéricos.
-&lt;/div>
-&lt;/div>
-&lt;p>
-&lt;a href="/post/random_matrix_portfolio">Variações do teorema do limite central para matrizes aleatórias&lt;/a>&lt;/p>
 &lt;h2 id="filtros">Filtros&lt;/h2>
-&lt;h3 id="threshold">Threshold&lt;/h3>
-&lt;p>Esse com certeza é o método mais simples e mais rápido, embora o mais controverso. É aplicável somente se cada relação (aresta) possuir um número real associado. O método de threshold consiste em descartar qualquer aresta cuja o peso ultrapasse um dado valor.&lt;/p>
+&lt;h3 id="estrutural-threshold">Estrutural: threshold&lt;/h3>
+&lt;p>O método de threshold é um método estrutural, isto é, um método de filtragem que depende apenas dos pesos e das arestas. Com certeza, é o método mais simples e mais rápido, embora o mais controverso. É aplicável somente se cada relação (aresta) possuir um número real associado. O método de threshold consiste em descartar qualquer aresta cuja o peso ultrapasse um dado valor.&lt;/p>
 &lt;p>O método de threshold é muito utilizado em neurociência (com críticas) e para análise de dados em geral quando as arestas representam uma medida de correlação (Pearson) entre dois elementos. Como as medidas de correlações podem ser negativas é comum que o threshold seja aplicado no absoluto dos valores associados às arestas.&lt;/p>
 &lt;p>Tome o seguinte grafo como exemplo:&lt;/p>
 &lt;pre>&lt;code class="language-mermaid">graph LR;
@@ -385,35 +344,8 @@ B;
 Distribuição de probabilidade dos pesos das arestas em função do peso. Note que poucas arestas tem um peso relevante. Fonte: &lt;em>&lt;a href="https://arxiv.org/abs/0904.2389">Extracting the multiscale backbone of complex weighted networks&lt;/a>&lt;/em>
 &lt;/figcaption>
 &lt;/figure>
-&lt;p>Bom, o que acontece se você tentar passar um threshold no grafo que tem uma distribuição parecida com essa na imagem? Vai ser díficil. Qualquer valor um pouco maior criará um monte de componentes desconectadas. Além do que, como você justificaria seu valor de threshold ? Não da para falar um argumento dois desvios padrões a partir da média. Se fosse uma distribuição normal de pesos você poderia estar bem. Contudo, um problema ainda ficaria em aberto: como o threshold é local você poderia penalizar muito as arestas de uma comunidade e nada de outra.&lt;/p>
-&lt;h4 id="pontos-positivos">Pontos positivos&lt;/h4>
-&lt;ul>
-&lt;li>custo computacional baixo $O(n)$
-&lt;ul>
-&lt;li>apenas iterar e comparar os valores.&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;li>paralelizável&lt;/li>
-&lt;li>trivial de implementar&lt;/li>
-&lt;li>apenas um parâmetro&lt;/li>
-&lt;/ul>
-&lt;h4 id="pontos-negativos">Pontos negativos&lt;/h4>
-&lt;ul>
-&lt;li>tendência de produzir muitas componentes desconectadas,&lt;/li>
-&lt;li>parâmetro arbitrário,
-&lt;ul>
-&lt;li>cherry-picking.&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;li>A remoção de uma aresta só depende do valor atribuído a ela. Isto é, local.&lt;/li>
-&lt;/ul>
-&lt;h5 id="considerações-finais">Considerações finais&lt;/h5>
-&lt;p>macro categories: structural approaches (naive thresholding, Doubly
-Stochastic, High Salience Skeleton, convex network reduction), and&lt;/p>
-&lt;h3 id="backbone">Estatístico&lt;/h3>
-&lt;p>Anteriormente falei um pouco sobre os princípios da
-&lt;a href="#gestalt">Gestalt&lt;/a> e citei o que é chamado de &lt;strong>backbones&lt;/strong> em grafos/redes complexas. Quando usamos o método de threshold estamos fazendo uma operação local nas arestas descartando ou mantendo dependendo do seu valor. Em Gestalt estamos preocupados com padrões, com coisas não locais. Em grafos algumas vezes se faz necessário pensar assim também.&lt;/p>
-&lt;p>Para deixar isso mais claro veja o exemplo de grafo com pesos a seguir:&lt;/p>
+&lt;p>Bom, o que acontece se você tentar passar um threshold no grafo que tem uma distribuição parecida com essa na imagem? Vai ser díficil. Qualquer valor um pouco maior criará um monte de componentes desconectadas. Além do que, como você justificaria seu valor de threshold ? Não da para falar um argumento dois desvios padrões a partir da média. Se fosse uma distribuição normal de pesos você poderia estar bem.&lt;/p>
+&lt;p>O threshold tem outro problema, ele é local. Isto é, você poderia penalizar muito as arestas de uma comunidade e nada de outra. Para deixar isso mais claro veja o exemplo de grafo com pesos a seguir:&lt;/p>
 &lt;div class="mermaid mermaidContainer">
 graph LR;
 *---|0.4|1;
@@ -456,12 +388,79 @@ g---|...|?_1;
 f---|...|?_2;
 e---|...|?_3;
 &lt;/div>
-&lt;p>Produzi 3 componentes no nosso grafo. Outro ponto é que &lt;strong>o método de threshold é muito sensível a pequenas mudanças no valor que será feito a remoção das arestas, se tivéssemos escolhido 0.6 teríamos mais uma componente isolada formada por (1, 3). O método de threshold pode ser usado para extrair o backbone só que ele costuma falhar muitas das vezes.&lt;/strong>&lt;/p>
-&lt;p>Se fossemos aplicar um algoritmo de detecção de comunidades teríamos que fazer isso para cada componente. Em uma rede social isso pode ser problemático porque já estaremos analisando “bolhas” isoladas. Então como proceder?&lt;/p>
-&lt;p>A ideia é encontrar as arestas que são a &lt;strong>sustentação&lt;/strong> para o grafo. &lt;em>A espinha dorsal do grafo, backbone&lt;/em>. O filtro de disparidade funciona dessa maneira: primeiro ele associa com cada aresta um novo valor, $\alpha$, que leva em conta os pesos das arestas vizinhas, depois realizamos um threshold em cima desses novos valores, $\alpha$‘s. Como esses novos valores são definidos?
+&lt;p>Produzi ndo 3 componentes no nosso grafo se alterássemos ligeiramente o threshold produziriámos mais componentes ainda. Ele é muito sensível. Qual o problema disso? Se fossemos aplicar um algoritmo de detecção de comunidades teríamos que fazer isso para cada componente. Em uma rede social isso pode ser problemático porque já estaremos analisando “bolhas” isoladas. Então como proceder? Portanto, vocẽ pode até usar o threshold paraencontrar as arestas que são a &lt;strong>sustentação&lt;/strong> para o grafo. &lt;em>A espinha dorsal do grafo, backbone&lt;/em>. Contudo, ele costuma falhar.&lt;/p>
+&lt;h4 id="pontos-positivos">Pontos positivos&lt;/h4>
+&lt;ul>
+&lt;li>custo computacional baixo $O(n)$
+&lt;ul>
+&lt;li>apenas iterar e comparar os valores.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>paralelizável&lt;/li>
+&lt;li>trivial de implementar&lt;/li>
+&lt;li>apenas um parâmetro&lt;/li>
+&lt;/ul>
+&lt;h4 id="pontos-negativos">Pontos negativos&lt;/h4>
+&lt;ul>
+&lt;li>tendência de produzir muitas componentes desconectadas,&lt;/li>
+&lt;li>parâmetro arbitrário,
+&lt;ul>
+&lt;li>cherry-picking.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>A remoção de uma aresta só depende do valor atribuído a ela. Isto é, local.&lt;/li>
+&lt;/ul>
+&lt;h5 id="considerações-finais">Considerações finais&lt;/h5>
+&lt;p>Outros métodos estruturais como o &lt;em>high-salience network&lt;/em> tentam reduzir os problemas do threshold adicionando contribuições não locais. Isto é, uma aresta é mantida/removida dependendo também das outras arestas no grafo. Contudo, como o &lt;em>high-salience network&lt;/em> é um filtro definido pelos menores caminhos no grafo ele costuma ser adequado apenas para grafos que esse conceito de filtragem é útil, por exemplo grafos que modelam infraestrutura de transporte.&lt;/p>
+&lt;h3 id="backbone">Estatístico: disparidade&lt;/h3>
+&lt;p>Métodos estatísticos tem uma formulação mais generalistas quando comparados aos estruturais. Pois métodos estatísticos não dependem de algum conceito direto como caminhos mínimos usados pelo &lt;em>high-salience network&lt;/em> para redes de infraestrutura. Um exemplo famoso de método estatístico para filtragem de arestas é o filtro de disparidade.&lt;/p>
+&lt;p>O primeiro passo do filtro de disparidade é computar o peso efetivo para &lt;strong>cada vértice&lt;/strong> e aresta. Esse peso efetivo é dado pela seguinte expressão:
 $$
-p_{uv} = \frac{Peso\ da\ aresta\ (u,v)}{Soma\ dos\ pesos\ de\ todas\ as\ arestas\ de\ u}$$&lt;/p>
-&lt;p>$$= \frac{w_{uv}}{\sum\limits_v w_{uv}}$$&lt;/p>
+p_{uv} = \frac{Peso\ da\ aresta\ (u,v)}{Soma\ dos\ pesos\ de\ todas\ as\ arestas\ de\ u}
+$$
+$$
+p_{uv}= \frac{w_{uv}}{\sum\limits_v w_{uv}}
+$$&lt;/p>
+&lt;p>Vou mostrar um exemplo para deixar mais claro. Esse exemplo vai nos ajudar também a descobrir um problema com esse método no caso de grafos não direcionados.&lt;/p>
+&lt;p>Pegue o grafo a seguir com os pesos dados nas arestas&lt;/p>
+&lt;pre>&lt;code class="language-mermaid">graph LR;
+A---|1|B;
+B---|1|C;
+A---|2|C;
+A---|4|D;
+D---|1|C;
+&lt;/code>&lt;/pre>
+&lt;p>Vamos começar calculando o peso efetivo para todas as arestas relacionadas ao vertice $A$ que tem grau três, $k=3$. É fácil ver que&lt;/p>
+&lt;p>$p_{AB} =1/7$, $p_{AC}=2/7$, e $p_{AD}=4/7$ e claro que $\sum_B p_{AB}=1$.&lt;/p>
+&lt;pre>&lt;code class="language-mermaid">graph LR;
+A---|1/7|B;
+B---C;
+A---|2/7|C;
+A---|4/7|D;
+D---C;
+&lt;/code>&lt;/pre>
+&lt;p>Iremos decidir se removeremos alguma das arestas de $A$, isto é: (A, B)$, $(A, C)$ e $(A, D)$ .&lt;/p>
+&lt;p>\rho(\omega)d\omega =(k-1)(1-\omega)^{k-2}d\omega\&lt;/p>
+&lt;p>Agora partindo de $B$ teremos $p_{BC}=1/2$ e $p_{BA}=1/2$!&lt;/p>
+&lt;pre>&lt;code class="language-mermaid">graph LR;
+A---|1/2|B;
+B---|1/2|C;
+A---C;
+A---D;
+D---C;
+&lt;/code>&lt;/pre>
+&lt;p>Ok, qual o problema? Veja que $p_{BA}\neq p_{AB}$ , mas o nosso grafo original era não direcionado, isto é $w_{AB} = w_{BA}$? Sim, esse é o problema. O peso efetivo será usado para construir uma função que dirá se a aresta deve ou não ser removida. Mas aí ficamos com o problema, qual peso efetivo usar? Voltaremos depois nisso.&lt;/p>
+&lt;p>O filtro de disparidade é um filtro que se aplica nas arestas de cada vertíces&lt;/p>
+&lt;p>$$
+\rho(\omega)d(\omega)=\begin{cases}
+\rho(\omega)d\omega =(k-1)(1-\omega)^{k-2}d\omega\ se\ k&amp;gt;1\ 0\ se\ k = 1
+\end{cases}
+$$&lt;/p>
+&lt;p>A ideia geral do filtro de disparidade é bem simples: proponha um modelo aleatório que gere uma&lt;/p>
+&lt;p>O filtro de disparidade funciona dessa maneira: primeiro ele associa com cada aresta um novo valor, $\alpha$, que leva em conta os pesos das arestas vizinhas, depois realizamos um threshold em cima desses novos valores, $\alpha$‘s. Como esses novos valores são definidos?&lt;/p>
+&lt;p>$$
+\alpha_{uv} =(1-p_{uv})^{k-1} &amp;lt; \alpha
+$$&lt;/p>
 &lt;h4 id="pontos-positivos-1">Pontos positivos&lt;/h4>
 &lt;ul>
 &lt;li>é estabelecido dentro de uma formalização matemática robusta&lt;/li>
@@ -474,7 +473,47 @@ p_{uv} = \frac{Peso\ da\ aresta\ (u,v)}{Soma\ dos\ pesos\ de\ todas\ as\ arestas
 &lt;li>parâmetro $\alpha$ precisa ser escolhido, embora mais robusto do que apenas o parâmetro de threshold&lt;/li>
 &lt;/ul>
 &lt;h4 id="considerações-finais-1">Considerações finais&lt;/h4>
-&lt;h3 id="espectral-amostragem">Espectral (amostragem)&lt;/h3>
+&lt;p>O fitro disparidade possui uma problemática que você talvez já tenha notadao.
+$$\alpha_{uv} \neq \alpha_{vu}$$&lt;/p>
+&lt;p>Então no caso em que os grafos não são direcionados temos uma certa arbitrariedade que é decidir se iremos manter as arestas baseando na função $\alpha_{uv, u}$, $\alpha_{vu, u}$ ou em alguma comibação das duas. Em alguns casos isso não é problemático&lt;/p>
+&lt;h2 id="extras">Extras:&lt;/h2>
+&lt;h3 id="matrizes-e--espectro">Matrizes e espectro&lt;/h3>
+&lt;p>Sinto muito, mas o estudo de propriedades espectrais de um grafo é um tópico extremamente extenso.&lt;/p>
+&lt;p>Pegue o seguinte grafo&lt;/p>
+&lt;pre>&lt;code class="language-mermaid">graph LR;
+A---|1|B;
+B---|1/2|C;
+C---|2|A;
+&lt;/code>&lt;/pre>
+&lt;p>Podemos associar com esse grafo uma matriz $3\times 3$ onde as entradas da matriz representam os valores associados às arestas. Essa matriz é conhecida como matriz de pesos,&lt;/p>
+&lt;p>$$
+W=\begin{pmatrix}
+- &amp;amp; A &amp;amp; B &amp;amp; C\\
+A &amp;amp; 0 &amp;amp; 1 &amp;amp; 2\\
+B &amp;amp; 1 &amp;amp; 0 &amp;amp; 1/2\\
+C &amp;amp; 2 &amp;amp; 1/2 &amp;amp; 0
+\end{pmatrix}
+$$&lt;/p>
+&lt;p>$$
+v=\begin{pmatrix}
+x\\
+y\\
+z
+\end{pmatrix}
+$$&lt;/p>
+&lt;pre>&lt;code class="language-mermaid">graph LR;
+A[y+2z]---|1|B;
+B[x+1/2z]---|0.5|C;
+C[2x+0.5y]---|2|A;
+&lt;/code>&lt;/pre>
+&lt;div class="alert alert-note">
+&lt;div>
+A matriz pesos de um grafo pode ser pensada como uma generalização para combinar valores numéricos.
+&lt;/div>
+&lt;/div>
+&lt;p>
+&lt;a href="/post/random_matrix_portfolio">Variações do teorema do limite central para matrizes aleatórias&lt;/a>&lt;/p>
+&lt;h3 id="filtro-espectral-amostragem">Filtro Espectral (amostragem)&lt;/h3>
 &lt;p>$(1-\epsilon)v^TLv \le v^TLv \le (1+\epsilon)v^T Lv$&lt;/p>
 &lt;h4 id="pontos-positivos-2">Pontos positivos&lt;/h4>
 &lt;ul>
