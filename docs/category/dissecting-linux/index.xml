@@ -14,6 +14,14 @@
 &lt;/li>
 &lt;/ul>
 &lt;p>Being able to answer these questions faster and with a precise answer can save you or give you a promotion. I’ll show you some simple examples of how those questions can be answered.&lt;/p>
+&lt;figure id="figure-the-strace-logo-is-an-ostrich">
+&lt;a data-fancybox="" href="/post/using_lsof_and_strace_to_investigate_process_and_failures/strace_lsof_twitter_hu2200c415de466273118b8033622a09b4_503245_2000x2000_fit_lanczos_3.png" data-caption="The strace logo is an ostrich.">
+&lt;img data-src="/post/using_lsof_and_strace_to_investigate_process_and_failures/strace_lsof_twitter_hu2200c415de466273118b8033622a09b4_503245_2000x2000_fit_lanczos_3.png" class="lazyload" alt="" width="800" height="418">
+&lt;/a>
+&lt;figcaption>
+The strace logo is an ostrich.
+&lt;/figcaption>
+&lt;/figure>
 &lt;details
 class="toc-inpage d-print-none d-none d-sm-block d-md-none " open>
 &lt;summary class="font-weight-bold">Table of Contents&lt;/summary>

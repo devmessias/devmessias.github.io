@@ -1,492 +1,594 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Posts | Bruno Messias</title><link>/post/</link><atom:link href="/post/index.xml" rel="self" type="application/rss+xml"/><description>Posts</description><generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>en</language><copyright>Bruno Messias</copyright><lastBuildDate>Tue, 15 Feb 2022 00:00:00 +0000</lastBuildDate><image><url>/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_3.png</url><title>Posts</title><link>/post/</link></image><item><title>Removendo arestas em um grafo: estatístico, threshold e espectral. Parte I</title><link>/post/edge_graph_filtering/</link><pubDate>Tue, 15 Feb 2022 00:00:00 +0000</pubDate><guid>/post/edge_graph_filtering/</guid><description>&lt;div class="alert alert-note">
-&lt;div>
-Esse post é bem informal é foi feito para o grupo de estudos de MlOps. O conteúdo pode mudar significativamente com o passar do tempo.
-&lt;/div>
-&lt;/div>
-&lt;p>Quando olhamos uma imagem temos a tendência de procurar padrões o que reduz o esforço e tempo necessário para identificar do que se trata. Em análise de dados aplicamos filtros com a mesma motivação, seja para remover dados espúrios ou focar nossa análise em um conjunto específico.&lt;/p>
-&lt;p>Enquanto o processo de filtragem em um conjunto de pontos é apresentado em cursos acadêmicos e tutoriais na internet o mesmo não pode ser dito em relação a grafos. Portanto, criei esse post para discutir o conceito de filtragem e padrões em grafos e as diferentes maneiras de se obter tal filtragem. Tentei ser didático o suficiente para que uma pessoa fora da computação ou exatas (que esteja iniciando em dados) consiga comprender o texto. Sinta-se a vontade para pular qualquer seção do post :)&lt;/p>
-&lt;div class="alert alert-note">
-&lt;div>
-Grafos, redes e redes complexas são praticamente o mesmo conceito. Portanto, você pode encontrar termos como &lt;em>filtering edges on complex networks&lt;/em>.
-&lt;/div>
-&lt;/div>
-&lt;p>Os exemplos desse post usam python e as seguintes bibliotecas:&lt;/p>
-&lt;pre>&lt;code class="language-bash">$ python3 -m pip install numpy matplotlib networkx
-&lt;/code>&lt;/pre>
-&lt;h2 id="o-que-é-um-grafo">O que é um grafo?&lt;/h2>
-&lt;p>Um grafo é uma estrutura de dados que você constantemente está em contato. Alguns exemplos: sua rede de seguidores e seguidos no twitter, as transações financeiras associadas a sua chave PIX, as relações de repositório e contribuições no github, etc.&lt;/p>
-&lt;p>Um grafo armazena objetos que tem relações pares a pares entre si. Sendo que é possível associar a cada objeto ou relação um outro tipo de dado genérico tais como um número real, um vetor, imagem ou mesmo outro grafo.&lt;/p>
-&lt;p>A imagem abaixo representa um grafo dirigido formado por 4 vértices.&lt;/p>
-&lt;pre>&lt;code class="language-mermaid">graph TD;
-A--&amp;gt;B;
-B--&amp;gt;A;
-A--&amp;gt;C;
-B--&amp;gt;D;
-C--&amp;gt;D;
-&lt;/code>&lt;/pre>
-&lt;p>Vamos usar a letra $G$ para representar um grafo, $V$ para o conjunto de vértices (objetos) e $E$ para o conjunto de arestas (relações). Na imagem acima nosso grafo seria dado então pelo conjunto $V=\{A,B,C,D\}$ e $E=\{(A,B), (B,A), (A,C), (B,D), (C,D)\}$.&lt;/p>
-&lt;p>Como disse no início dessa seção é possível associar &lt;em>coisas&lt;/em> tanto as arestas quanto aos vértices. Por exemplo, o grafo abaixo poderia representar transações financeiras entre 3 pessoas e o valor que cada uma tem em sua conta corrente&lt;/p>
-&lt;div class="mermaid mermaidContainer">
-graph TD;
-A[A R\$100,00]-->|R\$1|B;
-B[B R\$3,00]-->|R\$2|A;
-C[C R\$0]-->|R\$0,50|A;
-&lt;/div>
-&lt;p>Tais grafos de transações financeiras são usados por exemplo para detectar crimes de lavagem de dinheiro, formação de quadrilhas e fraudes quando o comportamento de um dado cliente é anómalo.&lt;/p>
-&lt;h2 id="o-que-é-filtragem-por-que-filtrar-um-dado">O que é filtragem? Por que filtrar um dado?&lt;/h2>
-&lt;p>Filtro tem origem na palavra feltro. O feltro era o material feito de lã e algodão usado antigamente para separar um liquido de suas impurezas. Um filtro em análise de dados é a mesma coisa: uma ferramenta que separa um conjunto de dados de uma sujeira, ruído. Portanto, assim como para filtrar uma bebida temos que decidir antes algumas coisas:&lt;/p>
-&lt;ul>
-&lt;li>O que queremos que seja removido?&lt;/li>
-&lt;li>O quão eficiente é nosso fitro?&lt;/li>
-&lt;li>Qual é o resultado esperado?&lt;/li>
-&lt;/ul>
-&lt;h3 id="filtrar-para-remover-ruídos">Filtrar para remover ruídos&lt;/h3>
-&lt;p>Talvez a primeira coisa que vem a sua cabeça quando ouve a palavra filtro é Instagram. Alguns filtros de fotos feitos para embelezar nada mais são que um filtro para remoção de ruídos.&lt;/p>
-&lt;figure id="figure-imagem-original-e-imagem-com-contaminação-de-um-ruído">
-&lt;a data-fancybox="" href="/post/edge_graph_filtering/photo_noisy_hub8a9241becf562a36f81d7ad5959569c_1551080_2000x2000_fit_lanczos_3.png" data-caption="Imagem original e imagem com contaminação de um ruído.">
-&lt;img data-src="/post/edge_graph_filtering/photo_noisy_hub8a9241becf562a36f81d7ad5959569c_1551080_2000x2000_fit_lanczos_3.png" class="lazyload" alt="" width="1600" height="800">
-&lt;/a>
-&lt;figcaption>
-Imagem original e imagem com contaminação de um ruído.
-&lt;/figcaption>
-&lt;/figure>
-&lt;p>O que considerámos ruído depende das respostas das perguntas que levantei anteriormente. Um ruído em uma imagem pode ser uma contribuição espúria devido ao sensor de uma câmera ser ruim o que acaba alterando os valores de cores de cada pixel. Um ruído pode ser também algo intrísseco, por exemplo os poros e rugas na sua pele.&lt;/p>
-&lt;h3 id="gestalt">Filtrar para ressaltar características e os princípios de Gestalt &lt;/h3>
-&lt;p>Os princípios de &lt;em>Gestalt&lt;/em> é uma suposição de certas leis sobre como a mente humana processa imagens através do reconhecimento de padrões. Em resumo, tal princípio estabelece que a percepção não é baseada em elementos indivíduais mas em padrões em que os elementos são arranjados ou tem contrastes entre-si. &lt;strong>Você não compreende uma imagem analisando cada pixel individualmente, mas como os pixels se organizam e diferem entre-si!&lt;/strong>&lt;/p>
-&lt;figure id="figure-os-principios-da-gestalt-são-apresentados-nessa-figura-para-mais--informações-recomendo-esse-post-">
-&lt;a data-fancybox="" href="/post/edge_graph_filtering/gestalt_principles_hu63f5cabf0d008b5b0b2fbf74c03a67fd_175876_2000x2000_fit_q90_lanczos.jpg" data-caption="Os principios da &amp;lt;em&amp;gt;Gestalt&amp;lt;/em&amp;gt; são apresentados nessa figura. Para mais informações recomendo esse post [].">
-&lt;img data-src="/post/edge_graph_filtering/gestalt_principles_hu63f5cabf0d008b5b0b2fbf74c03a67fd_175876_2000x2000_fit_q90_lanczos.jpg" class="lazyload" alt="" width="1920" height="1080">
-&lt;/a>
-&lt;figcaption>
-Os principios da &lt;em>Gestalt&lt;/em> são apresentados nessa figura. Para mais informações recomendo esse post [].
-&lt;/figcaption>
-&lt;/figure>
-&lt;p>Como se relaciona com grafos? Um dos porquês para realizar a filtragem de um grafo consiste em remover relações (arestas) mesmo que não espúrias para ressaltar um dado padrão que queremos analisar. Comumente, esse padrão são estruturas de comunidades e agrupamentos geradas por métodos de visualização.&lt;/p>
-&lt;figure id="figure-os-princípios-da-gestalt-são-usados-para-desenvolver-métodos-de-processamento-de-imagens-imagem-retirada-de-">
-&lt;a data-fancybox="" href="/post/edge_graph_filtering/gestalt_cv_example_hucab709b1511f3355857a308628efbe49_158058_2000x2000_fit_lanczos_3.png" data-caption="Os princípios da &amp;lt;em&amp;gt;Gestalt&amp;lt;/em&amp;gt; são usados para desenvolver métodos de processamento de imagens. Imagem retirada de []">
-&lt;img data-src="/post/edge_graph_filtering/gestalt_cv_example_hucab709b1511f3355857a308628efbe49_158058_2000x2000_fit_lanczos_3.png" class="lazyload" alt="" width="652" height="225">
-&lt;/a>
-&lt;figcaption>
-Os princípios da &lt;em>Gestalt&lt;/em> são usados para desenvolver métodos de processamento de imagens. Imagem retirada de []
-&lt;/figcaption>
-&lt;/figure>
-&lt;p>Na imagem acima é mostrado o resultado de um método baseado na &lt;em>Gestalt&lt;/em> para simplificar uma imagem. Em grafos temos o conceito de &lt;em>backbones&lt;/em> que são uma espécie de espinha dorsal, esqueleto, que representa as relações entres os vértices.&lt;/p>
-&lt;h3 id="reduzindo-custo-computacional-por-filtragem">Reduzindo custo computacional por filtragem&lt;/h3>
-&lt;p>Embora a filtragem possa ser usada para remover uma contaminação em um dado e/ou facilitar termos &lt;em>insights&lt;/em> conseguimos também reduzir o custo computacional de algoritmos que atuam nesses dados. Um exemplo simples é mostrado no código abaixo:&lt;/p>
-&lt;pre>&lt;code class="language-python">import numpy as np
-import io
-X, Y = np.meshgrid(
-np.linspace(-5, 5, 100), np.linspace(-5, 5, 100))
-z = np.exp(-0.1*(X**2 + Y**2))
-z_noise = z + np.random.normal(0, 0.1, z.shape)
-z = (z / z.max()*255).astype(np.uint8)
-z_noise = (z_noise / z_noise.max()*255).astype(np.uint8)
-data_noisy = io.BytesIO()
-data = io.BytesIO()
-np.savez_compressed(data_noisy, z_noise)
-np.savez_compressed(data, z)
-print(f&amp;quot;Noisy {data_noisy.getbuffer().nbytes/10**6:.1f} MB&amp;quot;)
-print(f&amp;quot;Original {data.getbuffer().nbytes/10**6:.1f} MB&amp;quot;)
-&lt;/code>&lt;/pre>
-&lt;pre>&lt;code>Noisy 3.6 MB
-Original 0.2 MB
-&lt;/code>&lt;/pre>
-&lt;p>O output indica que &lt;strong>o resultado de contaminação por ruído aumenta o custo de armazenamento de um mesmo padrão de dados.&lt;/strong>&lt;/p>
-&lt;p>Em grafos, filtrar para reduzir custo computacional costuma ser essencial. Por exemplo, muitos algorítimos dependem escalam com o número de arestas. Portanto, um grafo em que cada par de vértices tem uma aresta teria custo computacional $O(numero\ \ de\ \ vértices^2)$ o que é impraticável para apenas algumas dezenas de milhares de vértices. Portanto, tornando a ánalise de dados inútil.&lt;/p>
-&lt;h2 id="o-que-é-um-processo-de-filtragem-em-um-grafo">O que é um processo de filtragem em um grafo?&lt;/h2>
-&lt;p>Vamos entrar agora no tema central do post. Mas antes é bom você ler com calma a seguinte desambiguação para que não fique perdido na literatura.&lt;/p>
-&lt;div class="alert alert-warning">
-&lt;div>
-&lt;p>&lt;strong>Desambiguação.&lt;/strong>&lt;/p>
-&lt;p>A área de processamento de sinais em grafos e a área de analise de redes sociais costumam usar termos distintos para a mesma coisa.&lt;/p>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Posts | Bruno Messias</title><link>/post/</link><atom:link href="/post/index.xml" rel="self" type="application/rss+xml"/><description>Posts</description><generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>en</language><copyright>Bruno Messias</copyright><lastBuildDate>Fri, 04 Feb 2022 08:31:00 -0300</lastBuildDate><image><url>/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_3.png</url><title>Posts</title><link>/post/</link></image><item><title>Dissecting processes and failures in Linux with lsof and strace: cases for MlOps and DevOps</title><link>/post/using_lsof_and_strace_to_investigate_process_and_failures/</link><pubDate>Fri, 04 Feb 2022 08:31:00 -0300</pubDate><guid>/post/using_lsof_and_strace_to_investigate_process_and_failures/</guid><description>&lt;p>In DevOps or MlOps discovering what a process is doing now can save your system from a catastrophe. But sometimes we are already in a failure. When those failures happen, the following questions appear:&lt;/p>
 &lt;ul>
 &lt;li>
-&lt;p>Graph coarsening&lt;/p>
-&lt;ul>
-&lt;li>
-&lt;p>&lt;em>em ciência da computação:&lt;/em> o processo de obter uma representação mais grosseira de um grafo removendo arestas e/ou vértices.&lt;/p>
+&lt;p>&lt;em>The process it’s hanging and I don’t know why!&lt;/em>&lt;/p>
 &lt;/li>
 &lt;li>
-&lt;p>&lt;em>outras disciplinas:&lt;/em> termo não muito utilizado.&lt;/p>
-&lt;/li>
-&lt;/ul>
+&lt;p>&lt;em>What is the cause of the problem?&lt;/em>&lt;/p>
 &lt;/li>
 &lt;li>
-&lt;p>Edge filtering&lt;/p>
-&lt;ul>
-&lt;li>em ciência da computação: o processo de aplicar um filtro (processamento de sinais) em valores definidos nas arestas. &lt;strong>Uma filtragem nos valores associados as arestas!&lt;/strong>&lt;/li>
-&lt;/ul>
-&lt;ul>
-&lt;li>&lt;em>outras disciplinas:&lt;/em> o processo de remover arestas que não se adequam a um dado padrão.&lt;/li>
-&lt;/ul>
+&lt;p>&lt;em>Is it a network issue?&lt;/em>&lt;/p>
 &lt;/li>
 &lt;li>
-&lt;p>Graph sparsification&lt;/p>
-&lt;ul>
-&lt;li>esse termo também costuma ser usado, mais por matemáticos e engenheiros. E pode representar tanto a remoção de vértices quanto arestas. Por exemplo: “spectral edge sparsification”. Contudo, é mais utilizado quando você parte de um grafo vazio (sem relações) e vai adicionando tentando preservar as propriedades espectrais do grafo original.&lt;/li>
-&lt;/ul>
+&lt;p>…and so on and so forth.&lt;/p>
 &lt;/li>
 &lt;/ul>
-&lt;p>Você pode encontrar trabalhos com o termo spectral filtering ou spectral coarsening , ambos significando a mesma coisa. Contudo, spectral filters costuma ser usado mais em trabalhos de processamento de sinal em grafos.&lt;/p>
-&lt;/div>
-&lt;/div>
-&lt;p>Quando você aplica um filtro em uma foto para te deixar mais bonito você obviamente objetiva que as pessoas ainda te reconhençam. Isto é, as formas e aspectos mais importantes do seu rosto devem ser preservadas ou pouco alteradas. Vamos representar essas considerações por:
-$$
-\begin{eqnarray}
-\mathcal P_{forma}(foto\ \ orignal) \sim \mathcal P_{forma}(foto\ \ filtrada)\newline
-\mathcal P_{cor}(foto\ \ orignal) \sim \mathcal P_{cor}(foto\ \ filtrada)\newline
-&amp;hellip;etc
-\end{eqnarray}
-$$
-Também espera-se que o ruído da câmera, rugas e imperfeições sejam reduzidas $\mathcal P_{rugas}(foto\ \ orignal) \neq \mathcal P_{rugas}(foto\ \ filtrada)$ e $|rugas\ \ foto \ \ original| \ll |rugas\ \ foto \ \ filtrada|$. O simbolo $|.|$ significa que estamos contando o número de rugas da foto, do conjunto de rugas, e $\ll$ significa muito menor.&lt;/p>
-&lt;p>Da mesma maneira que no caso de fotos, se temos um grafo, $G$, queremos que sua versão filtrada, $\tilde G$, tenha uma ou mais propriedades (definido de antemão) preservadas após efetuar a filtragem, isto é
-$$
-\mathcal P_{algo} (G) \sim \mathcal P_{algo} (\tilde G)
-$$&lt;/p>
-&lt;p>Sendo que o objetivo principal costumar ser uma redução drástica no número de relações (arestas), $|E| \le |\tilde E|$. OK, então antes de entrar nos métodos de filtragem precisamos discorrer sobre quais seriam essas propriedades que queremos preservar.&lt;/p>
-&lt;div class="alert alert-warning">
-&lt;div>
-&lt;p>Diferente de uma imagem em que filtros só ocorrem nos valores definidos na posição dos pixels em um grafo podemos filtrar tanto os valores definidos nos vértices quando a própria estrutura do grafo em sí.&lt;/p>
-&lt;ul>
-&lt;li>filtrar a estrutura de um grafo $\neq$ filtrar valores definidos na estrutura de um grafo&lt;/li>
-&lt;/ul>
-&lt;/div>
-&lt;/div>
-&lt;h3 id="algumas-propriedades-de-grafos">Algumas propriedades de grafos&lt;/h3>
-&lt;h4 id="componentes-e-comunidades">Componentes e Comunidades&lt;/h4>
-&lt;h5 id="componentes">Componentes&lt;/h5>
-&lt;p>Uma propriedade importante de um grafo é o número de componentes. Um grafo é fortemente conectado quando é possível sair de qualquer vértice e chegar em qualquer outro. &lt;strong>Um grafo fortemente conectado tem apenas uma componente&lt;/strong>.&lt;/p>
-&lt;p>Por exemplo, abaixo é apresentado um grafo fortemente conectado&lt;/p>
-&lt;pre>&lt;code class="language-mermaid">graph LR;
-A---B;
-D---A;
-B---C
-A---C;
-D---E;
-&lt;/code>&lt;/pre>
-&lt;p>Ao remover a aresta $(D , A)$ obtemos o seguinte grafo&lt;/p>
-&lt;pre>&lt;code class="language-mermaid">graph LR;
-A---B;
-B---C
-A---C;
-D---E;
-&lt;/code>&lt;/pre>
-&lt;p>Como é impossível sair de $D$ ou $E$ e chegar em $A$, $B$ ou $C$ após a disconexão o grafo não é mais fortemente conectado e tem duas componentes. Qual a relação disso com filtragem?&lt;/p>
-&lt;div class="alert alert-note">
-&lt;div>
-&lt;p>Esperamos que métodos de filtragem sejam bons em preservar o número de componentes. Pois isso afeta em muito dinâmicas ocorrendo no grafo. Assim como algorítimos de análise de dados.&lt;/p>
-&lt;p>Imagina se ao realizar uma filtragem você remova uma aresta que impede a contaminação por um vírus entre duas cidades no seu modelo?&lt;/p>
-&lt;/div>
-&lt;/div>
-&lt;h5 id="comunidades">Comunidades&lt;/h5>
-&lt;p>Dentro de cada componente de um grafo temos o conceito de comunidade. Intuitivamente, quando pensamos em comunidade no ambito das relações pessoais imaginamos um grupo de pessoas que tem fortes relações entre si, muito mais fortes que as relações com outras pessoas fora do grupo. Por exemplo, família, colegas de trabalho etc. Nesse contexto qual é a tarefa de detecção de comunidades? Como efetuar tal tarefa?&lt;/p>
-&lt;div class="alert alert-note">
-&lt;div>
-Em certos casos queremos que a filtragem não altere a identificação das estruturas de comunidade no nosso grafo.
-&lt;/div>
-&lt;/div>
-&lt;p>Suponha que você queira modelar o grupo de pessoas pertecentes a dois partidos políticos, opostos na ideologia. Você pode representar as relações entre as pessoas usando grafos. Colocando uma aresta entre uma pessoa e outra se elas concordaram majoritariamente em relação a um conjunto de questões. O que seria um algoritmo de detecção de comunidade em tal caso? Se temos o &lt;em>ground thruth&lt;/em>, isto é, o partido que cada pessoa se identifica, o algoritmo é uma caixa, $f$, que recebendo apenas as relações , $E$, gospe um indíce que associa cada pessoa um partido $f: (Pesssoa, E) \mapsto \{Esquerda,Direita\}$. Mas como construir essa $f$? &lt;strong>Na minha opinião existem três caminhos principais:&lt;/strong>&lt;/p>
-&lt;div class="alert alert-note">
-&lt;div>
-Não existe uma única definição formal para comunidade. Esse conceito muda dependendo da abordagem que você escolheu para encontrar as comunidades dentro de cada componente.
-&lt;/div>
-&lt;/div>
-&lt;h6 id="caminho-1-inferir">&lt;strong>Caminho 1: Inferir&lt;/strong>&lt;/h6>
-&lt;ul>
-&lt;li>Pegue por exemplo a distribuição normal. Quando trabalhamos com dados que acreditamos que podem ser modelados por tal distribuição realizamos um processo de ajuste de parâmetros, tentando estimar a média e o desvio padrão da população. A ideia aqui é similar. Propõe-se um modelo generativo definido por um conjunto de parâmetros.. O objetivo é otimizar tais parâmetros tal que o modelo generativo seja um bom candidato para &lt;em>gerador&lt;/em> do grafo.&lt;/li>
-&lt;/ul>
-&lt;p>O modelo generativo mais famoso é conhecido como &lt;strong>S&lt;/strong>tocahastic &lt;strong>B&lt;/strong>lock &lt;strong>M&lt;/strong>odel (&lt;strong>SBM&lt;/strong>). Em português, Modelo de Bloco Estocástico. Usando o networkx você pode gerar uma amostra de um grafo através desse modelo usando o seguinte código&lt;/p>
-&lt;pre>&lt;code class="language-python">import networkx as nx
-import matplotlib.pyplot as plt
-# esses são os parâmetros que definiram o número de indíviduos
-# dentro de cada comunidade
-n1, n2, n3 = 30, 40, 60
-# esses são os parâmetros que definem a probabilidade
-# de conexão entre indivíduos da mesma comunidade
-p11, p22, p33 = 0.4, 0.3, 0.7
-# esses são os parâmetros que definem a probabilidade
-# de conexão entre indíviduos de comunidades distintas
-p12 = .01
-p13 = .1
-p23 = .01
-sizes = [n1, n2, n3]
-probs = [[p11, p12, p13], [p12, p22, p23], [p13, p23, p33]]
-g_sbm = nx.stochastic_block_model(sizes, probs, seed=0)
-W = nx.adjacency_matrix(g_sbm).todense()
-plt.imshow(W)
-plt.show()
-&lt;/code>&lt;/pre>
-&lt;figure id="figure-a-matriz-de-pesos-adjacência-pois-todos-os-pesos-são-1-do-grafo-gerado-por-nosso-modelo">
-&lt;a data-fancybox="" href="/post/edge_graph_filtering/adj_sbm_hu380ec109c1e87742774ae36834bf5302_53660_2000x2000_fit_lanczos_3.png" data-caption="A matriz de pesos (adjacência pois todos os pesos são 1) do grafo gerado por nosso modelo.">
-&lt;img data-src="/post/edge_graph_filtering/adj_sbm_hu380ec109c1e87742774ae36834bf5302_53660_2000x2000_fit_lanczos_3.png" class="lazyload" alt="" width="286" height="280">
+&lt;p>Being able to answer these questions faster and with a precise answer can save you or give you a promotion. I’ll show you some simple examples of how those questions can be answered.&lt;/p>
+&lt;figure id="figure-the-strace-logo-is-an-ostrich">
+&lt;a data-fancybox="" href="/post/using_lsof_and_strace_to_investigate_process_and_failures/strace_lsof_twitter_hu2200c415de466273118b8033622a09b4_503245_2000x2000_fit_lanczos_3.png" data-caption="The strace logo is an ostrich.">
+&lt;img data-src="/post/using_lsof_and_strace_to_investigate_process_and_failures/strace_lsof_twitter_hu2200c415de466273118b8033622a09b4_503245_2000x2000_fit_lanczos_3.png" class="lazyload" alt="" width="800" height="418">
 &lt;/a>
 &lt;figcaption>
-A matriz de pesos (adjacência pois todos os pesos são 1) do grafo gerado por nosso modelo.
+The strace logo is an ostrich.
 &lt;/figcaption>
 &lt;/figure>
-&lt;p>A ideia da inferência com o método mais simples de SBM é a seguinte:&lt;/p>
-&lt;ol>
-&lt;li>Extraia a matriz de adjacência de um grafo qualquer: uma rede social, uma rede de transações financeiras, etc.&lt;/li>
-&lt;li>Pegue um SBM, com a matriz de peso tente estimar o número de partições, probabilidade de conexões intra e entre grupos e em qual bloco cada vértice pertence tal que os grafos gerados pelo SBM melhor represente o seu grafo original.&lt;/li>
-&lt;/ol>
-&lt;p>O SBM é poderoso e ao contrário dos outros métodos te fornece uma maneira de checar a qualidade das comunidades encontradas. Isto é, se fazem sentido ou só são frutos de algo aleatório. Contudo, por ser uma técnica mais recente com uma implementação difícil não são todas as bibliotecas que fornecem esse recurso. A biblioteca mais famosa para SBM é o &lt;code>graph tool&lt;/code> que consegue estimar comunidades para grafos com centenas de milhares de vértices. Não poderei discorrer mais ou mostrar como usar o SBM pois é um tema bem complexo. Mas o importante agora é você ter conseguido absorver pelo menos a ideia.&lt;/p>
-&lt;h6 id="caminho-2-quantificardescrever">&lt;strong>Caminho 2: Quantificar&lt;/strong>/Descrever&lt;/h6>
+&lt;details
+class="toc-inpage d-print-none d-none d-sm-block d-md-none " open>
+&lt;summary class="font-weight-bold">Table of Contents&lt;/summary>
+&lt;nav id="TableOfContents">
 &lt;ul>
-&lt;li>Você parte de um função $f$ qualquer. Exemplo, $f$ é uma função que identifica todo mundo como esquerda ou direita, um sorteio aleatório, etc.&lt;/li>
-&lt;li>Com tal identificação você estipula uma grandeza que vai mensurar o quão forte é a coesão entre as pessoas de cada grupo e quão fraca é entre os grupos. Um exemplo de grandeza que mensura isso é a &lt;strong>modularidade&lt;/strong>.&lt;/li>
-&lt;li>Você ira alterar a sua $f$ tentando maximizar tal grandeza.&lt;/li>
-&lt;/ul>
-&lt;p>O networkx por exemplo possui um método de maximização de modularidade usando um algoritmo guloso. Vamos usar o o grafo gerado pelo sbm para testar esse método usando o seguinte script:&lt;/p>
-&lt;pre>&lt;code class="language-python">from networkx.algorithms import community
-def find_where(n, p):
-return [i for i in range(len(p)) if n in p[i]][0]
-def plot(g, community_index, p):
-labels = [chr(ord('A') + i) for i in range(len(p))]
-plt.scatter(range(len(g.nodes)), community_index)
-plt.ylabel('Community')
-plt.xlabel('Vertex Id')
-plt.yticks(range(len(p)), labels)
-plt.show()
-p = community.greedy_modularity_communities(g_sbm)
-g_sbm_community_index = [find_where(n, p) for n in g_sbm.nodes]
-print(f&amp;quot;Found {len(set(g_sbm_community_index))} communities&amp;quot;)
-plot(g_sbm, g_sbm_community_index, p)
-&lt;/code>&lt;/pre>
-&lt;figure id="figure-resultado-da-identificação-de-comunidades-usando-o-algoritmo-guloso-parece-ok">
-&lt;a data-fancybox="" href="/post/edge_graph_filtering/modularity_sbm_hua729e93d844903006ce0633d9d38c615_6901_2000x2000_fit_lanczos_3.png" data-caption="Resultado da identificação de comunidades usando o algoritmo guloso. Parece Ok">
-&lt;img data-src="/post/edge_graph_filtering/modularity_sbm_hua729e93d844903006ce0633d9d38c615_6901_2000x2000_fit_lanczos_3.png" class="lazyload" alt="" width="380" height="265">
-&lt;/a>
-&lt;figcaption>
-Resultado da identificação de comunidades usando o algoritmo guloso. Parece Ok
-&lt;/figcaption>
-&lt;/figure>
-&lt;p>Temos um resultado muito bom. Mas será que podemos empregar isso em qualquer caso? Vejamos o que acontece quando aplicamos o mesmo algoritmo para um grafo aleatório.&lt;/p>
-&lt;pre>&lt;code class="language-python"># erdos_reyni é um modelo de grafo aleatório
-g = nx.erdos_renyi_graph(150, 0.1, seed=0)
-p = community.greedy_modularity_communities(g)
-g_community_index = [find_where(n, p) for n in g.nodes]
-plot(g, g_community_index, p)
-&lt;/code>&lt;/pre>
-&lt;figure id="figure-resultado-da-identificação-de-comunidades-usando-o-algoritmo-guloso-para-o-modelo-er">
-&lt;a data-fancybox="" href="/post/edge_graph_filtering/modularity_er_hua0225a683f6ec7064832fd57e19328a2_9455_2000x2000_fit_lanczos_3.png" data-caption="Resultado da identificação de comunidades usando o algoritmo guloso para o modelo ER.">
-&lt;img data-src="/post/edge_graph_filtering/modularity_er_hua0225a683f6ec7064832fd57e19328a2_9455_2000x2000_fit_lanczos_3.png" class="lazyload" alt="" width="380" height="265">
-&lt;/a>
-&lt;figcaption>
-Resultado da identificação de comunidades usando o algoritmo guloso para o modelo ER.
-&lt;/figcaption>
-&lt;/figure>
-&lt;p>O algoritmo guloso encontrou 4 comunidades e o ponto ruim é que não temos como saber o quão confiável é essa resposta. Mas podemos dizer que provavelmente ela não deveria ser usada pois partimos de um modelo de grafo aleatório.&lt;/p>
-&lt;h6 id="caminho-3-visualizar">&lt;strong>Caminho 3: Visualizar&lt;/strong>&lt;/h6>
+&lt;li>&lt;a href="#concepts">Concepts&lt;/a>
 &lt;ul>
-&lt;li>Você utiliza um método que mapeia cada vértice do seu grafo em um espaço vetorial. Por exemplo &lt;strong>t-sne&lt;/strong>, &lt;strong>UMAP&lt;/strong>, &lt;strong>force-directed&lt;/strong>, etc. Com sua visualização você realiza uma inspeção (totalmente subjetiva) para identificar as comunidades (agrupamentos). Em alguns casos é aceitável realizar um k-means nesse espaço para encontrar os &lt;em>clusters&lt;/em>.&lt;/li>
+&lt;li>&lt;a href="#everything-is-a-file---the-unix-mantra">&lt;em>“Everything is a file.”&lt;/em> - The UNIX mantra.&lt;/a>
+&lt;ul>
+&lt;li>&lt;a href="#lsof">LSOF&lt;/a>&lt;/li>
 &lt;/ul>
-&lt;p>O script abaixo gera uma visualização dos dois grafos usados no exemplos anteriores: Um obtido do SBM e outro do Erdos-Reyni.&lt;/p>
-&lt;pre>&lt;code class="language-python">import numpy as np
-pos_sbm = np.array([ v for v in nx.layout.spring_layout(g_sbm, iterations=1000).values()])
-pos = np.array([ v for v in nx.layout.spring_layout(g, iterations=1000).values()])
-fig, (a1, a2) = plt.subplots(1, 2)
-a1.scatter(pos_sbm[:, 0], pos_sbm[:, 1], c=g_sbm_community_index, cmap='tab20')
-a2.scatter(pos[:, 0], pos[:, 1], c=g_community_index, cmap='tab20')
-for ax in (a1, a2):
-ax.set_yticklabels([])
-ax.set_xticklabels([])
-a1.set_title('SBM')
-a2.set_title('ER')
-plt.show()
+&lt;/li>
+&lt;li>&lt;a href="#system-calls-and-strace">System Calls and strace&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;a href="#a-deep-dive-into-failures">A deep dive into failures&lt;/a>
+&lt;ul>
+&lt;li>&lt;a href="#network-issues">Network issues&lt;/a>
+&lt;ul>
+&lt;li>&lt;a href="#is-my-server-alive">Is my server alive?&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#is-my-process-stuck-waiting-for-someone-what-is-causing-the-process-hanging">Is my process stuck waiting for someone? What is causing the process hanging?&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;a href="#problems-with-regular-files">Problems with regular files&lt;/a>
+&lt;ul>
+&lt;li>&lt;a href="#which-processes-is-this-file-attached-to">Which processes is this file attached to?&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#i-made-a-mistake-deleted-an-important-file-how-can-i-recover-it">I made a mistake! Deleted an important file! How can I recover it?&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#silent-errors-associated-with-files-and-permissions">Silent errors associated with files and permissions&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#is-this-process-using-a-cache-where-can-i-find-this-cache-which-configs-files-does-this-process-use">Is this process using a cache? Where can I find this cache? Which configs files does this process use?&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;a href="#dissecting-your-database-system">Dissecting your database system&lt;/a>
+&lt;ul>
+&lt;li>&lt;a href="#is-this-process--well-behaved-how-many-connections-does-it-have">Is this process well behaved? How many connections does it have?&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#everything-is-working-proprely">Everything is working proprely?&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;a href="#extras-related-to-files-proc-and-strace">Extras related to files (&lt;code>/proc/&lt;/code>) and &lt;code>strace&lt;/code>&lt;/a>
+&lt;ul>
+&lt;li>&lt;a href="#creating-a-sys-call-summary-what-does-my-program-do">Creating a SYS CALL summary: what does my program do?&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#did-this-process-start-with-the-correct-environment-variables">Did this process start with the correct environment variables?&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#i-forgot-to-redirect-the-outputs-what-can-i-do-now">I forgot to redirect the outputs! What can I do now?&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#how-this-program-has-been-called-what-is-the-working-dir-of-the-process">How this program has been called? What is the working dir of the process?&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;a href="#conclusion--suggestions">Conclusion &amp;amp; Suggestions&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/nav>
+&lt;/details>
+&lt;p>&lt;strong>Introduction&lt;/strong>&lt;/p>
+&lt;p>Linux is a very transparent operating system. Transparency means that is easy to dig in the system&amp;rsquo;s behavior to understand how it works. Also, Linux is easy to control even in the low-level behaviors. But how can this help to understand a process and consequently a failure?&lt;/p>
+&lt;p>The first step to understanding a process is to analyze the output. But sometimes the output doesn’t give us enough information to use. Here I’ll talk about how we can extract useful information using the &lt;code>strace&lt;/code> and &lt;code>lsof&lt;/code> commands. To use these commands it is good to know two concepts: the &lt;em>“Everything is a file ”&lt;/em> mantra and the &lt;strong>system call&lt;/strong> mechanism.&lt;/p>
+&lt;h1 id="concepts">Concepts&lt;/h1>
+&lt;h2 id="everything-is-a-file---the-unix-mantra">&lt;em>“Everything is a file.”&lt;/em> - The UNIX mantra.&lt;/h2>
+&lt;p>&lt;img src="everthing_is_a_file.png" alt="everything_is_a_file">&lt;/p>
+&lt;p>What comes to your mind when someone talks about files? Maybe a jpeg or a CSV if you work as a data scientist. But in UNIX approach to do stuff everything can be a file, even network connections. When a thing is not a file it has at least a file descriptor associated with it. Maybe you’re thinking that I’m wandering from the post. &lt;em>“How can this stuff help to improve our comprehension about a process or failure?”&lt;/em> The answer is straightforward: if everything is a file, we can use the same set of tools to list, read and interact (API) with files to analyze a generic process. Here is where &lt;code>lsof&lt;/code> appears.&lt;/p>
+&lt;h3 id="lsof">LSOF&lt;/h3>
+&lt;p>lsof is an acronym for &lt;strong>l&lt;/strong>ist of &lt;strong>o&lt;/strong>pen &lt;strong>f&lt;/strong>iles. In simple terms, Lsof is a command-line tool that can list open file descriptors in your machine. Besides that, Lsof allows using a set of different filters to give you a filtered list of opened files. Thus, we can list the open file descriptors of a user or a process.&lt;/p>
+&lt;p>To put all the open files in your machine use the following command:&lt;/p>
+&lt;pre>&lt;code class="language-bash">username:/$ lsof &amp;gt; lsof_everything.txt
 &lt;/code>&lt;/pre>
-&lt;figure id="figure-visualização-via-force-directed-para-uma-amostra-de-um-sbm-e-outra-erdos-reyni-cores-representam-as-comunidades-identificadas-pelo-método-guloso-de-maximização-de-modularidade">
-&lt;a data-fancybox="" href="/post/edge_graph_filtering/fd_sbm_and_er_hu71c2ad5439d6562e23489c45b3845daa_39320_2000x2000_fit_lanczos_3.png" data-caption="Visualização via force-directed para uma amostra de um SBM e outra Erdos-Reyni. Cores representam as comunidades identificadas pelo método guloso de maximização de modularidade">
-&lt;img data-src="/post/edge_graph_filtering/fd_sbm_and_er_hu71c2ad5439d6562e23489c45b3845daa_39320_2000x2000_fit_lanczos_3.png" class="lazyload" alt="" width="349" height="248">
-&lt;/a>
-&lt;figcaption>
-Visualização via force-directed para uma amostra de um SBM e outra Erdos-Reyni. Cores representam as comunidades identificadas pelo método guloso de maximização de modularidade
-&lt;/figcaption>
-&lt;/figure>
-&lt;p>Note que o método de visualização mostrou um agrupamento de vértices para o SBM. Contudo, no caso do grafo aleatório (ER) só parece uma grande confusão. As cores representam as comunidades obtidas via maximização da modularidade. O que poderemos tirar desse exemplo? Que você deve tomar cuidado quando falar que encontrou uma comunidade ou que existe uma &lt;em>“bolha”&lt;/em> na rede social que você encontrou. É recomendado que você use métodos diferentes para checar esses achados de comunidades.&lt;/p>
-&lt;div class="alert alert-note">
-&lt;div>
-No caso de visualizações de grafos, especialmente de force-directed talvez seja melhor você utilizar algum sistema de visualização iterativo e 3D. Visualizações em 2D obtidas pelo force-directed podem não ser de grande ajuda e ainda ficarem presas em alguma configuração não ótima.
-&lt;/div>
-&lt;/div>
-&lt;hr/>
-&lt;p>Devemos tomar muito cuidado com métodos de visualização e detecção por maximização de modularidade. Recomendo ver alguns trabalhos sobre modelos de bloco estocástico especialmente os feitos pelo Tiago Peixoto.&lt;/p>
-&lt;blockquote class="twitter-tweet">&lt;p lang="en" dir="ltr">New blog post! This time, on something tame and uncontroversial:&lt;br>&lt;br>&amp;quot;Modularity maximization considered harmful&amp;quot;&lt;br>&lt;br>It&amp;#39;s the most popular method used for community detection. It is also one of the most problematic. 1/11&lt;br>&lt;br>(Based on &lt;a href="https://t.co/iCxFjKOIT1">https://t.co/iCxFjKOIT1&lt;/a>)&lt;a href="https://t.co/IRdCFwttQL">https://t.co/IRdCFwttQL&lt;/a>&lt;/p>&amp;mdash; Tiago Peixoto (@tiagopeixoto) &lt;a href="https://twitter.com/tiagopeixoto/status/1467798790346260484?ref_src=twsrc%5Etfw">December 6, 2021&lt;/a>&lt;/blockquote>
-&lt;script async src="https://platform.twitter.com/widgets.js" charset="utf-8">&lt;/script>
-&lt;div class="alert alert-warning">
-&lt;div>
-Métodos de detecção de comunidade usando modularidade (Gelphi) são úteis. Contudo, podemos identificar comunidades mesmo no caso de um grafo totalmente aleatório!
-&lt;/div>
-&lt;/div>
-&lt;p>O tema de comunidades merece alguns posts separados para cada caminho, pois é um assunto denso e com muitos métodos diferentes.&lt;/p>
-&lt;h4 id="matrizes-associadas-a-um-grafo-e-seu-espectro">Matrizes associadas a um grafo e seu espectro&lt;/h4>
-&lt;p>Sinto muito, mas o estudo de propriedades espectrais de um grafo é um tópico extremamente extenso.&lt;/p>
-&lt;p>Pegue o seguinte grafo&lt;/p>
-&lt;pre>&lt;code class="language-mermaid">graph LR;
-A---|1|B;
-B---|1/2|C;
-C---|2|A;
+&lt;p>The file &lt;code>lsof_everything.txt&lt;/code> is huge and will look similar to this&lt;/p>
+&lt;pre>&lt;code>COMMAND PID TID TASKCMD USER FD TYPE DEVICE SIZE/OFF NODE NAME
+systemd 1 root cwd unknown /proc/1/cwd (readlink: Permission denied)
+systemd 1 root rtd unknown /proc/1/root (readlink: Permission denied)
+systemd 1 root txt unknown /proc/1/exe (readlink: Permission denied)
 &lt;/code>&lt;/pre>
-&lt;p>podemos associar com esse grafo uma matriz $3\times 3$ onde as entradas da matriz representam os valores associados as arestas. Essa matriz é conhecida como matriz de pesos,&lt;/p>
-&lt;p>$$
-W=\begin{pmatrix}
-- &amp;amp; A &amp;amp; B &amp;amp; C\\
-A &amp;amp; 0 &amp;amp; 1 &amp;amp; 2\\
-B &amp;amp; 1 &amp;amp; 0 &amp;amp; 1/2\\
-C &amp;amp; 2 &amp;amp; 1/2 &amp;amp; 0
-\end{pmatrix}
-$$&lt;/p>
-&lt;p>$$
-v=\begin{pmatrix}
-x\\
-y\\
-z
-\end{pmatrix}
-$$&lt;/p>
-&lt;pre>&lt;code class="language-mermaid">graph LR;
-A[y+2z]---|1|B;
-B[x+1/2z]---|0.5|C;
-C[2x+0.5y]---|2|A;
+&lt;p>Take some time to analyze the output. The output relates to the first lines to the &lt;code>root&lt;/code> user and you don’t have permission to gain information about these files, which is good. Let’s remove this wasteful information filtering the SYS CALLs related to just your user.&lt;/p>
+&lt;pre>&lt;code class="language-bash">username:/$ lsof -u username &amp;gt; lsof_my.txt
+&lt;/code>&lt;/pre>
+&lt;p>The &lt;code>txt&lt;/code> file is still big. Try to look into this file to see if you can find anything interesting, like a webpage address.&lt;/p>
+&lt;p>We have a lot of different columns in the file. But don’t be worried, I’ll show you the columns that I believe are the most important ones.&lt;/p>
+&lt;ul>
+&lt;li>COMMAND
+&lt;ul>
+&lt;li>The command name used to initiate the process&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>PID
+&lt;ul>
+&lt;li>This is an integer number that identifies a process, &lt;strong>P&lt;/strong>rocess &lt;strong>ID&lt;/strong>entification number.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>USER
+&lt;ul>
+&lt;li>The user to whom the process belongs.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>TYPE
+&lt;ul>
+&lt;li>This may be one of the most important columns. It has more than 60 possible values. Such column says the type of the node associated with the file. If the file is related with connections and sockets you will see things like that: &lt;strong>IPV4, IPV6,&lt;/strong> &lt;strong>unix&lt;/strong>, &lt;strong>INET&lt;/strong>, etc. If it’s an regular file (csv, jpeg, txt, etc.) you will see the &lt;strong>REG&lt;/strong> value.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>NODE
+&lt;ul>
+&lt;li>This helps us to identify the node associated with the file descriptor. It can be a number, a string, etc. In the case of internet protocols this column will have values like &lt;strong>TCP, UDP&lt;/strong>.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>NAME
+&lt;ul>
+&lt;li>The values here will change a lot. For example, sometimes it can be a web server address or just a cryptic string. Regardless of the difficulty of interpreting the values in this column you should look carrefully here.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;p>If you want a more deep understanding of the columns just uses &lt;code>man lsof&lt;/code> .&lt;/p>
+&lt;h2 id="system-calls-and-strace">System Calls and strace&lt;/h2>
+&lt;p>The SYSTEM_CALL is a mechanism that allows a program to ask the kernel for some resources, like the access of data stored in the disk. Therefore, if we have a tool to intercept those calls, we can have a deep comprehension of what a program is doing or what it want’s to do in your system. A celebrated tool to intercept the system calls is the &lt;code>strace&lt;/code>.&lt;/p>
+&lt;p>If the strace command is not available in your system, install it. In apt-based distros just calling the following command should be enough.&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ apt install strace
 &lt;/code>&lt;/pre>
 &lt;div class="alert alert-note">
 &lt;div>
-A matriz pesos de um grafo pode ser pensada como uma generalização para combinar valores númericos.
+In older Debian distros (&amp;lt;=10) you can get the last deb package from here: &lt;a href="http://ftp.de.debian.org/debian/pool/main/s/strace/strace_5.10-1_amd64.deb">strace_5.10-1_amd64.deb&lt;/a>. The new version of strace has some cool features that can facilitate our job.
 &lt;/div>
 &lt;/div>
-&lt;p>
-&lt;a href="/post/random_matrix_portfolio">Variações do teorema do limite central para matrizes aleatórias&lt;/a>&lt;/p>
-&lt;h2 id="1-threshold">1-Threshold&lt;/h2>
-&lt;p>Esse com certeza é o método mais simples e mais rápido, embora o mais controverso. É aplicável somente se cada relação (aresta) possuir um número real associado. O método de threshold consiste em descartar qualquer aresta cuja a função peso ultrapasse um dado valor.&lt;/p>
-&lt;p>O método de threshold é muito utilizado em neurociência (com críticas) e para análise de dados em geral quando as arestas representam uma medida de correlação (Pearson) entre dois elementos. Como as medidas de correlações podem ser negativas é comum que o threshold seja aplicado no absoluto dos valores associados as arestas.&lt;/p>
-&lt;p>Tome o seguinte grafo como exemplo:&lt;/p>
-&lt;pre>&lt;code class="language-mermaid">graph LR;
-A--&amp;gt;|-0.5|B;
-B--&amp;gt;|0.4|C
-C--&amp;gt;|2|A;
-D--&amp;gt;|-1|C;
+&lt;p>You can use &lt;code>strace&lt;/code> in two different ways. The first one is to call strace followed by the strace arguments and the command to be intercepted:&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ strace ARGS command
 &lt;/code>&lt;/pre>
-&lt;p>ao realizar um threshold de $0.5$ iremos remover a relação $(B, C)$ e $(A,B )$. O grafo não é mais fortemente conectado.&lt;/p>
-&lt;pre>&lt;code class="language-mermaid">graph LR;
-C--&amp;gt;|2|A;
-D--&amp;gt;|-1|C;
-B;
+&lt;p>In the second way we will replace the command by the &lt;code>-p&lt;/code> argument followed by the process identification number (&lt;strong>PID&lt;/strong>) of the process to be intercepted:&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ strace ARGS -p PID
 &lt;/code>&lt;/pre>
-&lt;p>É comum que após o threshold todas as arests que sobraram sejam truncadas em $1$. Ficariamos com algo assim no final:&lt;/p>
-&lt;pre>&lt;code class="language-mermaid">graph LR;
-C--&amp;gt;|1|A;
-D--&amp;gt;|1|C;
-B;
+&lt;p>To discover the PID of a process, you can use the command &lt;code>ps aux | grep -i ‘[p]rocess_name’&lt;/code>.&lt;/p>
+&lt;p>Let’s see an example. We will ask &lt;code>strace&lt;/code> to intercept any system call performed by the &lt;code>ls&lt;/code> command and we want to record the time that the system call was performed using the &lt;code>-t&lt;/code> argument.&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ strace -t ls
 &lt;/code>&lt;/pre>
-&lt;h4 id="pontos-positivos">Pontos positivos&lt;/h4>
-&lt;ul>
-&lt;li>custo computacional baixo $O(n)$
-&lt;ul>
-&lt;li>apenas iterar e comparar os valores.&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;li>paralelizável&lt;/li>
-&lt;li>trivial de implementar&lt;/li>
-&lt;li>apenas um parâmetro&lt;/li>
-&lt;/ul>
-&lt;h4 id="pontos-negativos">Pontos negativos&lt;/h4>
-&lt;ul>
-&lt;li>tendência de produzir muitas componentes desconectadas,&lt;/li>
-&lt;li>parâmetro arbitrário,
-&lt;ul>
-&lt;li>chery-picking.&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;li>remoção de uma aresta só depende do valor atribuído a ela.&lt;/li>
-&lt;/ul>
-&lt;h2 id="2-estatístico-disparidade">2-Estatístico: disparidade&lt;/h2>
-&lt;p>Anteriormente falei um pouco sobre os princípios da
-&lt;a href="#gestalt">Gestaltt&lt;/a> e citei o que é chamado de &lt;strong>backbones&lt;/strong> em grafos/redes complexas. Quando usamos o método de threshold estamos fazendo uma operação local nas arestas descartando ou matendo dependendo do seu valor. Em Gestalt estamos preocupados com padrões, com coisas não locais. Em grafos algumas vezes se faz necessário pensar assim também.&lt;/p>
-&lt;p>Para deixar isso mais claro veja o exemplo de grafo com pesos a seguir:&lt;/p>
-&lt;div class="mermaid mermaidContainer">
-graph LR;
-*---|0.4|1;
-1---|0.8|2;
-3---|0.4|2;
-1---|0.6|3;
-1---|0.6|4;
-4---|0.3|3;
-4---|...|...;
-1---|...|...;
-*---|0.4|a;
-a---|1|b;
-a---|0.8|c;
-a---|0.8|d;
-c---|0.7|e;
-b---|0.7|f;
-d---|0.8|g;
-g---|...|?_1;
-f---|...|?_2;
-e---|...|?_3;
-b---|0.3|c;
-c---|0.3|d;
-&lt;/div>
-&lt;p>Se aplicassemos um threshold em $0.5$ teriamos algo do tipo&lt;/p>
-&lt;div class="mermaid mermaidContainer">
-graph LR;
-*;
-1---2;
-1---3;
-1---4;
-4---|...|...;
-1---|...|...;
-a---b;
-a---c;
-a---d;
-c---e;
-b---f;
-d---g;
-g---|...|?_1;
-f---|...|?_2;
-e---|...|?_3;
-&lt;/div>
-&lt;p>Produzindo 3 comonentes no nosso grafo. Outro ponto é que &lt;strong>o método de threshold é muito sensível a pequenas mudanças no valor que será feito a remoção das arestas, se tivessemos escolhido 0.6 teriamos mais uma componente isolada formada por (1, 3).&lt;/strong>&lt;/p>
-&lt;p>Se fossemos aplicar uma algoritmo de detecção de comunidades teríamos que fazer isso para cada componente. Em uma rede social isso pode ser problemático porque já estariámos analisando “bolhas” isoladas. Então como proceder?&lt;/p>
-&lt;p>A ideia é encontrar as arestas que são a &lt;strong>sustentação&lt;/strong> para o grafo. &lt;em>A espinha dorsal do grafo, backbone&lt;/em>. O filtro de disparidade funciona dessa maneira: primeiro ele associa com cada aresta um novo valor, $\alpha$, que leva em conta os pesos das arestas vizinhas, depois realizamos um threshold em cima desses novos valores, $\alpha$‘s. Como esses novos valores são definidos?
-$$
-p_{uv} = \frac{Peso\ da\ aresta\ (u,v)}{Soma\ dos\ pesos\ de\ todas\ as\ arestas\ de\ u}$$&lt;/p>
-&lt;p>$$
-= \frac{w_{uv}}{\sum\limits_v w_{uv}}
-$$&lt;/p>
-&lt;h4 id="pontos-positivos-1">Pontos positivos&lt;/h4>
-&lt;ul>
-&lt;li>é estabelecido dentro de uma formalização matemática robusta&lt;/li>
-&lt;li>tenta evitar que o grafo se desconecte&lt;/li>
-&lt;li>custo computacional baixo&lt;/li>
-&lt;/ul>
-&lt;h4 id="pontos-negativos-1">Pontos negativos&lt;/h4>
-&lt;ul>
-&lt;li>podemos argumentar que o teste de hipótese é arbitrário&lt;/li>
-&lt;li>parâmetro $\alpha$ precisa ser escolhido, embora mais robusto do que apenas o parâmetro de threshold&lt;/li>
-&lt;/ul>
-&lt;h2 id="3-espectral">3-Espectral&lt;/h2>
-&lt;p>$$
-(1-\epsilon)v^TLv \le v^TLv \le (1+\epsilon)v^T Lv
-$$&lt;/p>
-&lt;h4 id="pontos-positivos-2">Pontos positivos&lt;/h4>
-&lt;ul>
-&lt;li>é estabelecido dentro de uma formalização matemática robusta&lt;/li>
-&lt;li>dada as restrições garante preservar as propriedades estabelecidas&lt;/li>
-&lt;li>muito utilizado para processamento de sinais em grafos&lt;/li>
-&lt;/ul>
-&lt;h4 id="pontos-negativos-2">Pontos negativos&lt;/h4>
-&lt;ul>
-&lt;li>custo computacional geralmente elevado
-&lt;ul>
-&lt;li>alguns métodos espectrais tem custo $O(n^2)$ para cada iteração&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;li>muitas maneiras distintas de fazer para cada tipo de grafo e objetivo.
-&lt;ul>
-&lt;li>Se o grafo for direcionado ou não, se é livre de escala ou não, se tem um certo padrão específico de conexões, etc.&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;/ul>
-&lt;h3 id="heading">&lt;/h3>
-&lt;h2 id="conclusão">Conclusão&lt;/h2></description></item><item><title>Variações do teorema central do limite para matrizes aleatórias.</title><link>/post/random_matrix_portfolio/</link><pubDate>Mon, 06 Dec 2021 00:00:00 +0000</pubDate><guid>/post/random_matrix_portfolio/</guid><description>&lt;blockquote>
+&lt;p>The output will be something similar to this:&lt;/p>
+&lt;pre>&lt;code>18:02:23 execve(&amp;quot;/usr/bin/ls&amp;quot;, [&amp;quot;ls&amp;quot;], 0x7fffa727a418 /* 54 vars */) = 0
+18:02:23 brk(NULL) = 0x55ebef60c000
+18:02:23 access(&amp;quot;/etc/ld.so.preload&amp;quot;, R_OK) = -1 ENOENT (No such file or directory)
+18:02:23 openat(AT_FDCWD, &amp;quot;/etc/ld.so.cache&amp;quot;, O_RDONLY|O_CLOEXEC) = 3
+...
+&lt;/code>&lt;/pre>
+&lt;pre>&lt;code>18:02:23 execve(&amp;quot;/usr/bin/ls&amp;quot;, [&amp;quot;ls&amp;quot;], 0x7fffa727a418 /* 54 vars */) = 0
+18:02:23 brk(NULL) = 0x55ebef60c000
+18:02:23 access(&amp;quot;/etc/ld.so.preload&amp;quot;, R_OK) = -1 ENOENT (No such file or directory)
+18:02:23 openat(AT_FDCWD, &amp;quot;/etc/ld.so.cache&amp;quot;, O_RDONLY|O_CLOEXEC) = 3
+...
+&lt;/code>&lt;/pre>
+&lt;p>Each line of the &lt;code>strace&lt;/code> output represents a single SYSTEM CALL. It’s easy to see the following pattern:&lt;/p>
+&lt;p>&lt;strong>Name of the SYS CALL(Arguments to be used in the system call) = Result of the SYS CALL&lt;/strong>&lt;/p>
+&lt;p>Yes, it’s hard to understand the output or impossible without using a manual. For each SYS CALL you can use the &lt;code>man &lt;/code> command to get more information about what each line represents. For example, to see what &lt;code>openat&lt;/code> does and the meaning of each argument, use the following command:&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ man 2 openat
+&lt;/code>&lt;/pre>
+&lt;p>&lt;code>openat&lt;/code> is a sys call responsible for requesting a file to be opened. The result of the last line in the output of ls commands, &lt;code> 3&lt;/code>, means a successfully SYS CALL.&lt;/p>
+&lt;h1 id="a-deep-dive-into-failures">A deep dive into failures&lt;/h1>
+&lt;p>We will see here failures and issues related to files, connections, etc. But don’t be afraid to explore other problems, we are just scratching the surface of &lt;code>strace&lt;/code> and &lt;code>lsof&lt;/code>.&lt;/p>
+&lt;h2 id="network-issues">Network issues&lt;/h2>
+&lt;p>First, install the following packages:&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ python -m pip install requests flask
+&lt;/code>&lt;/pre>
+&lt;p>Create a script &lt;code>server_mlops.py&lt;/code> which we will use to simulate a server with network issues&lt;/p>
+&lt;pre>&lt;code class="language-python"># server_mlops.py
+import time
+import flask
+app = flask.Flask(__name__)
+@app.route('/')
+def hello_world():
+sleep_time = flask.request.args.get('sleep', default=10, type=int)
+print('sleep_time:', sleep_time)
+time.sleep(sleep_time)
+return 'Hello World!'
+if __name__ == '__main__':
+app.run()
+&lt;/code>&lt;/pre>
+&lt;p>Starts the server:&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ python server_mlops.py
+&lt;/code>&lt;/pre>
+&lt;p>GET The PID of the process:&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ ps aux | grep -i '[s]erver_mlops.py'
+&lt;/code>&lt;/pre>
+&lt;p>You will see a output similar to this:&lt;/p>
+&lt;pre>&lt;code class="language-bash">devmess+ 19321 18.0 0.3 29716 24792 pts/5 S+ 14:27 0:00 python server_mlops.py
+&lt;/code>&lt;/pre>
+&lt;p>The number in front of the username (&lt;code>19321&lt;/code>) is the &lt;code>PID&lt;/code> of the process.&lt;/p>
+&lt;h3 id="is-my-server-alive">Is my server alive?&lt;/h3>
+&lt;p>We have to use a unique set of filters to answer this question using the &lt;code>lsof&lt;/code>. Therefore, we need to use the argument &lt;code>-a&lt;/code> , which represents an &lt;code>AND&lt;/code> operator. The &lt;code>-i&lt;/code> argument asks to show just the files associated with connections and finally the argument &lt;code>-p INT&lt;/code> makes the &lt;code>losf&lt;/code> list just the files opened by the process with the PID &lt;code>INT&lt;/code>.&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ lsof -a -i -p 19321
+&lt;/code>&lt;/pre>
+&lt;p>You will have a output similar to this&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>COMMAND&lt;/th>
+&lt;th>PID&lt;/th>
+&lt;th>USER&lt;/th>
+&lt;th>FD&lt;/th>
+&lt;th>TYPE&lt;/th>
+&lt;th>DEVICE&lt;/th>
+&lt;th>SIZE/OFF&lt;/th>
+&lt;th>NODE&lt;/th>
+&lt;th>NAME&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>python&lt;/td>
+&lt;td>19321&lt;/td>
+&lt;td>devmessias&lt;/td>
+&lt;td>4u&lt;/td>
+&lt;td>IPv4&lt;/td>
+&lt;td>16108218&lt;/td>
+&lt;td>0t0&lt;/td>
+&lt;td>TCP&lt;/td>
+&lt;td>localhost:5000 (LISTEN)&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;p>The output shows that at least our server is listening in the &lt;code>5000&lt;/code> port. Try to remove the &lt;code>-a&lt;/code> argument and see what happens.&lt;/p>
+&lt;h3 id="is-my-process-stuck-waiting-for-someone-what-is-causing-the-process-hanging">Is my process stuck waiting for someone? What is causing the process hanging?&lt;/h3>
+&lt;p>This can happen in a myriad of cases. For example, in the dependency management systems like pip/conda. Thus, it is superb to know if you can answer fast if you have a problem on your side or not. Let’s create a simple simulation of this issue. To do so, create the &lt;code>client_mlops.py&lt;/code> using the following code:&lt;/p>
+&lt;pre>&lt;code class="language-python">#!/usr/bin/env python
+#client_mlops.py
+import requests
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument(
+'--sleep', type=int, help='time to sleep', default=0)
+args = parser.parse_args()
+print('Ask for localhost:5000 to sleep for {} seconds'.format(args.sleep))
+r = requests.get('http://localhost:5000', params={'sleep': int(args.sleep)})
+print(r.text)
+&lt;/code>&lt;/pre>
+&lt;p>In the above code, we have the sleep argument. This argument will ask &lt;code>server_mlops&lt;/code> to wait for a couple of seconds before sending the answer. Let’s see how these situations appear to us at the system call level.&lt;/p>
+&lt;p>Start the &lt;code>client_mlops.py&lt;/code> with the &lt;code>strace:&lt;/code>&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ strace -e poll,select,connect,recvfrom,sendto python client_mlops.py --sleep=20
+&lt;/code>&lt;/pre>
+&lt;p>The &lt;code>-e&lt;/code> argument followed by &lt;code>poll,select,connect,recvfrom,sendto&lt;/code> asks to filter just the sys calls related with connections issues. The output of this fake failure will be something like this&lt;/p>
+&lt;pre>&lt;code>connect(4, {sa_family=AF_INET, sin_port=htons(5000), sin_addr=inet_addr(&amp;quot;127.0.0.1&amp;quot;)}, 16) = 0
+connect(4, {sa_family=AF_INET6, sin6_port=htons(5000), inet_pton(AF_INET6, &amp;quot;::1&amp;quot;, &amp;amp;sin6_addr), sin6_flowinfo=htonl(0), sin6_scope_id=0}, 28) = 0
+connect(4, {sa_family=AF_INET6, sin6_port=htons(5000), inet_pton(AF_INET6, &amp;quot;::1&amp;quot;, &amp;amp;sin6_addr), sin6_flowinfo=htonl(0), sin6_scope_id=0}, 28) = -1 ECONNREFUSED (Connection refused)
+connect(4, {sa_family=AF_INET, sin_port=htons(5000), sin_addr=inet_addr(&amp;quot;127.0.0.1&amp;quot;)}, 16) = 0
+sendto(4, &amp;quot;GET /?sleep=10 HTTP/1.1\r\nHost: l&amp;quot;..., 154, 0, NULL, 0) = 154
+recvfrom(4,
+&lt;/code>&lt;/pre>
+&lt;p>In the last line we see an unfinished &lt;code>recvfrom&lt;/code> &lt;strong>SYS_CALL&lt;/strong> . Do you want to know more about &lt;code>recvfrom&lt;/code>? Execute &lt;code>man 2 recvfrom&lt;/code> in a terminal session. But what matters here? The point is that: &lt;code>strace&lt;/code> is telling us there is no problem with our client program, something is problematic on the server side.&lt;/p>
+&lt;p>You can also use the &lt;code>lsof&lt;/code> to investigate this problem. Let’s simulate this scenario.&lt;/p>
+&lt;p>Starts the client again:&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ python client_mlops.py --sleep=100
+&lt;/code>&lt;/pre>
+&lt;p>Now, get the PID using &lt;code>ps aux | grep -i '[c]lient_mlops.py'&lt;/code> and execute the &lt;code>lsof&lt;/code> with the obtained PID&lt;/p>
+&lt;pre>&lt;code class="language-bash">lsof -a -i -p 19321
+&lt;/code>&lt;/pre>
+&lt;p>the output will be something like this&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>COMMAND&lt;/th>
+&lt;th>PID&lt;/th>
+&lt;th>USER&lt;/th>
+&lt;th>FD&lt;/th>
+&lt;th>TYPE&lt;/th>
+&lt;th>DEVICE&lt;/th>
+&lt;th>SIZE/OFF&lt;/th>
+&lt;th>NODE&lt;/th>
+&lt;th>NAME&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>python&lt;/td>
+&lt;td>31551&lt;/td>
+&lt;td>devmessias&lt;/td>
+&lt;td>4u&lt;/td>
+&lt;td>IPv4&lt;/td>
+&lt;td>16622065&lt;/td>
+&lt;td>0t0&lt;/td>
+&lt;td>TCP&lt;/td>
+&lt;td>localhost:57314-&amp;gt;localhost:5000 (ESTABLISHED)&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;p>What &lt;code>lsof&lt;/code> is telling us is that: ‘’&lt;em>You client seems fine. At least it is connected with the server&lt;/em>“”. What does this mean? This means the answer was not of great help.&lt;/p>
+&lt;h2 id="problems-with-regular-files">Problems with regular files&lt;/h2>
+&lt;p>Sometimes you can have a problem with regular files and you don’t know. Nothing was printed in the output. For example, a wrong cache being used, a program that tries to access a file that doesn’t have permission, a malicious or a bad writing process accessing/creating files in your system, etc.&lt;/p>
+&lt;p>Here we will simulate simple examples related to regular files. To do so, first, copy any file to the &lt;code>tmp&lt;/code> folder or just call the following command:&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ man strace &amp;gt; /tmp/dummy_file.txt
+&lt;/code>&lt;/pre>
+&lt;h3 id="which-processes-is-this-file-attached-to">Which processes is this file attached to?&lt;/h3>
+&lt;p>Being able to answer this question can be quite useful. For example, suppose that there is a huge file in your disk being created, almost filling up your system and you want to discover which process is doing this.&lt;/p>
+&lt;p>First, create the following script.&lt;/p>
+&lt;pre>&lt;code class="language-python">#!/usr/bin/env python
+# file_open.py
+import time
+f = open('/tmp/dummy_file.txt', 'r')
+input('Press Enter to continue...')
+&lt;/code>&lt;/pre>
+&lt;p>Now open two different terminal sessions and perform the following command &lt;code>python file_open.py &lt;/code>. in each one.&lt;/p>
+&lt;p>To find all the processes which are attached to &lt;code>dummy_file.txt&lt;/code> you just need to call &lt;code>lsof&lt;/code> like this:&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ lsof /tmp/dummy_file.txt
+&lt;/code>&lt;/pre>
+&lt;p>The output should be something similar to this:&lt;/p>
+&lt;pre>&lt;code>COMMAND PID USER FD TYPE DEVICE SIZE/OFF NODE NAME
+python 15411 devmessias 3r REG 8,2 0 2911031 /tmp/dummy_file.txt
+python 20777 devmessias 3r REG 8,2 0 2911031 /tmp/dummy_file.txt
+&lt;/code>&lt;/pre>
+&lt;p>We have two distinct processes, two different PIDs, using the same file.&lt;/p>
+&lt;h3 id="i-made-a-mistake-deleted-an-important-file-how-can-i-recover-it">I made a mistake! Deleted an important file! How can I recover it?&lt;/h3>
+&lt;p>Here the simulation will be more than one more process attached to a file and you accidentally perform some action that deletes the file.&lt;/p>
+&lt;p>Create a file &lt;code>accident.txt&lt;/code>. Open a terminal session and perform the following command. &lt;strong>Don’t close the session!&lt;/strong>&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ python -c 'f=open(&amp;quot;accident.txt&amp;quot;, &amp;quot;r&amp;quot;);input(&amp;quot;...&amp;quot;)'
+&lt;/code>&lt;/pre>
+&lt;p>In another session, perform the following commands:&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ rm accident.txt
+$ ls accident.txt
+&lt;/code>&lt;/pre>
+&lt;p>And it’s gone :(&lt;/p>
+&lt;pre>&lt;code>ls: cannot access 'acidente.txt': No such file or directory
+&lt;/code>&lt;/pre>
+&lt;p>Don’t worry! Linux has a lot of cool aspects and one of them will help us to recover our file.&lt;/p>
+&lt;p>In Linux any process has a directory associated with it, this directory will be inside of the &lt;code>/proc&lt;/code> folder. And what do these directories store? A lot of things! I assure you that you can be surprised. For example, these folders also store the file descriptors associated with any process using &lt;code>accident.txt&lt;/code>. Let’s see if there are any processes using this file.&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ lsof -u your_username | grep 'accident.txt'
+&lt;/code>&lt;/pre>
+&lt;p>In my case, I’ve obtained the following output:&lt;/p>
+&lt;pre>&lt;code>python 22465 devmessias 3r REG 8,2 37599 14288174 path/accident.txt (deleted)
+&lt;/code>&lt;/pre>
+&lt;p>This is great news! We have a process PID &lt;code>22465&lt;/code> that still has a file descriptor associated with &lt;code>accident.txt&lt;/code>. Now we can use a simple &lt;code>cp&lt;/code> command to recover the data. To do so, we need to use the file descriptor number. In my case is &lt;code>3&lt;/code> which is the number in front of the &lt;code>r&lt;/code> character in the output above.&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ cp /proc/22465/fd/3 recovered.txt
+&lt;/code>&lt;/pre>
+&lt;p>Now just call &lt;code>nano recovered.txt&lt;/code> and testify the result . It’s not magic! It’s just how the &lt;strong>process pseudo-filesystem&lt;/strong> works!&lt;/p>
+&lt;h3 id="silent-errors-associated-with-files-and-permissions">Silent errors associated with files and permissions&lt;/h3>
+&lt;p>Let’s create a simple example of an undue access to a file using the following script&lt;/p>
+&lt;pre>&lt;code class="language-python">#!/usr/bin/env python
+# file_404.py
+import time
+try:
+f = open('/tmp/file_that_dosent_exist.csv', 'r')
+except FileNotFoundError:
+pass
+try:
+# create a file with sudo and then change the permission using chmod 700
+f = open('/tmp/file_wrong_permission.csv', 'r')
+except PermissionError:
+pass
+input('Press Enter to continue...')
+&lt;/code>&lt;/pre>
+&lt;p>Call &lt;code>python file_404.py&lt;/code>, nothing will appears.&lt;/p>
+&lt;p>To trace any SYS CALL related to regular files made by &lt;code>python file_404.py &lt;/code> you just need to use the &lt;code>-e trace=file&lt;/code> arg, like this:&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ strace -f -e trace=file python file_404.py
+&lt;/code>&lt;/pre>
+&lt;p>The argument &lt;code>-f&lt;/code> says to &lt;code>strace&lt;/code> to monitor any children&amp;rsquo;s process. You probably will use &lt;code>-f&lt;/code> every time when you’re dealing with strace in real case scenarios.&lt;/p>
+&lt;p>The output of the previous command should be like this&lt;/p>
+&lt;pre>&lt;code>lstat(&amp;quot;something/file_404.py&amp;quot;, {st_mode=S_IFREG|0644, st_size=242, ...}) = 0
+openat(AT_FDCWD, &amp;quot;file_404.py&amp;quot;, O_RDONLY) = 3
+openat(AT_FDCWD, &amp;quot;/tmp/file_that_dosent_exist.csv&amp;quot;, O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+openat(AT_FDCWD, &amp;quot;/tmp/file_wrong_permission.csv&amp;quot;, O_RDONLY|O_CLOEXEC) = -1 EACCES (Permission denied)
+&lt;/code>&lt;/pre>
+&lt;p>Cool! With the &lt;code>strace&lt;/code> we are able to identify errors even when the programmer used a dangerous practice in the code.&lt;/p>
+&lt;p>Ok, but let’s improve our output. We can filter the strace output redirecting into it the &lt;code>awk&lt;/code> (or &lt;code>grep&lt;/code>) and performing a conditional check that each line should start with the &lt;code>open&lt;/code> string and have the pattern &lt;code>= -1&lt;/code> in the line. The &lt;code>-1&lt;/code> means that the &lt;code>openat&lt;/code> SYS CALL had returned an error.&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ strace -f -e trace=file python file_404.py 2&amp;gt;&amp;amp;1 | awk '/^open/ &amp;amp;&amp;amp; /= -1/ {print}'
+&lt;/code>&lt;/pre>
+&lt;p>The output now will be simpler and easier to analyze:&lt;/p>
+&lt;pre>&lt;code>openat(AT_FDCWD, &amp;quot;/home/devmessias/anaconda3/pyvenv.cfg&amp;quot;, O_RDONLY) = -1 ENOENT (No such file or directory)
+openat(AT_FDCWD, &amp;quot;/tmp/arquivo_404.csv&amp;quot;, O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+openat(AT_FDCWD, &amp;quot;/tmp/arquivo_permission.csv&amp;quot;, O_RDONLY|O_CLOEXEC) = -1 EACCES (Permission denied)
+&lt;/code>&lt;/pre>
+&lt;p>If you are using the last versions of &lt;code>strace&lt;/code> (5.2&amp;gt;=) you can use a more simple command like this:&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ strace -f -e trace=openat -e status=failed python file_404.py
+&lt;/code>&lt;/pre>
+&lt;h3 id="is-this-process-using-a-cache-where-can-i-find-this-cache-which-configs-files-does-this-process-use">Is this process using a cache? Where can I find this cache? Which configs files does this process use?&lt;/h3>
+&lt;p>It is a tedious task to search for cache or configs files used by a process and sometimes we need to delete these cache files. Another task that appears very often is to discover which files a process is using or if it is doing anything strange in your system. Maybe you want to discover if your python script is using the correct libs and files. For all these situations, you can use the following command:&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ strace -f -e trace=file command
+&lt;/code>&lt;/pre>
+&lt;p>If you want to get just the SYS CALLs that was perfomed succesfully do the next:&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ strace -f -e trace=file comando 2&amp;gt;&amp;amp;1 | awk '/^open/ &amp;amp;&amp;amp; !/= -1/ {print}'
+&lt;/code>&lt;/pre>
+&lt;p>In the above command the &lt;code>!&lt;/code> is as a negation parameter for the &lt;code>awk&lt;/code> search.&lt;/p>
+&lt;p>Again, the new versions of strace allows the status flag:&lt;/p>
+&lt;pre>&lt;code>$ strace -f -e trace=openat -e status=successful python file_404.py
+&lt;/code>&lt;/pre>
+&lt;h2 id="dissecting-your-database-system">Dissecting your database system&lt;/h2>
+&lt;p>The &lt;code>strace&lt;/code> and &lt;code>lsof&lt;/code> are powerful tools to discover and solve bugs. You don’t need to believe me. Just check the number of bugs in MySQL that &lt;code>strace&lt;/code> was used to tackle
+&lt;a href="http://mysqlentomologist.blogspot.com/2017/12/using-strace-for-mysql-troubleshooting.html" target="_blank" rel="noopener">“using strace for mysql troubleshooting&lt;/a>. Thus, it’s not a surprise that we can use &lt;code>strace&lt;/code> in our daily life dealing with databases.&lt;/p>
+&lt;h3 id="is-this-process--well-behaved-how-many-connections-does-it-have">Is this process well behaved? How many connections does it have?&lt;/h3>
+&lt;p>In MlOps or DevOps we always need to deal with database connections. Sometimes we must check if a process is closing these connections or is creating more than necessary. If these connections are made using the &lt;strong>TCP&lt;/strong> protocol you can list all established connections using the following command:&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ lsof -iTCP -sTCP:ESTABLISHED
+&lt;/code>&lt;/pre>
+&lt;p>As expected, we get a lot of unwanted information like website addresses and other application communications. If we want to list just the &lt;strong>TCP&lt;/strong> connection in a process, we must pass the &lt;strong>PID&lt;/strong> like this:&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ lsof -iTCP -sTCP:ESTABLISHED -p 22157
+COMMAND PID USER FD TYPE DEVICE SIZE/OFF NODE NAME
+python 22157 devmessias 4u IPv4 9474517 0t0 TCP localhost:35932-&amp;gt;localhost:mysql (ESTABLISHED)
+python 22157 devmessias 5u IPv4 9474518 0t0 TCP localhost:35934-&amp;gt;localhost:mysql (ESTABLISHED)
+python 22157 devmessias 6u IPv4 9475529 0t0 TCP localhost:37048-&amp;gt;localhost:5000 (ESTABLISHED)
+&lt;/code>&lt;/pre>
+&lt;p>As can you see we also have some connections in our server that are not related to the &lt;code>mysql&lt;/code>. If we want to investigate just the &lt;code>mysql&lt;/code> connections between all the processes in our system just do:&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ lsof -iTCP:mysql -sTCP:ESTABLISHED
+python 22157 devmessias 4u IPv4 9474517 0t0 TCP localhost:35932-&amp;gt;localhost:mysql (ESTABLISHED)
+python 22157 devmessias 5u IPv4 9474518 0t0 TCP localhost:35934-&amp;gt;localhost:mysql (ESTABLISHED)
+&lt;/code>&lt;/pre>
+&lt;p>The process identified by &lt;em>22157&lt;/em> PID has two connections with our mysql server.&lt;/p>
+&lt;p>Notice we have used a pattern in the &lt;code>-i&lt;/code> argument. This pattern follows this structure:&lt;/p>
+&lt;pre>&lt;code class="language-bash">lsof -i[protocol][@hostname|hostaddr][:service|port]
+&lt;/code>&lt;/pre>
+&lt;h3 id="everything-is-working-proprely">Everything is working proprely?&lt;/h3>
+&lt;p>Let’s give you a taste of what we can extract from the mysql service using &lt;code>strace&lt;/code> in order to get a comprehension about the processes.&lt;/p>
+&lt;p>Get the PID of &lt;code>mysqld&lt;/code>&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ps aux | grep -i '[m]ysqld'
+mysql 14001 1 0 13:41 ? 00:00:18 /usr/sbin/mysqld
+&lt;/code>&lt;/pre>
+&lt;p>We will ask the &lt;code>strace&lt;/code> to increase the size of the strings up to 50 characters (&lt;code>-s 50&lt;/code>) and we will omit any SYS CALL of the type &lt;code>io_getevents&lt;/code> , &lt;code>nanosleep&lt;/code> and &lt;code>futex&lt;/code>.&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ sudo strace -s 50 -f -e trace=!io_getevents,nanosleep,futex -p 10767
+&lt;/code>&lt;/pre>
+&lt;p>Chose one of your databases and tables to do the following examples. Here, I’ve perfomed this SQL query:&lt;/p>
+&lt;pre>&lt;code class="language-sql">SELECT * FROM product WHERE product_id = 1;
+&lt;/code>&lt;/pre>
+&lt;p>My output prompted some stuff like this&lt;/p>
+&lt;pre>&lt;code class="language-bash">[pid 14334] recvfrom(52, &amp;quot;,\0\0\0&amp;quot;, 4, MSG_DONTWAIT, NULL, NULL) = 4
+[pid 14334] recvfrom(52, &amp;quot;\3SELECT * FROM product WHERE product_id = 1&amp;quot;, 44, MSG_DONTWAIT, NULL, NULL) = 44
+[pid 14334] sendto(52, &amp;quot;\1\0\0\1\5F\0\0\2\3def\16farmers_market\7product\7product\nprodu&amp;quot;..., 477, MSG_DONTWAIT, NULL, 0 &amp;lt;unfinished ...&amp;gt;
+[pid 14207] sched_yield( &amp;lt;unfinished ...&amp;gt;
+[pid 14334] &amp;lt;... sendto resumed&amp;gt;) = 477
+[pid 14207] &amp;lt;... sched_yield resumed&amp;gt;) = 0
+...
+&lt;/code>&lt;/pre>
+&lt;p>We can see the SQL query above. This also shows how &lt;code>strace&lt;/code> can help us to gain a deep understanding about our system. We can see how the sql queries are comunicating using de &lt;code>recvfrom&lt;/code> and &lt;code>sendfrom&lt;/code> calls. The &lt;code>man 2 recvfrom&lt;/code> says the first number, 52, represents the file descriptor associated with a unix socket.&lt;/p>
+&lt;p>We can use this approach to investigate $IO$ problems (
+&lt;a href="https://newbiedba.wordpress.com/2017/01/04/using-strace-in-linux-to-troubleshoot-database-performance-issues/" target="_blank" rel="noopener">using-strace-in-linux-to-troubleshoot-database-performance-issues&lt;/a>) as well many others. But let’s simulate a lock condition and see what happens.&lt;/p>
+&lt;p>Start a session and initiate any transaction. Don’t finish with a &lt;strong>COMMIT;&lt;/strong> command!&lt;/p>
+&lt;pre>&lt;code># first session
+MariaDB [you_db]&amp;gt; BEGIN;
+Query OK, 0 rows affected (0.001 sec)
+MariaDB [your_db]&amp;gt; UPDATE customer SET customer_first_name = 'something' WHERE customer_id=1;
+Query OK, 0 rows affected (0.001 sec)
+Rows matched: 1 Changed: 0 Warnings: 0
+MariaDB [you_db]&amp;gt;
+&lt;/code>&lt;/pre>
+&lt;p>Looks in the &lt;code>strace&lt;/code> output, something like this should appear&lt;/p>
+&lt;pre>&lt;code>[pid 14334] recvfrom(52, &amp;quot;I\0\0\0&amp;quot;, 4, MSG_DONTWAIT, NULL, NULL) = 4
+[pid 14334] recvfrom(52, &amp;quot;\3UPDATE customer SET customer_first_name = 'Brun&amp;quot;..., 73, MSG_DONTWAIT, NULL, NULL) = 73
+[pid 14334] sendto(52, &amp;quot;0\0\0\1\0\0\0\3\0\0\0(Rows matched: 1 Changed: 0 Warnings:&amp;quot;..., 52, MSG_DONTWAIT, NULL, 0) = 52
+[pid 14334] recvfrom(52, 0x7fd354007348, 4, MSG_DONTWAIT, NULL, NULL) = -1 EAGAIN
+[pid 14334] poll([{fd=52, events=POLLIN|POLLPRI}], 1, 28800000
+&lt;/code>&lt;/pre>
+&lt;p>The &lt;code>poll&lt;/code> is a system call that will wait for any change in the file descriptor 52. The process is waiting for the &lt;code>COMMIT;&lt;/code> clause in our first mysql session. Note the absence of the enclosing &lt;code>)&lt;/code> in the last line.&lt;/p>
+&lt;p>Open another mysql session, try to execute the same SQL query (whitouth the BEGIN)&lt;/p>
+&lt;pre>&lt;code># second session
+MariaDB [your_db]&amp;gt; UPDATE customer SET customer_first_name = 'something' WHERE customer_id=1;
+&lt;/code>&lt;/pre>
+&lt;p>The db row it’s in a lock state. If we look in the &lt;code>strace&lt;/code> output just some new lines will be printed, like this&lt;/p>
+&lt;pre>&lt;code> &amp;lt;unfinished ...&amp;gt;
+[pid 29884] recvfrom(83, &amp;quot;I\0\0\0&amp;quot;, 4, MSG_DONTWAIT, NULL, NULL) = 4
+[pid 29884] recvfrom(83, &amp;quot;\3UPDATE customer SET customer_first_name = 'someth&amp;quot;..., 73, MSG_DONTWAIT, NULL, NULL) = 73
+&lt;/code>&lt;/pre>
+&lt;p>Our second transction is waiting for the first to be commited in our db. If you perform a commit in the first session this will hapen in the &lt;code>strace&lt;/code> output:&lt;/p>
+&lt;pre>&lt;code>[pid 14334] &amp;lt;... poll resumed&amp;gt;) = 1 ([{fd=52, revents=POLLIN}])
+[pid 14334] recvfrom(52, &amp;quot;\7\0\0\0&amp;quot;, 4, MSG_DONTWAIT, NULL, NULL) = 4
+[pid 14334] recvfrom(52, &amp;quot;\3COMMIT&amp;quot;, 7, MSG_DONTWAIT, NULL, NULL) = 7
+...
+&lt;/code>&lt;/pre>
+&lt;p>Your first transaction was performed and the lock was released allowing the second transaction to be executed.&lt;/p>
+&lt;h2 id="extras-related-to-files-proc-and-strace">Extras related to files (&lt;code>/proc/&lt;/code>) and &lt;code>strace&lt;/code>&lt;/h2>
+&lt;p>I gave you some examples about connection issues, regular files accidents and database management. Here I’ll give more examples that I believe are not so useful although they are very interesting.&lt;/p>
+&lt;h3 id="creating-a-sys-call-summary-what-does-my-program-do">Creating a SYS CALL summary: what does my program do?&lt;/h3>
+&lt;p>An overview of what your program does can help you to perform some optimizations or discover something strange. We can use the &lt;code>strace -c&lt;/code> to get an overview of the system calls. For example, the following command gave me a summary of system calls of a &lt;code>make sync-env&lt;/code> that I’m using in one of my projects:&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ strace -c -e trace=!\wait4 make sync-env
+&lt;/code>&lt;/pre>
+&lt;p>The exclamation mark, &lt;code>-e trace=!\wait4&lt;/code>, in the above command tells &lt;code>strace&lt;/code> to ignore any &lt;code>wait4&lt;/code> system call.&lt;/p>
+&lt;p>What I’ve obtained was this&lt;/p>
+&lt;pre>&lt;code>% time seconds usecs/call calls errors syscall
+------ ----------- ----------- --------- --------- ----------------
+14,54 0,000209 6 33 13 openat
+13,01 0,000187 17 11 vfork
+12,32 0,000177 7 25 mmap
+8,49 0,000122 3 31 close
+8,42 0,000121 5 21 rt_sigprocmask
+8,14 0,000117 6 17 read
+6,89 0,000099 5 19 11 stat
+5,85 0,000084 3 23 fstat
+2,85 0,000041 8 5 mprotect
+2,64 0,000038 9 4 write
+2,51 0,000036 2 16 fcntl
+2,02 0,000029 3 9 rt_sigaction
+1,95 0,000028 14 2 readlink
+1,95 0,000028 14 2 getdents64
+1,25 0,000018 4 4 brk
+1,25 0,000018 18 1 1 access
+1,25 0,000018 3 5 pipe
+1,11 0,000016 4 4 ioctl
+0,84 0,000012 6 2 getcwd
+0,70 0,000010 10 1 munmap
+0,49 0,000007 7 1 lstat
+0,49 0,000007 7 1 execve
+0,49 0,000007 3 2 prlimit64
+0,35 0,000005 5 1 chdir
+0,21 0,000003 3 1 arch_prctl
+------ ----------- ----------- --------- --------- ----------------
+100.00 0,001437 241 25 total
+&lt;/code>&lt;/pre>
+&lt;p>What can we extract from the above output? A lot of things. For example &lt;code>make sync-env&lt;/code> spent 14% of the time doing system calls of the type &lt;code>opennat&lt;/code> and 20 of these 33 &lt;code>openat&lt;/code> calls had some problem.&lt;/p>
+&lt;h3 id="did-this-process-start-with-the-correct-environment-variables">Did this process start with the correct environment variables?&lt;/h3>
+&lt;p>We have several reasons to use environment variables. These variables are easy to configure, improve security, and prevent errors. So they are used everywhere to store a secret, point to a lib and much more. However, sometimes we are not so sure whether a process is using the correct environment variables or not.&lt;/p>
+&lt;p>Let’s try something simple&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ ANSWER=42 python script.py
+&lt;/code>&lt;/pre>
+&lt;p>As I said previously the &lt;code>/proc&lt;/code> is responsible for storing the state of any process running in your machine. So, it’s not a surprise that we can extract the environment variables from that.&lt;/p>
+&lt;p>To print the environment variables of the process with a PID &lt;code>4301&lt;/code> just call this &lt;code>cat /proc/4031/environ&lt;/code> and get an ugly output. To improve the output we can use the &lt;code>tr&lt;/code> and replace the null characters &lt;code>\0&lt;/code> by break lines &lt;code>\n&lt;/code>. Like this:&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ tr '\0' '\n' &amp;lt; /proc/4031/environ
+&lt;/code>&lt;/pre>
+&lt;p>You will have a output similar to this&lt;/p>
+&lt;pre>&lt;code>ANSWER=42
+SHELL=/bin/bash
+LANGUAGE=en_US
+JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/bin/java
+...more stuff
+&lt;/code>&lt;/pre>
+&lt;p>If you want to look just at the environment variables with a given string pattern you can use &lt;code>awk&lt;/code> , &lt;code>grep&lt;/code>, or anything that you feel more comfortable. For example, doing this&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ tr '\0' '\n' &amp;lt; /proc/4031/environ 2&amp;gt;&amp;amp;1 | awk '/^CONDA/ {print}'
+&lt;/code>&lt;/pre>
+&lt;p>I’ve obtained this&lt;/p>
+&lt;pre>&lt;code>CONDA_EXE=/home/devmessias/anaconda3/bin/conda
+CONDA_PREFIX=/home/devmessias/anaconda3
+CONDA_PROMPT_MODIFIER=(base)
+CONDA_SHLVL=1
+CONDA_PYTHON_EXE=/home/devmessias/anaconda3/bin/python
+CONDA_DEFAULT_ENV=base
+&lt;/code>&lt;/pre>
+&lt;h3 id="i-forgot-to-redirect-the-outputs-what-can-i-do-now">I forgot to redirect the outputs! What can I do now?&lt;/h3>
+&lt;p>Suppose you started a process without redirecting the output to a file. Maybe you forgot or you are too optimistic about the problems and now you want to persist the errors. If restart the process it’s out of question you can use the &lt;code>strace&lt;/code> to solve your headache. Let’s see how we can solve that.&lt;/p>
+&lt;p>The system calls responsible to request the kernel to write in the &lt;strong>stdin, stdout&lt;/strong> and &lt;strong>stderr&lt;/strong> is the &lt;code>write&lt;/code> . If you want to know more you should read the manual&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ man 2 write
+&lt;/code>&lt;/pre>
+&lt;p>But the most important part of the &lt;code>write&lt;/code> manual is on the top and is this:&lt;/p>
+&lt;pre>&lt;code>NAME
+write - write to a file descriptor
+SYNOPSIS
+#include &amp;lt;unistd.h&amp;gt;
+ssize_t write(int fd, const void *buf, size_t count);
+&lt;/code>&lt;/pre>
+&lt;p>As you can see the first argument is an integer that represents the file descriptor. If &lt;strong>fd=1&lt;/strong> this means a writing in the &lt;strong>stdout&lt;/strong> and if &lt;strong>fd=2&lt;/strong> the writing will be in the &lt;strong>stderr&lt;/strong>. So, it’s an easy piece here. We just need to monitor any sys call &lt;code>write&lt;/code> with the &lt;code>fd&lt;/code> equals to $1$ or $2$ and save the values in a file.&lt;/p>
+&lt;p>When I need to do this (two or three times in my life time) I use the following pattern&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ strace -f -t -etrace=write -s 1000 -p 4320 2&amp;gt;&amp;amp;1 | grep --line-buffered -e 'write(2, ' -e 'write(1, ' &amp;gt; out.txt
+&lt;/code>&lt;/pre>
+&lt;p>I’m asking &lt;code>strace&lt;/code> to monitor any SYS CALL &lt;code>write&lt;/code> from the process with the PID &lt;code>4320&lt;/code> or children created by them (&lt;code>-f&lt;/code>) . And saving the output in the &lt;code>out.txt&lt;/code> file.&lt;/p>
+&lt;p>The following code changes the &lt;code>server_mlops.py&lt;/code> to help you to explore more this scenario.&lt;/p>
+&lt;pre>&lt;code class="language-python"># server_mlops.py
+import time
+import flask
+import sys
+app = flask.Flask(__name__)
+@app.route('/')
+def hello_world():
+sleep_time = flask.request.args.get('sleep', default=10, type=int)
+print('sleep_time:', sleep_time)
+for i in range(sleep_time):
+print(f'INFO: {i} of sleep_time \n asdf \t ')
+print(f'ERROR: Example msg {i}', file=sys.stderr)
+time.sleep(1)
+return 'Hello World!'
+if __name__ == '__main__':
+app.run()
+&lt;/code>&lt;/pre>
+&lt;h3 id="how-this-program-has-been-called-what-is-the-working-dir-of-the-process">How this program has been called? What is the working dir of the process?&lt;/h3>
+&lt;p>Ok, you can answer these questions using &lt;code>htop&lt;/code>. However we can get the same information without installing anything, just looking in a file inside of the &lt;code>/proc/&lt;/code> folder, like this&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ tr '\0' '\t' &amp;lt; /proc/A_PID_NUMBER/cmdline
+&lt;/code>&lt;/pre>
+&lt;p>In my case I’ve obtined this&lt;/p>
+&lt;pre>&lt;code>python client.py --sleep 1000
+&lt;/code>&lt;/pre>
+&lt;p>To discover the working directory do this&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ readlink /proc/A_PID_NUMBER/cwd
+&lt;/code>&lt;/pre>
+&lt;h2 id="conclusion--suggestions">Conclusion &amp;amp; Suggestions&lt;/h2>
+&lt;p>I hope that after reading this post you can be more prepared to face problems in your daily tasks. But if you have any suggestion you can send me an email
+&lt;a href="devmessias@gmail.com">devmessias@gmail.com&lt;/a>. Thanks!&lt;/p>
+&lt;p>If you want to know more about &lt;code>strace &lt;/code> and linux in general I strongly recommend spent some hours navigating and reading Julia Evans’ blog
+&lt;a href="https://jvns.ca/" target="_blank" rel="noopener">https://jvns.ca/&lt;/a>.&lt;/p></description></item><item><title>Variações do teorema central do limite para matrizes aleatórias.</title><link>/post/random_matrix_portfolio/</link><pubDate>Mon, 06 Dec 2021 00:00:00 +0000</pubDate><guid>/post/random_matrix_portfolio/</guid><description>&lt;blockquote>
 &lt;p>Disponível em
 &lt;a href="https://opencodecom.net/post/2021-12-14-variacoes-do-teorema-central-do-limite-para-matrizes-aleatorias-de-nucleos-atomicos-a-filtragem-de-matrizes-de-correlaca/" target="_blank" rel="noopener">https://opencodecom.net/&lt;/a>&lt;/p>
 &lt;/blockquote>
