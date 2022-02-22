@@ -3,7 +3,7 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>/pt-br/</loc>
-    <lastmod>2022-02-15T00:00:00+00:00</lastmod>
+    <lastmod>2022-02-04T08:31:00-03:00</lastmod>
     <xhtml:link
                 rel="alternate"
                 hreflang="en"
@@ -16,7 +16,7 @@
                 />
   </url><url>
     <loc>/pt-br/categories/</loc>
-    <lastmod>2022-02-15T00:00:00+00:00</lastmod>
+    <lastmod>2022-02-04T08:31:00-03:00</lastmod>
     <xhtml:link
                 rel="alternate"
                 hreflang="en"
@@ -26,149 +26,6 @@
                 rel="alternate"
                 hreflang="pt-br"
                 href="/pt-br/categories/"
-                />
-  </url><url>
-    <loc>/pt-br/tag/complex-networks/</loc>
-    <lastmod>2022-02-15T00:00:00+00:00</lastmod>
-    <xhtml:link
-                rel="alternate"
-                hreflang="en"
-                href="/tag/complex-networks/"
-                />
-    <xhtml:link
-                rel="alternate"
-                hreflang="pt-br"
-                href="/pt-br/tag/complex-networks/"
-                />
-  </url><url>
-    <loc>/pt-br/category/data-analysis/</loc>
-    <lastmod>2022-02-15T00:00:00+00:00</lastmod>
-    <xhtml:link
-                rel="alternate"
-                hreflang="en"
-                href="/category/data-analysis/"
-                />
-    <xhtml:link
-                rel="alternate"
-                hreflang="pt-br"
-                href="/pt-br/category/data-analysis/"
-                />
-  </url><url>
-    <loc>/pt-br/tag/data-analysis/</loc>
-    <lastmod>2022-02-15T00:00:00+00:00</lastmod>
-    <xhtml:link
-                rel="alternate"
-                hreflang="en"
-                href="/tag/data-analysis/"
-                />
-    <xhtml:link
-                rel="alternate"
-                hreflang="pt-br"
-                href="/pt-br/tag/data-analysis/"
-                />
-  </url><url>
-    <loc>/pt-br/post/edge_graph_filtering/</loc>
-    <lastmod>2022-02-15T00:00:00+00:00</lastmod>
-    <xhtml:link
-                rel="alternate"
-                hreflang="en"
-                href="/post/edge_graph_filtering/"
-                />
-    <xhtml:link
-                rel="alternate"
-                hreflang="pt-br"
-                href="/pt-br/post/edge_graph_filtering/"
-                />
-  </url><url>
-    <loc>/pt-br/tag/graphs/</loc>
-    <lastmod>2022-02-15T00:00:00+00:00</lastmod>
-    <xhtml:link
-                rel="alternate"
-                hreflang="en"
-                href="/tag/graphs/"
-                />
-    <xhtml:link
-                rel="alternate"
-                hreflang="pt-br"
-                href="/pt-br/tag/graphs/"
-                />
-  </url><url>
-    <loc>/pt-br/tag/matrix/</loc>
-    <lastmod>2022-02-15T00:00:00+00:00</lastmod>
-    <xhtml:link
-                rel="alternate"
-                hreflang="en"
-                href="/tag/matrix/"
-                />
-    <xhtml:link
-                rel="alternate"
-                hreflang="pt-br"
-                href="/pt-br/tag/matrix/"
-                />
-  </url><url>
-    <loc>/pt-br/tag/ml/</loc>
-    <lastmod>2022-02-15T00:00:00+00:00</lastmod>
-    <xhtml:link
-                rel="alternate"
-                hreflang="en"
-                href="/tag/ml/"
-                />
-    <xhtml:link
-                rel="alternate"
-                hreflang="pt-br"
-                href="/pt-br/tag/ml/"
-                />
-  </url><url>
-    <loc>/pt-br/post/</loc>
-    <lastmod>2022-02-15T00:00:00+00:00</lastmod>
-    <xhtml:link
-                rel="alternate"
-                hreflang="en"
-                href="/post/"
-                />
-    <xhtml:link
-                rel="alternate"
-                hreflang="pt-br"
-                href="/pt-br/post/"
-                />
-  </url><url>
-    <loc>/pt-br/tag/python/</loc>
-    <lastmod>2022-02-15T00:00:00+00:00</lastmod>
-    <xhtml:link
-                rel="alternate"
-                hreflang="en"
-                href="/tag/python/"
-                />
-    <xhtml:link
-                rel="alternate"
-                hreflang="pt-br"
-                href="/pt-br/tag/python/"
-                />
-  </url><url>
-    <loc>/pt-br/tag/statistics/</loc>
-    <lastmod>2022-02-15T00:00:00+00:00</lastmod>
-    <xhtml:link
-                rel="alternate"
-                hreflang="en"
-                href="/tag/statistics/"
-                />
-    <xhtml:link
-                rel="alternate"
-                hreflang="pt-br"
-                href="/pt-br/tag/statistics/"
-                />
-  </url><url>
-    <loc>/pt-br/tags/</loc>
-    <lastmod>2022-02-15T00:00:00+00:00</lastmod>
-    <xhtml:link
-                rel="alternate"
-                hreflang="en"
-                href="/tags/"
-                />
-    <xhtml:link
-                rel="alternate"
-                hreflang="pt-br"
-                href="/pt-br/tags/"
                 />
   </url><url>
     <loc>/pt-br/category/databases/</loc>
@@ -278,6 +135,32 @@
                 href="/pt-br/category/mlops/"
                 />
   </url><url>
+    <loc>/pt-br/post/</loc>
+    <lastmod>2022-02-04T08:31:00-03:00</lastmod>
+    <xhtml:link
+                rel="alternate"
+                hreflang="en"
+                href="/post/"
+                />
+    <xhtml:link
+                rel="alternate"
+                hreflang="pt-br"
+                href="/pt-br/post/"
+                />
+  </url><url>
+    <loc>/pt-br/tag/python/</loc>
+    <lastmod>2022-02-04T08:31:00-03:00</lastmod>
+    <xhtml:link
+                rel="alternate"
+                hreflang="en"
+                href="/tag/python/"
+                />
+    <xhtml:link
+                rel="alternate"
+                hreflang="pt-br"
+                href="/pt-br/tag/python/"
+                />
+  </url><url>
     <loc>/pt-br/tag/strace/</loc>
     <lastmod>2022-02-04T08:31:00-03:00</lastmod>
     <xhtml:link
@@ -304,6 +187,19 @@
                 href="/pt-br/tag/system-calls/"
                 />
   </url><url>
+    <loc>/pt-br/tags/</loc>
+    <lastmod>2022-02-04T08:31:00-03:00</lastmod>
+    <xhtml:link
+                rel="alternate"
+                hreflang="en"
+                href="/tags/"
+                />
+    <xhtml:link
+                rel="alternate"
+                hreflang="pt-br"
+                href="/pt-br/tags/"
+                />
+  </url><url>
     <loc>/pt-br/tag/autovalores/</loc>
     <lastmod>2021-12-06T00:00:00+00:00</lastmod>
     <xhtml:link
@@ -315,6 +211,19 @@
                 rel="alternate"
                 hreflang="pt-br"
                 href="/pt-br/tag/autovalores/"
+                />
+  </url><url>
+    <loc>/pt-br/category/data-analysis/</loc>
+    <lastmod>2021-12-06T00:00:00+00:00</lastmod>
+    <xhtml:link
+                rel="alternate"
+                hreflang="en"
+                href="/category/data-analysis/"
+                />
+    <xhtml:link
+                rel="alternate"
+                hreflang="pt-br"
+                href="/pt-br/category/data-analysis/"
                 />
   </url><url>
     <loc>/pt-br/tag/eigenvalues/</loc>
@@ -330,6 +239,19 @@
                 href="/pt-br/tag/eigenvalues/"
                 />
   </url><url>
+    <loc>/pt-br/tag/graphs/</loc>
+    <lastmod>2021-12-06T00:00:00+00:00</lastmod>
+    <xhtml:link
+                rel="alternate"
+                hreflang="en"
+                href="/tag/graphs/"
+                />
+    <xhtml:link
+                rel="alternate"
+                hreflang="pt-br"
+                href="/pt-br/tag/graphs/"
+                />
+  </url><url>
     <loc>/pt-br/tag/historia-da-ciencia/</loc>
     <lastmod>2021-12-06T00:00:00+00:00</lastmod>
     <xhtml:link
@@ -341,6 +263,19 @@
                 rel="alternate"
                 hreflang="pt-br"
                 href="/pt-br/tag/historia-da-ciencia/"
+                />
+  </url><url>
+    <loc>/pt-br/tag/matrix/</loc>
+    <lastmod>2021-12-06T00:00:00+00:00</lastmod>
+    <xhtml:link
+                rel="alternate"
+                hreflang="en"
+                href="/tag/matrix/"
+                />
+    <xhtml:link
+                rel="alternate"
+                hreflang="pt-br"
+                href="/pt-br/tag/matrix/"
                 />
   </url><url>
     <loc>/pt-br/tag/matrizes-aleatorias/</loc>
@@ -421,6 +356,19 @@
                 href="/pt-br/tag/spectral-data-analysis/"
                 />
   </url><url>
+    <loc>/pt-br/tag/statistics/</loc>
+    <lastmod>2021-12-06T00:00:00+00:00</lastmod>
+    <xhtml:link
+                rel="alternate"
+                hreflang="en"
+                href="/tag/statistics/"
+                />
+    <xhtml:link
+                rel="alternate"
+                hreflang="pt-br"
+                href="/pt-br/tag/statistics/"
+                />
+  </url><url>
     <loc>/pt-br/post/random_matrix_portfolio/</loc>
     <lastmod>2021-12-06T00:00:00+00:00</lastmod>
     <xhtml:link
@@ -432,6 +380,19 @@
                 rel="alternate"
                 hreflang="pt-br"
                 href="/pt-br/post/random_matrix_portfolio/"
+                />
+  </url><url>
+    <loc>/pt-br/tag/complex-networks/</loc>
+    <lastmod>2021-09-13T17:43:22+00:00</lastmod>
+    <xhtml:link
+                rel="alternate"
+                hreflang="en"
+                href="/tag/complex-networks/"
+                />
+    <xhtml:link
+                rel="alternate"
+                hreflang="pt-br"
+                href="/pt-br/tag/complex-networks/"
                 />
   </url><url>
     <loc>/pt-br/tag/data-visualization/</loc>
