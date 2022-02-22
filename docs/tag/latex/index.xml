@@ -1,117 +1,141 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>latex | Bruno Messias</title><link>/tag/latex/</link><atom:link href="/tag/latex/index.xml" rel="self" type="application/rss+xml"/><description>latex</description><generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>en</language><copyright>Bruno Messias</copyright><lastBuildDate>Wed, 13 Sep 2017 17:43:22 +0000</lastBuildDate><image><url>/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_3.png</url><title>latex</title><link>/tag/latex/</link></image><item><title>Bibcure</title><link>/project/bibcure/</link><pubDate>Wed, 13 Sep 2017 17:43:22 +0000</pubDate><guid>/project/bibcure/</guid><description>&lt;a href="https://github.com/bibcure/bibcure">
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>latex | Bruno Messias</title>
+    <link>/tag/latex/</link>
+      <atom:link href="/tag/latex/index.xml" rel="self" type="application/rss+xml" />
+    <description>latex</description>
+    <generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>en</language><copyright>Bruno Messias</copyright><lastBuildDate>Wed, 13 Sep 2017 17:43:22 +0000</lastBuildDate>
+    <image>
+      <url>/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_3.png</url>
+      <title>latex</title>
+      <link>/tag/latex/</link>
+    </image>
+    
+    <item>
+      <title>Bibcure</title>
+      <link>/project/bibcure/</link>
+      <pubDate>Wed, 13 Sep 2017 17:43:22 +0000</pubDate>
+      <guid>/project/bibcure/</guid>
+      <description>&lt;a href=&#34;https://github.com/bibcure/bibcure&#34;&gt;
 Bibcure helps in boring tasks by keeping your bibfile up to date and normalized...also allows you to easily download all papers inside your bibtex
-&lt;/a>
-&lt;p>&lt;img src="https://raw.githubusercontent.com/bibcure/logo/master/gifs/bibcure_op.gif" alt="">&lt;/p>
-&lt;h1 id="requirementsinstall">Requirements/Install&lt;/h1>
-&lt;pre>&lt;code>$ sudo python /usr/bin/pip install bibcure
-&lt;/code>&lt;/pre>
-&lt;h2 id="scihub2pdfbeta">scihub2pdf(beta)&lt;/h2>
-&lt;p>&lt;img src="https://raw.githubusercontent.com/bibcure/logo/master/sci_hub_64.png" alt=""> If you want download articles via a DOI number, article title or a bibtex file, using the
-database of arxiv, libgen or sci-hub, see&lt;/p>
-&lt;p>
-&lt;a href="https://github.com/bibcure/scihub2pdf" target="_blank" rel="noopener">bibcure/scihub2pdf&lt;/a>&lt;/p>
-&lt;h1 id="features-and-how-to-use">Features and how to use&lt;/h1>
-&lt;h2 id="bibcure">bibcure&lt;/h2>
-&lt;p>Given a bib file&amp;hellip;&lt;/p>
-&lt;pre>&lt;code>$ bibcure -i input.bib -o output.bib
-&lt;/code>&lt;/pre>
-&lt;ul>
-&lt;li>
-&lt;p>check sure the Arxiv items have been published, then update them(requires
-internet connection)&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>complete all fields(url, journal, etc) of all bib items using DOI number(requires
-internet connection)&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>find and create DOI number associated with each bib item which has not
+&lt;/a&gt;
+&lt;p&gt;&lt;img src=&#34;https://raw.githubusercontent.com/bibcure/logo/master/gifs/bibcure_op.gif&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
+&lt;h1 id=&#34;requirementsinstall&#34;&gt;Requirements/Install&lt;/h1&gt;
+&lt;pre&gt;&lt;code&gt;$ sudo python /usr/bin/pip install bibcure
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id=&#34;scihub2pdfbeta&#34;&gt;scihub2pdf(beta)&lt;/h2&gt;
+&lt;p&gt;&lt;img src=&#34;https://raw.githubusercontent.com/bibcure/logo/master/sci_hub_64.png&#34; alt=&#34;&#34;&gt;  If you want download articles via a DOI number, article title or a bibtex file, using the
+database of arxiv, libgen or sci-hub, see&lt;/p&gt;
+&lt;p&gt;
+&lt;a href=&#34;https://github.com/bibcure/scihub2pdf&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;bibcure/scihub2pdf&lt;/a&gt;&lt;/p&gt;
+&lt;h1 id=&#34;features-and-how-to-use&#34;&gt;Features and how to use&lt;/h1&gt;
+&lt;h2 id=&#34;bibcure&#34;&gt;bibcure&lt;/h2&gt;
+&lt;p&gt;Given a bib file&amp;hellip;&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ bibcure -i input.bib -o output.bib
+&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;check sure the Arxiv items have been published, then update them(requires
+internet connection)&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;complete all fields(url, journal, etc) of all bib items using DOI number(requires
+internet connection)&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;find and create DOI number associated with each bib item which has not
 DOI field(requires
-internet connection)&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>abbreviate jorunals names&lt;/p>
-&lt;/li>
-&lt;/ul>
-&lt;h2 id="arxivcheck">arxivcheck&lt;/h2>
-&lt;p>Given a arxiv id&amp;hellip;&lt;/p>
-&lt;pre>&lt;code>$ arxivcheck 1601.02785
-&lt;/code>&lt;/pre>
-&lt;ul>
-&lt;li>check if has been published, and then returns the updated bib (requires internet connection)&lt;/li>
-&lt;/ul>
-&lt;p>Given a title&amp;hellip;&lt;/p>
-&lt;pre>&lt;code>$ arxivcheck --title An useful paper published on arxiv
-&lt;/code>&lt;/pre>
-&lt;p>search papers related and return a bib the first item.
-You can easily append a bib into a bibfile, just do&lt;/p>
-&lt;pre>&lt;code>$ arxivcheck --title An useful paper published on arxiv &amp;gt;&amp;gt; file.bib
-&lt;/code>&lt;/pre>
-&lt;p>You also can interact with results, just pass &amp;ndash;ask parameter&lt;/p>
-&lt;pre>&lt;code>$ arxivcheck --ask --title An useful paper published on arxiv
-&lt;/code>&lt;/pre>
-&lt;h2 id="scihub2pdf">scihub2pdf&lt;/h2>
-&lt;p>Given a bibtex file&lt;/p>
-&lt;pre>&lt;code>$ scihub2pdf -i input.bib
-&lt;/code>&lt;/pre>
-&lt;p>Given a DOI number&amp;hellip;&lt;/p>
-&lt;pre>&lt;code>$ scihub2pdf 10.1038/s41524-017-0032-0
-&lt;/code>&lt;/pre>
-&lt;p>Given arxivId&amp;hellip;&lt;/p>
-&lt;pre>&lt;code>$ scihub2pdf arxiv:1708.06891
-&lt;/code>&lt;/pre>
-&lt;p>Given a title&amp;hellip;&lt;/p>
-&lt;pre>&lt;code>$ scihub2bib --title An useful paper
-&lt;/code>&lt;/pre>
-&lt;p>or arxiv&amp;hellip;&lt;/p>
-&lt;pre>&lt;code>$ scihub2bib --title arxiv:An useful paper
-&lt;/code>&lt;/pre>
-&lt;p>Location folder as argument&lt;/p>
-&lt;pre>&lt;code>$ scihub2pdf -i input.bib -l somefoler/
-&lt;/code>&lt;/pre>
-&lt;p>Use libgen instead sci-hub&lt;/p>
-&lt;pre>&lt;code>$ scihub2pdf -i input.bib --uselibgen
-&lt;/code>&lt;/pre>
-&lt;h2 id="doi2bib">doi2bib&lt;/h2>
-&lt;p>Given a DOI number&amp;hellip;&lt;/p>
-&lt;pre>&lt;code>$ doi2bib 10.1038/s41524-017-0032-0
-&lt;/code>&lt;/pre>
-&lt;ul>
-&lt;li>get bib item given a doi(requires
-internet connection)&lt;/li>
-&lt;/ul>
-&lt;p>You can easily append
-a bib into a bibfile, just do&lt;/p>
-&lt;pre>&lt;code>$ doi2bib 10.1038/s41524-017-0032-0 &amp;gt;&amp;gt; file.bib
-&lt;/code>&lt;/pre>
-&lt;p>You also can generate a bibtex from a txt file containing a list of DOIs&lt;/p>
-&lt;pre>&lt;code>$ doi2bib --input file_with_dois.txt --output refs.bib
-&lt;/code>&lt;/pre>
-&lt;h2 id="title2bib">title2bib&lt;/h2>
-&lt;p>Given a title&amp;hellip;&lt;/p>
-&lt;pre>&lt;code>$ title2bib An useful paper
-&lt;/code>&lt;/pre>
-&lt;ul>
-&lt;li>search papers related and return a bib for the selected paper(requires
-internet connection)&lt;/li>
-&lt;/ul>
-&lt;p>You can easily append
-a bib into a bibfile, just do&lt;/p>
-&lt;pre>&lt;code>$ title2bib An useful paper --first &amp;gt;&amp;gt; file.bib
-&lt;/code>&lt;/pre>
-&lt;p>You also can generate a bibtex from a txt file containing a list of &amp;ldquo;titles&amp;rdquo;&lt;/p>
-&lt;pre>&lt;code>$ title2bib --input file_with_titles.txt --output refs.bib --first
-&lt;/code>&lt;/pre>
-&lt;h2 id="sci-hub-vs-libgen">Sci-Hub vs LibGen&lt;/h2>
-&lt;h3 id="sci-hub">Sci-hub:&lt;/h3>
-&lt;ul>
-&lt;li>Stable&lt;/li>
-&lt;li>Annoying CAPTCHA&lt;/li>
-&lt;li>Fast&lt;/li>
-&lt;/ul>
-&lt;h3 id="libgen">Libgen&lt;/h3>
-&lt;ul>
-&lt;li>Unstalbe&lt;/li>
-&lt;li>No CAPTCHA&lt;/li>
-&lt;li>Slow&lt;/li>
-&lt;/ul></description></item></channel></rss>
+internet connection)&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;abbreviate jorunals names&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;arxivcheck&#34;&gt;arxivcheck&lt;/h2&gt;
+&lt;p&gt;Given a arxiv id&amp;hellip;&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ arxivcheck 1601.02785
+&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;check if has been published, and then returns the updated bib (requires internet connection)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Given a title&amp;hellip;&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ arxivcheck --title An useful paper published on arxiv
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;search papers related and return a bib the first item.
+You can easily append a bib into a bibfile, just do&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ arxivcheck --title An useful paper published on arxiv &amp;gt;&amp;gt; file.bib
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;You also can interact with results, just pass &amp;ndash;ask parameter&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ arxivcheck --ask --title An useful paper published on arxiv
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id=&#34;scihub2pdf&#34;&gt;scihub2pdf&lt;/h2&gt;
+&lt;p&gt;Given a bibtex file&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ scihub2pdf -i input.bib
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Given a DOI number&amp;hellip;&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ scihub2pdf 10.1038/s41524-017-0032-0
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Given arxivId&amp;hellip;&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ scihub2pdf arxiv:1708.06891
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Given a title&amp;hellip;&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ scihub2bib --title An useful paper
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;or arxiv&amp;hellip;&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ scihub2bib --title arxiv:An useful paper
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Location folder as argument&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ scihub2pdf -i input.bib -l somefoler/
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Use libgen instead sci-hub&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ scihub2pdf -i input.bib --uselibgen
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id=&#34;doi2bib&#34;&gt;doi2bib&lt;/h2&gt;
+&lt;p&gt;Given a DOI number&amp;hellip;&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ doi2bib 10.1038/s41524-017-0032-0
+&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;get bib item given a doi(requires
+internet connection)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;You can easily append
+a bib into a bibfile, just do&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ doi2bib 10.1038/s41524-017-0032-0 &amp;gt;&amp;gt; file.bib
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;You also can generate a bibtex from a txt file containing a list of DOIs&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ doi2bib --input file_with_dois.txt --output refs.bib
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id=&#34;title2bib&#34;&gt;title2bib&lt;/h2&gt;
+&lt;p&gt;Given a title&amp;hellip;&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ title2bib An useful paper
+&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;search papers related and return a bib for the selected paper(requires
+internet connection)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;You can easily append
+a bib into a bibfile, just do&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ title2bib An useful paper --first &amp;gt;&amp;gt; file.bib
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;You also can generate a bibtex from a txt file containing a list of &amp;ldquo;titles&amp;rdquo;&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ title2bib --input file_with_titles.txt --output refs.bib --first
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id=&#34;sci-hub-vs-libgen&#34;&gt;Sci-Hub vs LibGen&lt;/h2&gt;
+&lt;h3 id=&#34;sci-hub&#34;&gt;Sci-hub:&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Stable&lt;/li&gt;
+&lt;li&gt;Annoying CAPTCHA&lt;/li&gt;
+&lt;li&gt;Fast&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;libgen&#34;&gt;Libgen&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Unstalbe&lt;/li&gt;
+&lt;li&gt;No CAPTCHA&lt;/li&gt;
+&lt;li&gt;Slow&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

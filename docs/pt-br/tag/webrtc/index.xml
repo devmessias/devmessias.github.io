@@ -1,212 +1,246 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>webrtc | Bruno Messias</title><link>/pt-br/tag/webrtc/</link><atom:link href="/pt-br/tag/webrtc/index.xml" rel="self" type="application/rss+xml"/><description>webrtc</description><generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>pt-br</language><copyright>Bruno Messias</copyright><lastBuildDate>Mon, 13 Sep 2021 17:43:22 +0000</lastBuildDate><image><url>/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_3.png</url><title>webrtc</title><link>/pt-br/tag/webrtc/</link></image><item><title>Helios: graph layout viz and streaming</title><link>/pt-br/project/helios/</link><pubDate>Mon, 13 Sep 2021 17:43:22 +0000</pubDate><guid>/pt-br/project/helios/</guid><description>&lt;a href="https://github.com/fury-gl/helios">
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>webrtc | Bruno Messias</title>
+    <link>/pt-br/tag/webrtc/</link>
+      <atom:link href="/pt-br/tag/webrtc/index.xml" rel="self" type="application/rss+xml" />
+    <description>webrtc</description>
+    <generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>pt-br</language><copyright>Bruno Messias</copyright><lastBuildDate>Mon, 13 Sep 2021 17:43:22 +0000</lastBuildDate>
+    <image>
+      <url>/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_3.png</url>
+      <title>webrtc</title>
+      <link>/pt-br/tag/webrtc/</link>
+    </image>
+    
+    <item>
+      <title>Helios: graph layout viz and streaming</title>
+      <link>/pt-br/project/helios/</link>
+      <pubDate>Mon, 13 Sep 2021 17:43:22 +0000</pubDate>
+      <guid>/pt-br/project/helios/</guid>
+      <description>&lt;a href=&#34;https://github.com/fury-gl/helios&#34;&gt;
 Helios repo
-&lt;/a>
-&lt;p>Helios is a Python library aiming to provide an easy way to visualize huge networks dynamically. Helios also provides visualizations through an interactive Stadia-like streaming system in which users can be collaboratively access (and share) visualizations created in a server or through Jupyter Notebook/Lab environments. It incorporates state-of-the-art layout algorithms and optimized rendering techniques (powered by
-&lt;a href="https://github.com/fury-gl/" target="_blank" rel="noopener">FURY&lt;/a>).&lt;/p>
-&lt;p>&lt;img src="https://user-images.githubusercontent.com/6979335/125310065-a3a9f480-e308-11eb-98d9-0ff5406a0e96.gif" alt="">&lt;/p>
-&lt;center>&lt;img src="https://user-images.githubusercontent.com/6979335/126175583-c7d85f0a-3d0c-400e-bbdd-4cbcd2a36fed.gif" alt="..." height="300"/>&lt;/center>
-&lt;p align="center">
-&lt;a href="#general-information">General Information&lt;/a> •
-&lt;a href="#key-features">Key Features&lt;/a> •
-&lt;a href="#installation">Installation&lt;/a> •
-&lt;a href="#how-to-use">Usage&lt;/a> •
-&lt;a href="#history">History&lt;/a> •
-&lt;a href="#credits">Credits&lt;/a>
-&lt;/p>
-&lt;h1 id="general-information">General Information&lt;/h1>
-&lt;ul>
-&lt;li>&lt;strong>Website and Documentation:&lt;/strong>
-&lt;a href="https://heliosnetwork.io/" target="_blank" rel="noopener">https://heliosnetwork.io/&lt;/a>&lt;/li>
-&lt;li>&lt;strong>Examples:&lt;/strong>
-&lt;a href="https://heliosnetwork.io/examples_gallery/index.html" target="_blank" rel="noopener">https://heliosnetwork.io/examples_gallery/index.html&lt;/a>&lt;/li>
-&lt;li>&lt;strong>Blog:&lt;/strong>
-&lt;a href="https://heliosnetwork.io/blog.html" target="_blank" rel="noopener">https://heliosnetwork.io/blog.html&lt;/a>&lt;/li>
-&lt;li>&lt;strong>Free software:&lt;/strong> MIT license&lt;/li>
-&lt;li>&lt;strong>Community:&lt;/strong> Come to chat on
-&lt;a href="https://discord.gg/6btFPPj" target="_blank" rel="noopener">Discord&lt;/a>&lt;/li>
-&lt;/ul>
-&lt;h1 id="key-features">Key Features&lt;/h1>
-&lt;ul>
-&lt;li>Force-directed layout using octrees&lt;/li>
-&lt;li>Minimum-distortion embeddings&lt;/li>
-&lt;li>ForceAtlas2 using cugraph&lt;/li>
-&lt;li>Interactive local and Remote rendering in Jupyter Notebooks&lt;/li>
-&lt;li>WebRTC or MJPEG interactive streaming system&lt;/li>
-&lt;/ul>
-&lt;h1 id="installation">Installation&lt;/h1>
-&lt;p>Use pip install pointed to this repository:&lt;/p>
-&lt;pre>&lt;code>pip git+https://github.com/fury-gl/helios.git
-&lt;/code>&lt;/pre>
-&lt;p>As an alternative, Helios can be installed from the source code through the following steps:&lt;/p>
-&lt;ul>
-&lt;li>
-&lt;p>&lt;strong>Step 1.&lt;/strong> Get the latest source by cloning this repo:&lt;/p>
-&lt;pre>&lt;code>git clone https://github.com/fury-gl/helios.git
-&lt;/code>&lt;/pre>
-&lt;/li>
-&lt;li>
-&lt;p>&lt;strong>Step 2.&lt;/strong> Install requirements:&lt;/p>
-&lt;pre>&lt;code>pip install -r requirements.txt
-&lt;/code>&lt;/pre>
-&lt;/li>
-&lt;li>
-&lt;p>&lt;strong>Step 3.&lt;/strong> Install Helios&lt;/p>
-&lt;p>As a
-&lt;a href="https://pip.pypa.io/en/stable/reference/pip_install/#id44" target="_blank" rel="noopener">local project installation&lt;/a> using:&lt;/p>
-&lt;pre>&lt;code> pip install .
-&lt;/code>&lt;/pre>
-&lt;p>Or as an
-&lt;a href="https://pip.pypa.io/en/stable/reference/pip_install/#id44" target="_blank" rel="noopener">&amp;ldquo;editable&amp;rdquo; installation&lt;/a> using:&lt;/p>
-&lt;pre>&lt;code> pip install -e .
-&lt;/code>&lt;/pre>
-&lt;/li>
-&lt;li>
-&lt;p>&lt;strong>Step 4:&lt;/strong> Enjoy!&lt;/p>
-&lt;/li>
-&lt;/ul>
-&lt;p>For more information, see also
-&lt;a href="https://heliosnetwork.io/latest/installation.html" target="_blank" rel="noopener">installation page on heliosnetwork.io&lt;/a>&lt;/p>
-&lt;h2 id="dependencies">Dependencies&lt;/h2>
-&lt;p>Helios requires Python 3.7+ and the following mandatory dependencies:&lt;/p>
-&lt;ul>
-&lt;li>numpy &amp;gt;= 1.7.1&lt;/li>
-&lt;li>vtk &amp;gt;= 8.1.0&lt;/li>
-&lt;li>fury&lt;/li>
-&lt;/ul>
-&lt;p>To enable WebRTC streaming and enable optimizations to the streaming system, install the following optional packages:&lt;/p>
-&lt;ul>
-&lt;li>
-&lt;p>Required for WebRTC streaming&lt;/p>
-&lt;ul>
-&lt;li>aiohttp&lt;/li>
-&lt;li>aiortc&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;li>
-&lt;p>Optional packages that may improve performance&lt;/p>
-&lt;ul>
-&lt;li>cython&lt;/li>
-&lt;li>opencv&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;/ul>
-&lt;h2 id="testing">Testing&lt;/h2>
-&lt;p>After installation, you can install test suite requirements:&lt;/p>
-&lt;pre>&lt;code>pip install -r requirements_dev.txt
-&lt;/code>&lt;/pre>
-&lt;p>And to launch test suite:&lt;/p>
-&lt;pre>&lt;code>pytest -svv helios
-&lt;/code>&lt;/pre>
-&lt;h1 id="usage">Usage&lt;/h1>
-&lt;p>There are many ways to start using Helios:&lt;/p>
-&lt;ul>
-&lt;li>Go to
-&lt;a href="https://heliosnetwork.io/getting_started.html" target="_blank" rel="noopener">Getting Started&lt;/a>&lt;/li>
-&lt;li>Explore our
-&lt;a href="https://heliosnetwork.io/examples_gallery/index.html" target="_blank" rel="noopener">Examples&lt;/a> or
-&lt;a href="https://heliosnetwork.io/latest/auto_examples/index.htmlhttps://heliosnetwork.io/api.html" target="_blank" rel="noopener">API&lt;/a>.&lt;/li>
-&lt;/ul>
-&lt;p>Example usage:&lt;/p>
-&lt;pre>&lt;code class="language-python"> from helios import NetworkDraw
-from helios.layouts import HeliosFr
-import numpy as np
-vertex_count = 8
-edges = np.array([
-[0,1],
-[0,2],
-[1,2],
-[2,3],
-[3,4],
-[3,5],
-[4,5],
-[5,6],
-[6,7],
-[7,0]
-]);
-centers = np.random.normal(size=(vertex_count, 3))
-network_draw = NetworkDraw(
-positions=centers,
-edges=edges,
-colors=(0.25,0.25,0.25),
-scales=1,
-node_edge_width=0,
-marker='s',
-edge_line_color=(0.5,0.5,0.5),
-window_size=(600, 600)
-)
-layout = HeliosFr(edges, network_draw)
-layout.start()
-network_draw.showm.initialize()
-network_draw.showm.start()
-&lt;/code>&lt;/pre>
-&lt;h1 id="history">History&lt;/h1>
-&lt;p>Helios project started as a replacement to the desktop version of the
-&lt;a href="https://filipinascimento.github.io/networks3d/" target="_blank" rel="noopener">Networks 3D&lt;/a> tools. The project evolved quickly along the summer of 2021 due to the GSoC’21 under the responsibility of the Python Software Foundation and the FURY team. The majority of the initial work has been done by
-&lt;a href="https://github.com/devmessias" target="_blank" rel="noopener">@devmessias&lt;/a> mentored by
-&lt;a href="https://github.com/filipinascimento" target="_blank" rel="noopener">@filipinascimento&lt;/a> and
-&lt;a href="https://github.com/skoudoro" target="_blank" rel="noopener">@skoudoro&lt;/a>. The GSoC’21 project associated with Helios is “A system for collaborative visualization of large network layouts using FURY”. Check out the
-&lt;a href="https://gist.github.com/devmessias/1cb802efb0a094686c129259498710b3" target="_blank" rel="noopener">final report&lt;/a> for more information.&lt;/p></description></item><item><title>GSoC- Google Summer of Code 2021 Final Work Product</title><link>/pt-br/post/2021-23-08-gsoc-devmessias-final-report/2021-23-08-gsoc-devmessias-final-report/</link><pubDate>Mon, 23 Aug 2021 00:00:00 +0000</pubDate><guid>/pt-br/post/2021-23-08-gsoc-devmessias-final-report/2021-23-08-gsoc-devmessias-final-report/</guid><description>&lt;blockquote>
-&lt;p>Detailed weekly tasks, progress and work done can be found
-&lt;a href="https://blogs.python-gsoc.org/en/demvessiass-blog/google-summer-of-code-final-work-product-3/" target="_blank" rel="noopener">here&lt;/a>&lt;/p>
-&lt;/blockquote>
-&lt;h2 id="abstract">Abstract&lt;/h2>
-&lt;p>We have changed some points of my project in the first meeting.
+&lt;/a&gt;
+&lt;p&gt;Helios is a Python library aiming to provide an easy way to visualize huge networks dynamically. Helios also provides visualizations through an interactive Stadia-like streaming system in which users can be collaboratively access (and share) visualizations created in a server or through Jupyter Notebook/Lab environments. It incorporates state-of-the-art layout algorithms and optimized rendering techniques (powered by 
+&lt;a href=&#34;https://github.com/fury-gl/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;FURY&lt;/a&gt;).&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://user-images.githubusercontent.com/6979335/125310065-a3a9f480-e308-11eb-98d9-0ff5406a0e96.gif&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
+&lt;center&gt;&lt;img src=&#34;https://user-images.githubusercontent.com/6979335/126175583-c7d85f0a-3d0c-400e-bbdd-4cbcd2a36fed.gif&#34; alt=&#34;...&#34; height=&#34;300&#34;/&gt;&lt;/center&gt;
+&lt;p align=&#34;center&#34;&gt;
+  &lt;a href=&#34;#general-information&#34;&gt;General Information&lt;/a&gt; •
+  &lt;a href=&#34;#key-features&#34;&gt;Key Features&lt;/a&gt; •
+  &lt;a href=&#34;#installation&#34;&gt;Installation&lt;/a&gt; •
+  &lt;a href=&#34;#how-to-use&#34;&gt;Usage&lt;/a&gt; •
+  &lt;a href=&#34;#history&#34;&gt;History&lt;/a&gt; •
+  &lt;a href=&#34;#credits&#34;&gt;Credits&lt;/a&gt; 
+&lt;/p&gt;
+&lt;h1 id=&#34;general-information&#34;&gt;General Information&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Website and Documentation:&lt;/strong&gt;  
+&lt;a href=&#34;https://heliosnetwork.io/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;https://heliosnetwork.io/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Examples:&lt;/strong&gt; 
+&lt;a href=&#34;https://heliosnetwork.io/examples_gallery/index.html&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;https://heliosnetwork.io/examples_gallery/index.html&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Blog:&lt;/strong&gt;  
+&lt;a href=&#34;https://heliosnetwork.io/blog.html&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;https://heliosnetwork.io/blog.html&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Free software:&lt;/strong&gt; MIT license&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Community:&lt;/strong&gt; Come to chat on 
+&lt;a href=&#34;https://discord.gg/6btFPPj&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Discord&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id=&#34;key-features&#34;&gt;Key Features&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;Force-directed layout using octrees&lt;/li&gt;
+&lt;li&gt;Minimum-distortion embeddings&lt;/li&gt;
+&lt;li&gt;ForceAtlas2 using cugraph&lt;/li&gt;
+&lt;li&gt;Interactive local and Remote rendering in Jupyter Notebooks&lt;/li&gt;
+&lt;li&gt;WebRTC or MJPEG interactive streaming system&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id=&#34;installation&#34;&gt;Installation&lt;/h1&gt;
+&lt;p&gt;Use pip install pointed to this repository:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;pip git+https://github.com/fury-gl/helios.git
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;As an alternative, Helios can be installed from the source code through the following steps:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Step 1.&lt;/strong&gt; Get the latest source by cloning this repo:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;git clone https://github.com/fury-gl/helios.git
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Step 2.&lt;/strong&gt; Install requirements:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;pip install -r requirements.txt
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Step 3.&lt;/strong&gt; Install Helios&lt;/p&gt;
+&lt;p&gt;As a 
+&lt;a href=&#34;https://pip.pypa.io/en/stable/reference/pip_install/#id44&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;local project installation&lt;/a&gt; using:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;  pip install .
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Or as an 
+&lt;a href=&#34;https://pip.pypa.io/en/stable/reference/pip_install/#id44&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;&amp;ldquo;editable&amp;rdquo; installation&lt;/a&gt; using:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;  pip install -e .
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Step 4:&lt;/strong&gt; Enjoy!&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;For more information, see also 
+&lt;a href=&#34;https://heliosnetwork.io/latest/installation.html&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;installation page on heliosnetwork.io&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&#34;dependencies&#34;&gt;Dependencies&lt;/h2&gt;
+&lt;p&gt;Helios requires Python 3.7+ and the following mandatory dependencies:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;numpy &amp;gt;= 1.7.1&lt;/li&gt;
+&lt;li&gt;vtk &amp;gt;= 8.1.0&lt;/li&gt;
+&lt;li&gt;fury&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;To enable WebRTC streaming and enable optimizations to the streaming system, install the following optional packages:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Required for WebRTC streaming&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;aiohttp&lt;/li&gt;
+&lt;li&gt;aiortc&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Optional packages that may improve performance&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;cython&lt;/li&gt;
+&lt;li&gt;opencv&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;testing&#34;&gt;Testing&lt;/h2&gt;
+&lt;p&gt;After installation, you can install test suite requirements:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;pip install -r requirements_dev.txt
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;And to launch test suite:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;pytest -svv helios
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h1 id=&#34;usage&#34;&gt;Usage&lt;/h1&gt;
+&lt;p&gt;There are many ways to start using Helios:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Go to 
+&lt;a href=&#34;https://heliosnetwork.io/getting_started.html&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Getting Started&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Explore our 
+&lt;a href=&#34;https://heliosnetwork.io/examples_gallery/index.html&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Examples&lt;/a&gt; or 
+&lt;a href=&#34;https://heliosnetwork.io/latest/auto_examples/index.htmlhttps://heliosnetwork.io/api.html&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;API&lt;/a&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Example usage:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;   from helios import NetworkDraw
+   from helios.layouts import HeliosFr
+   import numpy as np
+   
+   vertex_count = 8
+   
+   edges = np.array([
+      [0,1],
+      [0,2],
+      [1,2],
+      [2,3],
+      [3,4],
+      [3,5],
+      [4,5],
+      [5,6],
+      [6,7],
+      [7,0]
+   ]);
+   
+  centers = np.random.normal(size=(vertex_count, 3))
+
+  network_draw = NetworkDraw(
+          positions=centers,
+          edges=edges,
+          colors=(0.25,0.25,0.25),
+          scales=1,
+          node_edge_width=0,
+          marker=&#39;s&#39;,
+          edge_line_color=(0.5,0.5,0.5),
+          window_size=(600, 600)
+  )
+  
+  layout = HeliosFr(edges, network_draw)
+  layout.start()
+  network_draw.showm.initialize()
+  network_draw.showm.start()
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h1 id=&#34;history&#34;&gt;History&lt;/h1&gt;
+&lt;p&gt;Helios project started as a replacement to the desktop version of the 
+&lt;a href=&#34;https://filipinascimento.github.io/networks3d/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Networks 3D&lt;/a&gt; tools. The project evolved quickly along the summer of 2021 due to the GSoC’21 under the responsibility of the Python Software Foundation and the FURY team. The majority of the initial work has been done by 
+&lt;a href=&#34;https://github.com/devmessias&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;@devmessias&lt;/a&gt; mentored by 
+&lt;a href=&#34;https://github.com/filipinascimento&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;@filipinascimento&lt;/a&gt; and 
+&lt;a href=&#34;https://github.com/skoudoro&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;@skoudoro&lt;/a&gt;. The GSoC’21 project associated with Helios is “A system for collaborative visualization of large network layouts using FURY”. Check out the 
+&lt;a href=&#34;https://gist.github.com/devmessias/1cb802efb0a094686c129259498710b3&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;final report&lt;/a&gt; for more information.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>GSoC-  Google Summer of Code 2021 Final Work Product</title>
+      <link>/pt-br/post/2021-23-08-gsoc-devmessias-final-report/2021-23-08-gsoc-devmessias-final-report/</link>
+      <pubDate>Mon, 23 Aug 2021 00:00:00 +0000</pubDate>
+      <guid>/pt-br/post/2021-23-08-gsoc-devmessias-final-report/2021-23-08-gsoc-devmessias-final-report/</guid>
+      <description>&lt;blockquote&gt;
+&lt;p&gt;Detailed weekly tasks, progress and work done can be found
+
+&lt;a href=&#34;https://blogs.python-gsoc.org/en/demvessiass-blog/google-summer-of-code-final-work-product-3/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;here&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&#34;abstract&#34;&gt;Abstract&lt;/h2&gt;
+&lt;p&gt;We have changed some points of my project in the first meeting.
 Specifically, we focused the efforts into developing a streaming system
 using the WebRTC protocol that could be used in more generic scenarios
 than just the network visualization. In addition to that, we have opted
 to develop the network visualization for fury as a separated repository
-and package available
-&lt;a href="https://github.com/fury-gl/helios" target="_blank" rel="noopener">here&lt;/a>. The
+and package available 
+&lt;a href=&#34;https://github.com/fury-gl/helios&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;here&lt;/a&gt;. The
 name Helios was selected for this new network visualization system based
-on the Fury rendering pipeline.&lt;/p>
-&lt;h2 id="proposed-objectives">Proposed Objectives&lt;/h2>
-&lt;ul>
-&lt;li>Create a streaming system (stadia-like) for FURY
-&lt;ul>
-&lt;li>Should work in a low-bandwidth scenario&lt;/li>
-&lt;li>Should allow user interactions and collaboration across the
-Internet using a web-browser&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;li>Helios Network System objectives:
-&lt;ul>
-&lt;li>Implement the Force-Directed Algorithm with examples&lt;/li>
-&lt;li>Implement the ForceAtlas2 algorithm using cugraph with examples&lt;/li>
-&lt;li>Implement Minimum-Distortion Embeddings algorithm (PyMDE) and
-examples&lt;/li>
-&lt;li>Non-blocking network algorithms computation avoiding the GIL
-using the Shared Memory approach&lt;/li>
-&lt;li>Create the documentation and the actions for the CI&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;li>Stretch Goals:
-&lt;ul>
-&lt;li>Create an actor in FURY to draw text efficiently using shaders&lt;/li>
-&lt;li>Add support to draw millions of nodes using FURY&lt;/li>
-&lt;li>Add support to control the opengl state on FURY&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;/ul>
-&lt;h2 id="objectives-completed">Objectives Completed&lt;/h2>
-&lt;ul>
-&lt;li>
-&lt;p>&lt;strong>Create a streaming system (stadia-like) for FURY&lt;/strong>&lt;/p>
-&lt;p>There are several reasons to have a streaming system for data
+on the Fury rendering pipeline.&lt;/p&gt;
+&lt;h2 id=&#34;proposed-objectives&#34;&gt;Proposed Objectives&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Create a streaming system (stadia-like) for FURY
+&lt;ul&gt;
+&lt;li&gt;Should work in a low-bandwidth scenario&lt;/li&gt;
+&lt;li&gt;Should allow user interactions and collaboration across the
+Internet using a web-browser&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Helios Network System objectives:
+&lt;ul&gt;
+&lt;li&gt;Implement the Force-Directed Algorithm with examples&lt;/li&gt;
+&lt;li&gt;Implement the ForceAtlas2 algorithm using cugraph with examples&lt;/li&gt;
+&lt;li&gt;Implement Minimum-Distortion Embeddings algorithm (PyMDE) and
+examples&lt;/li&gt;
+&lt;li&gt;Non-blocking network algorithms computation avoiding the GIL
+using the Shared Memory approach&lt;/li&gt;
+&lt;li&gt;Create the documentation and the actions for the CI&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Stretch Goals:
+&lt;ul&gt;
+&lt;li&gt;Create an actor in FURY to draw text efficiently using shaders&lt;/li&gt;
+&lt;li&gt;Add support to draw millions of nodes using FURY&lt;/li&gt;
+&lt;li&gt;Add support to control the opengl state on FURY&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;objectives-completed&#34;&gt;Objectives Completed&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Create a streaming system (stadia-like) for FURY&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;There are several reasons to have a streaming system for data
 visualization. Because I am doing my Ph.D. in developing country, I
 always need to think of the less expensive solutions to use the
 computational resources available. For example, with the GPU&amp;rsquo;s
 prices increasing, it is necessary to share the a single machine
-with GPU with other users at different locations.&lt;/p>
-&lt;p>To construct the streaming system for my project we have opted to
-follow three main properties and behaviors:&lt;/p>
-&lt;ol>
-&lt;li>avoid blocking the code execution in the main thread (where the
-vtk/fury instance resides)&lt;/li>
-&lt;li>work inside of a low bandwidth environment&lt;/li>
-&lt;li>make it easy and cheap to share the rendering result. For
-example, using the free version of &lt;code>ngrok&lt;/code>&lt;/li>
-&lt;/ol>
-&lt;p>To achieve the first property we need to circumvent the GIL and
+with GPU with other users at different locations.&lt;/p&gt;
+&lt;p&gt;To construct the streaming system for my project we have opted to
+follow three main properties and behaviors:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;avoid blocking the code execution in the main thread (where the
+vtk/fury instance resides)&lt;/li&gt;
+&lt;li&gt;work inside of a low bandwidth environment&lt;/li&gt;
+&lt;li&gt;make it easy and cheap to share the rendering result. For
+example, using the free version of &lt;code&gt;ngrok&lt;/code&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;To achieve the first property we need to circumvent the GIL and
 allow python code to execute in parallel. Using the threading module
 alone is not good enough to reach real parallelism as Python calls
 in the same process can not execute concurrently. In addition to
@@ -217,71 +251,71 @@ that. The second and third property can be only achieved choosing a
 suitable protocol for transfering the rendered results to the
 client. We have opted to implement two streaming protocols: the
 MJPEG and the WebRTC. The latter is more suitable for low-bandwidth
-scenarios [1].&lt;/p>
-&lt;p>The image below shows a simple representation of the streaming
-system.&lt;/p>
-&lt;pre>&lt;code class="language-{=html}">&amp;lt;center&amp;gt;
-&lt;/code>&lt;/pre>
-&lt;pre>&lt;code class="language-{=html}">&amp;lt;/center&amp;gt;
-&lt;/code>&lt;/pre>
-&lt;p>The video below shows how our streaming system works smothly and can
-be easily integrated inside of a Jupyter notebook.&lt;/p>
-&lt;/li>
-&lt;/ul>
-&lt;p>
-&lt;a href="https://user-images.githubusercontent.com/6979335/130284952-2ffbf117-7119-4048-b7aa-428e0162fb7a.mp4" target="_blank" rel="noopener">Video: WebRTC Streaming +
-Ngrok&lt;/a>&lt;/p>
-&lt;p>
-&lt;a href="https://user-images.githubusercontent.com/6979335/130284261-20e84622-427e-4a59-a46f-6a33f5473025.mp4" target="_blank" rel="noopener">Video: WebRTC Streaming +
-Jupyter&lt;/a>&lt;/p>
-&lt;p>&lt;em>Pull Requests:&lt;/em> *
-&lt;a href="https://github.com/fury-gl/fury/pull/480" target="_blank" rel="noopener">https://github.com/fury-gl/fury/pull/480&lt;/a>&lt;/p>
-&lt;ul>
-&lt;li>
-&lt;p>&lt;strong>2D and 3D marker actor&lt;/strong>&lt;/p>
-&lt;p>This feature gave FURY the ability to efficiently draw millions of
+scenarios [1].&lt;/p&gt;
+&lt;p&gt;The image below shows a simple representation of the streaming
+system.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-{=html}&#34;&gt;&amp;lt;center&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code class=&#34;language-{=html}&#34;&gt;&amp;lt;/center&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The video below shows how our streaming system works smothly and can
+be easily integrated inside of a Jupyter notebook.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;
+&lt;a href=&#34;https://user-images.githubusercontent.com/6979335/130284952-2ffbf117-7119-4048-b7aa-428e0162fb7a.mp4&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Video: WebRTC Streaming +
+Ngrok&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;
+&lt;a href=&#34;https://user-images.githubusercontent.com/6979335/130284261-20e84622-427e-4a59-a46f-6a33f5473025.mp4&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Video: WebRTC Streaming +
+Jupyter&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Pull Requests:&lt;/em&gt; * 
+&lt;a href=&#34;https://github.com/fury-gl/fury/pull/480&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;https://github.com/fury-gl/fury/pull/480&lt;/a&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;2D and 3D marker actor&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;This feature gave FURY the ability to efficiently draw millions of
 markers and impostor 3D spheres. This feature was essential for the
 development of Helios. This feature work with signed distance fields
 (SDFs) you can get more information about how SDFs works here [4]
-.&lt;/p>
-&lt;p>The image below shows 1 million of markers rendered using an Intel
-HD graphics 3000.&lt;/p>
-&lt;/li>
-&lt;/ul>
-&lt;p>&lt;img src="https://user-images.githubusercontent.com/6979335/116004971-70927780-a5db-11eb-8363-8c0757574eb4.png" alt="image1">&lt;/p>
-&lt;ul>
-&lt;li>
-&lt;p>&lt;strong>Fine-Tunning the OpenGl State&lt;/strong>&lt;/p>
-&lt;p>Sometimes users may need to have finer control on how OpenGL will
+.&lt;/p&gt;
+&lt;p&gt;The image below shows 1 million of markers rendered using an Intel
+HD graphics 3000.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src=&#34;https://user-images.githubusercontent.com/6979335/116004971-70927780-a5db-11eb-8363-8c0757574eb4.png&#34; alt=&#34;image1&#34;&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Fine-Tunning the OpenGl State&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Sometimes users may need to have finer control on how OpenGL will
 render the actors. This can be useful when they need to create
-specialized visualization effects or to improve the performance.&lt;/p>
-&lt;p>In this PR I have worked in a feature that allows FURY to control
-the OpenGL context created by VTK&lt;/p>
-&lt;p>&lt;em>Pull Request:&lt;/em>&lt;/p>
-&lt;ul>
-&lt;li>
-&lt;a href="https://github.com/fury-gl/fury/pull/432" target="_blank" rel="noopener">https://github.com/fury-gl/fury/pull/432&lt;/a>&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;li>
-&lt;p>&lt;strong>Helios Network Visualization Lib: Network Layout Algorithms&lt;/strong>&lt;/p>
-&lt;p>&lt;strong>Case 1:&lt;/strong> Suppose that you need to monitor a hashtag and build a
+specialized visualization effects or to improve the performance.&lt;/p&gt;
+&lt;p&gt;In this PR I have worked in a feature that allows FURY to control
+the OpenGL context created by VTK&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Pull Request:&lt;/em&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;a href=&#34;https://github.com/fury-gl/fury/pull/432&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;https://github.com/fury-gl/fury/pull/432&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Helios Network Visualization Lib: Network Layout Algorithms&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Case 1:&lt;/strong&gt; Suppose that you need to monitor a hashtag and build a
 social graph. You want to interact with the graph and at the same
 time get insights about the structure of the user interactions. To
 get those insights you can perform a node embedding using any kind
 of network layout algorithm, such as force-directed or minimum
-distortion embeddings.&lt;/p>
-&lt;p>&lt;strong>Case 2:&lt;/strong> Suppose that you are modelling a network dynamic such as
+distortion embeddings.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Case 2:&lt;/strong&gt; Suppose that you are modelling a network dynamic such as
 an epidemic spreading or a Kuramoto model. In some of those network
 dynamics a node can change the state and the edges related to the
 node must be deleted. For example, in an epidemic model a node can
 represent a person who died due to a disease. Consequently, the
-layout of the network must be recomputed to give better insights.&lt;/p>
-&lt;p>In the described cases, if we want a better (UX) and at the same
+layout of the network must be recomputed to give better insights.&lt;/p&gt;
+&lt;p&gt;In the described cases, if we want a better (UX) and at the same
 time a more practical and insightful application of Helios, the
 employed layout algorithms should not block any kind of computation
-in the main thread.&lt;/p>
-&lt;p>In Helios we already have a lib written in C (with a python wrapper)
+in the main thread.&lt;/p&gt;
+&lt;p&gt;In Helios we already have a lib written in C (with a python wrapper)
 which performs the force-directed layout algorithm using separated
 threads avoiding the GIL problem and consequently avoiding blocking
 the main thread. But what about the other open-source network layout
@@ -289,144 +323,164 @@ libs available on the internet? Unfortunately, most of those libs
 have not been implemented like Helios force-directed methods and
 consequently, if we want to update the network layout the Python
 interpreter will block the computation and user interaction in your
-network visualization.&lt;/p>
-&lt;p>My solution for having PyMDE and CuGraph-ForceAtlas not blocking the
+network visualization.&lt;/p&gt;
+&lt;p&gt;My solution for having PyMDE and CuGraph-ForceAtlas not blocking the
 main thread was to break the network layout method into two
 different types of processes: A and B and communicate both process
 using the Shared Memory approach. You can more information about
-this PR through my following posts [2], [3].&lt;/p>
-&lt;/li>
-&lt;/ul>
-&lt;p>The image below show an example that I made and is available at
-&lt;a href="https://github.com/fury-gl/helios/blob/main/docs/examples/viz_mde.py" target="_blank" rel="noopener">https://github.com/fury-gl/helios/blob/main/docs/examples/viz_mde.py&lt;/a>&lt;/p>
-&lt;p>&lt;img src="https://user-images.githubusercontent.com/6979335/125310065-a3a9f480-e308-11eb-98d9-0ff5406a0e96.gif" alt="image2">
-&lt;em>Pull Requests:&lt;/em>&lt;/p>
-&lt;ul>
-&lt;li>&lt;strong>MDE Layout:&lt;/strong>
-&lt;a href="https://github.com/fury-gl/helios/pull/6" target="_blank" rel="noopener">https://github.com/fury-gl/helios/pull/6&lt;/a>&lt;/li>
-&lt;li>&lt;strong>CuGraph ForceAtlas2&lt;/strong>
-&lt;a href="https://github.com/fury-gl/helios/pull/13" target="_blank" rel="noopener">https://github.com/fury-gl/helios/pull/13&lt;/a>&lt;/li>
-&lt;li>&lt;strong>Force-Directed and MDE improvements&lt;/strong>
-&lt;a href="https://github.com/fury-gl/helios/pull/14" target="_blank" rel="noopener">https://github.com/fury-gl/helios/pull/14&lt;/a>&lt;/li>
-&lt;li>&lt;strong>Helios Network Visualization Lib: Visual Aspects&lt;/strong>&lt;/li>
-&lt;/ul>
-&lt;p>I&amp;rsquo;ve made several stuffs to give Helios a better visual aspects. One of
+this PR through my following posts [2], [3].&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The image below show an example that I made and is available at
+
+&lt;a href=&#34;https://github.com/fury-gl/helios/blob/main/docs/examples/viz_mde.py&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;https://github.com/fury-gl/helios/blob/main/docs/examples/viz_mde.py&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://user-images.githubusercontent.com/6979335/125310065-a3a9f480-e308-11eb-98d9-0ff5406a0e96.gif&#34; alt=&#34;image2&#34;&gt;
+&lt;em&gt;Pull Requests:&lt;/em&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;MDE Layout:&lt;/strong&gt; 
+&lt;a href=&#34;https://github.com/fury-gl/helios/pull/6&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;https://github.com/fury-gl/helios/pull/6&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;CuGraph ForceAtlas2&lt;/strong&gt; 
+&lt;a href=&#34;https://github.com/fury-gl/helios/pull/13&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;https://github.com/fury-gl/helios/pull/13&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Force-Directed and MDE improvements&lt;/strong&gt;
+
+&lt;a href=&#34;https://github.com/fury-gl/helios/pull/14&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;https://github.com/fury-gl/helios/pull/14&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Helios Network Visualization Lib: Visual Aspects&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;I&amp;rsquo;ve made several stuffs to give Helios a better visual aspects. One of
 them was to give a smooth real-time network layout animations. Because
 the layout computations happens into a different process that the
 process responsible to render the network was necessary to record the
-positions and communicate the state of layout between both process.&lt;/p>
-&lt;p>The GIF below shows how the network layout through IPC behaved before
-these modification&lt;/p>
-&lt;pre>&lt;code class="language-{=html}">&amp;lt;center&amp;gt;
-&lt;/code>&lt;/pre>
-&lt;pre>&lt;code class="language-{=html}">&amp;lt;/center&amp;gt;
-&lt;/code>&lt;/pre>
-&lt;p>below, you can see how after those modifications the visual aspect is
-better.&lt;/p>
-&lt;pre>&lt;code class="language-{=html}">&amp;lt;center&amp;gt;
-&lt;/code>&lt;/pre>
-&lt;pre>&lt;code class="language-{=html}">&amp;lt;/center&amp;gt;
-&lt;/code>&lt;/pre>
-&lt;p>&lt;em>Pull Requests:&lt;/em>&lt;/p>
-&lt;ul>
-&lt;li>&lt;strong>OpenGL SuperActors:&lt;/strong>
-&lt;a href="https://github.com/fury-gl/helios/pull/1" target="_blank" rel="noopener">https://github.com/fury-gl/helios/pull/1&lt;/a>&lt;/li>
-&lt;li>&lt;strong>Fixed the flickering effect&lt;/strong>
-&lt;a href="https://github.com/fury-gl/helios/pull/10" target="_blank" rel="noopener">https://github.com/fury-gl/helios/pull/10&lt;/a>&lt;/li>
-&lt;li>&lt;strong>Improvements in the network node visual aspects&lt;/strong>
-&lt;a href="https://github.com/fury-gl/helios/pull/15" target="_blank" rel="noopener">https://github.com/fury-gl/helios/pull/15&lt;/a>&lt;/li>
-&lt;li>&lt;strong>Smooth animations when using IPC layouts&lt;/strong>
-&lt;a href="https://github.com/fury-gl/helios/pull/17" target="_blank" rel="noopener">https://github.com/fury-gl/helios/pull/17&lt;/a>&lt;/li>
-&lt;li>&lt;strong>Helios Network Visualization Lib: CI and Documentation&lt;/strong>&lt;/li>
-&lt;/ul>
-&lt;p>Because Helios was an project that begins in my GSoC project It was
+positions and communicate the state of layout between both process.&lt;/p&gt;
+&lt;p&gt;The GIF below shows how the network layout through IPC behaved before
+these modification&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-{=html}&#34;&gt;&amp;lt;center&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code class=&#34;language-{=html}&#34;&gt;&amp;lt;/center&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;below, you can see how after those modifications the visual aspect is
+better.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-{=html}&#34;&gt;&amp;lt;center&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code class=&#34;language-{=html}&#34;&gt;&amp;lt;/center&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;em&gt;Pull Requests:&lt;/em&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;OpenGL SuperActors:&lt;/strong&gt; 
+&lt;a href=&#34;https://github.com/fury-gl/helios/pull/1&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;https://github.com/fury-gl/helios/pull/1&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Fixed the flickering effect&lt;/strong&gt;
+
+&lt;a href=&#34;https://github.com/fury-gl/helios/pull/10&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;https://github.com/fury-gl/helios/pull/10&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Improvements in the network node visual aspects&lt;/strong&gt;
+
+&lt;a href=&#34;https://github.com/fury-gl/helios/pull/15&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;https://github.com/fury-gl/helios/pull/15&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Smooth animations when using IPC layouts&lt;/strong&gt;
+
+&lt;a href=&#34;https://github.com/fury-gl/helios/pull/17&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;https://github.com/fury-gl/helios/pull/17&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Helios Network Visualization Lib: CI and Documentation&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Because Helios was an project that begins in my GSoC project It was
 necessary to create the documentation, hosting and more. Now we have a
-online documentation available at
-&lt;a href="https://heliosnetwork.io/" target="_blank" rel="noopener">https://heliosnetwork.io/&lt;/a> altough
-the documentation still need some improvements.&lt;/p>
-&lt;p>Below is presented the Helios Logo which was developed by my mentor
-Filipi Nascimento.&lt;/p>
-&lt;pre>&lt;code class="language-{=html}">&amp;lt;center&amp;gt;
-&lt;/code>&lt;/pre>
-&lt;pre>&lt;code class="language-{=html}">&amp;lt;/center&amp;gt;
-&lt;/code>&lt;/pre>
-&lt;p>&lt;em>Pull Requests:&lt;/em>&lt;/p>
-&lt;ul>
-&lt;li>
-&lt;p>&lt;strong>CI and pytests:&lt;/strong>
-&lt;a href="https://github.com/fury-gl/helios/pull/5" target="_blank" rel="noopener">https://github.com/fury-gl/helios/pull/5&lt;/a>,
-&lt;a href="https://github.com/fury-gl/helios/pull/20" target="_blank" rel="noopener">https://github.com/fury-gl/helios/pull/20&lt;/a>&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>&lt;strong>Helios Logo, Sphinx Gallery and API documentation&lt;/strong>
-&lt;a href="https://github.com/fury-gl/helios/pull/18" target="_blank" rel="noopener">https://github.com/fury-gl/helios/pull/18&lt;/a>&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>&lt;strong>Documentation improvements:&lt;/strong>
-&lt;a href="https://github.com/fury-gl/helios/pull/8" target="_blank" rel="noopener">https://github.com/fury-gl/helios/pull/8&lt;/a>&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>&lt;strong>Objectives in Progress&lt;/strong>&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>&lt;strong>Draw texts on FURY and Helios&lt;/strong>&lt;/p>
-&lt;p>This two PRs allows FURY and Helios to draw millions of characters
+online documentation available at 
+&lt;a href=&#34;https://heliosnetwork.io/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;https://heliosnetwork.io/&lt;/a&gt; altough
+the documentation still need some improvements.&lt;/p&gt;
+&lt;p&gt;Below is presented the Helios Logo which was developed by my mentor
+Filipi Nascimento.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-{=html}&#34;&gt;&amp;lt;center&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code class=&#34;language-{=html}&#34;&gt;&amp;lt;/center&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;em&gt;Pull Requests:&lt;/em&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;CI and pytests:&lt;/strong&gt; 
+&lt;a href=&#34;https://github.com/fury-gl/helios/pull/5&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;https://github.com/fury-gl/helios/pull/5&lt;/a&gt;,
+
+&lt;a href=&#34;https://github.com/fury-gl/helios/pull/20&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;https://github.com/fury-gl/helios/pull/20&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Helios Logo, Sphinx Gallery and API documentation&lt;/strong&gt;
+
+&lt;a href=&#34;https://github.com/fury-gl/helios/pull/18&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;https://github.com/fury-gl/helios/pull/18&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Documentation improvements:&lt;/strong&gt;
+
+&lt;a href=&#34;https://github.com/fury-gl/helios/pull/8&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;https://github.com/fury-gl/helios/pull/8&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Objectives in Progress&lt;/strong&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Draw texts on FURY and Helios&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;This two PRs allows FURY and Helios to draw millions of characters
 in VTK windows instance with low computational resources
 consumptions. I still working on that, finishing the SDF font
-rendering which the theory behinds was developed here [5].&lt;/p>
-&lt;p>&lt;em>Pull Requests:&lt;/em>&lt;/p>
-&lt;ul>
-&lt;li>
-&lt;p>
-&lt;a href="https://github.com/fury-gl/helios/pull/24" target="_blank" rel="noopener">https://github.com/fury-gl/helios/pull/24&lt;/a>&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>
-&lt;a href="https://github.com/fury-gl/fury/pull/489" target="_blank" rel="noopener">https://github.com/fury-gl/fury/pull/489&lt;/a>&lt;/p>
-&lt;pre>&lt;code class="language-{=html}">&amp;lt;center&amp;gt;
-&lt;/code>&lt;/pre>
-&lt;pre>&lt;code class="language-{=html}">&amp;lt;/center&amp;gt;
-&lt;/code>&lt;/pre>
-&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;li>
-&lt;p>&lt;strong>GSoC weekly Blogs&lt;/strong>&lt;/p>
-&lt;p>Weekly blogs were added to the FURY Website.&lt;/p>
-&lt;p>&lt;em>Pull Requests:&lt;/em>&lt;/p>
-&lt;ul>
-&lt;li>&lt;strong>First Evaluation:&lt;/strong>
-&lt;a href="https://github.com/fury-gl/fury/pull/476" target="_blank" rel="noopener">https://github.com/fury-gl/fury/pull/476&lt;/a>&lt;/li>
-&lt;li>&lt;strong>Second Evaluation:&lt;/strong> TBD&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;/ul>
-&lt;h3 id="references">References&lt;/h3>
-&lt;p>[1] ( Python GSoC - Post #1 - A Stadia-like system for data
+rendering which the theory behinds was developed here [5].&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Pull Requests:&lt;/em&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;
+&lt;a href=&#34;https://github.com/fury-gl/helios/pull/24&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;https://github.com/fury-gl/helios/pull/24&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;
+&lt;a href=&#34;https://github.com/fury-gl/fury/pull/489&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;https://github.com/fury-gl/fury/pull/489&lt;/a&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-{=html}&#34;&gt;&amp;lt;center&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code class=&#34;language-{=html}&#34;&gt;&amp;lt;/center&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;GSoC weekly Blogs&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Weekly blogs were added to the FURY Website.&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Pull Requests:&lt;/em&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;First Evaluation:&lt;/strong&gt; 
+&lt;a href=&#34;https://github.com/fury-gl/fury/pull/476&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;https://github.com/fury-gl/fury/pull/476&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Second Evaluation:&lt;/strong&gt; TBD&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;references&#34;&gt;References&lt;/h3&gt;
+&lt;p&gt;[1] ( Python GSoC - Post #1 - A Stadia-like system for data
 visualization - demvessias s Blog, n.d.;
-&lt;a href="https://blogs.python-gsoc.org/en/demvessiass-blog/post-1-a-stadia-like-system-for-data-visualization/" target="_blank" rel="noopener">https://blogs.python-gsoc.org/en/demvessiass-blog/post-1-a-stadia-like-system-for-data-visualization/&lt;/a>&lt;/p>
-&lt;p>[2] Python GSoC - Post #2: SOLID, monkey patching a python issue and
+
+&lt;a href=&#34;https://blogs.python-gsoc.org/en/demvessiass-blog/post-1-a-stadia-like-system-for-data-visualization/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;https://blogs.python-gsoc.org/en/demvessiass-blog/post-1-a-stadia-like-system-for-data-visualization/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;[2] Python GSoC - Post #2: SOLID, monkey patching a python issue and
 network layouts through WebRTC - demvessias s Blog, n.d.;
-&lt;a href="https://blogs.python-gsoc.org/en/demvessiass-blog/post-2-solid-monkey-patching-a-python-issue-and-network-layouts-through-webrtc/" target="_blank" rel="noopener">https://blogs.python-gsoc.org/en/demvessiass-blog/post-2-solid-monkey-patching-a-python-issue-and-network-layouts-through-webrtc/&lt;/a>&lt;/p>
-&lt;p>[3] Python GSoC - Post #3: Network layout algorithms using IPC
+
+&lt;a href=&#34;https://blogs.python-gsoc.org/en/demvessiass-blog/post-2-solid-monkey-patching-a-python-issue-and-network-layouts-through-webrtc/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;https://blogs.python-gsoc.org/en/demvessiass-blog/post-2-solid-monkey-patching-a-python-issue-and-network-layouts-through-webrtc/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;[3] Python GSoC - Post #3: Network layout algorithms using IPC
 -demvessias s Blog,
 n.d.)
-&lt;a href="https://blogs.python-gsoc.org/en/demvessiass-blog/post-3-network-layout-algorithms-using-ipc/" target="_blank" rel="noopener">https://blogs.python-gsoc.org/en/demvessiass-blog/post-3-network-layout-algorithms-using-ipc/&lt;/a>&lt;/p>
-&lt;p>[4] Rougier, N.P., 2018. An open access book on Python, OpenGL and
+&lt;a href=&#34;https://blogs.python-gsoc.org/en/demvessiass-blog/post-3-network-layout-algorithms-using-ipc/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;https://blogs.python-gsoc.org/en/demvessiass-blog/post-3-network-layout-algorithms-using-ipc/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;[4] Rougier, N.P., 2018. An open access book on Python, OpenGL and
 Scientific Visualization [WWW Document]. An open access book on
 Python, OpenGL and Scientific Visualization. URL
-&lt;a href="https://github.com/rougier/python-opengl" target="_blank" rel="noopener">https://github.com/rougier/python-opengl&lt;/a> (accessed 8.21.21).&lt;/p>
-&lt;p>[5] Green, C., 2007. Improved alpha-tested magnification for vector
+
+&lt;a href=&#34;https://github.com/rougier/python-opengl&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;https://github.com/rougier/python-opengl&lt;/a&gt; (accessed 8.21.21).&lt;/p&gt;
+&lt;p&gt;[5] Green, C., 2007. Improved alpha-tested magnification for vector
 textures and special effects, in: ACM SIGGRAPH 2007 Courses on -SIGGRAPH
 &amp;lsquo;07. Presented at the ACM SIGGRAPH 2007 courses, ACM Press, San Diego,
-California, p. 9.
-&lt;a href="https://doi.org/10.1145/1281500.1281665" target="_blank" rel="noopener">https://doi.org/10.1145/1281500.1281665&lt;/a>&lt;/p></description></item><item><title>GSoC- SDF fonts and OpenGL</title><link>/pt-br/post/2021-16-08-gsoc-devmessias-11/2021-16-08-gsoc-devmessias-11/</link><pubDate>Mon, 16 Aug 2021 00:00:00 +0000</pubDate><guid>/pt-br/post/2021-16-08-gsoc-devmessias-11/2021-16-08-gsoc-devmessias-11/</guid><description>&lt;h1 id="what-did-i-do-this-week">What did I do this week?&lt;/h1>
-&lt;h2 id="fury">FURY&lt;/h2>
-&lt;ul>
-&lt;li>
-&lt;a href="https://github.com/fury-gl/fury/pull/489" target="_blank" rel="noopener">PR fury-gl/fury#489:&lt;/a>&lt;/li>
-&lt;/ul>
-&lt;p>| I&amp;rsquo;ve created the PR that will allow FURY to draw hundreds thousands of
+California, p. 9. 
+&lt;a href=&#34;https://doi.org/10.1145/1281500.1281665&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;https://doi.org/10.1145/1281500.1281665&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>GSoC-  SDF fonts and OpenGL</title>
+      <link>/pt-br/post/2021-16-08-gsoc-devmessias-11/2021-16-08-gsoc-devmessias-11/</link>
+      <pubDate>Mon, 16 Aug 2021 00:00:00 +0000</pubDate>
+      <guid>/pt-br/post/2021-16-08-gsoc-devmessias-11/2021-16-08-gsoc-devmessias-11/</guid>
+      <description>&lt;h1 id=&#34;what-did-i-do-this-week&#34;&gt;What did I do this week?&lt;/h1&gt;
+&lt;h2 id=&#34;fury&#34;&gt;FURY&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;a href=&#34;https://github.com/fury-gl/fury/pull/489&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;PR fury-gl/fury#489:&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;| I&amp;rsquo;ve created the PR that will allow FURY to draw hundreds thousands of
 labels using texture maps. By default, this PR give to FURY three
 pre-built texture maps using different fonts. However, is quite easy
 to create new fonts to be used in a visualization.
@@ -435,88 +489,101 @@ positions of the texture maps to be used in the shader. Because we
 used the freetype-py to generate the texture and packing the glyps.
 However, the lib has some examples with bugs. But fortunelly, now
 everthing is woking on FURY. I&amp;rsquo;ve also created two different examples
-to show how this PR works.&lt;/p>
-&lt;pre>&lt;code>*
-The first example, viz_huge_amount_of_labels.py, shows that feature has a realy good performance. The user can
-draw hundreds of thounsands of characters in a regular computer.
-![](https://user-images.githubusercontent.com/6979335/129643743-6cb12c06-3415-4a02-ba43-ccc97003b02d.png)
-* The second example, viz_billboad_labels.py, shows the different behaviors of the label actor. In addition, presents
-to the user how to create a new texture atlas font to be used across different visualizations.
-&lt;/code>&lt;/pre>
-&lt;ul>
-&lt;li>
-&lt;a href="https://github.com/fury-gl/fury/pull/437" target="_blank" rel="noopener">PR fury-gl/fury#437:&lt;/a>
-&lt;ul>
-&lt;li>
-&lt;p>&lt;strong>Fix: avoid multiple OpenGl context on windows using asyncio&lt;/strong>&lt;/p>
-&lt;pre>&lt;code>The streaming system must be generic, but opengl and vtk behaves in uniques ways in each Operating System. Thus, can be tricky
-to have the same behavior acrros different OS. One hard stuff that we founded is that was not possible to use my
-TimeIntervals objects (implemented with threading module) with vtk. The reason for this impossibility is because we can't use
-vtk in windows in different threads. But fortunely, moving from the threading (multithreading) to the asyncio approcach (concurrency)
+to show how this PR works.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;*   
+
+    The first example, viz_huge_amount_of_labels.py, shows that feature has a realy good performance. The user can 
+    draw hundreds of thounsands of characters in a regular computer.
+
+  ![](https://user-images.githubusercontent.com/6979335/129643743-6cb12c06-3415-4a02-ba43-ccc97003b02d.png)
+
+*   The second example, viz_billboad_labels.py, shows the different behaviors of the label actor. In addition, presents 
+  to the user how to create a new texture atlas font to be used across different visualizations.
+&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;a href=&#34;https://github.com/fury-gl/fury/pull/437&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;PR fury-gl/fury#437:&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Fix: avoid multiple OpenGl context on windows using asyncio&lt;/strong&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;The streaming system must be generic, but opengl and vtk behaves in uniques ways in each Operating System. Thus, can be tricky 
+to have the same behavior acrros different OS. One hard stuff that we founded is that was not possible to use my 
+TimeIntervals objects (implemented with threading module) with vtk. The reason for this impossibility is because we can&#39;t use 
+vtk in windows in different threads. But fortunely, moving from the threading (multithreading) to the asyncio approcach (concurrency) 
 have fixed this issue and now the streaming system is ready to be used anywhere.
-&lt;/code>&lt;/pre>
-&lt;/li>
-&lt;li>
-&lt;p>&lt;strong>Flickering&lt;/strong>&lt;/p>
-&lt;pre>&lt;code>Finally, I could found the cause of the flickering effect on the streaming system.
-This flickering was appearing only when the streaming was created using the Widget object.
-The cause seems to be a bug or a strange behavior from vtk.
-Calling
-&lt;/code>&lt;/pre>
-&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;/ul>
-&lt;p>iren.MouseWheelForwardEvent() or&lt;/p>
-&lt;p>iren.MouseWheelBackwardEvent() inside of a thread without invoking the
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Flickering&lt;/strong&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;Finally, I could found the cause of the flickering effect on the streaming system. 
+This flickering was appearing only when the streaming was created using the Widget object. 
+The cause seems to be a bug or a strange behavior from vtk. 
+Calling  
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;iren.MouseWheelForwardEvent() or&lt;/p&gt;
+&lt;p&gt;iren.MouseWheelBackwardEvent() inside of a thread without invoking the
 Start method from a vtk instance produces a memory corruption.
 Fortunately, I could fix this behavior and now the streaming system is
-working without this glitch effect.&lt;/p>
-&lt;pre>&lt;code>FURY/Helios
-&lt;/code>&lt;/pre>
-&lt;ul>
-&lt;li>
-&lt;a href="https://github.com/fury-gl/helios/pull/24" target="_blank" rel="noopener">PR fury-gl/helios#24 :&lt;/a>&lt;/li>
-&lt;/ul>
-&lt;p>This uses the
-&lt;a href="https://github.com/fury-gl/fury/pull/489" target="_blank" rel="noopener">PRfury-gl/fury#489:&lt;/a> to give
+working without this glitch effect.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;FURY/Helios
+&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;a href=&#34;https://github.com/fury-gl/helios/pull/24&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;PR fury-gl/helios#24 :&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;This uses the
+
+&lt;a href=&#34;https://github.com/fury-gl/fury/pull/489&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;PRfury-gl/fury#489:&lt;/a&gt; to give
 the network label feature to helios. Is possible to draw node labels,
 update the colors, change the positions at runtime. In addition, when a
 network layout algorithm is running this will automatically update the
-node labels positions to follow the nodes across the screen.&lt;/p>
-&lt;p>&lt;img src="https://user-images.githubusercontent.com/6979335/129642582-fc6785d8-0e4f-4fdd-81f4-b2552e1ff7c7.png" alt="image1">&lt;/p>
-&lt;ul>
-&lt;li>
-&lt;a href="https://github.com/fury-gl/helios/pull/23" target="_blank" rel="noopener">PR fury-gl/helios#23:
-Merged.&lt;/a>&lt;/li>
-&lt;/ul>
-&lt;p>This PR granted compatibility between IPC Layouts and Windows. Besides
+node labels positions to follow the nodes across the screen.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://user-images.githubusercontent.com/6979335/129642582-fc6785d8-0e4f-4fdd-81f4-b2552e1ff7c7.png&#34; alt=&#34;image1&#34;&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;a href=&#34;https://github.com/fury-gl/helios/pull/23&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;PR fury-gl/helios#23:
+Merged.&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;This PR granted compatibility between IPC Layouts and Windows. Besides
 that , now is quite easier to create new network layouts using inter
-process communication&lt;/p>
-&lt;h1 id="did-i-get-stuck-anywhere">Did I get stuck anywhere?&lt;/h1>
-&lt;p>I did not get stuck this week.&lt;/p></description></item><item><title>GSoC- Network layout algorithms using IPC</title><link>/pt-br/post/2021-07-12-gsoc-devmessias-6/2021-07-12-gsoc-devmessias-6/</link><pubDate>Mon, 12 Jul 2021 00:00:00 +0000</pubDate><guid>/pt-br/post/2021-07-12-gsoc-devmessias-6/2021-07-12-gsoc-devmessias-6/</guid><description>&lt;p>Hi all. In the past weeks, I&amp;rsquo;ve been focusing on developing Helios; the
+process communication&lt;/p&gt;
+&lt;h1 id=&#34;did-i-get-stuck-anywhere&#34;&gt;Did I get stuck anywhere?&lt;/h1&gt;
+&lt;p&gt;I did not get stuck this week.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>GSoC-  Network layout algorithms using IPC</title>
+      <link>/pt-br/post/2021-07-12-gsoc-devmessias-6/2021-07-12-gsoc-devmessias-6/</link>
+      <pubDate>Mon, 12 Jul 2021 00:00:00 +0000</pubDate>
+      <guid>/pt-br/post/2021-07-12-gsoc-devmessias-6/2021-07-12-gsoc-devmessias-6/</guid>
+      <description>&lt;p&gt;Hi all. In the past weeks, I&amp;rsquo;ve been focusing on developing Helios; the
 network visualization library for FURY. I improved the visual aspects of
 the network rendering as well as implemented the most relevant network
-layout methods.&lt;/p>
-&lt;p>In this post I will discuss the most challenging task that I faced to
-implement those new network layout methods and how I solved it.&lt;/p>
-&lt;h2 id="the-problem-network-layout-algorithm-implementations-with-a-blocking-behavior">The problem: network layout algorithm implementations with a blocking behavior&lt;/h2>
-&lt;p>&lt;strong>Case 1:&lt;/strong> Suppose that you need to monitor a hashtag and build a
+layout methods.&lt;/p&gt;
+&lt;p&gt;In this post I will discuss the most challenging task that I faced to
+implement those new network layout methods and how I solved it.&lt;/p&gt;
+&lt;h2 id=&#34;the-problem-network-layout-algorithm-implementations-with-a-blocking-behavior&#34;&gt;The problem: network layout algorithm implementations with a blocking behavior&lt;/h2&gt;
+&lt;p&gt;&lt;strong&gt;Case 1:&lt;/strong&gt; Suppose that you need to monitor a hashtag and build a
 social graph. You want to interact with the graph and at the same time
 get insights about the structure of the user interactions. To get those
 insights you can perform a node embedding using any kind of network
 layout algorithm, such as force-directed or minimum distortion
-embeddings.&lt;/p>
-&lt;p>&lt;strong>Case 2:&lt;/strong> Suppose that you are modelling a network dynamic such as an
+embeddings.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Case 2:&lt;/strong&gt; Suppose that you are modelling a network dynamic such as an
 epidemic spreading or a Kuramoto model. In some of those network
 dynamics a node can change the state and the edges related to the node
 must be deleted. For example, in an epidemic model a node can represent
 a person who died due to a disease. Consequently, the layout of the
-network must be recomputed to give better insights.&lt;/p>
-&lt;p>In described cases if we want a better (UX) and at the same time a more
+network must be recomputed to give better insights.&lt;/p&gt;
+&lt;p&gt;In described cases if we want a better (UX) and at the same time a more
 practical and insightful application of Helios layouts algorithms
-shouldn&amp;rsquo;t block any kind of computation in the main thread.&lt;/p>
-&lt;p>In Helios we already have a lib written in C (with a python wrapper)
+shouldn&amp;rsquo;t block any kind of computation in the main thread.&lt;/p&gt;
+&lt;p&gt;In Helios we already have a lib written in C (with a python wrapper)
 which performs the force-directed layout algorithm using separated
 threads avoiding the GIL problem and consequently avoiding the blocking.
 But and the other open-source network layout libs available on the
@@ -524,281 +591,327 @@ internet? Unfortunately, most of those libs have not been implemented
 like Helios force-directed methods and consequently, if we want to
 update the network layout the python interpreter will block the
 computation and user interaction in your network visualization. How to
-solve this problem?&lt;/p>
-&lt;h2 id="why-is-using-the-python-threading-is-not-a-good-solution">Why is using the python threading is not a good solution?&lt;/h2>
-&lt;p>One solution to remove the blocking behavior of the network layout libs
+solve this problem?&lt;/p&gt;
+&lt;h2 id=&#34;why-is-using-the-python-threading-is-not-a-good-solution&#34;&gt;Why is using the python threading is not a good solution?&lt;/h2&gt;
+&lt;p&gt;One solution to remove the blocking behavior of the network layout libs
 like PyMDE is to use the threading module from python. However, remember
 the GIL problem: only one thread can execute python code at once.
 Therefore, this solution will be unfeasible for networks with more than
-some hundreds of nodes or even less! Ok, then how to solve it well?&lt;/p>
-&lt;h2 id="ipc-using-python">IPC using python&lt;/h2>
-&lt;p>As I said in my previous posts I&amp;rsquo;ve created a streaming system for data
+some hundreds of nodes or even less! Ok, then how to solve it well?&lt;/p&gt;
+&lt;h2 id=&#34;ipc-using-python&#34;&gt;IPC using python&lt;/h2&gt;
+&lt;p&gt;As I said in my previous posts I&amp;rsquo;ve created a streaming system for data
 visualization for FURY using webrtc. The streaming system is already
 working and an important piece in this system was implemented using the
 python SharedMemory from multiprocessing. We can get the same ideas from
 the streaming system to remove the blocking behavior of the network
-layout libs.&lt;/p>
-&lt;p>My solution to have PyMDE and CuGraph-ForceAtlas without blocking was to
+layout libs.&lt;/p&gt;
+&lt;p&gt;My solution to have PyMDE and CuGraph-ForceAtlas without blocking was to
 break the network layout method into two different types of processes: A
 and B. The list below describes the most important behaviors and
-responsibilities for each process&lt;/p>
-&lt;p>&lt;strong>Process A:&lt;/strong>&lt;/p>
-&lt;ul>
-&lt;li>Where the visualization (NetworkDraw) will happen&lt;/li>
-&lt;li>Create the shared memory resources: edges, weights, positions,
-info..&lt;/li>
-&lt;li>Check if the process B has updated the shared memory resource which
-stores the positions using the timestamp stored in the info_buffer&lt;/li>
-&lt;li>Update the positions inside of NetworkDraw instance&lt;/li>
-&lt;/ul>
-&lt;p>&lt;strong>Process B:&lt;/strong>&lt;/p>
-&lt;ul>
-&lt;li>Read the network information stored in the shared memory resources:
-edges , weights, positions&lt;/li>
-&lt;li>Execute the network layout algorithm&lt;/li>
-&lt;li>Update the positions values inside of the shared memory resource&lt;/li>
-&lt;li>Update the timestamp inside of the shared memory resource&lt;/li>
-&lt;/ul>
-&lt;p>I used the timestamp information to avoid unnecessary updates in the
+responsibilities for each process&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Process A:&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Where the visualization (NetworkDraw) will happen&lt;/li&gt;
+&lt;li&gt;Create the shared memory resources: edges, weights, positions,
+info..&lt;/li&gt;
+&lt;li&gt;Check if the process B has updated the shared memory resource which
+stores the positions using the timestamp stored in the info_buffer&lt;/li&gt;
+&lt;li&gt;Update the positions inside of NetworkDraw instance&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Process B:&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Read the network information stored in the shared memory resources:
+edges , weights, positions&lt;/li&gt;
+&lt;li&gt;Execute the network layout algorithm&lt;/li&gt;
+&lt;li&gt;Update the positions values inside of the shared memory resource&lt;/li&gt;
+&lt;li&gt;Update the timestamp inside of the shared memory resource&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;I used the timestamp information to avoid unnecessary updates in the
 FURY/VTK window instance, which can consume a lot of computational
-resources.&lt;/p>
-&lt;h3 id="how-have-i-implemented-the-code-for-a-and-b">How have I implemented the code for A and B?&lt;/h3>
-&lt;p>Because we need to deal with a lot of different data and share them
+resources.&lt;/p&gt;
+&lt;h3 id=&#34;how-have-i-implemented-the-code-for-a-and-b&#34;&gt;How have I implemented the code for A and B?&lt;/h3&gt;
+&lt;p&gt;Because we need to deal with a lot of different data and share them
 between different processes I&amp;rsquo;ve created a set of tools to deal with
-that, take a look for example in the
-&lt;a href="https://github.com/fury-gl/helios/blob/main/helios/layouts/ipc_tools.py#L111" target="_blank" rel="noopener">ShmManagerMultiArrays
-Object&lt;/a>
-, which makes the memory management less painful.&lt;/p>
-&lt;p>I'm breaking the layout method into two different processes. Thus I&amp;rsquo;ve
+that, take a look for example in the 
+&lt;a href=&#34;https://github.com/fury-gl/helios/blob/main/helios/layouts/ipc_tools.py#L111&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;ShmManagerMultiArrays
+Object&lt;/a&gt;
+, which makes the memory management less painful.&lt;/p&gt;
+&lt;p&gt;I&#39;m breaking the layout method into two different processes. Thus I&amp;rsquo;ve
 created two abstract objects to deal with any kind of network layout
 algorithm which must be performed using inter-process-communication
 (IPC). Those objects are:
-&lt;a href="https://github.com/devmessias/helios/blob/a0a24525697ec932a398db6413899495fb5633dd/helios/layouts/base.py#L65" target="_blank" rel="noopener">NetworkLayoutIPCServerCalc&lt;/a>
+
+&lt;a href=&#34;https://github.com/devmessias/helios/blob/a0a24525697ec932a398db6413899495fb5633dd/helios/layouts/base.py#L65&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;NetworkLayoutIPCServerCalc&lt;/a&gt;
 ; used by processes of type B and
-&lt;a href="https://github.com/devmessias/helios/blob/a0a24525697ec932a398db6413899495fb5633dd/helios/layouts/base.py#L135" target="_blank" rel="noopener">NetworkLayoutIPCRender&lt;/a>
-; which should be used by processes of type A.&lt;/p>
-&lt;p>I&amp;rsquo;ll not bore you with the details of the implementation. But let&amp;rsquo;s take
+
+&lt;a href=&#34;https://github.com/devmessias/helios/blob/a0a24525697ec932a398db6413899495fb5633dd/helios/layouts/base.py#L135&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;NetworkLayoutIPCRender&lt;/a&gt;
+; which should be used by processes of type A.&lt;/p&gt;
+&lt;p&gt;I&amp;rsquo;ll not bore you with the details of the implementation. But let&amp;rsquo;s take
 a look into some important points. As I&amp;rsquo;ve said saving the timestamp
 after each step of the network layout algorithm. Take a look into the
 method _check_and_sync from NetworkLayoutIPCRender
-&lt;a href="https://github.com/fury-gl/helios/blob/a0a24525697ec932a398db6413899495fb5633dd/helios/layouts/base.py#L266" target="_blank" rel="noopener">here&lt;/a>.
+
+&lt;a href=&#34;https://github.com/fury-gl/helios/blob/a0a24525697ec932a398db6413899495fb5633dd/helios/layouts/base.py#L266&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;here&lt;/a&gt;.
 Notice that the update happens only if the stored timestamp has been
 changed. Also, look at this line
-&lt;a href="https://github.com/fury-gl/helios/blob/a0a24525697ec932a398db6413899495fb5633dd/helios/layouts/mde.py#L180" target="_blank" rel="noopener">helios/layouts/mde.py#L180&lt;/a>,
+
+&lt;a href=&#34;https://github.com/fury-gl/helios/blob/a0a24525697ec932a398db6413899495fb5633dd/helios/layouts/mde.py#L180&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;helios/layouts/mde.py#L180&lt;/a&gt;,
 the IPC-PyMDE implementation This line writes a value 1 into the second
 element of the info_buffer. This value is used to inform the process A
 that everything worked well. I used that info for example in the tests
 for the network layout method, see the link
-&lt;a href="https://github.com/fury-gl/helios/blob/a0a24525697ec932a398db6413899495fb5633dd/helios/tests/test_mde_layouts.py#L43" target="_blank" rel="noopener">helios/tests/test_mde_layouts.py#L43&lt;/a>&lt;/p>
-&lt;h2 id="results">Results&lt;/h2>
-&lt;p>Until now Helios has three network layout methods implemented: Force
+
+&lt;a href=&#34;https://github.com/fury-gl/helios/blob/a0a24525697ec932a398db6413899495fb5633dd/helios/tests/test_mde_layouts.py#L43&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;helios/tests/test_mde_layouts.py#L43&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&#34;results&#34;&gt;Results&lt;/h2&gt;
+&lt;p&gt;Until now Helios has three network layout methods implemented: Force
 Directed , Minimum Distortion Embeddings and Force Atlas 2. Here
-&lt;a href="https://github.com/fury-gl/helios/blob/a0a24525697ec932a398db6413899495fb5633dd/docs/examples/viz_helios_mde.ipynb" target="_blank" rel="noopener">docs/examples/viz_helios_mde.ipynb&lt;/a>
+
+&lt;a href=&#34;https://github.com/fury-gl/helios/blob/a0a24525697ec932a398db6413899495fb5633dd/docs/examples/viz_helios_mde.ipynb&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;docs/examples/viz_helios_mde.ipynb&lt;/a&gt;
 you can get a jupyter notebook that I&amp;rsquo;ve a created showing how to use
-MDE with IPC in Helios.&lt;/p>
-&lt;p>In the animation below we can see the result of the Helios-MDE
-application into a network with a set of anchored nodes.&lt;/p>
-&lt;p>&lt;img src="https://user-images.githubusercontent.com/6979335/125310065-a3a9f480-e308-11eb-98d9-0ff5406a0e96.gif" alt="image1">&lt;/p>
-&lt;h2 id="next-steps">Next steps&lt;/h2>
-&lt;p>I&amp;rsquo;ll probably focus on the Helios network visualization system.
+MDE with IPC in Helios.&lt;/p&gt;
+&lt;p&gt;In the animation below we can see the result of the Helios-MDE
+application into a network with a set of anchored nodes.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://user-images.githubusercontent.com/6979335/125310065-a3a9f480-e308-11eb-98d9-0ff5406a0e96.gif&#34; alt=&#34;image1&#34;&gt;&lt;/p&gt;
+&lt;h2 id=&#34;next-steps&#34;&gt;Next steps&lt;/h2&gt;
+&lt;p&gt;I&amp;rsquo;ll probably focus on the Helios network visualization system.
 Improving the documentation and testing the ForceAtlas2 in a computer
 with cuda installed. See the list of opened
-&lt;a href="https://github.com/fury-gl/helios/issues" target="_blank" rel="noopener">issues&lt;/a>&lt;/p>
-&lt;h2 id="summary-of-most-important-pull-requests">Summary of most important pull-requests:&lt;/h2>
-&lt;ul>
-&lt;li>IPC tools for network layout methods (helios issue #7)
-&lt;a href="https://github.com/fury-gl/helios/pull/6" target="_blank" rel="noopener">fury-gl/helios/pull/6&lt;/a>&lt;/li>
-&lt;li>New network layout methods for fury (helios issue #7)
-&lt;a href="https://github.com/fury-gl/helios/pull/9" target="_blank" rel="noopener">fury-gl/helios/pull/9&lt;/a>
-&lt;a href="https://github.com/fury-gl/helios/pull/14" target="_blank" rel="noopener">fury-gl/helios/pull/14&lt;/a>
-&lt;a href="https://github.com/fury-gl/helios/pull/13" target="_blank" rel="noopener">fury-gl/helios/pull/13&lt;/a>&lt;/li>
-&lt;li>Improved the visual aspects and configurations of the network
+
+&lt;a href=&#34;https://github.com/fury-gl/helios/issues&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;issues&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&#34;summary-of-most-important-pull-requests&#34;&gt;Summary of most important pull-requests:&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;IPC tools for network layout methods (helios issue #7)
+
+&lt;a href=&#34;https://github.com/fury-gl/helios/pull/6&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;fury-gl/helios/pull/6&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;New network layout methods for fury (helios issue #7)
+
+&lt;a href=&#34;https://github.com/fury-gl/helios/pull/9&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;fury-gl/helios/pull/9&lt;/a&gt;
+
+&lt;a href=&#34;https://github.com/fury-gl/helios/pull/14&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;fury-gl/helios/pull/14&lt;/a&gt;
+
+&lt;a href=&#34;https://github.com/fury-gl/helios/pull/13&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;fury-gl/helios/pull/13&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Improved the visual aspects and configurations of the network
 rendering(helios issue #12)
-&lt;a href="https://github.com/devmessias/helios/tree/fury_network_actors_improvements" target="_blank" rel="noopener">https://github.com/devmessias/helios/tree/fury_network_actors_improvements&lt;/a>&lt;/li>
-&lt;li>Tests, examples and documentation for Helios (helios issues #3 and
+
+&lt;a href=&#34;https://github.com/devmessias/helios/tree/fury_network_actors_improvements&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;https://github.com/devmessias/helios/tree/fury_network_actors_improvements&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Tests, examples and documentation for Helios (helios issues #3 and
 #4)
-&lt;a href="https://github.com/fury-gl/helios/pull/5" target="_blank" rel="noopener">fury-gl/helios/pull/5&lt;/a>&lt;/li>
-&lt;li>Reduced the flickering effect on the FURY/Helios streaming system
-&lt;a href="https://github.com/fury-gl/helios/pull/10" target="_blank" rel="noopener">fury-gl/helios/pull/10&lt;/a>
-&lt;a href="https://github.com/fury-gl/fury/pull/437/commits/a94e22dbc2854ec87b8c934f6cabdf48931dc279" target="_blank" rel="noopener">fury-gl/fury/pull/437/commits/a94e22dbc2854ec87b8c934f6cabdf48931dc279&lt;/a>&lt;/li>
-&lt;/ul></description></item><item><title>GSoC- Bugs!</title><link>/pt-br/post/2021-06-21-gsoc-devmessias-3/2021-06-21-gsoc-devmessias-3/</link><pubDate>Mon, 21 Jun 2021 00:00:00 +0000</pubDate><guid>/pt-br/post/2021-06-21-gsoc-devmessias-3/2021-06-21-gsoc-devmessias-3/</guid><description>&lt;h2 id="what-did-you-do-this-week">What did you do this week?&lt;/h2>
-&lt;ul>
-&lt;li>
-&lt;a href="https://github.com/fury-gl/fury/pull/422/commits/8a0012b66b95987bafdb71367a64897b25c89368" target="_blank" rel="noopener">PR fury-gl/fury#422
-(merged):&lt;/a>
-Integrated the 3d impostor spheres with the marker actor.&lt;/li>
-&lt;li>
-&lt;a href="https://github.com/fury-gl/fury/pull/422" target="_blank" rel="noopener">PR fury-gl/fury#422
-(merged):&lt;/a> Fixed some
-issues with my maker PR which now it's merged on fury.&lt;/li>
-&lt;li>
-&lt;a href="https://github.com/fury-gl/fury/pull/432" target="_blank" rel="noopener">PR fury-gl/fury#432&lt;/a>
-I've made some improvements in my PR which can be used to fine tune
-the opengl state on VTK.&lt;/li>
-&lt;li>
-&lt;a href="https://github.com/fury-gl/fury/pull/437" target="_blank" rel="noopener">PR fury-gl/fury#437&lt;/a>
-I've made several improvements in my streamer proposal for FURY
-related to memory management.&lt;/li>
-&lt;li>
-&lt;a href="https://github.com/fury-gl/helios/pull/1" target="_blank" rel="noopener">PR fury-gl/helios#1&lt;/a>
-First version of async network layout using force-directed.&lt;/li>
-&lt;/ul>
-&lt;h2 id="did-i-get-stuck-anywhere">Did I get stuck anywhere?&lt;/h2>
-&lt;h3 id="a-python-core-issue">A python-core issue&lt;/h3>
-&lt;p>I've spent some hours trying to discover this issue. But now it's
+
+&lt;a href=&#34;https://github.com/fury-gl/helios/pull/5&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;fury-gl/helios/pull/5&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Reduced the flickering effect on the FURY/Helios streaming system
+
+&lt;a href=&#34;https://github.com/fury-gl/helios/pull/10&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;fury-gl/helios/pull/10&lt;/a&gt;
+
+&lt;a href=&#34;https://github.com/fury-gl/fury/pull/437/commits/a94e22dbc2854ec87b8c934f6cabdf48931dc279&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;fury-gl/fury/pull/437/commits/a94e22dbc2854ec87b8c934f6cabdf48931dc279&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>GSoC-  Bugs!</title>
+      <link>/pt-br/post/2021-06-21-gsoc-devmessias-3/2021-06-21-gsoc-devmessias-3/</link>
+      <pubDate>Mon, 21 Jun 2021 00:00:00 +0000</pubDate>
+      <guid>/pt-br/post/2021-06-21-gsoc-devmessias-3/2021-06-21-gsoc-devmessias-3/</guid>
+      <description>&lt;h2 id=&#34;what-did-you-do-this-week&#34;&gt;What did you do this week?&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;a href=&#34;https://github.com/fury-gl/fury/pull/422/commits/8a0012b66b95987bafdb71367a64897b25c89368&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;PR fury-gl/fury#422
+(merged):&lt;/a&gt;
+Integrated the 3d impostor spheres with the marker actor.&lt;/li&gt;
+&lt;li&gt;
+&lt;a href=&#34;https://github.com/fury-gl/fury/pull/422&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;PR fury-gl/fury#422
+(merged):&lt;/a&gt; Fixed some
+issues with my maker PR which now it&#39;s merged on fury.&lt;/li&gt;
+&lt;li&gt;
+&lt;a href=&#34;https://github.com/fury-gl/fury/pull/432&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;PR fury-gl/fury#432&lt;/a&gt;
+I&#39;ve made some improvements in my PR which can be used to fine tune
+the opengl state on VTK.&lt;/li&gt;
+&lt;li&gt;
+&lt;a href=&#34;https://github.com/fury-gl/fury/pull/437&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;PR fury-gl/fury#437&lt;/a&gt;
+I&#39;ve made several improvements in my streamer proposal for FURY
+related to memory management.&lt;/li&gt;
+&lt;li&gt;
+&lt;a href=&#34;https://github.com/fury-gl/helios/pull/1&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;PR fury-gl/helios#1&lt;/a&gt;
+First version of async network layout using force-directed.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;did-i-get-stuck-anywhere&#34;&gt;Did I get stuck anywhere?&lt;/h2&gt;
+&lt;h3 id=&#34;a-python-core-issue&#34;&gt;A python-core issue&lt;/h3&gt;
+&lt;p&gt;I&#39;ve spent some hours trying to discover this issue. But now it&#39;s
 solved through the commit
-&lt;a href="https://github.com/devmessias/fury/commit/071dab85a86ec4f97eba36721b247ca9233fd59e" target="_blank" rel="noopener">devmessias/fury/commit/071dab85&lt;/a>&lt;/p>
-&lt;p>The 
-&lt;a href="https://docs.python.org/3/library/multiprocessing.shared_memory.html" target="_blank" rel="noopener">SharedMemory&lt;/a>
+
+&lt;a href=&#34;https://github.com/devmessias/fury/commit/071dab85a86ec4f97eba36721b247ca9233fd59e&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;devmessias/fury/commit/071dab85&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;The 
+&lt;a href=&#34;https://docs.python.org/3/library/multiprocessing.shared_memory.html&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;SharedMemory&lt;/a&gt;
 from python&amp;gt;=3.8 offers a new a way to share memory resources between
 unrelated process. One of the advantages of using the SharedMemory
 instead of the RawArray from multiprocessing is that the SharedMemory
 allows to share memory blocks without those processes be related with a
 fork or spawm method. The SharedMemory behavior allowed to achieve our
-jupyter integration and
-&lt;a href="https://github.com/fury-gl/fury/pull/437/files#diff-7680a28c3a88a93b8dae7b777c5db5805e1157365805eeaf2e58fd12a00df046" target="_blank" rel="noopener">simplifies the use of the streaming
-system&lt;/a>.
-However, I saw a issue in the shared memory implementation.&lt;/p>
-&lt;p>Let&amp;rsquo;s see the following scenario:&lt;/p>
-&lt;pre>&lt;code>1-Process A creates a shared memory X
+jupyter integration and 
+&lt;a href=&#34;https://github.com/fury-gl/fury/pull/437/files#diff-7680a28c3a88a93b8dae7b777c5db5805e1157365805eeaf2e58fd12a00df046&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;simplifies the use of the streaming
+system&lt;/a&gt;.
+However, I saw a issue in the shared memory implementation.&lt;/p&gt;
+&lt;p&gt;Let&amp;rsquo;s see the following scenario:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;1-Process A creates a shared memory X
 2-Process A creates a subprocess B using popen (shell=False)
 3-Process B reads X
 4-Process B closes X
 5-Process A kills B
-4-Process A closes X
+4-Process A closes  X
 5-Process A unlink() the shared memory resource X
-&lt;/code>&lt;/pre>
-&lt;p>The above scenario should work flawless. Calling unlink() in X is the
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The above scenario should work flawless. Calling unlink() in X is the
 right way as discussed in the python official documentation. However,
-there is a open issue related the unlink method&lt;/p>
-&lt;ul>
-&lt;li>
-&lt;a href="https://bugs.python.org/issue38119" target="_blank" rel="noopener">Issue:
-https://bugs.python.org/issue38119&lt;/a>&lt;/li>
-&lt;li>
-&lt;a href="https://github.com/python/cpython/pull/21516" target="_blank" rel="noopener">PR
-python/cpython/pull/21516&lt;/a>&lt;/li>
-&lt;/ul>
-&lt;p>Fortunately, I could use a
-&lt;a href="https://bugs.python.org/msg388287" target="_blank" rel="noopener">monkey-patching&lt;/a> solution to fix
+there is a open issue related the unlink method&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;a href=&#34;https://bugs.python.org/issue38119&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Issue:
+https://bugs.python.org/issue38119&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;
+&lt;a href=&#34;https://github.com/python/cpython/pull/21516&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;PR
+python/cpython/pull/21516&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Fortunately, I could use a
+
+&lt;a href=&#34;https://bugs.python.org/msg388287&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;monkey-patching&lt;/a&gt; solution to fix
 that meanwhile we wait to the python-core team to fix the
-resource_tracker (38119) issue.&lt;/p>
-&lt;h2 id="what-is-coming-up-next">What is coming up next?&lt;/h2>
-&lt;p>I'm planning to work in the
-&lt;a href="https://github.com/fury-gl/fury/pull/432" target="_blank" rel="noopener">fury-gl/fury#432&lt;/a> and
-&lt;a href="https://github.com/fury-gl/helios/pull/1" target="_blank" rel="noopener">fury-gl/helios#1&lt;/a>.&lt;/p></description></item><item><title>GSoC- A Stadia-like system for data visualization</title><link>/pt-br/post/2021-06-12-gsoc-devmessias-2/2021-06-12-gsoc-devmessias-2/</link><pubDate>Sat, 12 Jun 2021 00:00:00 +0000</pubDate><guid>/pt-br/post/2021-06-12-gsoc-devmessias-2/2021-06-12-gsoc-devmessias-2/</guid><description>&lt;p>Hi all! In this post I'll talk about the PR
-&lt;a href="https://github.com/fury-gl/fury/pull/437" target="_blank" rel="noopener">#437&lt;/a>.&lt;/p>
-&lt;p>There are several reasons to have a streaming system for data
+resource_tracker (38119) issue.&lt;/p&gt;
+&lt;h2 id=&#34;what-is-coming-up-next&#34;&gt;What is coming up next?&lt;/h2&gt;
+&lt;p&gt;I&#39;m planning to work in the
+
+&lt;a href=&#34;https://github.com/fury-gl/fury/pull/432&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;fury-gl/fury#432&lt;/a&gt; and
+
+&lt;a href=&#34;https://github.com/fury-gl/helios/pull/1&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;fury-gl/helios#1&lt;/a&gt;.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>GSoC-  A Stadia-like system for data visualization</title>
+      <link>/pt-br/post/2021-06-12-gsoc-devmessias-2/2021-06-12-gsoc-devmessias-2/</link>
+      <pubDate>Sat, 12 Jun 2021 00:00:00 +0000</pubDate>
+      <guid>/pt-br/post/2021-06-12-gsoc-devmessias-2/2021-06-12-gsoc-devmessias-2/</guid>
+      <description>&lt;p&gt;Hi all! In this post I&#39;ll talk about the PR
+
+&lt;a href=&#34;https://github.com/fury-gl/fury/pull/437&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;#437&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;There are several reasons to have a streaming system for data
 visualization. Because I&amp;rsquo;m doing a PhD in a developing country I always
 need to think of the cheapest way to use the computational resources
 available. For example, with the GPUs prices increasing, it&amp;rsquo;s necessary
 to share a machine with a GPU with different users in different
 locations. Therefore, to convince my Brazilian friends to use FURY I
-need to code thinking inside of the (a) low-budget scenario.&lt;/p>
-&lt;p>To construct the streaming system for my project I&amp;rsquo;m thinking about the
-following properties and behaviors:&lt;/p>
-&lt;ol>
-&lt;li>I want to avoid blocking the code execution in the main thread
-(where the vtk/fury instance resides).&lt;/li>
-&lt;li>The streaming should work inside of a low bandwidth environment.&lt;/li>
-&lt;li>I need an easy way to share the rendering result. For example, using
-the free version of ngrok.&lt;/li>
-&lt;/ol>
-&lt;p>To achieve the property &lt;strong>1.&lt;/strong> we need to circumvent the GIL problem.
+need to code thinking inside of the (a) low-budget scenario.&lt;/p&gt;
+&lt;p&gt;To construct the streaming system for my project I&amp;rsquo;m thinking about the
+following properties and behaviors:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;I want to avoid blocking the code execution in the main thread
+(where the vtk/fury instance resides).&lt;/li&gt;
+&lt;li&gt;The streaming should work inside of a low bandwidth environment.&lt;/li&gt;
+&lt;li&gt;I need an easy way to share the rendering result. For example, using
+the free version of ngrok.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;To achieve the property &lt;strong&gt;1.&lt;/strong&gt; we need to circumvent the GIL problem.
 Using the threading module alone it&amp;rsquo;s not good enough because we can&amp;rsquo;t
 use the python-threading for parallel CPU computation. In addition, to
 achieve a better organization it&amp;rsquo;s better to define the server system as
 an uncoupled module. Therefore, I believe that multiprocessing-lib in
-python will fit very well for our proposes.&lt;/p>
-&lt;p>For the streaming system to work smoothly in a low-bandwidth scenario we
+python will fit very well for our proposes.&lt;/p&gt;
+&lt;p&gt;For the streaming system to work smoothly in a low-bandwidth scenario we
 need to choose the protocol wisely. In the recent years the WebRTC
 protocol has been used in a myriad of applications like google hangouts
 and Google Stadia aiming low latency behavior. Therefore, I choose the
 webrtc as my first protocol to be available in the streaming system
-proposal.&lt;/p>
-&lt;p>To achieve the third property, we must be economical in adding
-requirements and dependencies.&lt;/p>
-&lt;p>Currently, the system has some issues, but it's already working. You
+proposal.&lt;/p&gt;
+&lt;p&gt;To achieve the third property, we must be economical in adding
+requirements and dependencies.&lt;/p&gt;
+&lt;p&gt;Currently, the system has some issues, but it&#39;s already working. You
 can see some tutorials about how to use this streaming system
-&lt;a href="https://github.com/devmessias/fury/tree/feature_fury_stream_client/docs/tutorials/04_stream" target="_blank" rel="noopener">here&lt;/a>.
+
+&lt;a href=&#34;https://github.com/devmessias/fury/tree/feature_fury_stream_client/docs/tutorials/04_stream&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;here&lt;/a&gt;.
 After running one of these examples you can easily share the results and
 interact with other users. For example, using the ngrok For example,
-using the ngrok&lt;/p>
-&lt;pre>&lt;code>./ngrok http 8000
-&lt;/code>&lt;/pre>
-&lt;p>|&lt;/p>
-&lt;h2 id="how-does-it-works">How does it works?&lt;/h2>
-&lt;p>The image below it's a simple representation of the streaming system.&lt;/p>
-&lt;p>&lt;img src="https://user-images.githubusercontent.com/6979335/121934889-33ff1480-cd1e-11eb-89a4-562fbb953ba4.png" alt="image1">&lt;/p>
-&lt;p>As you can see, the streaming system is made up of different processes
+using the ngrok&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;./ngrok http 8000  
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;|&lt;/p&gt;
+&lt;h2 id=&#34;how-does-it-works&#34;&gt;How does it works?&lt;/h2&gt;
+&lt;p&gt;The image below it&#39;s a simple representation of the streaming system.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://user-images.githubusercontent.com/6979335/121934889-33ff1480-cd1e-11eb-89a4-562fbb953ba4.png&#34; alt=&#34;image1&#34;&gt;&lt;/p&gt;
+&lt;p&gt;As you can see, the streaming system is made up of different processes
 that share some memory blocks with each other. One of the hardest part
 of this PR was to code this sharing between different objects like VTK,
-numpy and the webserver. I'll discuss next some of technical issues
-that I had to learn/circumvent.&lt;/p>
-&lt;h3 id="sharing-data-between-process">Sharing data between process&lt;/h3>
-&lt;p>We want to avoid any kind of unnecessary duplication of data or
+numpy and the webserver. I&#39;ll discuss next some of technical issues
+that I had to learn/circumvent.&lt;/p&gt;
+&lt;h3 id=&#34;sharing-data-between-process&#34;&gt;Sharing data between process&lt;/h3&gt;
+&lt;p&gt;We want to avoid any kind of unnecessary duplication of data or
 expensive copy/write actions. We can achieve this economy of
-computational resources using the multiprocessing module from python.&lt;/p>
-&lt;h4 id="multiprocessing-rawarray">multiprocessing RawArray&lt;/h4>
-&lt;p>| The
-&lt;a href="https://docs.python.org/3/library/multiprocessing.html#multiprocessing.sharedctypes.RawArray" target="_blank" rel="noopener">RawArray&lt;/a>
+computational resources using the multiprocessing module from python.&lt;/p&gt;
+&lt;h4 id=&#34;multiprocessing-rawarray&#34;&gt;multiprocessing RawArray&lt;/h4&gt;
+&lt;p&gt;| The
+
+&lt;a href=&#34;https://docs.python.org/3/library/multiprocessing.html#multiprocessing.sharedctypes.RawArray&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;RawArray&lt;/a&gt;
 from multiprocessing allows to share resources between different
 processes. However, there are some tricks to get a better performance
-when we are dealing with RawArray's. For example,
-&lt;a href="https://github.com/devmessias/fury/tree/6ae82fd239dbde6a577f9cccaa001275dcb58229" target="_blank" rel="noopener">take a look at my
+when we are dealing with RawArray&#39;s. For example, 
+&lt;a href=&#34;https://github.com/devmessias/fury/tree/6ae82fd239dbde6a577f9cccaa001275dcb58229&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;take a look at my
 PR in a older
-stage.&lt;/a>
+stage.&lt;/a&gt;
 In this older stage my streaming system was working well. However, one
 of my mentors (Filipi Nascimento) saw a huge latency for
 high-resolutions examples. My first thought was that latency was
 caused by the GPU-CPU copy from the opengl context. However, I
-discovered that I've been using RawArray's wrong in my entire life!
+discovered that I&#39;ve been using RawArray&#39;s wrong in my entire life!
 | See for example this line of code
-&lt;a href="https://github.com/devmessias/fury/blob/6ae82fd239dbde6a577f9cccaa001275dcb58229/fury/stream/client.py#L101" target="_blank" rel="noopener">fury/stream/client.py#L101&lt;/a>
-The code below shows how I've been updating the raw arrays&lt;/p>
-&lt;pre>&lt;code>raw_arr_buffer[:] = new_data
-&lt;/code>&lt;/pre>
-&lt;p>This works fine for small and medium sized arrays, but for large ones it
+
+&lt;a href=&#34;https://github.com/devmessias/fury/blob/6ae82fd239dbde6a577f9cccaa001275dcb58229/fury/stream/client.py#L101&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;fury/stream/client.py#L101&lt;/a&gt;
+The code below shows how I&#39;ve been updating the raw arrays&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;raw_arr_buffer[:] = new_data
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This works fine for small and medium sized arrays, but for large ones it
 takes a large amount of time, more than GPU-CPU copy. The explanation
-for this bad performance is available here :
-&lt;a href="https://stackoverflow.com/questions/33853543/demystifying-sharedctypes-performance" target="_blank" rel="noopener">Demystifying sharedctypes
-performance.&lt;/a>
+for this bad performance is available here : 
+&lt;a href=&#34;https://stackoverflow.com/questions/33853543/demystifying-sharedctypes-performance&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Demystifying sharedctypes
+performance.&lt;/a&gt;
 The solution which gives a stupendous performance improvement is quite
 simple. RawArrays implements the buffer protocol. Therefore, we just
-need to use the memoryview:&lt;/p>
-&lt;pre>&lt;code>memview(arr_buffer)[:] = new_data
-&lt;/code>&lt;/pre>
-&lt;p>The memview is really good, but there it's a litle issue when we are
+need to use the memoryview:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;memview(arr_buffer)[:] = new_data
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The memview is really good, but there it&#39;s a litle issue when we are
 dealing with uint8 RawArrays. The following code will cause an
-exception:&lt;/p>
-&lt;pre>&lt;code>memview(arr_buffer_uint8)[:] = new_data_uint8
-&lt;/code>&lt;/pre>
-&lt;p>There is a solution for uint8 rawarrays using just memview and cast
+exception:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;memview(arr_buffer_uint8)[:] = new_data_uint8
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;There is a solution for uint8 rawarrays using just memview and cast
 methods. However, numpy comes to rescue and offers a simple and a
 generic solution. You just need to convert the rawarray to a np
-representation in the following way:&lt;/p>
-&lt;pre>&lt;code>arr_uint8_repr = np.ctypeslib.as_array(arr_buffer_uint8)
+representation in the following way:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;arr_uint8_repr = np.ctypeslib.as_array(arr_buffer_uint8)
 arr_uint8_repr[:] = new_data_uint8
-&lt;/code>&lt;/pre>
-&lt;p>You can navigate to my repository in this specific
-&lt;a href="https://github.com/devmessias/fury/commit/b1b0caf30db762cc018fc99dd4e77ba0390b2f9e" target="_blank" rel="noopener">commit
-position&lt;/a>
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;You can navigate to my repository in this specific 
+&lt;a href=&#34;https://github.com/devmessias/fury/commit/b1b0caf30db762cc018fc99dd4e77ba0390b2f9e&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;commit
+position&lt;/a&gt;
 and test the streaming examples to see how this little modification
-improves the performance.&lt;/p>
-&lt;h3 id="multiprocessing-inside-of-different-operating-systems">Multiprocessing inside of different Operating Systems&lt;/h3>
-&lt;p>Serge Koudoro, who is one of my mentors, has pointed out an issue of the
-streaming system running in MacOs. I don't know many things about
+improves the performance.&lt;/p&gt;
+&lt;h3 id=&#34;multiprocessing-inside-of-different-operating-systems&#34;&gt;Multiprocessing inside of different Operating Systems&lt;/h3&gt;
+&lt;p&gt;Serge Koudoro, who is one of my mentors, has pointed out an issue of the
+streaming system running in MacOs. I don&#39;t know many things about
 MacOs, and as pointed out by Filipi the way that MacOs deals with
 multiprocessing is very different than the Linux approach. Although we
 solved the issue discovered by Serge, I need to be more careful to
 assume that different operating systems will behave in the same way. If
-you want to know more,I recommend that you read this post
-&lt;a href="https://britishgeologicalsurvey.github.io/science/python-forking-vs-spawn/" target="_blank" rel="noopener">Python:
+you want to know more,I recommend that you read this post 
+&lt;a href=&#34;https://britishgeologicalsurvey.github.io/science/python-forking-vs-spawn/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Python:
 Forking vs
-Spawm&lt;/a>.
-And it's also important to read the official documentation from python.
+Spawm&lt;/a&gt;.
+And it&#39;s also important to read the official documentation from python.
 It can save you a lot of time. Take a look what the official python
-documentation says about the multiprocessing method&lt;/p>
-&lt;p>&lt;img src="https://user-images.githubusercontent.com/6979335/121958121-b0ebb780-cd39-11eb-862a-37244f7f635b.png" alt="image2">
+documentation says about the multiprocessing method&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://user-images.githubusercontent.com/6979335/121958121-b0ebb780-cd39-11eb-862a-37244f7f635b.png&#34; alt=&#34;image2&#34;&gt;
 Source:
-&lt;a href="https://docs.python.org/3/library/multiprocessing.html" target="_blank" rel="noopener">https://docs.python.org/3/library/multiprocessing.html&lt;/a>&lt;/p></description></item></channel></rss>
+&lt;a href=&#34;https://docs.python.org/3/library/multiprocessing.html&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;https://docs.python.org/3/library/multiprocessing.html&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
