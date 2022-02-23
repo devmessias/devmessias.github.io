@@ -14,6 +14,48 @@ Grafos, redes e redes complexas são praticamente o mesmo conceito. Portanto, vo
 &lt;p>Os exemplos desse post usam python e as seguintes bibliotecas:&lt;/p>
 &lt;pre>&lt;code class="language-bash">$ python3 -m pip install numpy matplotlib networkx
 &lt;/code>&lt;/pre>
+&lt;details
+class="toc-inpage d-print-none d-sm-block d-md-none " open>
+&lt;summary class="font-weight-bold">Lista de Conteúdos&lt;/summary>
+&lt;nav id="TableOfContents">
+&lt;ul>
+&lt;li>
+&lt;ul>
+&lt;li>&lt;a href="#introdução">Introdução&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#o-que-é-um-grafo">O que é um grafo?&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#o-que-é-filtragem">O que é filtragem?&lt;/a>
+&lt;ul>
+&lt;li>&lt;a href="#filtragem-para-remover-ruídos">Filtragem para remover ruídos&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#gestalt">Filtragem para ressaltar características e Gestalt &lt;/a>&lt;/li>
+&lt;li>&lt;a href="#filtragem-para-reduzir-o-custo-computacional">Filtragem para reduzir o custo computacional&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;a href="#confusões-sobre-o-que-é-filtragem-em-grafos">Confusões sobre o que é filtragem em grafos&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#algumas-propriedades-de-grafos">Algumas propriedades de grafos&lt;/a>
+&lt;ul>
+&lt;li>&lt;a href="#componentes">Componentes&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#comunidades">Comunidades&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;a href="#filtros">Filtros&lt;/a>
+&lt;ul>
+&lt;li>&lt;a href="#estrutural-threshold">Estrutural: threshold&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#estatistico">Estatístico: quebrando a varinha, processo de Dirichlet&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;a href="#extras">Extras:&lt;/a>
+&lt;ul>
+&lt;li>&lt;a href="#matrizes-e--espectro">Matrizes e espectro&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#filtro-espectral-amostragem">Filtro Espectral (amostragem)&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#heading">&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;a href="#conclusão">Conclusão&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/nav>
+&lt;/details>
 &lt;h2 id="o-que-é-um-grafo">O que é um grafo?&lt;/h2>
 &lt;p>Um grafo é uma estrutura de dados que você constantemente está em contato. Alguns exemplos: sua rede de seguidores e seguidores no twitter, as transações financeiras associadas a sua chave PIX, as relações de repositório e contribuições no github, etc.&lt;/p>
 &lt;p>Um grafo armazena objetos que têm relações pares a pares entre si. Sendo que é possível associar a cada objeto ou relação um outro tipo de dado genérico tais como um número real, um vetor, uma imagem ou mesmo outro grafo.&lt;/p>
@@ -577,7 +619,7 @@ A matriz pesos de um grafo pode ser pensada como uma generalização para combin
 &lt;/ul>
 &lt;h3 id="heading">&lt;/h3>
 &lt;h2 id="conclusão">Conclusão&lt;/h2></description></item><item><title>Dissecando processos e erros no Linux com o lsof e strace: casos para DevOps/MlOps</title><link>/pt-br/post/investigando_processos_e_bugs_strace_lsof_no_linux/</link><pubDate>Fri, 04 Feb 2022 08:31:00 -0300</pubDate><guid>/pt-br/post/investigando_processos_e_bugs_strace_lsof_no_linux/</guid><description>&lt;details
-class="toc-inpage d-print-none d-none d-sm-block d-md-none " open>
+class="toc-inpage d-print-none d-sm-block d-md-none " open>
 &lt;summary class="font-weight-bold">Lista de Conteúdos&lt;/summary>
 &lt;nav id="TableOfContents">
 &lt;ul>

@@ -123,6 +123,8 @@
 Feb 15, 2022
 </span>
 <span class=middot-divider></span>
+<a href=/pt-br/post/edge_graph_filtering/#disqus_thread></a>
+<span class=middot-divider></span>
 <span class=article-categories>
 <i class="fas fa-folder mr-1"></i><a href=/pt-br/category/data-analysis/>Data analysis</a></span>
 </div>
@@ -193,6 +195,47 @@ Grafos, redes e redes complexas são praticamente o mesmo conceito. Portanto, vo
 <p>Os exemplos desse post usam python e as seguintes bibliotecas:</p>
 <pre><code class=language-bash>$ python3 -m pip install numpy matplotlib networkx
 </code></pre>
+<details class="toc-inpage d-print-none d-sm-block d-md-none" open>
+<summary class=font-weight-bold>Lista de Conteúdos</summary>
+<nav id=TableOfContents>
+<ul>
+<li>
+<ul>
+<li><a href=#introdução>Introdução</a></li>
+<li><a href=#o-que-é-um-grafo>O que é um grafo?</a></li>
+<li><a href=#o-que-é-filtragem>O que é filtragem?</a>
+<ul>
+<li><a href=#filtragem-para-remover-ruídos>Filtragem para remover ruídos</a></li>
+<li><a href=#gestalt>Filtragem para ressaltar características e Gestalt </a></li>
+<li><a href=#filtragem-para-reduzir-o-custo-computacional>Filtragem para reduzir o custo computacional</a></li>
+</ul>
+</li>
+<li><a href=#confusões-sobre-o-que-é-filtragem-em-grafos>Confusões sobre o que é filtragem em grafos</a></li>
+<li><a href=#algumas-propriedades-de-grafos>Algumas propriedades de grafos</a>
+<ul>
+<li><a href=#componentes>Componentes</a></li>
+<li><a href=#comunidades>Comunidades</a></li>
+</ul>
+</li>
+<li><a href=#filtros>Filtros</a>
+<ul>
+<li><a href=#estrutural-threshold>Estrutural: threshold</a></li>
+<li><a href=#estatistico>Estatístico: quebrando a varinha, processo de Dirichlet</a></li>
+</ul>
+</li>
+<li><a href=#extras>Extras:</a>
+<ul>
+<li><a href=#matrizes-e--espectro>Matrizes e espectro</a></li>
+<li><a href=#filtro-espectral-amostragem>Filtro Espectral (amostragem)</a></li>
+<li><a href=#heading></a></li>
+</ul>
+</li>
+<li><a href=#conclusão>Conclusão</a></li>
+</ul>
+</li>
+</ul>
+</nav>
+</details>
 <h2 id=o-que-é-um-grafo>O que é um grafo?</h2>
 <p>Um grafo é uma estrutura de dados que você constantemente está em contato. Alguns exemplos: sua rede de seguidores e seguidores no twitter, as transações financeiras associadas a sua chave PIX, as relações de repositório e contribuições no github, etc.</p>
 <p>Um grafo armazena objetos que têm relações pares a pares entre si. Sendo que é possível associar a cada objeto ou relação um outro tipo de dado genérico tais como um número real, um vetor, uma imagem ou mesmo outro grafo.</p>
@@ -847,6 +890,12 @@ A matriz pesos de um grafo pode ser pensada como uma generalização para combin
 </ul>
 </div>
 </div>
+<section id=comments>
+<div id=disqus_thread></div>
+<script>let disqus_config=function(){};(function(){if(["localhost","127.0.0.1"].indexOf(window.location.hostname)!=-1){document.getElementById('disqus_thread').innerHTML='Disqus comments not available by default when the website is previewed locally.';return}var b=document,a=b.createElement('script');a.async=!0,a.src='https://devmessias.disqus.com/embed.js',a.setAttribute('data-timestamp',+new Date),(b.head||b.body).appendChild(a)})()</script>
+<noscript>Please enable JavaScript to view the <a href=https://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript>
+<a href=https://disqus.com class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a>
+</section>
 <div class="article-widget content-widget-hr">
 <h3>Relacionados</h3>
 <ul>
@@ -886,6 +935,7 @@ A matriz pesos de um grafo pode ser pensada como uma generalização para combin
     </script>
 <script src=https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.2.1/fuse.min.js integrity="sha256-VzgmKYmhsGNNN4Ph1kMW+BjoYJM2jV5i4IlFoeZA9XI=" crossorigin=anonymous></script>
 <script src=https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin=anonymous></script>
+<script id=dsq-count-scr src=https://devmessias.disqus.com/count.js async></script>
 <script src=/js/academic.min.4aaf2d64e50f8e54cf66dcc54147a22e.js></script>
 <div class=page-footer>
 <div class=container>
