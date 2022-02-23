@@ -1,521 +1,482 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
-  <channel>
-    <title>machine learning operations | Bruno Messias</title>
-    <link>/pt-br/tag/machine-learning-operations/</link>
-      <atom:link href="/pt-br/tag/machine-learning-operations/index.xml" rel="self" type="application/rss+xml" />
-    <description>machine learning operations</description>
-    <generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>pt-br</language><copyright>Bruno Messias</copyright><lastBuildDate>Fri, 04 Feb 2022 08:31:00 -0300</lastBuildDate>
-    <image>
-      <url>/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_3.png</url>
-      <title>machine learning operations</title>
-      <link>/pt-br/tag/machine-learning-operations/</link>
-    </image>
-    
-    <item>
-      <title>Dissecando processos e erros no Linux com o lsof e strace: casos para DevOps/MlOps</title>
-      <link>/pt-br/post/investigando_processos_e_bugs_strace_lsof_no_linux/</link>
-      <pubDate>Fri, 04 Feb 2022 08:31:00 -0300</pubDate>
-      <guid>/pt-br/post/investigando_processos_e_bugs_strace_lsof_no_linux/</guid>
-      <description>&lt;details 
-class=&#34;toc-inpage d-print-none d-none d-sm-block d-md-none  &#34; open&gt;
-  &lt;summary class=&#34;font-weight-bold&#34;&gt;Lista de Conteúdos&lt;/summary&gt;
-  &lt;nav id=&#34;TableOfContents&#34;&gt;
-  &lt;ul&gt;
-    &lt;li&gt;&lt;a href=&#34;#conceitos&#34;&gt;Conceitos&lt;/a&gt;
-      &lt;ul&gt;
-        &lt;li&gt;&lt;a href=&#34;#everything-is-a-file-mantra-unix&#34;&gt;“Everything is a file.” mantra UNIX&lt;/a&gt;
-          &lt;ul&gt;
-            &lt;li&gt;&lt;a href=&#34;#lsof&#34;&gt;LSOF&lt;/a&gt;&lt;/li&gt;
-          &lt;/ul&gt;
-        &lt;/li&gt;
-        &lt;li&gt;&lt;a href=&#34;#system-calls-e-strace&#34;&gt;System Calls e strace&lt;/a&gt;&lt;/li&gt;
-      &lt;/ul&gt;
-    &lt;/li&gt;
-    &lt;li&gt;&lt;a href=&#34;#investigando-problemas&#34;&gt;Investigando problemas&lt;/a&gt;
-      &lt;ul&gt;
-        &lt;li&gt;&lt;a href=&#34;#identificando-problemas-de-conexão&#34;&gt;Identificando problemas de conexão&lt;/a&gt;
-          &lt;ul&gt;
-            &lt;li&gt;&lt;a href=&#34;#o-meu-serviço-está-on&#34;&gt;O meu serviço está on?&lt;/a&gt;&lt;/li&gt;
-            &lt;li&gt;&lt;a href=&#34;#o-pip-ou-um-cliente-qualquer-está-engasgado-esperando-uma-resposta-de-alguém&#34;&gt;O pip ou um cliente qualquer está engasgado esperando uma resposta de alguém?&lt;/a&gt;&lt;/li&gt;
-          &lt;/ul&gt;
-        &lt;/li&gt;
-        &lt;li&gt;&lt;a href=&#34;#problemas-com-arquivos&#34;&gt;Problemas com arquivos&lt;/a&gt;
-          &lt;ul&gt;
-            &lt;li&gt;&lt;a href=&#34;#quais-processos-estão-usando-esse-arquivo&#34;&gt;Quais processos estão usando esse arquivo?&lt;/a&gt;&lt;/li&gt;
-            &lt;li&gt;&lt;a href=&#34;#deletei-o-csv-e-agora&#34;&gt;Deletei o csv e agora?&lt;/a&gt;&lt;/li&gt;
-            &lt;li&gt;&lt;a href=&#34;#erros-silenciosos-arquivo-não-existente-ou-permissão&#34;&gt;Erros silenciosos: arquivo não existente ou permissão&lt;/a&gt;&lt;/li&gt;
-            &lt;li&gt;&lt;a href=&#34;#esse-processo-está-salvando-algo-que-não-deveria-onde&#34;&gt;Esse processo está salvando algo que não deveria? Onde?&lt;/a&gt;&lt;/li&gt;
-          &lt;/ul&gt;
-        &lt;/li&gt;
-        &lt;li&gt;&lt;a href=&#34;#extras-envolvendo-arquivos-proc-e-strace&#34;&gt;Extras envolvendo arquivos (&lt;code&gt;/proc/&lt;/code&gt;) e &lt;code&gt;strace&lt;/code&gt;&lt;/a&gt;
-          &lt;ul&gt;
-            &lt;li&gt;&lt;a href=&#34;#gerando-um-sumário-de-sys-call&#34;&gt;Gerando um sumário de SYS CALL&lt;/a&gt;&lt;/li&gt;
-            &lt;li&gt;&lt;a href=&#34;#o-processo-foi-iniciado-com-as-variáveis-de-ambiente-corretas&#34;&gt;O processo foi iniciado com as variáveis de ambiente corretas?&lt;/a&gt;&lt;/li&gt;
-            &lt;li&gt;&lt;a href=&#34;#esqueci-de--redirecionar-os-outputs-do-processo-para-um-arquivo--o-que-fazer&#34;&gt;Esqueci de  redirecionar os outputs do processo para um arquivo.  O que fazer?&lt;/a&gt;&lt;/li&gt;
-            &lt;li&gt;&lt;a href=&#34;#qual-comando-gerou-o-processo-e-onde-é-o-seu-working-dir&#34;&gt;Qual comando gerou o processo e onde é o seu working dir?&lt;/a&gt;&lt;/li&gt;
-          &lt;/ul&gt;
-        &lt;/li&gt;
-        &lt;li&gt;&lt;a href=&#34;#agradecimentos--sugestões&#34;&gt;Agradecimentos &amp;amp; Sugestões&lt;/a&gt;&lt;/li&gt;
-      &lt;/ul&gt;
-    &lt;/li&gt;
-  &lt;/ul&gt;
-&lt;/nav&gt;
-&lt;/details&gt;
-&lt;p&gt;Linux não é um SO opaco. Ele não ser opaco significa que é fácil ver o que acontece por trás dos processos.  O que permite identificar um problema ou pelo menos saber se você realmente tem um problema.&lt;/p&gt;
-&lt;p&gt;Iniciei meu aprendizado em MlOps (&lt;em&gt;Machine Learning Operations&lt;/em&gt;). Embora tenha pouca experiência foi fácil aceitar que  MlOps envolve um workflow extremamente intricado com muitos possíveis pontos de falhas. Tais pontos podem não estar relacionados com os operadores. Portanto, saber identificar se existe uma falha e o que está causando ela é de suma importância. Isso vai desde compreender o comportamento de um processo criado pelos próprios operadores ou o que o &lt;code&gt;pip/conda&lt;/code&gt; e demais dependências externas estão aprontando debaixo dos panos.&lt;/p&gt;
-&lt;p&gt;O primeiro passo para entender um problema com um processo é analisar o output (a saída na sessão do seu terminal). Contudo, algumas vezes isso não te fornece a informação suficiente. Neste texto vou discorrer do básico sobre como debugar processos usando o &lt;code&gt;strace&lt;/code&gt; e &lt;code&gt;lsof&lt;/code&gt;. Iremos criar alguns exemplos patológicos usando python para simular problemas que podemos encontrar e como eles são dissecados pelo &lt;code&gt;strace&lt;/code&gt; e o &lt;code&gt;lsof&lt;/code&gt;.&lt;/p&gt;
-&lt;h1 id=&#34;conceitos&#34;&gt;Conceitos&lt;/h1&gt;
-&lt;h2 id=&#34;everything-is-a-file-mantra-unix&#34;&gt;“Everything is a file.” mantra UNIX&lt;/h2&gt;
-&lt;p&gt;&lt;img src=&#34;everthing_is_a_file.png&#34; alt=&#34;everthing_is_a_file&#34;&gt;&lt;/p&gt;
-&lt;p&gt;Quando você pensa em arquivo você talvez relacione com um &lt;em&gt;CSV&lt;/em&gt;, uma planilha ou imagem. Mas na abordagem UNIX de fazer SO o conceito de arquivo aparece em todos os lugares.  Por exemplo, até conexões de rede são associadas a um arquivo. Em  casos que um elemento  em si não é um arquivo tal elemento tem  a ele associado  um descritor de arquivo (&lt;em&gt;file descriptor&lt;/em&gt;). Como isso se relaciona com debugar processos? **Se tudo é um arquivo analisar um processo pode ser feito com o mesmo conjunto de ferramentas  e conceitos que usamos para listar,  compreender e comunicar com arquivo  inclusive com a mesma API. ** Aqui abordaremos uma ferramenta para listagem de arquivos, o   &lt;code&gt;lsof&lt;/code&gt;.&lt;/p&gt;
-&lt;h3 id=&#34;lsof&#34;&gt;LSOF&lt;/h3&gt;
-&lt;p&gt;A ferramenta &lt;strong&gt;lsof&lt;/strong&gt;   é um comando que pode ser usado para listar os &lt;em&gt;file descriptors&lt;/em&gt; abertos e os processos que  foram responsáveis por tal ação. Desta maneira você pode listar os file descriptors de um usuário  que estão  associados a uma  porta via conexão ou  processo.  O nome desse comando é um acrônimo para &lt;strong&gt;l&lt;/strong&gt;ist &lt;strong&gt;o&lt;/strong&gt;pen &lt;strong&gt;f&lt;/strong&gt;iles.&lt;/p&gt;
-&lt;p&gt;O exemplo mais simples de uso jogando os resultados para um arquivo é esse&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;meuusuario:/$ lsof &amp;gt; lsof_tudo.txt
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;O comando acima irá criar uma tabela (imensa) dentro de &lt;code&gt;lsof_tudo.txt&lt;/code&gt;&lt;/p&gt;
-&lt;p&gt;Essa tabela será mais ou menos assim&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;COMMAND     PID   TID TASKCMD               USER   FD      TYPE             DEVICE  SIZE/OFF       NODE NAME
-systemd       1                             root  cwd   unknown                                         /proc/1/cwd (readlink: Permission denied)
-systemd       1                             root  rtd   unknown                                         /proc/1/root (readlink: Permission denied)
-systemd       1                             root  txt   unknown                                         /proc/1/exe (readlink: Permission denied)
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Se você olhar com cuidado verá que aparecem linhas de diferentes usuários. As primeiras são do &lt;code&gt;root&lt;/code&gt; e uma das colunas mostra que você não tem permissão para ler os &lt;em&gt;file descriptors&lt;/em&gt; desse usuário, ainda bem! Para pedir apenas a listagem  do seu usuário faça&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;meuusuario:/$ lsof -u meuusuario &amp;gt; lsof_meu.txt
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;O arquivo ainda é enorme, mas abra ele com seu editor de texto.  Tente procurar nomes de arquivos e processos que você esta usando agora.&lt;/p&gt;
-&lt;p&gt;Temos muitas colunas no output, você pode ver o significado detalhado de cada uma digitando &lt;code&gt;man lsof&lt;/code&gt; . Mas eu acho mais  interessante você focar nas seguintes colunas:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;COMAND
-&lt;ul&gt;
-&lt;li&gt;O nome do comando associado ao processo que abriu o arquivo&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;PID
-&lt;ul&gt;
-&lt;li&gt;Um número que identifica unicamente o processo. Você pode usar esse número para matar o processo usando &lt;code&gt;pkill&lt;/code&gt;, usar ele no &lt;code&gt;strace&lt;/code&gt; etc.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;TID
-&lt;ul&gt;
-&lt;li&gt;Se o arquivo foi aberto por uma thread de um processo. Quando não tem nada nessa coluna  significa que a ação foi feita por um processo.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;USER
-&lt;ul&gt;
-&lt;li&gt;O usuário responsável pelo processo que efetuou a ação.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;TYPE
-&lt;ul&gt;
-&lt;li&gt;Essa coluna é bem útil. Tal coluna te diz o tipo de nó associado ao arquivo. Por exemplo, se o arquivo for associado com protocolos  você vera aqui coisas do tipo: &lt;strong&gt;IPV4, IPV6&lt;/strong&gt;. Se for um arquivo normal  haverá na coluna o identificador **REG. **Existem algumas dezenas de possibilidades de valores para essa coluna, eu nunca lembro o que elas significam, mas é fácil consultar online ou no &lt;code&gt;man&lt;/code&gt;.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;NODE
-&lt;ul&gt;
-&lt;li&gt;O identificador  do nó do arquivo. No caso desse arquivo envolver protocolos de internet haverá coisas como &lt;strong&gt;TCP, UDP&lt;/strong&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;NAME
-&lt;ul&gt;
-&lt;li&gt;Também bastante útil. Ele muda bastante dependendo do que o arquivo se refere. Pode ser o endereço do servidor (
-&lt;a href=&#34;http://www.google.com&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;www.google.com&lt;/a&gt;, localhost:5000) assim como o endereço do arquivo.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;O &lt;code&gt;lsof&lt;/code&gt; tem muitos argumentos possíveis, veremos alguns utilizando alguns casos que eu acho interessante e que acontecem.&lt;/p&gt;
-&lt;h2 id=&#34;system-calls-e-strace&#34;&gt;System Calls e strace&lt;/h2&gt;
-&lt;p&gt;O system call é o mecanismo de comunicação entre processos e o kernel do seu SO.
-Tal mecanismo permite que um processo requisite recursos do kernel disponibilizados pelo seu hardware. Para ler um arquivo armazenado em seu hardwre é necessário que ocorra antes um system call. Portanto, tendo uma maneira de interceptar essas chamadas entre um processo e o kernel temos como compreender o que tal processo está fazendo. Um comando que permite essa interceptação é o &lt;code&gt;strace&lt;/code&gt;.&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ man strace
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Se o strace não estiver disponível instale&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ apt install strace
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;O &lt;code&gt;strace&lt;/code&gt; pode ser executado de duas formas. A primeira é
-usando o comando a ser interceptado como argumento do strace&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ strace ARGS COMANDO_A_SER_INTERCEPTADO
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;a segunda,  bastante útil,  é interceptando um processo já iniciado usando
-o PID de tal processo,&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ strace ARGS -p PID_DO_PROCESSO
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Para descobrir o PID de um processo use o &lt;code&gt;htop&lt;/code&gt; ou o seguinte comando &lt;code&gt;ps aux | grep -i &#39;[n]ome_do_processo&#39;&lt;/code&gt;.&lt;/p&gt;
-&lt;p&gt;Veja um exemplo simples do strace e seu output&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ strace -t ls
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;O resultado será algo do tipo&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;18:02:23 execve(&amp;quot;/usr/bin/ls&amp;quot;, [&amp;quot;ls&amp;quot;], 0x7fffa727a418 /* 54 vars */) = 0
-18:02:23 brk(NULL)                      = 0x55ebef60c000
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>machine learning operations | Bruno Messias</title><link>/pt-br/tag/machine-learning-operations/</link><atom:link href="/pt-br/tag/machine-learning-operations/index.xml" rel="self" type="application/rss+xml"/><description>machine learning operations</description><generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>pt-br</language><copyright>Bruno Messias</copyright><lastBuildDate>Fri, 04 Feb 2022 08:31:00 -0300</lastBuildDate><image><url>/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_3.png</url><title>machine learning operations</title><link>/pt-br/tag/machine-learning-operations/</link></image><item><title>Dissecando processos e erros no Linux com o lsof e strace: casos para DevOps/MlOps</title><link>/pt-br/post/investigando_processos_e_bugs_strace_lsof_no_linux/</link><pubDate>Fri, 04 Feb 2022 08:31:00 -0300</pubDate><guid>/pt-br/post/investigando_processos_e_bugs_strace_lsof_no_linux/</guid><description>&lt;details
+class="toc-inpage d-print-none d-none d-sm-block d-md-none " open>
+&lt;summary class="font-weight-bold">Lista de Conteúdos&lt;/summary>
+&lt;nav id="TableOfContents">
+&lt;ul>
+&lt;li>&lt;a href="#conceitos">Conceitos&lt;/a>
+&lt;ul>
+&lt;li>&lt;a href="#everything-is-a-file-mantra-unix">“Everything is a file.” mantra UNIX&lt;/a>
+&lt;ul>
+&lt;li>&lt;a href="#lsof">LSOF&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;a href="#system-calls-e-strace">System Calls e strace&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;a href="#investigando-problemas">Investigando problemas&lt;/a>
+&lt;ul>
+&lt;li>&lt;a href="#identificando-problemas-de-conexão">Identificando problemas de conexão&lt;/a>
+&lt;ul>
+&lt;li>&lt;a href="#o-meu-serviço-está-on">O meu serviço está on?&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#o-pip-ou-um-cliente-qualquer-está-engasgado-esperando-uma-resposta-de-alguém">O pip ou um cliente qualquer está engasgado esperando uma resposta de alguém?&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;a href="#problemas-com-arquivos">Problemas com arquivos&lt;/a>
+&lt;ul>
+&lt;li>&lt;a href="#quais-processos-estão-usando-esse-arquivo">Quais processos estão usando esse arquivo?&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#deletei-o-csv-e-agora">Deletei o csv e agora?&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#erros-silenciosos-arquivo-não-existente-ou-permissão">Erros silenciosos: arquivo não existente ou permissão&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#esse-processo-está-salvando-algo-que-não-deveria-onde">Esse processo está salvando algo que não deveria? Onde?&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;a href="#extras-envolvendo-arquivos-proc-e-strace">Extras envolvendo arquivos (&lt;code>/proc/&lt;/code>) e &lt;code>strace&lt;/code>&lt;/a>
+&lt;ul>
+&lt;li>&lt;a href="#gerando-um-sumário-de-sys-call">Gerando um sumário de SYS CALL&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#o-processo-foi-iniciado-com-as-variáveis-de-ambiente-corretas">O processo foi iniciado com as variáveis de ambiente corretas?&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#esqueci-de--redirecionar-os-outputs-do-processo-para-um-arquivo--o-que-fazer">Esqueci de redirecionar os outputs do processo para um arquivo. O que fazer?&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#qual-comando-gerou-o-processo-e-onde-é-o-seu-working-dir">Qual comando gerou o processo e onde é o seu working dir?&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;a href="#agradecimentos--sugestões">Agradecimentos &amp;amp; Sugestões&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/nav>
+&lt;/details>
+&lt;p>Linux não é um SO opaco. Ele não ser opaco significa que é fácil ver o que acontece por trás dos processos. O que permite identificar um problema ou pelo menos saber se você realmente tem um problema.&lt;/p>
+&lt;p>Iniciei meu aprendizado em MlOps (&lt;em>Machine Learning Operations&lt;/em>). Embora tenha pouca experiência foi fácil aceitar que MlOps envolve um workflow extremamente intricado com muitos possíveis pontos de falhas. Tais pontos podem não estar relacionados com os operadores. Portanto, saber identificar se existe uma falha e o que está causando ela é de suma importância. Isso vai desde compreender o comportamento de um processo criado pelos próprios operadores ou o que o &lt;code>pip/conda&lt;/code> e demais dependências externas estão aprontando debaixo dos panos.&lt;/p>
+&lt;p>O primeiro passo para entender um problema com um processo é analisar o output (a saída na sessão do seu terminal). Contudo, algumas vezes isso não te fornece a informação suficiente. Neste texto vou discorrer do básico sobre como debugar processos usando o &lt;code>strace&lt;/code> e &lt;code>lsof&lt;/code>. Iremos criar alguns exemplos patológicos usando python para simular problemas que podemos encontrar e como eles são dissecados pelo &lt;code>strace&lt;/code> e o &lt;code>lsof&lt;/code>.&lt;/p>
+&lt;h1 id="conceitos">Conceitos&lt;/h1>
+&lt;h2 id="everything-is-a-file-mantra-unix">“Everything is a file.” mantra UNIX&lt;/h2>
+&lt;p>&lt;img src="everthing_is_a_file.png" alt="everthing_is_a_file">&lt;/p>
+&lt;p>Quando você pensa em arquivo você talvez relacione com um &lt;em>CSV&lt;/em>, uma planilha ou imagem. Mas na abordagem UNIX de fazer SO o conceito de arquivo aparece em todos os lugares. Por exemplo, até conexões de rede são associadas a um arquivo. Em casos que um elemento em si não é um arquivo tal elemento tem a ele associado um descritor de arquivo (&lt;em>file descriptor&lt;/em>). Como isso se relaciona com debugar processos? **Se tudo é um arquivo analisar um processo pode ser feito com o mesmo conjunto de ferramentas e conceitos que usamos para listar, compreender e comunicar com arquivo inclusive com a mesma API. ** Aqui abordaremos uma ferramenta para listagem de arquivos, o &lt;code>lsof&lt;/code>.&lt;/p>
+&lt;h3 id="lsof">LSOF&lt;/h3>
+&lt;p>A ferramenta &lt;strong>lsof&lt;/strong> é um comando que pode ser usado para listar os &lt;em>file descriptors&lt;/em> abertos e os processos que foram responsáveis por tal ação. Desta maneira você pode listar os file descriptors de um usuário que estão associados a uma porta via conexão ou processo. O nome desse comando é um acrônimo para &lt;strong>l&lt;/strong>ist &lt;strong>o&lt;/strong>pen &lt;strong>f&lt;/strong>iles.&lt;/p>
+&lt;p>O exemplo mais simples de uso jogando os resultados para um arquivo é esse&lt;/p>
+&lt;pre>&lt;code class="language-bash">meuusuario:/$ lsof &amp;gt; lsof_tudo.txt
+&lt;/code>&lt;/pre>
+&lt;p>O comando acima irá criar uma tabela (imensa) dentro de &lt;code>lsof_tudo.txt&lt;/code>&lt;/p>
+&lt;p>Essa tabela será mais ou menos assim&lt;/p>
+&lt;pre>&lt;code class="language-bash">COMMAND PID TID TASKCMD USER FD TYPE DEVICE SIZE/OFF NODE NAME
+systemd 1 root cwd unknown /proc/1/cwd (readlink: Permission denied)
+systemd 1 root rtd unknown /proc/1/root (readlink: Permission denied)
+systemd 1 root txt unknown /proc/1/exe (readlink: Permission denied)
+&lt;/code>&lt;/pre>
+&lt;p>Se você olhar com cuidado verá que aparecem linhas de diferentes usuários. As primeiras são do &lt;code>root&lt;/code> e uma das colunas mostra que você não tem permissão para ler os &lt;em>file descriptors&lt;/em> desse usuário, ainda bem! Para pedir apenas a listagem do seu usuário faça&lt;/p>
+&lt;pre>&lt;code class="language-bash">meuusuario:/$ lsof -u meuusuario &amp;gt; lsof_meu.txt
+&lt;/code>&lt;/pre>
+&lt;p>O arquivo ainda é enorme, mas abra ele com seu editor de texto. Tente procurar nomes de arquivos e processos que você esta usando agora.&lt;/p>
+&lt;p>Temos muitas colunas no output, você pode ver o significado detalhado de cada uma digitando &lt;code>man lsof&lt;/code> . Mas eu acho mais interessante você focar nas seguintes colunas:&lt;/p>
+&lt;ul>
+&lt;li>COMAND
+&lt;ul>
+&lt;li>O nome do comando associado ao processo que abriu o arquivo&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>PID
+&lt;ul>
+&lt;li>Um número que identifica unicamente o processo. Você pode usar esse número para matar o processo usando &lt;code>pkill&lt;/code>, usar ele no &lt;code>strace&lt;/code> etc.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>TID
+&lt;ul>
+&lt;li>Se o arquivo foi aberto por uma thread de um processo. Quando não tem nada nessa coluna significa que a ação foi feita por um processo.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>USER
+&lt;ul>
+&lt;li>O usuário responsável pelo processo que efetuou a ação.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>TYPE
+&lt;ul>
+&lt;li>Essa coluna é bem útil. Tal coluna te diz o tipo de nó associado ao arquivo. Por exemplo, se o arquivo for associado com protocolos você vera aqui coisas do tipo: &lt;strong>IPV4, IPV6&lt;/strong>. Se for um arquivo normal haverá na coluna o identificador **REG. **Existem algumas dezenas de possibilidades de valores para essa coluna, eu nunca lembro o que elas significam, mas é fácil consultar online ou no &lt;code>man&lt;/code>.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>NODE
+&lt;ul>
+&lt;li>O identificador do nó do arquivo. No caso desse arquivo envolver protocolos de internet haverá coisas como &lt;strong>TCP, UDP&lt;/strong>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>NAME
+&lt;ul>
+&lt;li>Também bastante útil. Ele muda bastante dependendo do que o arquivo se refere. Pode ser o endereço do servidor (
+&lt;a href="http://www.google.com" target="_blank" rel="noopener">www.google.com&lt;/a>, localhost:5000) assim como o endereço do arquivo.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;p>O &lt;code>lsof&lt;/code> tem muitos argumentos possíveis, veremos alguns utilizando alguns casos que eu acho interessante e que acontecem.&lt;/p>
+&lt;h2 id="system-calls-e-strace">System Calls e strace&lt;/h2>
+&lt;p>O system call é o mecanismo de comunicação entre processos e o kernel do seu SO.
+Tal mecanismo permite que um processo requisite recursos do kernel disponibilizados pelo seu hardware. Para ler um arquivo armazenado em seu hardwre é necessário que ocorra antes um system call. Portanto, tendo uma maneira de interceptar essas chamadas entre um processo e o kernel temos como compreender o que tal processo está fazendo. Um comando que permite essa interceptação é o &lt;code>strace&lt;/code>.&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ man strace
+&lt;/code>&lt;/pre>
+&lt;p>Se o strace não estiver disponível instale&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ apt install strace
+&lt;/code>&lt;/pre>
+&lt;p>O &lt;code>strace&lt;/code> pode ser executado de duas formas. A primeira é
+usando o comando a ser interceptado como argumento do strace&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ strace ARGS COMANDO_A_SER_INTERCEPTADO
+&lt;/code>&lt;/pre>
+&lt;p>a segunda, bastante útil, é interceptando um processo já iniciado usando
+o PID de tal processo,&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ strace ARGS -p PID_DO_PROCESSO
+&lt;/code>&lt;/pre>
+&lt;p>Para descobrir o PID de um processo use o &lt;code>htop&lt;/code> ou o seguinte comando &lt;code>ps aux | grep -i '[n]ome_do_processo'&lt;/code>.&lt;/p>
+&lt;p>Veja um exemplo simples do strace e seu output&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ strace -t ls
+&lt;/code>&lt;/pre>
+&lt;p>O resultado será algo do tipo&lt;/p>
+&lt;pre>&lt;code>18:02:23 execve(&amp;quot;/usr/bin/ls&amp;quot;, [&amp;quot;ls&amp;quot;], 0x7fffa727a418 /* 54 vars */) = 0
+18:02:23 brk(NULL) = 0x55ebef60c000
 18:02:23 access(&amp;quot;/etc/ld.so.preload&amp;quot;, R_OK) = -1 ENOENT (No such file or directory)
 18:02:23 openat(AT_FDCWD, &amp;quot;/etc/ld.so.cache&amp;quot;, O_RDONLY|O_CLOEXEC) = 3
 ...
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Cada linha representa uma system call e o seu respectivo resultado. O argumento &lt;code&gt;-t&lt;/code&gt; diz para imprimir na primeira coluna o instante de tempo que o system call foi chamado.&lt;/p&gt;
-&lt;p&gt;De forma resumida o formato das linhas segue o padrão:&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;Nome  da SYS CALL(Argumentos usados na SYS CALL) = O resultado&lt;/strong&gt;&lt;/p&gt;
-&lt;p&gt;O output é  difícil se não humanamente impossível de compreender tudo sem um guia externo. Um guia possível é o comando &lt;code&gt;man&lt;/code&gt;. O comando abaixo mostra a documentação do sys call &lt;code&gt;openat&lt;/code&gt;&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ man 2 openat
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;O &lt;code&gt;openat&lt;/code&gt; é o sys call que requisita a abertura de um arquivo, o resultado na última linha (&lt;code&gt; O_RDONLY|O_CLOEXEC) = 3&lt;/code&gt;)  significa que a chamada do sistema foi bem sucedida. Caso fosse &lt;strong&gt;-1&lt;/strong&gt; alguma coisa teria dado errado quando o processo requisitou o recurso.&lt;/p&gt;
-&lt;h1 id=&#34;investigando-problemas&#34;&gt;Investigando problemas&lt;/h1&gt;
-&lt;p&gt;Veremos aqui problemas e falhas relacionados a arquivos regulares e conexões de rede. Contudo podemos usar as mesmas tecnicas para outros tipos de problemas.&lt;/p&gt;
-&lt;h2 id=&#34;identificando-problemas-de-conexão&#34;&gt;Identificando problemas de conexão&lt;/h2&gt;
-&lt;p&gt;O conda está travado?  O pip tá baixando os pacotes do servidor ou existe algum servidor engasgando? Para onde  minhas requisições estão indo? Antes de  tentar iniciar um modo verboso e ter que matar seu processo você pode usar o lsof para  responder essas perguntas.  Para começar nosso tutorial e realizar as simulações instale o flask e requests&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ python -m pip install requests flask
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Crie o arquivo &lt;code&gt;server_mlops.py&lt;/code&gt;&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;# server_mlops.py
+&lt;/code>&lt;/pre>
+&lt;p>Cada linha representa uma system call e o seu respectivo resultado. O argumento &lt;code>-t&lt;/code> diz para imprimir na primeira coluna o instante de tempo que o system call foi chamado.&lt;/p>
+&lt;p>De forma resumida o formato das linhas segue o padrão:&lt;/p>
+&lt;p>&lt;strong>Nome da SYS CALL(Argumentos usados na SYS CALL) = O resultado&lt;/strong>&lt;/p>
+&lt;p>O output é difícil se não humanamente impossível de compreender tudo sem um guia externo. Um guia possível é o comando &lt;code>man&lt;/code>. O comando abaixo mostra a documentação do sys call &lt;code>openat&lt;/code>&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ man 2 openat
+&lt;/code>&lt;/pre>
+&lt;p>O &lt;code>openat&lt;/code> é o sys call que requisita a abertura de um arquivo, o resultado na última linha (&lt;code> O_RDONLY|O_CLOEXEC) = 3&lt;/code>) significa que a chamada do sistema foi bem sucedida. Caso fosse &lt;strong>-1&lt;/strong> alguma coisa teria dado errado quando o processo requisitou o recurso.&lt;/p>
+&lt;h1 id="investigando-problemas">Investigando problemas&lt;/h1>
+&lt;p>Veremos aqui problemas e falhas relacionados a arquivos regulares e conexões de rede. Contudo podemos usar as mesmas tecnicas para outros tipos de problemas.&lt;/p>
+&lt;h2 id="identificando-problemas-de-conexão">Identificando problemas de conexão&lt;/h2>
+&lt;p>O conda está travado? O pip tá baixando os pacotes do servidor ou existe algum servidor engasgando? Para onde minhas requisições estão indo? Antes de tentar iniciar um modo verboso e ter que matar seu processo você pode usar o lsof para responder essas perguntas. Para começar nosso tutorial e realizar as simulações instale o flask e requests&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ python -m pip install requests flask
+&lt;/code>&lt;/pre>
+&lt;p>Crie o arquivo &lt;code>server_mlops.py&lt;/code>&lt;/p>
+&lt;pre>&lt;code class="language-python"># server_mlops.py
 import time
 import flask
-
 app = flask.Flask(__name__)
-
-@app.route(&#39;/&#39;)
+@app.route('/')
 def hello_world():
-    sleep_time = flask.request.args.get(&#39;sleep&#39;, default=10, type=int)
-    print(&#39;sleep_time:&#39;, sleep_time)
-    time.sleep(sleep_time)
-    return &#39;Hello World!&#39;
-
-if __name__ == &#39;__main__&#39;:
-    app.run()
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Inicie duas sessões no terminal. Na primeira inicie o servidor&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ python server_mlops.py
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Na segunda execute&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ ps aux | grep -i &#39;[s]erver_mlops.py&#39;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;você vera um output do tipo&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;devmess+ 19321 18.0  0.3  29716 24792 pts/5    S+   14:27   0:00 python server_mlops.py
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;O número na frente do seu username (19321) é o &lt;code&gt;PID&lt;/code&gt; do processo.&lt;/p&gt;
-&lt;h3 id=&#34;o-meu-serviço-está-on&#34;&gt;O meu serviço está on?&lt;/h3&gt;
-&lt;p&gt;O  argumento &lt;code&gt;-a&lt;/code&gt; pede que o &lt;code&gt;lsof&lt;/code&gt; use todos os argumentos de filtragem com o operador &lt;code&gt;AND&lt;/code&gt; isto é, todas as condições devem ser válidas. O argumento &lt;code&gt;-i&lt;/code&gt; pede para que ele filtre apenas arquivos associados a conexões e o argumento &lt;code&gt;-p 19321&lt;/code&gt; pede que use apena o processo com o &lt;code&gt;PID 19321&lt;/code&gt;.&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ lsof -a -i -p 19321
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Você vera um output mais ou menos assim&lt;/p&gt;
-&lt;table&gt;
-&lt;thead&gt;
-&lt;tr&gt;
-&lt;th&gt;COMMAND&lt;/th&gt;
-&lt;th&gt;PID&lt;/th&gt;
-&lt;th&gt;USER&lt;/th&gt;
-&lt;th&gt;FD&lt;/th&gt;
-&lt;th&gt;TYPE&lt;/th&gt;
-&lt;th&gt;DEVICE&lt;/th&gt;
-&lt;th&gt;SIZE/OFF&lt;/th&gt;
-&lt;th&gt;NODE&lt;/th&gt;
-&lt;th&gt;NAME&lt;/th&gt;
-&lt;/tr&gt;
-&lt;/thead&gt;
-&lt;tbody&gt;
-&lt;tr&gt;
-&lt;td&gt;python&lt;/td&gt;
-&lt;td&gt;19321&lt;/td&gt;
-&lt;td&gt;devmessias&lt;/td&gt;
-&lt;td&gt;4u&lt;/td&gt;
-&lt;td&gt;IPv4&lt;/td&gt;
-&lt;td&gt;16108218&lt;/td&gt;
-&lt;td&gt;0t0&lt;/td&gt;
-&lt;td&gt;TCP&lt;/td&gt;
-&lt;td&gt;localhost:5000 (LISTEN)&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/tbody&gt;
-&lt;/table&gt;
-&lt;p&gt;Está tudo ok com o seu serviço. Tente remover um dos argumentos (remova o &lt;code&gt;-a&lt;/code&gt; por exemplo) ou usar eles isolados, veja como o output muda.&lt;/p&gt;
-&lt;h3 id=&#34;o-pip-ou-um-cliente-qualquer-está-engasgado-esperando-uma-resposta-de-alguém&#34;&gt;O pip ou um cliente qualquer está engasgado esperando uma resposta de alguém?&lt;/h3&gt;
-&lt;p&gt;Esse tipo de problema pode acontecer  quando estamos gerenciando uma dependência, requisitando algum tipo de dado de um servidor e em inúmeros outros casos em que não temos acesso a máquina que executa o serviço. Portanto,  precisamos analisar do nosso lado se o processo está travado por alguma falha nossa.&lt;/p&gt;
-&lt;p&gt;Crie o arquivo &lt;code&gt;client_mlops.py&lt;/code&gt;&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;#!/usr/bin/env python
+sleep_time = flask.request.args.get('sleep', default=10, type=int)
+print('sleep_time:', sleep_time)
+time.sleep(sleep_time)
+return 'Hello World!'
+if __name__ == '__main__':
+app.run()
+&lt;/code>&lt;/pre>
+&lt;p>Inicie duas sessões no terminal. Na primeira inicie o servidor&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ python server_mlops.py
+&lt;/code>&lt;/pre>
+&lt;p>Na segunda execute&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ ps aux | grep -i '[s]erver_mlops.py'
+&lt;/code>&lt;/pre>
+&lt;p>você vera um output do tipo&lt;/p>
+&lt;pre>&lt;code class="language-bash">devmess+ 19321 18.0 0.3 29716 24792 pts/5 S+ 14:27 0:00 python server_mlops.py
+&lt;/code>&lt;/pre>
+&lt;p>O número na frente do seu username (19321) é o &lt;code>PID&lt;/code> do processo.&lt;/p>
+&lt;h3 id="o-meu-serviço-está-on">O meu serviço está on?&lt;/h3>
+&lt;p>O argumento &lt;code>-a&lt;/code> pede que o &lt;code>lsof&lt;/code> use todos os argumentos de filtragem com o operador &lt;code>AND&lt;/code> isto é, todas as condições devem ser válidas. O argumento &lt;code>-i&lt;/code> pede para que ele filtre apenas arquivos associados a conexões e o argumento &lt;code>-p 19321&lt;/code> pede que use apena o processo com o &lt;code>PID 19321&lt;/code>.&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ lsof -a -i -p 19321
+&lt;/code>&lt;/pre>
+&lt;p>Você vera um output mais ou menos assim&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>COMMAND&lt;/th>
+&lt;th>PID&lt;/th>
+&lt;th>USER&lt;/th>
+&lt;th>FD&lt;/th>
+&lt;th>TYPE&lt;/th>
+&lt;th>DEVICE&lt;/th>
+&lt;th>SIZE/OFF&lt;/th>
+&lt;th>NODE&lt;/th>
+&lt;th>NAME&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>python&lt;/td>
+&lt;td>19321&lt;/td>
+&lt;td>devmessias&lt;/td>
+&lt;td>4u&lt;/td>
+&lt;td>IPv4&lt;/td>
+&lt;td>16108218&lt;/td>
+&lt;td>0t0&lt;/td>
+&lt;td>TCP&lt;/td>
+&lt;td>localhost:5000 (LISTEN)&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;p>Está tudo ok com o seu serviço. Tente remover um dos argumentos (remova o &lt;code>-a&lt;/code> por exemplo) ou usar eles isolados, veja como o output muda.&lt;/p>
+&lt;h3 id="o-pip-ou-um-cliente-qualquer-está-engasgado-esperando-uma-resposta-de-alguém">O pip ou um cliente qualquer está engasgado esperando uma resposta de alguém?&lt;/h3>
+&lt;p>Esse tipo de problema pode acontecer quando estamos gerenciando uma dependência, requisitando algum tipo de dado de um servidor e em inúmeros outros casos em que não temos acesso a máquina que executa o serviço. Portanto, precisamos analisar do nosso lado se o processo está travado por alguma falha nossa.&lt;/p>
+&lt;p>Crie o arquivo &lt;code>client_mlops.py&lt;/code>&lt;/p>
+&lt;pre>&lt;code class="language-python">#!/usr/bin/env python
 #client_mlops.py
-
 import requests
 import argparse
-
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    &#39;--sleep&#39;, type=int, help=&#39;time to sleep&#39;, default=0)
+'--sleep', type=int, help='time to sleep', default=0)
 args = parser.parse_args()
-
-print(&#39;Ask for localhost:5000 to sleep for {} seconds&#39;.format(args.sleep))
-r = requests.get(&#39;http://localhost:5000&#39;, params={&#39;sleep&#39;: int(args.sleep)})
+print('Ask for localhost:5000 to sleep for {} seconds'.format(args.sleep))
+r = requests.get('http://localhost:5000', params={'sleep': int(args.sleep)})
 print(r.text)
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;No código acima temos o argumento &lt;code&gt;sleep&lt;/code&gt; que pedira para o &lt;code&gt;server_mlops.py&lt;/code&gt; esperar alguns segundos antes de enviar a resposta.&lt;/p&gt;
-&lt;p&gt;Simularemos um problema de um servidor preguiçoso. Pedindo que ele durma por 20 segundos.  Se você matou o processo do servidor inicie ele novamente.&lt;/p&gt;
-&lt;p&gt;Execute o &lt;code&gt;client_mlops.py&lt;/code&gt; com o &lt;code&gt;strace&lt;/code&gt;&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ strace -e poll,select,connect,recvfrom,sendto python client_mlops.py --sleep=20
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;aqui estamos pedindo para que o &lt;code&gt;strace&lt;/code&gt; nos mostre apenas chamadas do tipo &lt;code&gt;poll,select,connect,recvfrom&lt;/code&gt; e &lt;code&gt;sendto&lt;/code&gt;.&lt;/p&gt;
-&lt;p&gt;O output será algo do tipo&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;connect(4, {sa_family=AF_INET, sin_port=htons(5000), sin_addr=inet_addr(&amp;quot;127.0.0.1&amp;quot;)}, 16) = 0
+&lt;/code>&lt;/pre>
+&lt;p>No código acima temos o argumento &lt;code>sleep&lt;/code> que pedira para o &lt;code>server_mlops.py&lt;/code> esperar alguns segundos antes de enviar a resposta.&lt;/p>
+&lt;p>Simularemos um problema de um servidor preguiçoso. Pedindo que ele durma por 20 segundos. Se você matou o processo do servidor inicie ele novamente.&lt;/p>
+&lt;p>Execute o &lt;code>client_mlops.py&lt;/code> com o &lt;code>strace&lt;/code>&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ strace -e poll,select,connect,recvfrom,sendto python client_mlops.py --sleep=20
+&lt;/code>&lt;/pre>
+&lt;p>aqui estamos pedindo para que o &lt;code>strace&lt;/code> nos mostre apenas chamadas do tipo &lt;code>poll,select,connect,recvfrom&lt;/code> e &lt;code>sendto&lt;/code>.&lt;/p>
+&lt;p>O output será algo do tipo&lt;/p>
+&lt;pre>&lt;code>connect(4, {sa_family=AF_INET, sin_port=htons(5000), sin_addr=inet_addr(&amp;quot;127.0.0.1&amp;quot;)}, 16) = 0
 connect(4, {sa_family=AF_INET6, sin6_port=htons(5000), inet_pton(AF_INET6, &amp;quot;::1&amp;quot;, &amp;amp;sin6_addr), sin6_flowinfo=htonl(0), sin6_scope_id=0}, 28) = 0
 connect(4, {sa_family=AF_INET6, sin6_port=htons(5000), inet_pton(AF_INET6, &amp;quot;::1&amp;quot;, &amp;amp;sin6_addr), sin6_flowinfo=htonl(0), sin6_scope_id=0}, 28) = -1 ECONNREFUSED (Connection refused)
 connect(4, {sa_family=AF_INET, sin_port=htons(5000), sin_addr=inet_addr(&amp;quot;127.0.0.1&amp;quot;)}, 16) = 0
 sendto(4, &amp;quot;GET /?sleep=10 HTTP/1.1\r\nHost: l&amp;quot;..., 154, 0, NULL, 0) = 154
-recvfrom(4, 
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Note que temos uma &lt;strong&gt;SYS_CALL&lt;/strong&gt;  engasgada, &lt;code&gt;recvfrom&lt;/code&gt; (se você quiser obter mais informações sobre uma SYS_CALL digite &lt;code&gt;man 2 recvfrom&lt;/code&gt;) . Quem tá engasagando é  o servidor e não o cliente.&lt;/p&gt;
-&lt;p&gt;Você pode também usar o &lt;code&gt;lsof&lt;/code&gt; para checar se você está com esse tipo de problema. Para isso, execute o cliente em uma sessão separada&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ python client_mlops.py --sleep=100
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;pegue o PID com &lt;code&gt;ps aux | grep -i &#39;[c]lient_mlops.py&#39;&lt;/code&gt; e execute o &lt;code&gt;lsof&lt;/code&gt;&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;lsof -a -i -p 19321
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;O resultado será algo do tipo&lt;/p&gt;
-&lt;table&gt;
-&lt;thead&gt;
-&lt;tr&gt;
-&lt;th&gt;COMMAND&lt;/th&gt;
-&lt;th&gt;PID&lt;/th&gt;
-&lt;th&gt;USER&lt;/th&gt;
-&lt;th&gt;FD&lt;/th&gt;
-&lt;th&gt;TYPE&lt;/th&gt;
-&lt;th&gt;DEVICE&lt;/th&gt;
-&lt;th&gt;SIZE/OFF&lt;/th&gt;
-&lt;th&gt;NODE&lt;/th&gt;
-&lt;th&gt;NAME&lt;/th&gt;
-&lt;/tr&gt;
-&lt;/thead&gt;
-&lt;tbody&gt;
-&lt;tr&gt;
-&lt;td&gt;python&lt;/td&gt;
-&lt;td&gt;31551&lt;/td&gt;
-&lt;td&gt;devmessias&lt;/td&gt;
-&lt;td&gt;4u&lt;/td&gt;
-&lt;td&gt;IPv4&lt;/td&gt;
-&lt;td&gt;16622065&lt;/td&gt;
-&lt;td&gt;0t0&lt;/td&gt;
-&lt;td&gt;TCP&lt;/td&gt;
-&lt;td&gt;localhost:57314-&amp;gt;localhost:5000 (ESTABLISHED)&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/tbody&gt;
-&lt;/table&gt;
-&lt;p&gt;Note  que uma conexão foi estabelecida (coluna NAME). Se o serviço estivesse enviado a resposta não teríamos obtido nada na saída do &lt;code&gt;lsof&lt;/code&gt;.&lt;/p&gt;
-&lt;h2 id=&#34;problemas-com-arquivos&#34;&gt;Problemas com arquivos&lt;/h2&gt;
-&lt;p&gt;Vamos simular alguns problemas com arquivos regulares: csv, txt, bin, jpg etc. Copie um csv para pasta /tmp/, ou execute o comando abaixo  para criar um txt  dummy contendo o manual do comando strace.&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ man strace &amp;gt; /tmp/arquivo.csv 
-&lt;/code&gt;&lt;/pre&gt;
-&lt;h3 id=&#34;quais-processos-estão-usando-esse-arquivo&#34;&gt;Quais processos estão usando esse arquivo?&lt;/h3&gt;
-&lt;p&gt;O objetivo aqui é saber quais processos estão acessando um arquivo. Isto é útil quando queremos identificar processos que já deveriam ter &amp;ldquo;fechado&amp;rdquo; o arquivo ou inentificar acessos indenvidos. Também pode ser útil para descobrir qual processo está criando um arquivo gigantesco no seu sistema para que você possa dar um kill.&lt;/p&gt;
-&lt;p&gt;Crie o script a seguir em uma pasta.&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;#!/usr/bin/env python
+recvfrom(4,
+&lt;/code>&lt;/pre>
+&lt;p>Note que temos uma &lt;strong>SYS_CALL&lt;/strong> engasgada, &lt;code>recvfrom&lt;/code> (se você quiser obter mais informações sobre uma SYS_CALL digite &lt;code>man 2 recvfrom&lt;/code>) . Quem tá engasagando é o servidor e não o cliente.&lt;/p>
+&lt;p>Você pode também usar o &lt;code>lsof&lt;/code> para checar se você está com esse tipo de problema. Para isso, execute o cliente em uma sessão separada&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ python client_mlops.py --sleep=100
+&lt;/code>&lt;/pre>
+&lt;p>pegue o PID com &lt;code>ps aux | grep -i '[c]lient_mlops.py'&lt;/code> e execute o &lt;code>lsof&lt;/code>&lt;/p>
+&lt;pre>&lt;code class="language-bash">lsof -a -i -p 19321
+&lt;/code>&lt;/pre>
+&lt;p>O resultado será algo do tipo&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>COMMAND&lt;/th>
+&lt;th>PID&lt;/th>
+&lt;th>USER&lt;/th>
+&lt;th>FD&lt;/th>
+&lt;th>TYPE&lt;/th>
+&lt;th>DEVICE&lt;/th>
+&lt;th>SIZE/OFF&lt;/th>
+&lt;th>NODE&lt;/th>
+&lt;th>NAME&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>python&lt;/td>
+&lt;td>31551&lt;/td>
+&lt;td>devmessias&lt;/td>
+&lt;td>4u&lt;/td>
+&lt;td>IPv4&lt;/td>
+&lt;td>16622065&lt;/td>
+&lt;td>0t0&lt;/td>
+&lt;td>TCP&lt;/td>
+&lt;td>localhost:57314-&amp;gt;localhost:5000 (ESTABLISHED)&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;p>Note que uma conexão foi estabelecida (coluna NAME). Se o serviço estivesse enviado a resposta não teríamos obtido nada na saída do &lt;code>lsof&lt;/code>.&lt;/p>
+&lt;h2 id="problemas-com-arquivos">Problemas com arquivos&lt;/h2>
+&lt;p>Vamos simular alguns problemas com arquivos regulares: csv, txt, bin, jpg etc. Copie um csv para pasta /tmp/, ou execute o comando abaixo para criar um txt dummy contendo o manual do comando strace.&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ man strace &amp;gt; /tmp/arquivo.csv
+&lt;/code>&lt;/pre>
+&lt;h3 id="quais-processos-estão-usando-esse-arquivo">Quais processos estão usando esse arquivo?&lt;/h3>
+&lt;p>O objetivo aqui é saber quais processos estão acessando um arquivo. Isto é útil quando queremos identificar processos que já deveriam ter &amp;ldquo;fechado&amp;rdquo; o arquivo ou inentificar acessos indenvidos. Também pode ser útil para descobrir qual processo está criando um arquivo gigantesco no seu sistema para que você possa dar um kill.&lt;/p>
+&lt;p>Crie o script a seguir em uma pasta.&lt;/p>
+&lt;pre>&lt;code class="language-python">#!/usr/bin/env python
 # file_open.py
 import time
-
-f = open(&#39;/tmp/arquivo.csv&#39;, &#39;r&#39;)
-input(&#39;Press Enter to continue...&#39;)
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Depois abra duas sessões no terminal e rode o comando &lt;code&gt;python file_open.py&lt;/code&gt;.  Agora basta listar os processos que estão com arquivo.csv abertos&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ lsof /tmp/arquivo.csv
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;O output será algo do tipo&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;COMMAND   PID       USER   FD   TYPE DEVICE SIZE/OFF    NODE NAME
-python  15411 devmessias    3r   REG    8,2        0 2911031 /tmp/arquivo.csv
-python  20777 devmessias    3r   REG    8,2        0 2911031 /tmp/arquivo.csv
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Temos dois processos distintos (dois PID) utilizando nosso arquivo.&lt;/p&gt;
-&lt;h3 id=&#34;deletei-o-csv-e-agora&#34;&gt;Deletei o csv e agora?&lt;/h3&gt;
-&lt;p&gt;Suponha uma situação em que acidentalmente  um arquivo foi apagado. Contudo,  existe um processo que ainda está fazendo uso de tal recurso.&lt;/p&gt;
-&lt;p&gt;Crie um arquivo qualquer, aqui vou chamar de &lt;code&gt;acidente.txt&lt;/code&gt;&lt;/p&gt;
-&lt;p&gt;Abra uma sessão no terminal e execute o comando a seguir. &lt;strong&gt;Não feche a sessão!&lt;/strong&gt;&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ python -c &#39;f=open(&amp;quot;acidente.txt&amp;quot;, &amp;quot;r&amp;quot;);input(&amp;quot;...&amp;quot;)&#39;
-
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Simularemos o acidente que outro processo remove o arquivo. Execute os comandos abaixo&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ rm acidente.txt
+f = open('/tmp/arquivo.csv', 'r')
+input('Press Enter to continue...')
+&lt;/code>&lt;/pre>
+&lt;p>Depois abra duas sessões no terminal e rode o comando &lt;code>python file_open.py&lt;/code>. Agora basta listar os processos que estão com arquivo.csv abertos&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ lsof /tmp/arquivo.csv
+&lt;/code>&lt;/pre>
+&lt;p>O output será algo do tipo&lt;/p>
+&lt;pre>&lt;code>COMMAND PID USER FD TYPE DEVICE SIZE/OFF NODE NAME
+python 15411 devmessias 3r REG 8,2 0 2911031 /tmp/arquivo.csv
+python 20777 devmessias 3r REG 8,2 0 2911031 /tmp/arquivo.csv
+&lt;/code>&lt;/pre>
+&lt;p>Temos dois processos distintos (dois PID) utilizando nosso arquivo.&lt;/p>
+&lt;h3 id="deletei-o-csv-e-agora">Deletei o csv e agora?&lt;/h3>
+&lt;p>Suponha uma situação em que acidentalmente um arquivo foi apagado. Contudo, existe um processo que ainda está fazendo uso de tal recurso.&lt;/p>
+&lt;p>Crie um arquivo qualquer, aqui vou chamar de &lt;code>acidente.txt&lt;/code>&lt;/p>
+&lt;p>Abra uma sessão no terminal e execute o comando a seguir. &lt;strong>Não feche a sessão!&lt;/strong>&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ python -c 'f=open(&amp;quot;acidente.txt&amp;quot;, &amp;quot;r&amp;quot;);input(&amp;quot;...&amp;quot;)'
+&lt;/code>&lt;/pre>
+&lt;p>Simularemos o acidente que outro processo remove o arquivo. Execute os comandos abaixo&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ rm acidente.txt
 $ ls acidente.txt
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Nosso arquivo foi embora :(&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;ls: cannot access &#39;acidente.txt&#39;: No such file or directory
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Mas não se preocupe! Uma coisa legal do linux: todos os processos do sistema tem a eles associados um diretório dentro da pasta &lt;code&gt;/proc&lt;/code&gt; (everthing is a file).  E o que tem nesses diretórios ? Muitas coisas, incluindo o &lt;code&gt;file descriptor&lt;/code&gt; do &lt;code&gt;acidente.txt&lt;/code&gt;. Utilizado pelo nosso processo python.  Para encontrar esse &lt;code&gt;file descriptor&lt;/code&gt; usaremos o &lt;code&gt;lsof&lt;/code&gt;&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ lsof -u nomedeusuario | grep &#39;acidente.txt&#39;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;No meu caso obtive o seguinte output&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;python    22465 devmessias    3r      REG                8,2     37599   14288174 caminho/acidente.txt (deleted)
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Então o PID é &lt;code&gt;22465&lt;/code&gt; e o número que descreve o arquivo (file descriptor) é &lt;code&gt;3&lt;/code&gt; (o que vem antes do &lt;code&gt;r&lt;/code&gt; no output acima). Para obter uma cópia do acidente.txt deletado basta chamar  um simples &lt;code&gt;cp&lt;/code&gt;&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ cp /proc/22465/fd/3 recuperado.txt
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Abra o arquivo &lt;code&gt;recuperado.txt&lt;/code&gt; e veja que tudo está no seu devido lugar.  Não é mágica, procure por  &lt;strong&gt;process pseudo-filesystem&lt;/strong&gt; na web ou digite &lt;code&gt;man proc&lt;/code&gt; .&lt;/p&gt;
-&lt;h3 id=&#34;erros-silenciosos-arquivo-não-existente-ou-permissão&#34;&gt;Erros silenciosos: arquivo não existente ou permissão&lt;/h3&gt;
-&lt;p&gt;Em alguns casos você pode ter um processo criado por uma dependência externa que tenta acessar um arquivo com permissão errada ou mesmo não existente.  Criaremos essas duas situações com o script &lt;code&gt;file_404.py&lt;/code&gt;.&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;#!/usr/bin/env python
+&lt;/code>&lt;/pre>
+&lt;p>Nosso arquivo foi embora :(&lt;/p>
+&lt;pre>&lt;code>ls: cannot access 'acidente.txt': No such file or directory
+&lt;/code>&lt;/pre>
+&lt;p>Mas não se preocupe! Uma coisa legal do linux: todos os processos do sistema tem a eles associados um diretório dentro da pasta &lt;code>/proc&lt;/code> (everthing is a file). E o que tem nesses diretórios ? Muitas coisas, incluindo o &lt;code>file descriptor&lt;/code> do &lt;code>acidente.txt&lt;/code>. Utilizado pelo nosso processo python. Para encontrar esse &lt;code>file descriptor&lt;/code> usaremos o &lt;code>lsof&lt;/code>&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ lsof -u nomedeusuario | grep 'acidente.txt'
+&lt;/code>&lt;/pre>
+&lt;p>No meu caso obtive o seguinte output&lt;/p>
+&lt;pre>&lt;code>python 22465 devmessias 3r REG 8,2 37599 14288174 caminho/acidente.txt (deleted)
+&lt;/code>&lt;/pre>
+&lt;p>Então o PID é &lt;code>22465&lt;/code> e o número que descreve o arquivo (file descriptor) é &lt;code>3&lt;/code> (o que vem antes do &lt;code>r&lt;/code> no output acima). Para obter uma cópia do acidente.txt deletado basta chamar um simples &lt;code>cp&lt;/code>&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ cp /proc/22465/fd/3 recuperado.txt
+&lt;/code>&lt;/pre>
+&lt;p>Abra o arquivo &lt;code>recuperado.txt&lt;/code> e veja que tudo está no seu devido lugar. Não é mágica, procure por &lt;strong>process pseudo-filesystem&lt;/strong> na web ou digite &lt;code>man proc&lt;/code> .&lt;/p>
+&lt;h3 id="erros-silenciosos-arquivo-não-existente-ou-permissão">Erros silenciosos: arquivo não existente ou permissão&lt;/h3>
+&lt;p>Em alguns casos você pode ter um processo criado por uma dependência externa que tenta acessar um arquivo com permissão errada ou mesmo não existente. Criaremos essas duas situações com o script &lt;code>file_404.py&lt;/code>.&lt;/p>
+&lt;pre>&lt;code class="language-python">#!/usr/bin/env python
 # file_404.py
 import time
-
 try:
-    f = open(&#39;/tmp/arquivo_404.csv&#39;, &#39;r&#39;)
+f = open('/tmp/arquivo_404.csv', 'r')
 except FileNotFoundError:
-    pass
-
+pass
 try:
-    # um arquivo que vc nao tem permissao, crie como sudo e mude com chmod 700
-    f = open(&#39;/tmp/arquivo_permission.csv&#39;, &#39;r&#39;)
+# um arquivo que vc nao tem permissao, crie como sudo e mude com chmod 700
+f = open('/tmp/arquivo_permission.csv', 'r')
 except PermissionError:
-    pass
-
-input(&#39;Press Enter to continue...&#39;)
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Execute ele com &lt;code&gt;python file_404.py&lt;/code&gt; veja que nenhum problema é informado.&lt;/p&gt;
-&lt;p&gt;Para  traquear as chamadas do sistema do tipo arquivo feitas  por  &lt;code&gt;python file_404.py &lt;/code&gt; basta digitar o comando abaixo no terminal&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ strace -f -e trace=file python file_404.py
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;o argumento &lt;code&gt;-f&lt;/code&gt; diz para o strace monitorar também qualquer processo filho criado. Em python, isso seria por exemplo os processos criados por &lt;code&gt;os.fork&lt;/code&gt;.&lt;/p&gt;
-&lt;p&gt;A saída do exemplo será algo do tipo&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;lstat(&amp;quot;SEU DIRETORIO/file_404.py&amp;quot;, {st_mode=S_IFREG|0644, st_size=242, ...}) = 0
+pass
+input('Press Enter to continue...')
+&lt;/code>&lt;/pre>
+&lt;p>Execute ele com &lt;code>python file_404.py&lt;/code> veja que nenhum problema é informado.&lt;/p>
+&lt;p>Para traquear as chamadas do sistema do tipo arquivo feitas por &lt;code>python file_404.py &lt;/code> basta digitar o comando abaixo no terminal&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ strace -f -e trace=file python file_404.py
+&lt;/code>&lt;/pre>
+&lt;p>o argumento &lt;code>-f&lt;/code> diz para o strace monitorar também qualquer processo filho criado. Em python, isso seria por exemplo os processos criados por &lt;code>os.fork&lt;/code>.&lt;/p>
+&lt;p>A saída do exemplo será algo do tipo&lt;/p>
+&lt;pre>&lt;code>lstat(&amp;quot;SEU DIRETORIO/file_404.py&amp;quot;, {st_mode=S_IFREG|0644, st_size=242, ...}) = 0
 openat(AT_FDCWD, &amp;quot;file_404.py&amp;quot;, O_RDONLY) = 3
 openat(AT_FDCWD, &amp;quot;/tmp/arquivo_404.csv&amp;quot;, O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
 openat(AT_FDCWD, &amp;quot;/tmp/arquivo_permission.csv&amp;quot;, O_RDONLY|O_CLOEXEC) = -1 EACCES (Permission denied)
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Note que temos no output informações que não queremos investigar,  mas  nas últimas linhas os erros de permissão e ausência de arquivo apareceram.&lt;/p&gt;
-&lt;p&gt;Uma maneira de filtrar o resultado e tornar sua vida mais fácil é usar o &lt;code&gt;awk&lt;/code&gt; redirecionado a saída do strace com  o pipe &lt;code&gt;|&lt;/code&gt;.&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ strace -f -e trace=file python file_404.py 2&amp;gt;&amp;amp;1 | awk &#39;/^open/ &amp;amp;&amp;amp; /= -1/ {print}&#39;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;O comando acima diz para mostrar apenas as linhas que começam com a string &lt;code&gt;open&lt;/code&gt; e em alguma parte da linha tenha o padrão &lt;code&gt;= -1&lt;/code&gt;.&lt;/p&gt;
-&lt;p&gt;O comando com &lt;code&gt;awk&lt;/code&gt; concatenado produzirá um output mais limpo, veja só&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;openat(AT_FDCWD, &amp;quot;/home/devmessias/anaconda3/pyvenv.cfg&amp;quot;, O_RDONLY) = -1 ENOENT (No such file or directory)
+&lt;/code>&lt;/pre>
+&lt;p>Note que temos no output informações que não queremos investigar, mas nas últimas linhas os erros de permissão e ausência de arquivo apareceram.&lt;/p>
+&lt;p>Uma maneira de filtrar o resultado e tornar sua vida mais fácil é usar o &lt;code>awk&lt;/code> redirecionado a saída do strace com o pipe &lt;code>|&lt;/code>.&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ strace -f -e trace=file python file_404.py 2&amp;gt;&amp;amp;1 | awk '/^open/ &amp;amp;&amp;amp; /= -1/ {print}'
+&lt;/code>&lt;/pre>
+&lt;p>O comando acima diz para mostrar apenas as linhas que começam com a string &lt;code>open&lt;/code> e em alguma parte da linha tenha o padrão &lt;code>= -1&lt;/code>.&lt;/p>
+&lt;p>O comando com &lt;code>awk&lt;/code> concatenado produzirá um output mais limpo, veja só&lt;/p>
+&lt;pre>&lt;code>openat(AT_FDCWD, &amp;quot;/home/devmessias/anaconda3/pyvenv.cfg&amp;quot;, O_RDONLY) = -1 ENOENT (No such file or directory)
 openat(AT_FDCWD, &amp;quot;/tmp/arquivo_404.csv&amp;quot;, O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
 openat(AT_FDCWD, &amp;quot;/tmp/arquivo_permission.csv&amp;quot;, O_RDONLY|O_CLOEXEC) = -1 EACCES (Permission denied)
-&lt;/code&gt;&lt;/pre&gt;
-&lt;h3 id=&#34;esse-processo-está-salvando-algo-que-não-deveria-onde&#34;&gt;Esse processo está salvando algo que não deveria? Onde?&lt;/h3&gt;
-&lt;p&gt;Talvez você queira monitorar o que uma dependência externa anda fazendo no seu sistema de arquivos. Outro problema que pode ocorrer é caso você delete um arquivo usado por uma dependência, contudo tal dependência fez um cache em algum lugar antes de você efetuar a remoção. O que te impede de &lt;em&gt;ressetar&lt;/em&gt; a dependência.&lt;/p&gt;
-&lt;p&gt;Usando o mesmo comando anterior é possível buscar onde esses caches e arquivos estão&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ strace -f -e trace=file comando 2&amp;gt;&amp;amp;1 | awk &#39;/^open/{print}&#39;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;se você quiser pegar apenas as chamadas que não retornaram em falha digite&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ strace -f -e trace=file comando 2&amp;gt;&amp;amp;1 | awk &#39;/^open/ &amp;amp;&amp;amp; !/= -1/ {print}&#39;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;h2 id=&#34;extras-envolvendo-arquivos-proc-e-strace&#34;&gt;Extras envolvendo arquivos (&lt;code&gt;/proc/&lt;/code&gt;) e &lt;code&gt;strace&lt;/code&gt;&lt;/h2&gt;
-&lt;p&gt;Usando problemas comuns envolvendo arquivos e conexões conversamos um pouco sobre o &lt;code&gt;strace&lt;/code&gt; e &lt;code&gt;lsof&lt;/code&gt;. Conceitos como SYS CALL e a pasta &lt;code&gt;/proc/&lt;/code&gt; também foram mencioandos.  Darei alguns exemplos de algumas outras questões que podemos responder usando esses outros elementos.&lt;/p&gt;
-&lt;h3 id=&#34;gerando-um-sumário-de-sys-call&#34;&gt;Gerando um sumário de SYS CALL&lt;/h3&gt;
-&lt;p&gt;Você pode sumarizar todas as sys call feitas por um processo usando o argumento &lt;code&gt;-c&lt;/code&gt;. Isso pode te ajudar a economizar tempo numa pre-análise.&lt;/p&gt;
-&lt;p&gt;O comando abaixo retorna as sys calls efetuadas pelo comando &lt;code&gt;make sync-env&lt;/code&gt;&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ strace -c -e trace=!\wait4 make sync-env
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;outro argumento que foi alterado aqui é o operador &lt;code&gt;!\&lt;/code&gt; que diz para o strace ignorar as sys call do tipo &lt;code&gt;wait4&lt;/code&gt;. O ouput será algo do tipo:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;% time     seconds  usecs/call     calls    errors syscall
+&lt;/code>&lt;/pre>
+&lt;h3 id="esse-processo-está-salvando-algo-que-não-deveria-onde">Esse processo está salvando algo que não deveria? Onde?&lt;/h3>
+&lt;p>Talvez você queira monitorar o que uma dependência externa anda fazendo no seu sistema de arquivos. Outro problema que pode ocorrer é caso você delete um arquivo usado por uma dependência, contudo tal dependência fez um cache em algum lugar antes de você efetuar a remoção. O que te impede de &lt;em>ressetar&lt;/em> a dependência.&lt;/p>
+&lt;p>Usando o mesmo comando anterior é possível buscar onde esses caches e arquivos estão&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ strace -f -e trace=file comando 2&amp;gt;&amp;amp;1 | awk '/^open/{print}'
+&lt;/code>&lt;/pre>
+&lt;p>se você quiser pegar apenas as chamadas que não retornaram em falha digite&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ strace -f -e trace=file comando 2&amp;gt;&amp;amp;1 | awk '/^open/ &amp;amp;&amp;amp; !/= -1/ {print}'
+&lt;/code>&lt;/pre>
+&lt;h2 id="extras-envolvendo-arquivos-proc-e-strace">Extras envolvendo arquivos (&lt;code>/proc/&lt;/code>) e &lt;code>strace&lt;/code>&lt;/h2>
+&lt;p>Usando problemas comuns envolvendo arquivos e conexões conversamos um pouco sobre o &lt;code>strace&lt;/code> e &lt;code>lsof&lt;/code>. Conceitos como SYS CALL e a pasta &lt;code>/proc/&lt;/code> também foram mencioandos. Darei alguns exemplos de algumas outras questões que podemos responder usando esses outros elementos.&lt;/p>
+&lt;h3 id="gerando-um-sumário-de-sys-call">Gerando um sumário de SYS CALL&lt;/h3>
+&lt;p>Você pode sumarizar todas as sys call feitas por um processo usando o argumento &lt;code>-c&lt;/code>. Isso pode te ajudar a economizar tempo numa pre-análise.&lt;/p>
+&lt;p>O comando abaixo retorna as sys calls efetuadas pelo comando &lt;code>make sync-env&lt;/code>&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ strace -c -e trace=!\wait4 make sync-env
+&lt;/code>&lt;/pre>
+&lt;p>outro argumento que foi alterado aqui é o operador &lt;code>!\&lt;/code> que diz para o strace ignorar as sys call do tipo &lt;code>wait4&lt;/code>. O ouput será algo do tipo:&lt;/p>
+&lt;pre>&lt;code>% time seconds usecs/call calls errors syscall
 ------ ----------- ----------- --------- --------- ----------------
- 14,54    0,000209           6        33        13 openat
- 13,01    0,000187          17        11           vfork
- 12,32    0,000177           7        25           mmap
-  8,49    0,000122           3        31           close
-  8,42    0,000121           5        21           rt_sigprocmask
-  8,14    0,000117           6        17           read
-  6,89    0,000099           5        19        11 stat
-  5,85    0,000084           3        23           fstat
-  2,85    0,000041           8         5           mprotect
-  2,64    0,000038           9         4           write
-  2,51    0,000036           2        16           fcntl
-  2,02    0,000029           3         9           rt_sigaction
-  1,95    0,000028          14         2           readlink
-  1,95    0,000028          14         2           getdents64
-  1,25    0,000018           4         4           brk
-  1,25    0,000018          18         1         1 access
-  1,25    0,000018           3         5           pipe
-  1,11    0,000016           4         4           ioctl
-  0,84    0,000012           6         2           getcwd
-  0,70    0,000010          10         1           munmap
-  0,49    0,000007           7         1           lstat
-  0,49    0,000007           7         1           execve
-  0,49    0,000007           3         2           prlimit64
-  0,35    0,000005           5         1           chdir
-  0,21    0,000003           3         1           arch_prctl
+14,54 0,000209 6 33 13 openat
+13,01 0,000187 17 11 vfork
+12,32 0,000177 7 25 mmap
+8,49 0,000122 3 31 close
+8,42 0,000121 5 21 rt_sigprocmask
+8,14 0,000117 6 17 read
+6,89 0,000099 5 19 11 stat
+5,85 0,000084 3 23 fstat
+2,85 0,000041 8 5 mprotect
+2,64 0,000038 9 4 write
+2,51 0,000036 2 16 fcntl
+2,02 0,000029 3 9 rt_sigaction
+1,95 0,000028 14 2 readlink
+1,95 0,000028 14 2 getdents64
+1,25 0,000018 4 4 brk
+1,25 0,000018 18 1 1 access
+1,25 0,000018 3 5 pipe
+1,11 0,000016 4 4 ioctl
+0,84 0,000012 6 2 getcwd
+0,70 0,000010 10 1 munmap
+0,49 0,000007 7 1 lstat
+0,49 0,000007 7 1 execve
+0,49 0,000007 3 2 prlimit64
+0,35 0,000005 5 1 chdir
+0,21 0,000003 3 1 arch_prctl
 ------ ----------- ----------- --------- --------- ----------------
-100.00    0,001437                   241        25 total
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;A coluna time diz que &lt;code&gt;make sync-env&lt;/code&gt; gastou $14$% do tempo (com exceção do &lt;code&gt;wait4&lt;/code&gt;) em sys calls do tipo &lt;code&gt;openat&lt;/code&gt; e $13$ das $33$ chamadas não foram bem sucedidas.&lt;/p&gt;
-&lt;h3 id=&#34;o-processo-foi-iniciado-com-as-variáveis-de-ambiente-corretas&#34;&gt;O processo foi iniciado com as variáveis de ambiente corretas?&lt;/h3&gt;
-&lt;p&gt;Os próximos exemplos envolvem situações em que um processo foi iniciado, mas você quer verificar algumas informações sobre o mesmo sem que seja necessário matar e reiniciar processo.  Imagine fazer isso em produção? Ou com um modelo de ML que já gastou muitos &lt;strong&gt;R$&lt;/strong&gt; para chegar no estágio atual.&lt;/p&gt;
-&lt;p&gt;Vamos continuar com o nosso &lt;code&gt;server_mlops.py&lt;/code&gt;. Suponha que o processo foi iniciado usando  uma variável de ambiente extra, &lt;code&gt;ANSWER&lt;/code&gt;.&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ ANSWER=42 python server_mlops.py
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Após o inicio do processo como saber com quais variáveis de ambiente ele está usando? Essa variáveis setam por exemplo bibliotecas de otimização(BLAS, LAPACK), env&amp;rsquo;s python etc.&lt;/p&gt;
-&lt;p&gt;Como dito em um exemplo anterior, a pasta &lt;code&gt;/proc&lt;/code&gt;  contêm arquivos representado o estado dos processos em execução.  Supondo que o PID do processo é &lt;code&gt;4031&lt;/code&gt; você pode acessar as variáveis de ambiente do mesmo através de &lt;code&gt;cat /proc/4031/environ&lt;/code&gt;. Mas o output é meio feio, vamos usar &lt;code&gt;tr&lt;/code&gt; para trocar os caracteres nulos &lt;code&gt;\0&lt;/code&gt; por quebras de linhas, &lt;code&gt;\n&lt;/code&gt;.&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ tr &#39;\0&#39; &#39;\n&#39; &amp;lt; /proc/4031/environ
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Você terá  um output do tipo&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;ANSWER=42
+100.00 0,001437 241 25 total
+&lt;/code>&lt;/pre>
+&lt;p>A coluna time diz que &lt;code>make sync-env&lt;/code> gastou $14$% do tempo (com exceção do &lt;code>wait4&lt;/code>) em sys calls do tipo &lt;code>openat&lt;/code> e $13$ das $33$ chamadas não foram bem sucedidas.&lt;/p>
+&lt;h3 id="o-processo-foi-iniciado-com-as-variáveis-de-ambiente-corretas">O processo foi iniciado com as variáveis de ambiente corretas?&lt;/h3>
+&lt;p>Os próximos exemplos envolvem situações em que um processo foi iniciado, mas você quer verificar algumas informações sobre o mesmo sem que seja necessário matar e reiniciar processo. Imagine fazer isso em produção? Ou com um modelo de ML que já gastou muitos &lt;strong>R$&lt;/strong> para chegar no estágio atual.&lt;/p>
+&lt;p>Vamos continuar com o nosso &lt;code>server_mlops.py&lt;/code>. Suponha que o processo foi iniciado usando uma variável de ambiente extra, &lt;code>ANSWER&lt;/code>.&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ ANSWER=42 python server_mlops.py
+&lt;/code>&lt;/pre>
+&lt;p>Após o inicio do processo como saber com quais variáveis de ambiente ele está usando? Essa variáveis setam por exemplo bibliotecas de otimização(BLAS, LAPACK), env&amp;rsquo;s python etc.&lt;/p>
+&lt;p>Como dito em um exemplo anterior, a pasta &lt;code>/proc&lt;/code> contêm arquivos representado o estado dos processos em execução. Supondo que o PID do processo é &lt;code>4031&lt;/code> você pode acessar as variáveis de ambiente do mesmo através de &lt;code>cat /proc/4031/environ&lt;/code>. Mas o output é meio feio, vamos usar &lt;code>tr&lt;/code> para trocar os caracteres nulos &lt;code>\0&lt;/code> por quebras de linhas, &lt;code>\n&lt;/code>.&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ tr '\0' '\n' &amp;lt; /proc/4031/environ
+&lt;/code>&lt;/pre>
+&lt;p>Você terá um output do tipo&lt;/p>
+&lt;pre>&lt;code>ANSWER=42
 SHELL=/bin/bash
 LANGUAGE=en_US
 JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/bin/java
 ...more stuff
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Se você quiser filtrar apenas linhas que comecem com a string CONDA faça&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ tr &#39;\0&#39; &#39;\n&#39; &amp;lt; /proc/4031/environ 2&amp;gt;&amp;amp;1 | awk &#39;/^CONDA/ {print}&#39;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;o output no meu caso foi algo do tipo&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;CONDA_EXE=/home/devmessias/anaconda3/bin/conda
+&lt;/code>&lt;/pre>
+&lt;p>Se você quiser filtrar apenas linhas que comecem com a string CONDA faça&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ tr '\0' '\n' &amp;lt; /proc/4031/environ 2&amp;gt;&amp;amp;1 | awk '/^CONDA/ {print}'
+&lt;/code>&lt;/pre>
+&lt;p>o output no meu caso foi algo do tipo&lt;/p>
+&lt;pre>&lt;code>CONDA_EXE=/home/devmessias/anaconda3/bin/conda
 CONDA_PREFIX=/home/devmessias/anaconda3
-CONDA_PROMPT_MODIFIER=(base) 
+CONDA_PROMPT_MODIFIER=(base)
 CONDA_SHLVL=1
 CONDA_PYTHON_EXE=/home/devmessias/anaconda3/bin/python
 CONDA_DEFAULT_ENV=base
-&lt;/code&gt;&lt;/pre&gt;
-&lt;h3 id=&#34;esqueci-de--redirecionar-os-outputs-do-processo-para-um-arquivo--o-que-fazer&#34;&gt;Esqueci de  redirecionar os outputs do processo para um arquivo.  O que fazer?&lt;/h3&gt;
-&lt;p&gt;Suponha que você iniciou um processo e  não redirecionou  os outputs para um arquivo de texto por esquecimento ou por subestimar problemas. Se reiniciar o processo não é uma opção  você está com problemas.  Felizmente é possível usar o &lt;code&gt;strace&lt;/code&gt;  para interceptar os outputs e salva-los em um arquivo externo.&lt;/p&gt;
-&lt;p&gt;A SYS CALL responsável por requisitar a &lt;em&gt;escrita&lt;/em&gt; no &lt;strong&gt;stdin, stdout e stderr&lt;/strong&gt; é a &lt;code&gt;write&lt;/code&gt; . Veja o manual dessa chamada&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ man 2 write
-&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;NAME
-       write - write to a file descriptor
+&lt;/code>&lt;/pre>
+&lt;h3 id="esqueci-de--redirecionar-os-outputs-do-processo-para-um-arquivo--o-que-fazer">Esqueci de redirecionar os outputs do processo para um arquivo. O que fazer?&lt;/h3>
+&lt;p>Suponha que você iniciou um processo e não redirecionou os outputs para um arquivo de texto por esquecimento ou por subestimar problemas. Se reiniciar o processo não é uma opção você está com problemas. Felizmente é possível usar o &lt;code>strace&lt;/code> para interceptar os outputs e salva-los em um arquivo externo.&lt;/p>
+&lt;p>A SYS CALL responsável por requisitar a &lt;em>escrita&lt;/em> no &lt;strong>stdin, stdout e stderr&lt;/strong> é a &lt;code>write&lt;/code> . Veja o manual dessa chamada&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ man 2 write
+&lt;/code>&lt;/pre>
+&lt;pre>&lt;code>NAME
+write - write to a file descriptor
 SYNOPSIS
-       #include &amp;lt;unistd.h&amp;gt;
-       ssize_t write(int fd, const void *buf, size_t count);
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;O primeiro argumento é um inteiro que representa o file descriptor. Sendo que &lt;strong&gt;fd=1&lt;/strong&gt; implica que a chamada escreverá no &lt;strong&gt;stdout&lt;/strong&gt; e &lt;strong&gt;fd=2&lt;/strong&gt; no &lt;strong&gt;stderr&lt;/strong&gt; . Portanto, não existe nenhum segredo aqui. Se você quiser capturar os outputs basta filtrar as SYS CALL do tipo write e file descriptor &lt;strong&gt;1&lt;/strong&gt; ou &lt;strong&gt;2&lt;/strong&gt; e envia-las para o arquivo desejado. Temos que tomar cuidado só com as algumas coisas aqui. No manual do strace (&lt;code&gt;man strace&lt;/code&gt;) você vera que por padrão ele &lt;em&gt;printa&lt;/em&gt; apenas $32$ caracteres em uma string. Portanto, precisamos aumentar o limite com o argumento &lt;code&gt;-s&lt;/code&gt;. Também é interessante traquear os forks. No caso do &lt;code&gt;server_mlops.py&lt;/code&gt; por exemplo, qualquer print dentro de um método não será executado na main, então o &lt;code&gt;-f&lt;/code&gt; é obrigatório.&lt;/p&gt;
-&lt;p&gt;O comando para redirecionar as saidas do stdout e stderr no arquivo &lt;code&gt;out.txt&lt;/code&gt; pode ser colocado da seguinte maneira com o log dos tempos (-t) opicional.&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ strace -f -t -etrace=write -s 666 -p PID_DO_PROCESSO 2&amp;gt;&amp;amp;1 | grep --line-buffered -e &#39;write(2, &#39; -e &#39;write(1, &#39; &amp;gt;&amp;gt; out.txt
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;O código abaixo tem uma alteração no &lt;code&gt;server_mlops.py&lt;/code&gt; ,  e execute ele assim como o &lt;code&gt;client_mlops.py&lt;/code&gt;. Pegando o PID do &lt;code&gt;serve_mlops&lt;/code&gt; você conseguirá explorar esse exemplo&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;# server_mlops.py
+#include &amp;lt;unistd.h&amp;gt;
+ssize_t write(int fd, const void *buf, size_t count);
+&lt;/code>&lt;/pre>
+&lt;p>O primeiro argumento é um inteiro que representa o file descriptor. Sendo que &lt;strong>fd=1&lt;/strong> implica que a chamada escreverá no &lt;strong>stdout&lt;/strong> e &lt;strong>fd=2&lt;/strong> no &lt;strong>stderr&lt;/strong> . Portanto, não existe nenhum segredo aqui. Se você quiser capturar os outputs basta filtrar as SYS CALL do tipo write e file descriptor &lt;strong>1&lt;/strong> ou &lt;strong>2&lt;/strong> e envia-las para o arquivo desejado. Temos que tomar cuidado só com as algumas coisas aqui. No manual do strace (&lt;code>man strace&lt;/code>) você vera que por padrão ele &lt;em>printa&lt;/em> apenas $32$ caracteres em uma string. Portanto, precisamos aumentar o limite com o argumento &lt;code>-s&lt;/code>. Também é interessante traquear os forks. No caso do &lt;code>server_mlops.py&lt;/code> por exemplo, qualquer print dentro de um método não será executado na main, então o &lt;code>-f&lt;/code> é obrigatório.&lt;/p>
+&lt;p>O comando para redirecionar as saidas do stdout e stderr no arquivo &lt;code>out.txt&lt;/code> pode ser colocado da seguinte maneira com o log dos tempos (-t) opicional.&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ strace -f -t -etrace=write -s 666 -p PID_DO_PROCESSO 2&amp;gt;&amp;amp;1 | grep --line-buffered -e 'write(2, ' -e 'write(1, ' &amp;gt;&amp;gt; out.txt
+&lt;/code>&lt;/pre>
+&lt;p>O código abaixo tem uma alteração no &lt;code>server_mlops.py&lt;/code> , e execute ele assim como o &lt;code>client_mlops.py&lt;/code>. Pegando o PID do &lt;code>serve_mlops&lt;/code> você conseguirá explorar esse exemplo&lt;/p>
+&lt;pre>&lt;code class="language-python"># server_mlops.py
 import time
 import flask
 import sys
-
 app = flask.Flask(__name__)
-
-@app.route(&#39;/&#39;)
+@app.route('/')
 def hello_world():
-    sleep_time = flask.request.args.get(&#39;sleep&#39;, default=10, type=int)
-    print(&#39;sleep_time:&#39;, sleep_time)
-    for i in range(sleep_time):
-        print(f&#39;INFO: {i} of sleep_time \n asdf \t &#39;)
-        print(f&#39;ERROR: Example msg {i}&#39;, file=sys.stderr) 
-        time.sleep(1)
-    return &#39;Hello World!&#39;
-
-
-if __name__ == &#39;__main__&#39;:
-    app.run()
-&lt;/code&gt;&lt;/pre&gt;
-&lt;h3 id=&#34;qual-comando-gerou-o-processo-e-onde-é-o-seu-working-dir&#34;&gt;Qual comando gerou o processo e onde é o seu working dir?&lt;/h3&gt;
-&lt;p&gt;Essa pergunta talvez não seja tão difícil de responder se você tem o &lt;code&gt;htop&lt;/code&gt; instalado. Mas supondo que  você não lembra  as informações sobre o comando que gerou o processo execute o comando abaixo&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ tr &#39;\0&#39; &#39;\t&#39; &amp;lt; /proc/PID_CLIENT_MLOPS/cmdline
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;o output será&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;python	client_mlops.py	--sleep	1000
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Para descobrir o diretório do &lt;code&gt;client_mlops.py&lt;/code&gt;  basta executar&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ readlink /proc/PID_CLIENT_MLOPS/cwd
-&lt;/code&gt;&lt;/pre&gt;
-&lt;h2 id=&#34;agradecimentos--sugestões&#34;&gt;Agradecimentos &amp;amp; Sugestões&lt;/h2&gt;
-&lt;blockquote&gt;
-&lt;p&gt;Achou um erro? Tem alguma sugestão ou dica? mande um email para 
-&lt;a href=&#34;mailto:devmessias@gmail.com&#34;&gt;devmessias@gmail.com&lt;/a&gt;.&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;ul&gt;
-&lt;li&gt;Obrigado 
-&lt;a href=&#34;https://www.linkedin.com/in/elisarma&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Elisa Ribeiro&lt;/a&gt; por ter corrigido os typos da primeira versão do post.&lt;/li&gt;
-&lt;li&gt;
-&lt;a href=&#34;https://www.linkedin.com/in/reynaldoallanf&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Reynaldo Allan Fulin&lt;/a&gt; pelas discussões sempre úteis sobre linux.&lt;/li&gt;
-&lt;/ul&gt;
-</description>
-    </item>
-    
-  </channel>
-</rss>
+sleep_time = flask.request.args.get('sleep', default=10, type=int)
+print('sleep_time:', sleep_time)
+for i in range(sleep_time):
+print(f'INFO: {i} of sleep_time \n asdf \t ')
+print(f'ERROR: Example msg {i}', file=sys.stderr)
+time.sleep(1)
+return 'Hello World!'
+if __name__ == '__main__':
+app.run()
+&lt;/code>&lt;/pre>
+&lt;h3 id="qual-comando-gerou-o-processo-e-onde-é-o-seu-working-dir">Qual comando gerou o processo e onde é o seu working dir?&lt;/h3>
+&lt;p>Essa pergunta talvez não seja tão difícil de responder se você tem o &lt;code>htop&lt;/code> instalado. Mas supondo que você não lembra as informações sobre o comando que gerou o processo execute o comando abaixo&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ tr '\0' '\t' &amp;lt; /proc/PID_CLIENT_MLOPS/cmdline
+&lt;/code>&lt;/pre>
+&lt;p>o output será&lt;/p>
+&lt;pre>&lt;code>python client_mlops.py --sleep 1000
+&lt;/code>&lt;/pre>
+&lt;p>Para descobrir o diretório do &lt;code>client_mlops.py&lt;/code> basta executar&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ readlink /proc/PID_CLIENT_MLOPS/cwd
+&lt;/code>&lt;/pre>
+&lt;h2 id="agradecimentos--sugestões">Agradecimentos &amp;amp; Sugestões&lt;/h2>
+&lt;blockquote>
+&lt;p>Achou um erro? Tem alguma sugestão ou dica? mande um email para
+&lt;a href="mailto:devmessias@gmail.com">devmessias@gmail.com&lt;/a>.&lt;/p>
+&lt;/blockquote>
+&lt;ul>
+&lt;li>Obrigado
+&lt;a href="https://www.linkedin.com/in/elisarma" target="_blank" rel="noopener">Elisa Ribeiro&lt;/a> por ter corrigido os typos da primeira versão do post.&lt;/li>
+&lt;li>
+&lt;a href="https://www.linkedin.com/in/reynaldoallanf" target="_blank" rel="noopener">Reynaldo Allan Fulin&lt;/a> pelas discussões sempre úteis sobre linux.&lt;/li>
+&lt;/ul></description></item></channel></rss>

@@ -8,7 +8,12 @@ window.MathJax = {
     inlineMath: [['$', '$'], ['\\(', '\\)']],
     displayMath: [['$$', '$$'], ['\\[', '\\]']],
     processEscapes: true,
-    packages: {'[+]': ['noerrors']}
+    ignoreHtmlClass: 'ignoreTex',    //  class that marks tags not to search
+    packages: {'[+]': ['noerrors']},
+    skipHtmlTags: [            //  HTML tags that won't be searched for math
+        'script', 'noscript', 'style', 'textarea', 'pre',
+        'code', 'annotation', 'annotation-xml', 'g',
+    ],
   },
   loader: {
     load: ['[tex]/noerrors']
