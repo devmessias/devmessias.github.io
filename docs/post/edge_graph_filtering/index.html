@@ -115,15 +115,13 @@
 <div class="container-fluid docs">
 <div class="row flex-xl-nowrap">
 <div class="col-12 col-md-10 offset-md-2">
-<div class=bg-overlay-img style=--bg-url:url(/post/edge_graph_filtering/disparity_my_huc67bfb20b4435773fc9246936fab13d5_385908_0x200_resize_lanczos_3.png)>
+<div class=bg-overlay-img style=--bg-url:url(/images/nsbm_my_hu89297f8c1e21eaee320ab5441af174cf_1288119_0x200_resize_lanczos_3.png)>
 <h1 class=text-left>Grafos e filtragem de arestas: conceitos e confusões. Parte I</h1>
 <p class="page-subtitle text-left">Quais propriedades devemos analisar ao remover as arestas de um grafo? Quais métodos são mais adequados para cada caso?</p>
 <div class=article-metadata>
 <span class=article-date>
 Feb 15, 2022
 </span>
-<span class=middot-divider></span>
-<a href=/post/edge_graph_filtering/#disqus_thread></a>
 <span class=middot-divider></span>
 <span class=article-categories>
 <i class="fas fa-folder mr-1"></i><a href=/category/data-analysis/>Data analysis</a></span>
@@ -138,38 +136,36 @@ Feb 15, 2022
 </ul>
 <nav id=TableOfContents>
 <ul>
-<li>
-<ul>
 <li><a href=#introdução>Introdução</a></li>
 <li><a href=#o-que-é-um-grafo>O que é um grafo?</a></li>
-<li><a href=#o-que-é-filtragem>O que é filtragem?</a>
-<ul>
-<li><a href=#filtragem-para-remover-ruídos>Filtragem para remover ruídos</a></li>
-<li><a href=#gestalt>Filtragem para ressaltar características e Gestalt </a></li>
-<li><a href=#filtragem-para-reduzir-o-custo-computacional>Filtragem para reduzir o custo computacional</a></li>
-</ul>
-</li>
+<li><a href=#o-que-é-filtragem>O que é filtragem?</a></li>
 <li><a href=#confusões-sobre-o-que-é-filtragem-em-grafos>Confusões sobre o que é filtragem em grafos</a></li>
 <li><a href=#algumas-propriedades-de-grafos>Algumas propriedades de grafos</a>
 <ul>
 <li><a href=#componentes>Componentes</a></li>
-<li><a href=#comunidades>Comunidades</a></li>
+<li><a href=#comunidades>Comunidades</a>
+<ul>
+<li><a href=#caminho-1-inferir>Caminho 1: <strong>Inferir</strong></a></li>
+<li><a href=#caminho-2-quantificardescrever>Caminho 2: <strong>Quantificar/Descrever</strong></a></li>
+<li><a href=#caminho-3-visualizar>Caminho 3: <strong>Visualizar</strong></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a href=#filtros>Filtros</a>
 <ul>
-<li><a href=#estrutural-threshold>Estrutural: threshold</a></li>
-<li><a href=#estatistico>Estatístico: quebrando a varinha, processo de Dirichlet</a></li>
-</ul>
-</li>
-<li><a href=#extras>Extras:</a>
+<li><a href=#estrutural-threshold>Estrutural: threshold</a>
 <ul>
-<li><a href=#matrizes-e--espectro>Matrizes e espectro</a></li>
-<li><a href=#filtro-espectral-amostragem>Filtro Espectral (amostragem)</a></li>
-<li><a href=#heading></a></li>
+<li><a href=#pontos-positivos>Pontos positivos</a></li>
+<li><a href=#pontos-negativos>Pontos negativos</a></li>
 </ul>
 </li>
-<li><a href=#conclusão>Conclusão</a></li>
+<li><a href=#estatistico>Estatístico: quebrando a varinha, processo de Dirichlet</a>
+<ul>
+<li><a href=#pontos-positivos-1>Pontos positivos</a></li>
+<li><a href=#pontos-negativos-1>Pontos negativos</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -179,7 +175,7 @@ Feb 15, 2022
 <article class=article>
 <div class=article-container>
 <div class=article-style>
-<h2 id=introdução>Introdução</h2>
+<h1 id=introdução>Introdução</h1>
 <div class="alert alert-note">
 <div>
 Esse post é bem informal e foi feito para o grupo de estudos de MlOps. O conteúdo pode mudar significativamente com o passar do tempo.
@@ -195,48 +191,46 @@ Grafos, redes e redes complexas são praticamente o mesmo conceito. Portanto, vo
 <p>Os exemplos desse post usam python e as seguintes bibliotecas:</p>
 <pre><code class=language-bash>$ python3 -m pip install numpy matplotlib networkx
 </code></pre>
-<details class="toc-inpage d-print-none d-sm-block d-md-none" open>
+<details class="toc-inpage d-print-none d-none d-sm-block d-md-none" open>
 <summary class=font-weight-bold>Table of Contents</summary>
 <nav id=TableOfContents>
 <ul>
-<li>
-<ul>
 <li><a href=#introdução>Introdução</a></li>
 <li><a href=#o-que-é-um-grafo>O que é um grafo?</a></li>
-<li><a href=#o-que-é-filtragem>O que é filtragem?</a>
-<ul>
-<li><a href=#filtragem-para-remover-ruídos>Filtragem para remover ruídos</a></li>
-<li><a href=#gestalt>Filtragem para ressaltar características e Gestalt </a></li>
-<li><a href=#filtragem-para-reduzir-o-custo-computacional>Filtragem para reduzir o custo computacional</a></li>
-</ul>
-</li>
+<li><a href=#o-que-é-filtragem>O que é filtragem?</a></li>
 <li><a href=#confusões-sobre-o-que-é-filtragem-em-grafos>Confusões sobre o que é filtragem em grafos</a></li>
 <li><a href=#algumas-propriedades-de-grafos>Algumas propriedades de grafos</a>
 <ul>
 <li><a href=#componentes>Componentes</a></li>
-<li><a href=#comunidades>Comunidades</a></li>
+<li><a href=#comunidades>Comunidades</a>
+<ul>
+<li><a href=#caminho-1-inferir>Caminho 1: <strong>Inferir</strong></a></li>
+<li><a href=#caminho-2-quantificardescrever>Caminho 2: <strong>Quantificar/Descrever</strong></a></li>
+<li><a href=#caminho-3-visualizar>Caminho 3: <strong>Visualizar</strong></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a href=#filtros>Filtros</a>
 <ul>
-<li><a href=#estrutural-threshold>Estrutural: threshold</a></li>
-<li><a href=#estatistico>Estatístico: quebrando a varinha, processo de Dirichlet</a></li>
-</ul>
-</li>
-<li><a href=#extras>Extras:</a>
+<li><a href=#estrutural-threshold>Estrutural: threshold</a>
 <ul>
-<li><a href=#matrizes-e--espectro>Matrizes e espectro</a></li>
-<li><a href=#filtro-espectral-amostragem>Filtro Espectral (amostragem)</a></li>
-<li><a href=#heading></a></li>
+<li><a href=#pontos-positivos>Pontos positivos</a></li>
+<li><a href=#pontos-negativos>Pontos negativos</a></li>
 </ul>
 </li>
-<li><a href=#conclusão>Conclusão</a></li>
+<li><a href=#estatistico>Estatístico: quebrando a varinha, processo de Dirichlet</a>
+<ul>
+<li><a href=#pontos-positivos-1>Pontos positivos</a></li>
+<li><a href=#pontos-negativos-1>Pontos negativos</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
 </nav>
 </details>
-<h2 id=o-que-é-um-grafo>O que é um grafo?</h2>
+<h1 id=o-que-é-um-grafo>O que é um grafo?</h1>
 <p>Um grafo é uma estrutura de dados que você constantemente está em contato. Alguns exemplos: sua rede de seguidores e seguidores no twitter, as transações financeiras associadas a sua chave PIX, as relações de repositório e contribuições no github, etc.</p>
 <p>Um grafo armazena objetos que têm relações pares a pares entre si. Sendo que é possível associar a cada objeto ou relação um outro tipo de dado genérico tais como um número real, um vetor, uma imagem ou mesmo outro grafo.</p>
 <p>A imagem abaixo representa um grafo dirigido formado por 4 vértices.</p>
@@ -256,14 +250,15 @@ graph TD;
   C[C R$0]-->|R$0,50|A;
 </pre>
 <p>Tais grafos de transações financeiras são usados, por exemplo, para detectar crimes de lavagem de dinheiro, formação de quadrilhas e fraudes quando o comportamento de um dado cliente é anómalo. Os valores nas arestas são os <strong>pesos</strong> do grafo.</p>
-<h2 id=o-que-é-filtragem>O que é filtragem?</h2>
+<h1 id=o-que-é-filtragem>O que é filtragem?</h1>
 <p><strong>Filtro tem origem na palavra feltro. O feltro era o material feito principalmente de lã usado antigamente para separar um líquido de suas impurezas.</strong> Um filtro em análise de dados é a mesma coisa: uma ferramenta que separa um conjunto de dados de uma sujeira, ruído. Portanto, assim como para filtrar uma bebida temos que decidir antes algumas coisas:</p>
 <ul>
 <li>O que queremos que seja removido?</li>
 <li>O quão eficiente é nosso filtro?</li>
 <li>Qual é o resultado esperado?</li>
 </ul>
-<h3 id=filtragem-para-remover-ruídos>Filtragem para remover ruídos</h3>
+<h2 href=ruidos>
+Filtragem para remover ruídos</h2>
 <p>Talvez a primeira coisa que vem à sua cabeça quando ouve a palavra filtro é Instagram. Alguns filtros de fotos feitos para embelezar nada mais são que um filtro para remoção de ruídos.</p>
 <figure id=figure-imagem-original-e-imagem-com-contaminação-de-um-ruído>
 <a data-fancybox href=/post/edge_graph_filtering/photo_noisy_hu82d76e04dbaf989091cb8bf76c11c929_737197_0x200_resize_lanczos_3.png data-caption="Imagem original e imagem com contaminação de um ruído.">
@@ -274,7 +269,9 @@ Imagem original e imagem com contaminação de um ruído.
 </figcaption>
 </figure>
 <p>O que consideramos ruído depende das respostas das perguntas que levantei anteriormente. Um ruído em uma imagem pode ser uma contribuição espúria devido ao sensor de uma câmera ser ruim. Um ruído pode ser também algo intrínseco, por exemplo os poros e rugas na sua pele.</p>
-<h3 id=gestalt>Filtragem para ressaltar características e Gestalt </h3>
+<h2 href=gestalt>
+Filtragem para ressaltar características e Gestalt
+</h2>
 <p>Os princípios de <em>Gestalt</em> são suposições de certas leis sobre como a mente humana processa imagens através do reconhecimento de padrões. Em resumo, tal princípio estabelece que a percepção não é baseada em elementos individuais, mas em padrões em que os elementos são arranjados ou têm contrastes entre si. <strong>Você não compreende uma imagem analisando cada pixel individualmente, mas como os pixels se organizam e diferem entre si!</strong></p>
 <figure id=figure-os-principios-da-gestalt-são-apresentados-nessa-figura-->
 <a data-fancybox href=/post/edge_graph_filtering/gestalt_principles_hu63f5cabf0d008b5b0b2fbf74c03a67fd_175876_0x400_resize_q90_lanczos.jpg data-caption="Os principios da <em>Gestalt</em> são apresentados nessa figura.  [].">
@@ -295,7 +292,8 @@ Os princípios da <em>Gestalt</em> são usados para desenvolver métodos de proc
 </figure>
 <p>Na imagem acima é mostrado o resultado de um método baseado na <em>Gestalt</em> para simplificar uma imagem. Em que um algoritmo extrair um padrão de linhas de uma imagem. Em redes complexas temos o conceito de <em>backbones</em> que são uma espécie de espinha dorsal, esqueleto, que representa as relações mais importantes entres os vértices (ficará mais claro na seção sobre
 <a href=#estatistico>backbones</a> . Nesse ponto não necessariamente estamos removendo relações assumindo que elas são um ruído da nossa medida, mas apenas queremos ressaltar esse backbone.</p>
-<h3 id=filtragem-para-reduzir-o-custo-computacional>Filtragem para reduzir o custo computacional</h3>
+<h2 href=comutacional>
+Filtragem para reduzir o custo computacional</h2>
 <p>Embora a filtragem possa ser usada para remover uma contaminação em um dado e/ou facilitar termos <em>insights</em> Conseguimos também reduzir o custo computacional de algoritmos que atuam nesses dados. Um exemplo simples é mostrado no código abaixo:</p>
 <pre><code class=language-python>import numpy as np
 import io
@@ -322,7 +320,7 @@ Original 0.2 MB
 </code></pre>
 <p>O output indica que <strong>o resultado de contaminação por ruído aumenta o custo de armazenamento de um mesmo padrão de dados.</strong></p>
 <p>Em grafos, filtrar para reduzir custo computacional costuma ser essencial. Por exemplo, muitos algoritmos escalam com o número de arestas. Portanto, um grafo em que cada par de vértices tem uma aresta teria custo computacional $O(número\ \ de\ \ vértices^2)$ <strong>o que é impraticável para apenas algumas dezenas de milhares de vértices. Portanto, tornando a análise de dados impossível.</strong></p>
-<h2 id=confusões-sobre-o-que-é-filtragem-em-grafos>Confusões sobre o que é filtragem em grafos</h2>
+<h1 id=confusões-sobre-o-que-é-filtragem-em-grafos>Confusões sobre o que é filtragem em grafos</h1>
 <p>Antes de entrar mais a fundo na filtragem de grafos é melhor você ler com calma a seguinte desambiguação para você não ficar perdido na literatura.</p>
 <div class="alert alert-warning">
 <div>
@@ -368,8 +366,8 @@ $$</p>
 </ul>
 </div>
 </div>
-<h2 id=algumas-propriedades-de-grafos>Algumas propriedades de grafos</h2>
-<h3 id=componentes>Componentes</h3>
+<h1 id=algumas-propriedades-de-grafos>Algumas propriedades de grafos</h1>
+<h2 id=componentes>Componentes</h2>
 <p>Uma propriedade importante de um grafo é o número de componentes. Um grafo é fortemente conectado quando é possível sair de qualquer vértice e chegar em qualquer outro. <strong>Um grafo fortemente conectado tem apenas uma componente</strong>.</p>
 <p>Por exemplo, abaixo é apresentado um grafo fortemente conectado</p>
 <pre><code class=language-mermaid>graph LR;
@@ -393,7 +391,7 @@ $$</p>
 <p>Imagina se ao realizar uma filtragem você remova uma aresta que impede a contaminação por um vírus entre duas cidades no seu modelo?</p>
 </div>
 </div>
-<h3 id=comunidades>Comunidades</h3>
+<h2 id=comunidades>Comunidades</h2>
 <p>Dentro de cada componente de um grafo temos o conceito de comunidade. Intuitivamente, quando pensamos em comunidade no âmbito das relações pessoais imaginamos um grupo de pessoas que tem fortes relações entre si, muito mais fortes que as relações com outras pessoas fora do grupo. Por exemplo, família, colegas de trabalho etc. Nesse contexto, qual é a tarefa de detecção de comunidades? Como efetuar tal tarefa?</p>
 <div class="alert alert-note">
 <div>
@@ -406,7 +404,7 @@ Em certos casos queremos que a filtragem não altere a identificação das estru
 Não existe uma única definição formal para comunidade. Esse conceito muda dependendo da abordagem que você escolheu para encontrar as comunidades dentro de cada componente.
 </div>
 </div>
-<h5 id=caminho-1-inferir><strong>Caminho 1: Inferir</strong></h5>
+<h3 id=caminho-1-inferir>Caminho 1: <strong>Inferir</strong></h3>
 <ul>
 <li>Pegue por exemplo a distribuição normal. Quando trabalhamos com dados que acreditamos que podem ser modelados por tal distribuição realizamos um processo de ajuste de parâmetros, tentando estimar a média e o desvio padrão da população. A ideia aqui é similar. Propõe-se um modelo capaz de gerar grafos tendo como restrições um conjunto de parâmetros.. O objetivo é otimizar tais parâmetros tal que o modelo generativo seja um bom candidato para <em>gerador</em> do grafo original.</li>
 </ul>
@@ -450,7 +448,7 @@ A matriz de adjacência (todos os pesos são 1) do grafo gerado por nosso modelo
 </ol>
 <p>O SBM é poderoso e ao contrário dos outros métodos te fornece uma maneira de checar a qualidade das comunidades encontradas. Isto é, se fazem sentido ou só são frutos de algo aleatório. Contudo, por ser uma técnica mais recente com uma implementação difícil, não são todas as bibliotecas que fornecem esse recurso. A biblioteca mais famosa para SBM é o
 <a href=https://graph-tool.skewed.de/ target=_blank rel=noopener>Graph Tool</a> que consegue estimar comunidades para grafos com centenas de milhares de vértices. Não poderei discorrer mais ou mostrar como usar o SBM pois é um tema bem complexo, tema para um post separado. Mas o importante agora é você ter conseguido absorver pelo menos a ideia.</p>
-<h5 id=caminho-2-quantificardescrever><strong>Caminho 2: Quantificar</strong>/Descrever</h5>
+<h3 id=caminho-2-quantificardescrever>Caminho 2: <strong>Quantificar/Descrever</strong></h3>
 <ul>
 <li>Você parte de uma função $f$ qualquer. Exemplo, $f$ é uma função que identifica todo mundo como esquerda ou direita, um sorteio aleatório, etc.</li>
 <li>Com tal identificação você estipula uma grandeza que vai mensurar o quão forte é a coesão entre as pessoas de cada grupo e quão fraca é entre os grupos. Um exemplo de grandeza que mensura isso é a <strong>modularidade</strong>.</li>
@@ -509,7 +507,7 @@ Resultado da identificação de comunidades usando o algoritmo guloso para o mod
 Métodos de detecção de comunidade usando modularidade (Gelphi) são úteis. Contudo, podemos identificar comunidades mesmo no caso de um grafo totalmente aleatório! Tome cuidado.
 </div>
 </div>
-<h5 id=caminho-3-visualizar><strong>Caminho 3: Visualizar</strong></h5>
+<h3 id=caminho-3-visualizar>Caminho 3: <strong>Visualizar</strong></h3>
 <ul>
 <li>Você utiliza um método que mapeia cada vértice do seu grafo em um espaço vetorial. Por exemplo <strong>t-sne</strong>, <strong>UMAP</strong>, <strong>force-directed</strong>, <strong>spectral embedding</strong> etc. Com sua visualização você realiza uma inspeção (totalmente subjetiva!) para identificar as comunidades (agrupamentos). Em alguns casos é aceitável realizar um k-means nesse espaço para encontrar os <em>clusters</em>.</li>
 </ul>
@@ -550,8 +548,8 @@ Tome cuidado ao interpretar um grafo usando apenas métodos de visualização co
 </div>
 <hr>
 <p>O tema de comunidades merece alguns posts separados para cada caminho, pois é um assunto denso e com muitos métodos diferentes.</p>
-<h2 id=filtros>Filtros</h2>
-<h3 id=estrutural-threshold>Estrutural: threshold</h3>
+<h1 id=filtros>Filtros</h1>
+<h2 id=estrutural-threshold>Estrutural: threshold</h2>
 <p>O método de threshold é um método estrutural, isto é, um método de filtragem que depende apenas dos pesos e das arestas. Com certeza, é o método mais simples e mais rápido, embora o mais controverso. É aplicável somente se cada relação (aresta) possuir um número real associado. O método de threshold consiste em descartar qualquer aresta cuja o peso ultrapasse um dado valor.</p>
 <p>O método de threshold é muito utilizado em neurociência (com críticas) e para análise de dados em geral quando as arestas representam uma medida de correlação (Pearson) entre dois elementos. Como as medidas de correlações podem ser negativas é comum que o threshold seja aplicado no absoluto dos valores associados às arestas.</p>
 <p>Tome o seguinte grafo como exemplo:</p>
@@ -627,7 +625,7 @@ f---|...|?_2;
 e---|...|?_3;
 </div>
 <p>Produzindo 3 componentes no nosso grafo se alterássemos ligeiramente o threshold produziremos mais componentes ainda. Ele é muito sensível. Qual o problema disso? Se fossemos aplicar um algoritmo de detecção de comunidades teríamos que fazer isso para cada componente. Em uma rede social isso pode ser problemático porque já estaremos analisando “bolhas” isoladas. Então como proceder? Portanto, vocẽ pode até usar o threshold para encontrar as arestas que são a <strong>sustentação</strong> para o grafo. <em>A espinha dorsal do grafo, backbone</em>. Contudo, ele costuma falhar.</p>
-<h4 id=pontos-positivos>Pontos positivos</h4>
+<h3 id=pontos-positivos>Pontos positivos</h3>
 <ul>
 <li>custo computacional baixo $O(n)$
 <ul>
@@ -638,7 +636,7 @@ e---|...|?_3;
 <li>trivial de implementar</li>
 <li>apenas um parâmetro</li>
 </ul>
-<h4 id=pontos-negativos>Pontos negativos</h4>
+<h3 id=pontos-negativos>Pontos negativos</h3>
 <ul>
 <li>tendência de produzir muitas componentes desconectadas,</li>
 <li>parâmetro arbitrário,
@@ -648,9 +646,9 @@ e---|...|?_3;
 </li>
 <li>A remoção de uma aresta só depende do valor atribuído a ela. Isto é, local.</li>
 </ul>
-<h5 id=considerações-finais>Considerações finais</h5>
+<h4 id=considerações-finais>Considerações finais</h4>
 <p>Outros métodos estruturais como o <em>high-salience network</em> tentam reduzir os problemas do threshold adicionando contribuições não locais. Isto é, uma aresta é mantida/removida dependendo também das outras arestas no grafo. Contudo, como o <em>high-salience network</em> É um filtro definido pelos menores caminhos no grafo ele costuma ser adequado apenas para grafos que esse conceito de filtragem é útil, por exemplo grafos que modelam infraestrutura de transporte.</p>
-<h3 id=estatistico>Estatístico: quebrando a varinha, processo de Dirichlet</h3>
+<h2 id=estatistico>Estatístico: quebrando a varinha, processo de Dirichlet</h2>
 <p>Métodos estatísticos têm uma abordagem mais generalista quando comparados aos estruturais. Pois métodos estatísticos não dependem de algum conceito direto como caminhos mínimos usados pelo <em>high-salience network</em> para redes de infraestrutura.</p>
 <p>Um método estatístico muito usado para filtrar arestas faz uso do
 <a href=https://en.wikipedia.org/wiki/Dirichlet_process target=_blank rel=noopener>processo estocástico de Dirichlet</a>. Intuitivamente, podemos usar esse processo para modelar uma situação que temos uma varinha e vamos quebrando ela em $k$ pedaços e queremos descobrir a probabilidade de um pedaço de tamanho $p$ aparecer no processo, <em>
@@ -740,13 +738,13 @@ A---D;
 D---C;
 </code></pre>
 <p>Então $(1-p_{BA})^{k_b-1} = (1-1/2)^1 = 1/2$. Ok , então se escolhermos $\alpha$ igual 0.52 a tabela anterior (para <strong>A</strong>) diz para remover a aresta (A,B) enquanto por <strong>B</strong> o método nos diz que é para manter. Isso causa uma ambiguidade em como decidir se vamos manter ou não as arestas. Você pode escolher manter se os dois concordam ou manter se apenas um passar no teste. <strong>Essa ambiguidade não aparece no caso de grafos direcionados!</strong></p>
-<h4 id=pontos-positivos-1>Pontos positivos</h4>
+<h3 id=pontos-positivos-1>Pontos positivos</h3>
 <ul>
 <li>é estabelecido dentro de uma formalização matemática robusta</li>
 <li>tenta evitar que o grafo se desconecte</li>
 <li>custo computacional baixo</li>
 </ul>
-<h4 id=pontos-negativos-1>Pontos negativos</h4>
+<h3 id=pontos-negativos-1>Pontos negativos</h3>
 <ul>
 <li>
 <p>podemos argumentar que o teste de hipótese é arbitrário</p>
@@ -755,66 +753,6 @@ D---C;
 <p>parâmetro $\alpha$ precisa ser escolhido, embora mais robusto do que apenas o parâmetro de threshold</p>
 </li>
 </ul>
-<h2 id=extras>Extras:</h2>
-<p>O próximo exemplo é sobre</p>
-<h3 id=matrizes-e--espectro>Matrizes e espectro</h3>
-<p>Pegue o seguinte grafo</p>
-<pre><code class=language-mermaid>graph LR;
-  A---|1|B;
-  B---|1/2|C;
-  C---|2|A;
-</code></pre>
-<p>Podemos associar com esse grafo uma matriz $3\times 3$ onde as entradas da matriz representam os valores associados às arestas. Essa matriz é conhecida como matriz de pesos,</p>
-<p>$$
-W=\begin{pmatrix}
-- & A & B & C\\
-A & 0 & 1 & 2\\
-B & 1 & 0 & 1/2\\
-C & 2 & 1/2 & 0
-\end{pmatrix}
-$$</p>
-<p>$$
-v=\begin{pmatrix}
-x\\
-y\\
-z
-\end{pmatrix}
-$$</p>
-<pre><code class=language-mermaid>graph LR;
-  A[y+2z]---|1|B;
-  B[x+1/2z]---|0.5|C;
-  C[2x+0.5y]---|2|A;
-</code></pre>
-<div class="alert alert-note">
-<div>
-A matriz pesos de um grafo pode ser pensada como uma generalização para combinar valores numéricos.
-</div>
-</div>
-<p>
-<a href=/post/random_matrix_portfolio>Variações do teorema do limite central para matrizes aleatórias</a></p>
-<h3 id=filtro-espectral-amostragem>Filtro Espectral (amostragem)</h3>
-<p>$(1-\epsilon)v^TLv \le v^TLv \le (1+\epsilon)v^T Lv$</p>
-<h4 id=pontos-positivos-2>Pontos positivos</h4>
-<ul>
-<li>é estabelecido dentro de uma formalização matemática robusta</li>
-<li>dada as restrições garante preservar as propriedades estabelecidas</li>
-<li>muito utilizado para processamento de sinais em grafos</li>
-</ul>
-<h4 id=pontos-negativos-2>Pontos negativos</h4>
-<ul>
-<li>custo computacional geralmente elevado
-<ul>
-<li>alguns métodos espectrais tem custo $O(n^2)$ para cada iteração</li>
-</ul>
-</li>
-<li>muitas maneiras distintas de fazer para cada tipo de grafo e objetivo.
-<ul>
-<li>Se o grafo for direcionado ou não, se é livre de escala ou não, se tem um certo padrão específico de conexões, etc.</li>
-</ul>
-</li>
-</ul>
-<h3 id=heading></h3>
-<h2 id=conclusão>Conclusão</h2>
 </div>
 <div class=article-tags>
 <a class="badge badge-light" href=/tag/graphs/>graphs</a>
@@ -890,20 +828,14 @@ A matriz pesos de um grafo pode ser pensada como uma generalização para combin
 </ul>
 </div>
 </div>
-<section id=comments>
-<div id=disqus_thread></div>
-<script>let disqus_config=function(){};(function(){if(["localhost","127.0.0.1"].indexOf(window.location.hostname)!=-1){document.getElementById('disqus_thread').innerHTML='Disqus comments not available by default when the website is previewed locally.';return}var b=document,a=b.createElement('script');a.async=!0,a.src='https://devmessias.disqus.com/embed.js',a.setAttribute('data-timestamp',+new Date),(b.head||b.body).appendChild(a)})()</script>
-<noscript>Please enable JavaScript to view the <a href=https://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript>
-<a href=https://disqus.com class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a>
-</section>
 <div class="article-widget content-widget-hr">
 <h3>Related</h3>
 <ul>
 <li><a href=/post/random_matrix_portfolio/>Variações do teorema central do limite para matrizes aleatórias.</a></li>
 <li><a href=/project/helios/>Helios: graph layout viz and streaming</a></li>
 <li><a href=/project/emate/>eMaTe</a></li>
+<li><a href=/post/python_decorator_that_exposes_locals/>An introspective python decorator using stack frames and the inspect module</a></li>
 <li><a href=/post/using_lsof_and_strace_to_investigate_process_and_failures/>Dissecting processes and failures in Linux with lsof and strace: cases for MlOps and DevOps</a></li>
-<li><a href=/post/2021-23-08-gsoc-devmessias-final-report/2021-23-08-gsoc-devmessias-final-report/>GSoC- Google Summer of Code 2021 Final Work Product</a></li>
 </ul>
 </div>
 </div>
@@ -935,7 +867,6 @@ A matriz pesos de um grafo pode ser pensada como uma generalização para combin
     </script>
 <script src=https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.2.1/fuse.min.js integrity="sha256-VzgmKYmhsGNNN4Ph1kMW+BjoYJM2jV5i4IlFoeZA9XI=" crossorigin=anonymous></script>
 <script src=https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin=anonymous></script>
-<script id=dsq-count-scr src=https://devmessias.disqus.com/count.js async></script>
 <script src=/js/academic.min.4aaf2d64e50f8e54cf66dcc54147a22e.js></script>
 <div class=page-footer>
 <div class=container>

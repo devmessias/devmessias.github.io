@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>system calls | Bruno Messias</title><link>/pt-br/tag/system-calls/</link><atom:link href="/pt-br/tag/system-calls/index.xml" rel="self" type="application/rss+xml"/><description>system calls</description><generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>pt-br</language><copyright>Bruno Messias</copyright><lastBuildDate>Fri, 04 Feb 2022 08:31:00 -0300</lastBuildDate><image><url>/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_3.png</url><title>system calls</title><link>/pt-br/tag/system-calls/</link></image><item><title>Dissecando processos e erros no Linux com o lsof e strace: casos para DevOps/MlOps</title><link>/pt-br/post/investigando_processos_e_bugs_strace_lsof_no_linux/</link><pubDate>Fri, 04 Feb 2022 08:31:00 -0300</pubDate><guid>/pt-br/post/investigando_processos_e_bugs_strace_lsof_no_linux/</guid><description>&lt;details
-class="toc-inpage d-print-none d-sm-block d-md-none " open>
+class="toc-inpage d-print-none d-none d-sm-block d-md-none " open>
 &lt;summary class="font-weight-bold">Lista de Conteúdos&lt;/summary>
 &lt;nav id="TableOfContents">
 &lt;ul>

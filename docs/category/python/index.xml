@@ -1,0 +1,592 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Python | Bruno Messias</title><link>/category/python/</link><atom:link href="/category/python/index.xml" rel="self" type="application/rss+xml"/><description>Python</description><generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>en</language><copyright>Bruno Messias</copyright><lastBuildDate>Mon, 04 Apr 2022 00:00:00 +0000</lastBuildDate><image><url>/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_3.png</url><title>Python</title><link>/category/python/</link></image><item><title>An introspective python decorator using stack frames and the inspect module</title><link>/post/python_decorator_that_exposes_locals/</link><pubDate>Mon, 04 Apr 2022 00:00:00 +0000</pubDate><guid>/post/python_decorator_that_exposes_locals/</guid><description>&lt;details
+class="toc-inpage d-print-none d-none d-sm-block d-md-none " open>
+&lt;summary class="font-weight-bold">Table of Contents&lt;/summary>
+&lt;nav id="TableOfContents">
+&lt;ul>
+&lt;li>
+&lt;ul>
+&lt;li>&lt;a href="#gaining-a-deeper-understanding-about-the-execution-context-of-a-function">Gaining a deeper understanding about the execution context of a function&lt;/a>
+&lt;ul>
+&lt;li>&lt;a href="#the-fluent-python-book-example">The Fluent Python Book example&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#current-issues-and-limitations">Current issues and limitations&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;a href="#creating-an-introspective-code-with-the-inspect-module">Creating an introspective code with the inspect module&lt;/a>
+&lt;ul>
+&lt;li>&lt;a href="#a-decorator-that-validates-arguments-using-mathematical-notation">A decorator that validates arguments using mathematical notation&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#going-back-to-the-fluent-python-example">Going back to the Fluent python example&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;a href="#how-to-expose-the-locals-inside-of-a-decorator">How to expose the locals() inside of a decorator?&lt;/a>
+&lt;ul>
+&lt;li>&lt;a href="#call-stack-and-frames-in-python">Call stack and frames in python&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#using-systrace-to-track-our-frames">Using sys.trace to track our frames&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#lets-solve-our-problem">Let&amp;rsquo;s solve our problem&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;a href="#conclusion-and-next-steps">Conclusion and next steps&lt;/a>
+&lt;ul>
+&lt;li>&lt;a href="#it-depends">&amp;ldquo;&amp;hellip;it depends&amp;rdquo;&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#the-next-step-we-dont-need-a-trace-we-can-do-better-using-ast-manipulation">The next step: we don&amp;rsquo;t need a trace! We can do better using AST manipulation&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#simplenamespace-for-dictkey-instead-of-dictkey">SimpleNamespace for dict.key instead of dict[&amp;ldquo;key]&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#want-to-know-more-about-call-stack--inspect-and-trace">Want to know more about call stack , inspect and trace?&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/nav>
+&lt;/details>
+&lt;p>
+&lt;a href="https://www.amazon.com.br/Fluent-Python-Luciano-Ramalho/dp/1491946008" target="_blank" rel="noopener">Fluent Python&lt;/a> is the best resource to learn to use and love python. Some days ago I was reading a section of the chapter 7: &lt;em>&amp;ldquo;Function Decorators and Closures&lt;/em>&amp;rdquo;. This chapter has a lot of interesting and cool examples. Here I&amp;rsquo;ll discuss one of them and how I tried to put more shiny stuff in it.&lt;/p>
+&lt;h2 id="gaining-a-deeper-understanding-about-the-execution-context-of-a-function">Gaining a deeper understanding about the execution context of a function&lt;/h2>
+&lt;h3 id="the-fluent-python-book-example">The Fluent Python Book example&lt;/h3>
+&lt;p>Ramalho’s book presents us with a &lt;code>@clock&lt;/code> decorator that can be used to decorate a method, measure the time it takes to execute, and print in a human-readable format the arguments and name of the method. The example is shown below:&lt;/p>
+&lt;pre>&lt;code class="language-python">import time
+DEFAULT_FMT = '[{elapsed:0.8f}s] {name}({args}) -&amp;gt; {result}'
+def clock(fmt=DEFAULT_FMT):
+def decorate(func):
+def clocked(*_args):
+t0 = time.time()
+_result = func(*_args)
+elapsed = time.time() - t0
+name = func.__name__
+args = ', '.join(repr(arg) for arg in _args)
+result = repr(_result)
+log_string = fmt.format(**locals())
+# send to somewhere
+# csv, ELK, etc
+print(log_string)
+return result
+return clocked
+return decorate
+@clock('[{elapsed:0.8f}s] {name}({args})')
+def snooze(seconds):
+time.sleep(seconds)
+return time.time()
+for _ in range(3):
+snooze(.123)
+&lt;/code>&lt;/pre>
+&lt;pre>&lt;code>[0.12315798s] snooze(0.123)
+[0.12315822s] snooze(0.123)
+[0.12317085s] snooze(0.123)
+&lt;/code>&lt;/pre>
+&lt;p>If you don&amp;rsquo;t understand something in the above code I recommend that you take some time searching and reading about each aspect. There are many cool things being used there, for example:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>repr&lt;/code> which is a function that returns a string representation of an object.
+&lt;ul>
+&lt;li>This is essential because the &lt;code>DEFAULT_FMT&lt;/code> is a string, not a &lt;code>f-string&lt;/code>, we can&amp;rsquo;t just put a generic object to be printed in &lt;code>DEFAULT_FMT&lt;/code>.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;code>log_string = fmt.format(**locals())&lt;/code>: instead of creating a repetitive code like &lt;code>fmt.format(**{&amp;quot;result&amp;quot;:result, &amp;quot;args&amp;quot;:args, ...})&lt;/code> we can just use the &lt;code>locals()&lt;/code> which is a dictionary that contains all the local variables of the current scope.&lt;/li>
+&lt;/ul>
+&lt;p>When I study something I always like to create a fresh problem with the stuff that I&amp;rsquo;ve learned and try to solve it. Sometimes there is no solution. But even if there is no solution, we still learn a lot trying to solve the problem.&lt;/p>
+&lt;p>I&amp;rsquo;ve started by creating the following example:&lt;/p>
+&lt;pre>&lt;code class="language-python">import numpy as np
+@clock('[{elapsed:0.8f}s] {name}({args})')
+def snooze_and_snore(seconds, snore_loud, min_prob_to_snore=0.4):
+time.sleep(seconds)
+to_snore = np.random.uniform() &amp;gt; min_prob_to_snore
+if to_snore:
+if snore_loud:
+pass
+# r.requets(wake_up_everyone)
+pass
+return time.time()
+for _ in range(3):
+snooze_and_snore(.4, True, .1)
+snooze_and_snore(.4, False, .1)
+&lt;/code>&lt;/pre>
+&lt;pre>&lt;code>[0.40229130s] snooze_and_snore(0.4, True, 0.1)
+[0.40049720s] snooze_and_snore(0.4, False, 0.1)
+[0.40058565s] snooze_and_snore(0.4, True, 0.1)
+[0.40013075s] snooze_and_snore(0.4, False, 0.1)
+[0.40052223s] snooze_and_snore(0.4, True, 0.1)
+[0.40057564s] snooze_and_snore(0.4, False, 0.1)
+&lt;/code>&lt;/pre>
+&lt;p>Ok, what are the problems/issues/limitations that the above code showed me?&lt;/p>
+&lt;h3 id="current-issues-and-limitations">Current issues and limitations&lt;/h3>
+&lt;ol>
+&lt;li>We don&amp;rsquo;t have information about the names of the arguments passed to the method.
+&lt;ul>
+&lt;li>If the list of arguments is long, trying to understand what is happening becomes a hard task. Because we are increasing the amount of stuff that we must keep in our mind. We are increasing the &lt;strong>cognitive load&lt;/strong> in the terms presented in the excelsior book:
+&lt;a href="https://linghao.io/notes/a-philosophy-of-software-design" target="_blank" rel="noopener">A Philosophy of Software Design&lt;/a>.&lt;/li>
+&lt;li>A person who is not familiar with the codebase cannot understand what is happening by analyzing the outputs of the decorator. If these outputs are being stored in the ELK stack, this will be unproductive.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>We have the &lt;code>locals()&lt;/code> information from the decorator which is fed by the result of the decorated method. However, we can&amp;rsquo;t get any information about the &lt;code>locals()&lt;/code> of the decorated method. Why is this bad?
+&lt;ul>
+&lt;li>The final internal state of the method is commonly used to understand the execution of a method.&lt;/li>
+&lt;li>Sometimes a method depends on random variables defined in the local context. Thus, the same set of arguments can give different executions. Until now, we don&amp;rsquo;t have a way to get the &lt;code>locals()&lt;/code> of the decorated method. For example, in the &lt;code>snooze_and_snore&lt;/code> we can&amp;rsquo;t know if the person snored or not.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ol>
+&lt;p>We will attack the first issue using the inspect module. As I&amp;rsquo;ll show you, we can do cool things with this module.&lt;/p>
+&lt;div class="alert alert-note">
+&lt;div>
+If you know about &lt;code>sys.trace&lt;/code>, &lt;code>call stack&lt;/code> and &lt;code>inspect.signatures&lt;/code> I recommend
+you go directly to the section &lt;a href="#lets_solve_our_problem">Let&amp;rsquo;s solve our problem&lt;/a>
+&lt;/div>
+&lt;/div>
+&lt;h2 id="creating-an-introspective-code-with-the-inspect-module">Creating an introspective code with the inspect module&lt;/h2>
+&lt;p>The
+&lt;a href="https://docs.python.org/3/library/inspect.html" target="_blank" rel="noopener">inspect&lt;/a> module is a Python standard library that provides several tools to help you to introspect and consequently learn about live objects like functions, modules, classes, instances, frame objects (I&amp;rsquo;ll talk about frames later in this post), etc. Well, what can you do with this? Really, a lot of things. You can use it to automatically create documentation, parse the docstrings, manipulate the AST, etc.&lt;/p>
+&lt;h3 id="a-decorator-that-validates-arguments-using-mathematical-notation">A decorator that validates arguments using mathematical notation&lt;/h3>
+&lt;p>In the last years, we have seen the development of the &lt;code>typing&lt;/code> module and the &lt;code>mypy&lt;/code> static analysis tool for python. This module and tool can be very useful sometimes. However, it is still doesn&amp;rsquo;t provide some features that are essential for proper validation. But at least in my experience creating code for my Ph.D., I usually don&amp;rsquo;t need so much sophisticated type theory and validation to be able to write a good code for a mathematical modeling tool. Most of the mathematical validation that I need is just checking if an argument still satisfies some constraints or lives in a proper subspace. If not, I need to raise an exception or perform some kind of regularization.&lt;/p>
+&lt;p>Let&amp;rsquo;s create a decorator that will validate arguments using simple mathematical notation.&lt;/p>
+&lt;p>We will create a dictionary that will contain the annotation as a key and the value will be a human-readable
+description of the annotation and a method responsible for check if everything is right.&lt;/p>
+&lt;pre>&lt;code class="language-python">import inspect
+MATH_SPACES = {
+&amp;quot;\in R&amp;quot;: {&amp;quot;name&amp;quot; : &amp;quot;real space&amp;quot;, &amp;quot;validator&amp;quot;: lambda x: isinstance(x, (int, float))},
+&amp;quot;\in R_+&amp;quot;: {&amp;quot;name&amp;quot;: &amp;quot;space of real numbers greater than zero&amp;quot;, &amp;quot;validator&amp;quot;: lambda x: isinstance(x, (int, float)) and x &amp;gt; 0},
+}
+&lt;/code>&lt;/pre>
+&lt;p>We will use the &lt;code>inspect.signature&lt;/code> to get the annotations of each argument of the decorated method.
+For example, if the decorated method is &lt;code>def foo(a: '\in R', b)&lt;/code> the &lt;code>inspect.signature(foo)&lt;/code> will return an object which we can use to extract an ordered dictionary with the arguments and the annotations. Like this&lt;/p>
+&lt;pre>&lt;code class="language-python">def foo(a: &amp;quot;\in R&amp;quot;, b, c:int, d= 2):
+pass
+for k, v in inspect.signature(foo).parameters.items():
+print(k, v, type(v._annotation), v.default)
+&lt;/code>&lt;/pre>
+&lt;pre>&lt;code>a a: '\\in R' &amp;lt;class 'str'&amp;gt; &amp;lt;class 'inspect._empty'&amp;gt;
+b b &amp;lt;class 'type'&amp;gt; &amp;lt;class 'inspect._empty'&amp;gt;
+c c: int &amp;lt;class 'type'&amp;gt; &amp;lt;class 'inspect._empty'&amp;gt;
+d d=2 &amp;lt;class 'type'&amp;gt; 2
+&lt;/code>&lt;/pre>
+&lt;p>Let&amp;rsquo;s create our decorator. It should be really simple. Just check if we should verify the argument and if so, check if the value respects the annotated mathematical space.&lt;/p>
+&lt;pre>&lt;code class="language-python">def math_validator():
+def decorate(func):
+def decorated(*_args):
+sig = inspect.signature(func)
+# sig parameters is an ordered dict
+for i, (k, v) in enumerate(sig.parameters.items()):
+annotation = v._annotation
+if not isinstance(annotation, str):
+continue
+if not annotation in MATH_SPACES:
+print(f&amp;quot;{annotation} is not implemented in Math Spaces&amp;quot;)
+continue # skip if we didn't implement this space validation
+if not MATH_SPACES[annotation][&amp;quot;validator&amp;quot;](_args[i]):
+raise ValueError(f&amp;quot;{k} doesn't belong to the {MATH_SPACES[annotation]['name']}&amp;quot;)
+result = func(*_args)
+print(f&amp;quot;{func.__name__}({_args}) -&amp;gt; {result}&amp;quot;)
+return result
+return decorated
+return decorate
+&lt;/code>&lt;/pre>
+&lt;pre>&lt;code class="language-python">@math_validator()
+def simple_method(x: &amp;quot;\in R&amp;quot;, y: &amp;quot;\in R_+&amp;quot;, z: float = 2) -&amp;gt; float:
+&amp;quot;&amp;quot;&amp;quot;Simple method to add two numbers together and
+divide by the last number
+Args:
+x: The first number to add.
+y: The second number to add.
+z: it is a float number that will be the power of the result.
+This will not be checked for math spaces.
+Returns:
+float: result
+&amp;quot;&amp;quot;&amp;quot;
+result = (x+y)/y
+return result**z
+simple_method(1, 2)
+simple_method(1, 0)
+&lt;/code>&lt;/pre>
+&lt;pre>&lt;code>simple_method((1, 2)) -&amp;gt; 1.5
+---&amp;gt; 19 simple_method(1, 0)
+...
+&amp;lt;locals&amp;gt;.decorate.&amp;lt;locals&amp;gt;.decorated(*_args)
+11 continue
+13 if not MATH_SPACES[annotation][&amp;quot;validator&amp;quot;](_args[i]):
+---&amp;gt; 14 raise ValueError(f&amp;quot;{k} doesn't belong to the {MATH_SPACES[annotation]['name']}&amp;quot;)
+15 result = func(*_args)
+16 print(f&amp;quot;{func.__name__}({_args}) -&amp;gt; {result}&amp;quot;)
+ValueError: y doesn't belong to the space of real numbers greater than zero
+&lt;/code>&lt;/pre>
+&lt;p>Our decorator is quite simple but does the job. You can go deeper into this and use a more sophisticated mathematical notation, printing using latex, etc. But now, let&amp;rsquo;s go back to the Python Fluent example because the &lt;code>inspect.signature&lt;/code> already provides us with a way to solve the first limitation!&lt;/p>
+&lt;h3 id="going-back-to-the-fluent-python-example">Going back to the Fluent python example&lt;/h3>
+&lt;p>Let&amp;rsquo;s remember one thing that I&amp;rsquo;ve pointed out:&lt;/p>
+&lt;blockquote>
+&lt;p>A person who is not familiar with the code base will not be able to understand what is happening just by analyzing the outputs of the decorator.&lt;/p>
+&lt;/blockquote>
+&lt;p>It&amp;rsquo;s obvious that we can overcome this issue by using the &lt;code>inspect&lt;/code> module. Let&amp;rsquo;s create a more elaborated example using monkeys and a zookeeper that must record and report the information about how the life of the monkeys are going.&lt;/p>
+&lt;pre>&lt;code class="language-python">NUM_MONKEYS = 20
+def feed_monkeys(n_bananas, n_apples=0):
+monkeys = {
+f&amp;quot;monkey_{i}&amp;quot;: {&amp;quot;bananas&amp;quot;: 0, &amp;quot;apples&amp;quot;: 0}
+for i in range(NUM_MONKEYS)
+}
+while n_bananas &amp;gt; 0 and n_apples &amp;gt; 0:
+if np.random.uniform() &amp;lt; 0.4:
+continue
+monkey = monkey[np.random.choice(list(monkeys.keys()))]
+if n_bananas &amp;gt; 0:
+monkey[&amp;quot;bananas&amp;quot;] += 1
+n_bananas -= 1
+if n_apples &amp;gt; 0:
+monkey[&amp;quot;apples&amp;quot;] += 1
+n_apples -= 1
+if n_apples == 0 and n_bananas == 0:
+break
+&lt;/code>&lt;/pre>
+&lt;p>My solution is the &lt;code>@report&lt;/code> decorator presented below.&lt;/p>
+&lt;pre>&lt;code class="language-python">def report(fmt=DEFAULT_FMT):
+def decorate(func):
+def decorated(*_args):
+sig = inspect.signature(func)
+named_args = {}
+num_args = len(_args)
+for i, (k, v) in enumerate(sig.parameters.items()):
+if i &amp;lt; num_args:
+named_args[k] = repr(_args[i])
+else:
+named_args[k] = repr(v.default)
+t0 = time.time()
+_result = func(*_args)
+elapsed = time.time() - t0
+name = func.__name__
+result = repr(_result)
+args_dict = {
+**locals(),
+**named_args}
+del args_dict['_args']
+print(fmt.format(**args_dict))
+# store the information in some place
+return result
+return decorated
+return decorate
+&lt;/code>&lt;/pre>
+&lt;p>What is important here are the following statements:&lt;/p>
+&lt;pre>&lt;code class="language-python">sig = inspect.signature(func)
+named_args = {}
+num_args = len(_args)
+for i, (k, v) in enumerate(sig.parameters.items()):
+if i &amp;lt; num_args:
+named_args[k] = repr(_args[i])
+else:
+named_args[k] = repr(v.default)
+&lt;/code>&lt;/pre>
+&lt;p>We are iterating over the signature parameters and checking if it have passed the value to &lt;code>func&lt;/code>. If not, we extract the default value from the signature.&lt;/p>
+&lt;p>Using the &lt;code>@report&lt;/code> decorator in the &lt;code>feed_monkeys&lt;/code> we have this output:&lt;/p>
+&lt;pre>&lt;code class="language-python">NUM_MONKEYS = 20
+@report('The zookeeper feeds the monkeys with {n_bananas} bananas and {n_apples} apples. Time to feed: {elapsed:0.4f}s')
+def feed_monkeys(n_bananas, n_apples=0):
+monkeys = {
+f&amp;quot;monkey_{i}&amp;quot;: {&amp;quot;bananas&amp;quot;: 0, &amp;quot;apples&amp;quot;: 0}
+for i in range(NUM_MONKEYS)
+}
+while n_bananas &amp;gt; 0 and n_apples &amp;gt; 0:
+if np.random.uniform() &amp;lt; 0.4:
+continue
+monkey = monkeys[np.random.choice(list(monkeys.keys()))]
+if n_bananas &amp;gt; 0:
+monkey[&amp;quot;bananas&amp;quot;] += 1
+n_bananas -= 1
+if n_apples &amp;gt; 0:
+monkey[&amp;quot;apples&amp;quot;] += 1
+n_apples -= 1
+if n_apples == 0 and n_bananas == 0:
+break
+for _ in range(3):
+feed_monkeys(np.random.randint(10, 100))
+feed_monkeys(np.random.randint(10, 100), 10)
+&lt;/code>&lt;/pre>
+&lt;pre>&lt;code>The zookeeper feeds the monkeys with 69 bananas and 0 apples. Time to feed: 0.0000s
+The zookeeper feeds the monkeys with 92 bananas and 10 apples. Time to feed: 0.0011s
+The zookeeper feeds the monkeys with 58 bananas and 0 apples. Time to feed: 0.0000s
+The zookeeper feeds the monkeys with 53 bananas and 10 apples. Time to feed: 0.0048s
+The zookeeper feeds the monkeys with 42 bananas and 0 apples. Time to feed: 0.0000s
+The zookeeper feeds the monkeys with 51 bananas and 10 apples. Time to feed: 0.0025s
+&lt;/code>&lt;/pre>
+&lt;p>First issue solved! But our decorator is still not useful to the zookeeper and managers. We can’t know how good any monkey is doing or if there is any monkey that eats too much. You could already know that somehow we must have a way to access the monkeys' dictionary inside our &lt;code>def decorated&lt;/code> method. Unfortunately, this is not a trivial task in python because it lacks namespaces decorators. But we also can overcome this with a little trick using a trace tool.&lt;/p>
+&lt;h2 id="how-to-expose-the-locals-inside-of-a-decorator">How to expose the locals() inside of a decorator?&lt;/h2>
+&lt;p>Now we just need to access the local variables of the decorated method. Let&amp;rsquo;s think more deeply about this:&lt;/p>
+&lt;ul>
+&lt;li>After the execution of the decorated method, all the information about the local variables is lost. Fortunately, we don&amp;rsquo;t want irrelevant information occupying our system memory.&lt;/li>
+&lt;li>The decorator will call the decorated method and will receive the return value. Thus, &lt;strong>there is no way to extract the local variables because now there are no more local variables!&lt;/strong>&lt;/li>
+&lt;/ul>
+&lt;p>How to solve it? Well, think first about where the local variables are been stored before being erased.&lt;/p>
+&lt;h3 id="call-stack-and-frames-in-python">Call stack and frames in python&lt;/h3>
+&lt;p>If you came from a non-CS background, maybe you don&amp;rsquo;t know about an important concept called the
+&lt;a href="https://en.wikipedia.org/wiki/Call_stack" target="_blank" rel="noopener">&lt;strong>call stack&lt;/strong>&lt;/a>. A call stack is a data structure that stores information related to living things in our program.&lt;/p>
+&lt;p>If you call a function in python, a new block of information (&lt;strong>frame&lt;/strong>) is pushed to the top of the call stack. After the function returns the value, this block of information is popped off the call stack. This comprehension can give insights into how to do things in python and how to create good or strange behaviors.&lt;/p>
+&lt;p>Well, you can think. If the elements of the call stack are always added on the top if a function (inner) is called by another function (outer) &lt;strong>can I access the values of the local variables from the outer function inside of the inner? Yes, you can!&lt;/strong> Obviously, this is not always a good idea but it&amp;rsquo;s good to understand this concept. Because this approach can be useful to deal with rigid frameworks like Django.&lt;/p>
+&lt;pre>&lt;code class="language-python">%%writefile test_stack.py
+import inspect
+N_BANANAS = 12
+def outer_call(n_bananas):
+var_inside_outer_call = 2
+n_bananas += 1
+inner_call(n_bananas)
+def inner_call(n_bananas):
+var_inside_inner_call = {&amp;quot;monkey&amp;quot;: 0}
+frame_infos = inspect.stack()
+n_frames = len(frame_infos)
+frames_var_values = {
+f.function: [(k, v) for k, v in f.frame.f_locals.items()] for f in frame_infos
+}
+for i, (function, frame_local) in enumerate(frames_var_values.items()):
+print(f'\n\t {function} stack position: {n_frames - i}')
+for var_name, value in frame_local:
+print(f'\t\t Name: {var_name:25s}Type: {type(value)}')
+if var_name in ('n_bananas', 'N_BANANAS', 'var_inside_outer_call'):
+print(f'\t\t\t Value: {value}')
+print(&amp;quot;\n Before outer_call() call&amp;quot;)
+outer_call(N_BANANAS)
+print(&amp;quot;\n After outer_call() call&amp;quot;)
+frames = [
+[(k, v) for k, v in f.frame.f_locals.items()]
+for f in inspect.stack()
+]
+for frame_local in frames:
+for var_name, value in frame_local:
+print(f'\t\t Name: {var_name:25s}Type: {type(value)}')
+&lt;/code>&lt;/pre>
+&lt;pre>&lt;code>Overwriting test_stack.py
+&lt;/code>&lt;/pre>
+&lt;pre>&lt;code class="language-python">!python test_stack.py
+&lt;/code>&lt;/pre>
+&lt;pre>&lt;code> Before outer_call() call
+inner_call stack position: 3
+Name: n_bananas Type: &amp;lt;class 'int'&amp;gt;
+Value: 13
+Name: var_inside_inner_call Type: &amp;lt;class 'dict'&amp;gt;
+Name: frame_infos Type: &amp;lt;class 'list'&amp;gt;
+Name: n_frames Type: &amp;lt;class 'int'&amp;gt;
+outer_call stack position: 2
+Name: n_bananas Type: &amp;lt;class 'int'&amp;gt;
+Value: 13
+Name: var_inside_outer_call Type: &amp;lt;class 'int'&amp;gt;
+Value: 2
+&amp;lt;module&amp;gt; stack position: 1
+Name: __name__ Type: &amp;lt;class 'str'&amp;gt;
+Name: __doc__ Type: &amp;lt;class 'NoneType'&amp;gt;
+Name: __package__ Type: &amp;lt;class 'NoneType'&amp;gt;
+Name: __loader__ Type: &amp;lt;class '_frozen_importlib_external.SourceFileLoader'&amp;gt;
+Name: __spec__ Type: &amp;lt;class 'NoneType'&amp;gt;
+Name: __annotations__ Type: &amp;lt;class 'dict'&amp;gt;
+Name: __builtins__ Type: &amp;lt;class 'module'&amp;gt;
+Name: __file__ Type: &amp;lt;class 'str'&amp;gt;
+Name: __cached__ Type: &amp;lt;class 'NoneType'&amp;gt;
+Name: inspect Type: &amp;lt;class 'module'&amp;gt;
+Name: N_BANANAS Type: &amp;lt;class 'int'&amp;gt;
+Value: 12
+Name: outer_call Type: &amp;lt;class 'function'&amp;gt;
+Name: inner_call Type: &amp;lt;class 'function'&amp;gt;
+After outer_call() call
+Name: __name__ Type: &amp;lt;class 'str'&amp;gt;
+Name: __doc__ Type: &amp;lt;class 'NoneType'&amp;gt;
+Name: __package__ Type: &amp;lt;class 'NoneType'&amp;gt;
+Name: __loader__ Type: &amp;lt;class '_frozen_importlib_external.SourceFileLoader'&amp;gt;
+Name: __spec__ Type: &amp;lt;class 'NoneType'&amp;gt;
+Name: __annotations__ Type: &amp;lt;class 'dict'&amp;gt;
+Name: __builtins__ Type: &amp;lt;class 'module'&amp;gt;
+Name: __file__ Type: &amp;lt;class 'str'&amp;gt;
+Name: __cached__ Type: &amp;lt;class 'NoneType'&amp;gt;
+Name: inspect Type: &amp;lt;class 'module'&amp;gt;
+Name: N_BANANAS Type: &amp;lt;class 'int'&amp;gt;
+Name: outer_call Type: &amp;lt;class 'function'&amp;gt;
+Name: inner_call Type: &amp;lt;class 'function'&amp;gt;
+&lt;/code>&lt;/pre>
+&lt;p>First, draw your attention here&lt;/p>
+&lt;pre>&lt;code>outer_call stack position: 2
+Name: n_bananas Type: &amp;lt;class 'int'&amp;gt;
+Value: 13
+Name: var_inside_outer_call Type: &amp;lt;class 'int'&amp;gt;
+Value: 2
+&lt;/code>&lt;/pre>
+&lt;p>&lt;strong>Even if we don&amp;rsquo;t pass a variable as an argument to the &lt;code>inner_call&lt;/code> function, this variable can be accessed because still lives in the call stack!&lt;/strong> As I’ve told you, after the execution of &lt;code>outer_call&lt;/code> the call stack doesn&amp;rsquo;t have any information about what happened inside our functions. This discussion will help us to understand the limitations of our solution. Because &lt;strong>our solution is just to watch the call stack and keep the frame before being popped off!&lt;/strong>&lt;/p>
+&lt;h3 id="using-systrace-to-track-our-frames">Using sys.trace to track our frames&lt;/h3>
+&lt;p>Some time ago I&amp;rsquo;ve talked about how to dissect a process using &lt;code>lsof&lt;/code> and &lt;code>strace&lt;/code>:
+&lt;a href="https://medium.com/@devmessias/dissecting-process-and-failures-in-linux-with-lsof-and-strace-cases-for-mlops-d7755b2ce6ca" target="_blank" rel="noopener">Dissecting processes and failures in Linux with lsof and strace&lt;/a>. The &lt;code>strace&lt;/code> is a tracing tool that intercepts and records in someplace any system call made by a process. Python has a built-in tool to do this kind of stuff. Thus, let&amp;rsquo;s use it to track our frames.&lt;/p>
+&lt;h3 id="lets-solve-our-problem">Let&amp;rsquo;s solve our problem&lt;/h3>
+&lt;p>We will ask our code to monitor any call made with the decorated function. To do so, we will create a new function that will do this and release the trace after the execution of the decorated function.&lt;/p>
+&lt;pre>&lt;code class="language-python">import sys
+def call_and_extract_frame(func, *args, **kwargs):
+frame_var = None
+trace = sys.gettrace()
+def update_frame_var(stack_frame, event_name, arg_frame):
+&amp;quot;&amp;quot;&amp;quot;
+Args:
+stack_frame: (frame)
+The current stack frame.
+event_name: (str)
+The name of the event that triggered the call.
+Can be 'call', 'line', 'return' and 'exception'.
+arg_frame:
+Depends on the event. Can be a None type
+&amp;quot;&amp;quot;&amp;quot;
+nonlocal frame_var # nonlocal is a keyword which allows us to change the variable in the outer scope
+if event_name != 'call':
+return trace
+frame_var = stack_frame
+sys.settrace(trace)
+return trace
+sys.settrace(update_frame_var)
+try:
+func_result = func(*args, **kwargs)
+finally:
+sys.settrace(trace)
+return frame_var, func_result
+&lt;/code>&lt;/pre>
+&lt;p>Now to use this trick, we just need to call the above function in our &lt;code>@report&lt;/code> decorator. Like this:&lt;/p>
+&lt;pre>&lt;code class="language-python">def report(formater):
+def decorate(func):
+def decorated(*_args):
+sig = inspect.signature(func)
+named_args = {}
+num_args = len(_args)
+for i, (k, v) in enumerate(sig.parameters.items()):
+if i &amp;lt; num_args:
+named_args[k] = repr(_args[i])
+else:
+named_args[k] = repr(v.default)
+### Our modifications
+frame_func, _result = call_and_extract_frame(func, *_args)
+name = func.__name__
+result = repr(_result)
+args_dict = {
+**named_args,
+**locals(),
+**frame_func.f_locals,
+}
+###
+print(formater.format(**args_dict))
+# do other stuff here
+return _result
+return decorated
+return decorate
+&lt;/code>&lt;/pre>
+&lt;p>Let&amp;rsquo;s see the results:&lt;/p>
+&lt;pre>&lt;code class="language-python">@report(' Monkey {gluttonous_monkey} ate too much bananas. Num monkeys {num_monkeys}')
+def feed_monkeys(n_bananas):
+num_monkeys = 3
+monkeys = {
+f&amp;quot;monkey_{i}&amp;quot;: {&amp;quot;bananas&amp;quot;: 0}
+for i in range(num_monkeys)
+}
+while n_bananas &amp;gt; 0:
+if np.random.uniform() &amp;lt; 0.4:
+continue
+monkey = monkeys[np.random.choice(list(monkeys.keys()))]
+if n_bananas &amp;gt; 0:
+monkey[&amp;quot;bananas&amp;quot;] += 1
+n_bananas -= 1
+gluttonous_monkey = max(monkeys, key=lambda k: monkeys[k][&amp;quot;bananas&amp;quot;])
+for _ in range(3):
+feed_monkeys(np.random.randint(10, 100))
+&lt;/code>&lt;/pre>
+&lt;pre>&lt;code> The monkey monkey_0 eat too much bananas. Num monkeys 3
+The monkey monkey_1 eat too much bananas. Num monkeys 3
+The monkey monkey_2 eat too much bananas. Num monkeys 3
+&lt;/code>&lt;/pre>
+&lt;h2 id="conclusion-and-next-steps">Conclusion and next steps&lt;/h2>
+&lt;h3 id="it-depends">&amp;ldquo;&amp;hellip;it depends&amp;rdquo;&lt;/h3>
+&lt;p>Nice! It worked. But should you use it?&lt;/p>
+&lt;figure >
+&lt;a data-fancybox="" href="/post/python_decorator_that_exposes_locals/depends_hue4832d1f9bd8c3212ee44b9859787ce4_80720_0x400_resize_q90_lanczos.jpg" >
+&lt;img src="/post/python_decorator_that_exposes_locals/depends_hue4832d1f9bd8c3212ee44b9859787ce4_80720_0x400_resize_q90_lanczos.jpg" alt="" height="400px">
+&lt;/a>
+&lt;/figure>
+&lt;ul>
+&lt;li>We have drawbacks in our approach:
+&lt;ul>
+&lt;li>a tracing always creates a cost. Thus, is expected that we will reduce the performance of our system. If you use this just for debugging purposes, it&amp;rsquo;s ok.&lt;/li>
+&lt;li>can have conflicts with other tools and libs that also trying to use the trace tool&lt;/li>
+&lt;li>it seems dirty!&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="the-next-step-we-dont-need-a-trace-we-can-do-better-using-ast-manipulation">The next step: we don&amp;rsquo;t need a trace! We can do better using AST manipulation&lt;/h3>
+&lt;ul>
+&lt;li>Using the inspect module to get the argument names it&amp;rsquo;s ok but I&amp;rsquo;ve told you the trace tool can be problematic. But we can replace the trace with another approach. Although, it&amp;rsquo;s more conceptually complex don&amp;rsquo;t require dirty tricks and I believe it&amp;rsquo;s far more beautiful. &lt;strong>The next post it&amp;rsquo;s about this!&lt;/strong>&lt;/li>
+&lt;/ul>
+&lt;h3 id="simplenamespace-for-dictkey-instead-of-dictkey">SimpleNamespace for dict.key instead of dict[&amp;ldquo;key]&lt;/h3>
+&lt;p>We have a minor issue and point of improvement. If you&amp;rsquo;re an cautious developer, probably you notice a flaw here&lt;/p>
+&lt;pre>&lt;code class="language-python">args_dict = {
+**named_args,
+**locals(),
+**frame_func.f_locals,
+}
+&lt;/code>&lt;/pre>
+&lt;p>if any of the dicts have common keys, one of them will overwrite the other. This is not what we want. You can use a simple solution like this:&lt;/p>
+&lt;pre>&lt;code class="language-python">args_dict = {
+&amp;quot;args&amp;quot;: **named_args,
+**locals(),
+&amp;quot;func_locals&amp;quot;: **frame_func.f_locals,
+}
+&lt;/code>&lt;/pre>
+&lt;p>But this is still annoying because we can do this with a format string:&lt;/p>
+&lt;pre>&lt;code>@report(fmt=&amp;quot;{args['n_bananas']} ...&amp;quot;)
+&lt;/code>&lt;/pre>
+&lt;p>Well, how to solve it? Just use a SimpleNamespace to construct an object!&lt;/p>
+&lt;pre>&lt;code class="language-python">from types import SimpleNamespace
+def report(formater):
+def decorate(func):
+def decorated(*_args):
+sig = inspect.signature(func)
+named_args = {}
+num_args = len(_args)
+for i, (k, v) in enumerate(sig.parameters.items()):
+if i &amp;lt; num_args:
+named_args[k] = repr(_args[i])
+else:
+named_args[k] = repr(v.default)
+### Our modifications
+frame_func, _result = call_and_extract_frame(func, *_args)
+name = func.__name__
+result = repr(_result)
+args_dict = {
+&amp;quot;args&amp;quot;: SimpleNamespace(**named_args),
+&amp;quot;args_repr&amp;quot;: repr(SimpleNamespace(**named_args)),
+**locals(),
+**frame_func.f_locals,
+}
+###
+print(formater.format(**args_dict))
+# do other stuff here
+return _result
+return decorated
+return decorate
+@report(
+&amp;quot;&amp;quot;.join((
+'The zookeeper feeds the monkeys with {args.n_bananas},',
+'bananas. We loost {n_bananas} bananas. Args {args_repr}'
+))
+)
+def feed_monkeys(n_bananas):
+num_monkeys = 3
+monkeys = {
+f&amp;quot;monkey_{i}&amp;quot;: {&amp;quot;bananas&amp;quot;: 0}
+for i in range(num_monkeys)
+}
+while n_bananas &amp;gt; 0:
+if np.random.uniform() &amp;gt; .8:
+# &amp;quot;bananas rotted . Monkeys will not eat any banana any more&amp;quot;)
+break
+if np.random.uniform() &amp;lt; 0.4:
+continue
+monkey = monkeys[np.random.choice(list(monkeys.keys()))]
+if n_bananas &amp;gt; 0:
+monkey[&amp;quot;bananas&amp;quot;] += 1
+n_bananas -= 1
+gluttonous_monkey = max(monkeys, key=lambda k: monkeys[k][&amp;quot;bananas&amp;quot;])
+for _ in range(3):
+feed_monkeys(np.random.randint(10, 100))
+&lt;/code>&lt;/pre>
+&lt;pre>&lt;code>The zookeeper feeds the monkeys with 15,bananas. We loost 15 bananas. Args namespace(n_bananas='15')
+The zookeeper feeds the monkeys with 80,bananas. We loost 77 bananas. Args namespace(n_bananas='80')
+The zookeeper feeds the monkeys with 95,bananas. We loost 92 bananas. Args namespace(n_bananas='95')
+&lt;/code>&lt;/pre>
+&lt;h3 id="want-to-know-more-about-call-stack--inspect-and-trace">Want to know more about call stack , inspect and trace?&lt;/h3>
+&lt;ul>
+&lt;li>Call stack and frames:
+&lt;a href="https://www.linkedin.com/in/reza-bagheri-71882a76/" target="_blank" rel="noopener">Reza Bagheri&lt;/a> explained
+&lt;a href="https://reza-bagheri79.medium.com/python-stack-frames-and-tail-call-optimization-4d0ea55b0542" target="_blank" rel="noopener">here&lt;/a> how to add a tail-call optimization in python using python stack frames.&lt;/li>
+&lt;li>Fluent Python book by Luciano Ramalho&lt;/li>
+&lt;li>Python documentation:
+&lt;a href="https://docs.python.org/3/library/traceback.html" target="_blank" rel="noopener">tracebak&lt;/a>,
+&lt;a href="https://docs.python.org/3/library/inspect.html" target="_blank" rel="noopener">inspect and stack&lt;/a>.&lt;/li>
+&lt;li>
+&lt;a href="https://stackoverflow.com/questions/4214936/how-can-i-get-the-values-of-the-locals-of-a-function-after-it-has-been-executed/4249347#4249347" target="_blank" rel="noopener">Stackoverflow discussion&lt;/a>&lt;/li>
+&lt;/ul></description></item></channel></rss>
