@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>open-source | Bruno Messias</title><link>/pt-br/tag/open-source/</link><atom:link href="/pt-br/tag/open-source/index.xml" rel="self" type="application/rss+xml"/><description>open-source</description><generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>pt-br</language><copyright>Bruno Messias</copyright><lastBuildDate>Mon, 23 Aug 2021 00:00:00 +0000</lastBuildDate><image><url>/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_3.png</url><title>open-source</title><link>/pt-br/tag/open-source/</link></image><item><title>GSoC- Google Summer of Code 2021 Final Work Product</title><link>/pt-br/post/2021-23-08-gsoc-devmessias-final-report/2021-23-08-gsoc-devmessias-final-report/</link><pubDate>Mon, 23 Aug 2021 00:00:00 +0000</pubDate><guid>/pt-br/post/2021-23-08-gsoc-devmessias-final-report/2021-23-08-gsoc-devmessias-final-report/</guid><description>&lt;blockquote>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>open-source | Bruno Messias</title><link>/pt-br/tag/open-source/</link><atom:link href="/pt-br/tag/open-source/index.xml" rel="self" type="application/rss+xml"/><description>open-source</description><generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>pt-br</language><copyright>Bruno Messias</copyright><lastBuildDate>Mon, 23 Aug 2021 00:00:00 +0000</lastBuildDate><image><url>/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_2.png</url><title>open-source</title><link>/pt-br/tag/open-source/</link></image><item><title>GSoC- Google Summer of Code 2021 Final Work Product</title><link>/pt-br/post/2021-23-08-gsoc-devmessias-final-report/2021-23-08-gsoc-devmessias-final-report/</link><pubDate>Mon, 23 Aug 2021 00:00:00 +0000</pubDate><guid>/pt-br/post/2021-23-08-gsoc-devmessias-final-report/2021-23-08-gsoc-devmessias-final-report/</guid><description>&lt;blockquote>
 &lt;p>Detailed weekly tasks, progress and work done can be found
 &lt;a href="https://blogs.python-gsoc.org/en/demvessiass-blog/google-summer-of-code-final-work-product-3/" target="_blank" rel="noopener">here&lt;/a>&lt;/p>
 &lt;/blockquote>
@@ -87,8 +87,7 @@ Ngrok&lt;/a>&lt;/p>
 &lt;p>
 &lt;a href="https://user-images.githubusercontent.com/6979335/130284261-20e84622-427e-4a59-a46f-6a33f5473025.mp4" target="_blank" rel="noopener">Video: WebRTC Streaming +
 Jupyter&lt;/a>&lt;/p>
-&lt;p>&lt;em>Pull Requests:&lt;/em> *
-&lt;a href="https://github.com/fury-gl/fury/pull/480" target="_blank" rel="noopener">https://github.com/fury-gl/fury/pull/480&lt;/a>&lt;/p>
+&lt;p>&lt;em>Pull Requests:&lt;/em> * &lt;a href="https://github.com/fury-gl/fury/pull/480">https://github.com/fury-gl/fury/pull/480&lt;/a>&lt;/p>
 &lt;ul>
 &lt;li>
 &lt;p>&lt;strong>2D and 3D marker actor&lt;/strong>&lt;/p>
@@ -112,8 +111,7 @@ specialized visualization effects or to improve the performance.&lt;/p>
 the OpenGL context created by VTK&lt;/p>
 &lt;p>&lt;em>Pull Request:&lt;/em>&lt;/p>
 &lt;ul>
-&lt;li>
-&lt;a href="https://github.com/fury-gl/fury/pull/432" target="_blank" rel="noopener">https://github.com/fury-gl/fury/pull/432&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://github.com/fury-gl/fury/pull/432">https://github.com/fury-gl/fury/pull/432&lt;/a>&lt;/li>
 &lt;/ul>
 &lt;/li>
 &lt;li>
@@ -151,16 +149,14 @@ this PR through my following posts [2], [3].&lt;/p>
 &lt;/li>
 &lt;/ul>
 &lt;p>The image below show an example that I made and is available at
-&lt;a href="https://github.com/fury-gl/helios/blob/main/docs/examples/viz_mde.py" target="_blank" rel="noopener">https://github.com/fury-gl/helios/blob/main/docs/examples/viz_mde.py&lt;/a>&lt;/p>
+&lt;a href="https://github.com/fury-gl/helios/blob/main/docs/examples/viz_mde.py">https://github.com/fury-gl/helios/blob/main/docs/examples/viz_mde.py&lt;/a>&lt;/p>
 &lt;p>&lt;img src="https://user-images.githubusercontent.com/6979335/125310065-a3a9f480-e308-11eb-98d9-0ff5406a0e96.gif" alt="image2">
 &lt;em>Pull Requests:&lt;/em>&lt;/p>
 &lt;ul>
-&lt;li>&lt;strong>MDE Layout:&lt;/strong>
-&lt;a href="https://github.com/fury-gl/helios/pull/6" target="_blank" rel="noopener">https://github.com/fury-gl/helios/pull/6&lt;/a>&lt;/li>
-&lt;li>&lt;strong>CuGraph ForceAtlas2&lt;/strong>
-&lt;a href="https://github.com/fury-gl/helios/pull/13" target="_blank" rel="noopener">https://github.com/fury-gl/helios/pull/13&lt;/a>&lt;/li>
+&lt;li>&lt;strong>MDE Layout:&lt;/strong> &lt;a href="https://github.com/fury-gl/helios/pull/6">https://github.com/fury-gl/helios/pull/6&lt;/a>&lt;/li>
+&lt;li>&lt;strong>CuGraph ForceAtlas2&lt;/strong> &lt;a href="https://github.com/fury-gl/helios/pull/13">https://github.com/fury-gl/helios/pull/13&lt;/a>&lt;/li>
 &lt;li>&lt;strong>Force-Directed and MDE improvements&lt;/strong>
-&lt;a href="https://github.com/fury-gl/helios/pull/14" target="_blank" rel="noopener">https://github.com/fury-gl/helios/pull/14&lt;/a>&lt;/li>
+&lt;a href="https://github.com/fury-gl/helios/pull/14">https://github.com/fury-gl/helios/pull/14&lt;/a>&lt;/li>
 &lt;li>&lt;strong>Helios Network Visualization Lib: Visual Aspects&lt;/strong>&lt;/li>
 &lt;/ul>
 &lt;p>I&amp;rsquo;ve made several stuffs to give Helios a better visual aspects. One of
@@ -182,20 +178,18 @@ better.&lt;/p>
 &lt;/code>&lt;/pre>
 &lt;p>&lt;em>Pull Requests:&lt;/em>&lt;/p>
 &lt;ul>
-&lt;li>&lt;strong>OpenGL SuperActors:&lt;/strong>
-&lt;a href="https://github.com/fury-gl/helios/pull/1" target="_blank" rel="noopener">https://github.com/fury-gl/helios/pull/1&lt;/a>&lt;/li>
+&lt;li>&lt;strong>OpenGL SuperActors:&lt;/strong> &lt;a href="https://github.com/fury-gl/helios/pull/1">https://github.com/fury-gl/helios/pull/1&lt;/a>&lt;/li>
 &lt;li>&lt;strong>Fixed the flickering effect&lt;/strong>
-&lt;a href="https://github.com/fury-gl/helios/pull/10" target="_blank" rel="noopener">https://github.com/fury-gl/helios/pull/10&lt;/a>&lt;/li>
+&lt;a href="https://github.com/fury-gl/helios/pull/10">https://github.com/fury-gl/helios/pull/10&lt;/a>&lt;/li>
 &lt;li>&lt;strong>Improvements in the network node visual aspects&lt;/strong>
-&lt;a href="https://github.com/fury-gl/helios/pull/15" target="_blank" rel="noopener">https://github.com/fury-gl/helios/pull/15&lt;/a>&lt;/li>
+&lt;a href="https://github.com/fury-gl/helios/pull/15">https://github.com/fury-gl/helios/pull/15&lt;/a>&lt;/li>
 &lt;li>&lt;strong>Smooth animations when using IPC layouts&lt;/strong>
-&lt;a href="https://github.com/fury-gl/helios/pull/17" target="_blank" rel="noopener">https://github.com/fury-gl/helios/pull/17&lt;/a>&lt;/li>
+&lt;a href="https://github.com/fury-gl/helios/pull/17">https://github.com/fury-gl/helios/pull/17&lt;/a>&lt;/li>
 &lt;li>&lt;strong>Helios Network Visualization Lib: CI and Documentation&lt;/strong>&lt;/li>
 &lt;/ul>
 &lt;p>Because Helios was an project that begins in my GSoC project It was
 necessary to create the documentation, hosting and more. Now we have a
-online documentation available at
-&lt;a href="https://heliosnetwork.io/" target="_blank" rel="noopener">https://heliosnetwork.io/&lt;/a> altough
+online documentation available at &lt;a href="https://heliosnetwork.io/">https://heliosnetwork.io/&lt;/a> altough
 the documentation still need some improvements.&lt;/p>
 &lt;p>Below is presented the Helios Logo which was developed by my mentor
 Filipi Nascimento.&lt;/p>
@@ -206,17 +200,16 @@ Filipi Nascimento.&lt;/p>
 &lt;p>&lt;em>Pull Requests:&lt;/em>&lt;/p>
 &lt;ul>
 &lt;li>
-&lt;p>&lt;strong>CI and pytests:&lt;/strong>
-&lt;a href="https://github.com/fury-gl/helios/pull/5" target="_blank" rel="noopener">https://github.com/fury-gl/helios/pull/5&lt;/a>,
-&lt;a href="https://github.com/fury-gl/helios/pull/20" target="_blank" rel="noopener">https://github.com/fury-gl/helios/pull/20&lt;/a>&lt;/p>
+&lt;p>&lt;strong>CI and pytests:&lt;/strong> &lt;a href="https://github.com/fury-gl/helios/pull/5">https://github.com/fury-gl/helios/pull/5&lt;/a>,
+&lt;a href="https://github.com/fury-gl/helios/pull/20">https://github.com/fury-gl/helios/pull/20&lt;/a>&lt;/p>
 &lt;/li>
 &lt;li>
 &lt;p>&lt;strong>Helios Logo, Sphinx Gallery and API documentation&lt;/strong>
-&lt;a href="https://github.com/fury-gl/helios/pull/18" target="_blank" rel="noopener">https://github.com/fury-gl/helios/pull/18&lt;/a>&lt;/p>
+&lt;a href="https://github.com/fury-gl/helios/pull/18">https://github.com/fury-gl/helios/pull/18&lt;/a>&lt;/p>
 &lt;/li>
 &lt;li>
 &lt;p>&lt;strong>Documentation improvements:&lt;/strong>
-&lt;a href="https://github.com/fury-gl/helios/pull/8" target="_blank" rel="noopener">https://github.com/fury-gl/helios/pull/8&lt;/a>&lt;/p>
+&lt;a href="https://github.com/fury-gl/helios/pull/8">https://github.com/fury-gl/helios/pull/8&lt;/a>&lt;/p>
 &lt;/li>
 &lt;li>
 &lt;p>&lt;strong>Objectives in Progress&lt;/strong>&lt;/p>
@@ -230,12 +223,10 @@ rendering which the theory behinds was developed here [5].&lt;/p>
 &lt;p>&lt;em>Pull Requests:&lt;/em>&lt;/p>
 &lt;ul>
 &lt;li>
-&lt;p>
-&lt;a href="https://github.com/fury-gl/helios/pull/24" target="_blank" rel="noopener">https://github.com/fury-gl/helios/pull/24&lt;/a>&lt;/p>
+&lt;p>&lt;a href="https://github.com/fury-gl/helios/pull/24">https://github.com/fury-gl/helios/pull/24&lt;/a>&lt;/p>
 &lt;/li>
 &lt;li>
-&lt;p>
-&lt;a href="https://github.com/fury-gl/fury/pull/489" target="_blank" rel="noopener">https://github.com/fury-gl/fury/pull/489&lt;/a>&lt;/p>
+&lt;p>&lt;a href="https://github.com/fury-gl/fury/pull/489">https://github.com/fury-gl/fury/pull/489&lt;/a>&lt;/p>
 &lt;pre>&lt;code class="language-{=html}">&amp;lt;center&amp;gt;
 &lt;/code>&lt;/pre>
 &lt;pre>&lt;code class="language-{=html}">&amp;lt;/center&amp;gt;
@@ -248,8 +239,7 @@ rendering which the theory behinds was developed here [5].&lt;/p>
 &lt;p>Weekly blogs were added to the FURY Website.&lt;/p>
 &lt;p>&lt;em>Pull Requests:&lt;/em>&lt;/p>
 &lt;ul>
-&lt;li>&lt;strong>First Evaluation:&lt;/strong>
-&lt;a href="https://github.com/fury-gl/fury/pull/476" target="_blank" rel="noopener">https://github.com/fury-gl/fury/pull/476&lt;/a>&lt;/li>
+&lt;li>&lt;strong>First Evaluation:&lt;/strong> &lt;a href="https://github.com/fury-gl/fury/pull/476">https://github.com/fury-gl/fury/pull/476&lt;/a>&lt;/li>
 &lt;li>&lt;strong>Second Evaluation:&lt;/strong> TBD&lt;/li>
 &lt;/ul>
 &lt;/li>
@@ -257,23 +247,21 @@ rendering which the theory behinds was developed here [5].&lt;/p>
 &lt;h3 id="references">References&lt;/h3>
 &lt;p>[1] ( Python GSoC - Post #1 - A Stadia-like system for data
 visualization - demvessias s Blog, n.d.;
-&lt;a href="https://blogs.python-gsoc.org/en/demvessiass-blog/post-1-a-stadia-like-system-for-data-visualization/" target="_blank" rel="noopener">https://blogs.python-gsoc.org/en/demvessiass-blog/post-1-a-stadia-like-system-for-data-visualization/&lt;/a>&lt;/p>
+&lt;a href="https://blogs.python-gsoc.org/en/demvessiass-blog/post-1-a-stadia-like-system-for-data-visualization/">https://blogs.python-gsoc.org/en/demvessiass-blog/post-1-a-stadia-like-system-for-data-visualization/&lt;/a>&lt;/p>
 &lt;p>[2] Python GSoC - Post #2: SOLID, monkey patching a python issue and
 network layouts through WebRTC - demvessias s Blog, n.d.;
-&lt;a href="https://blogs.python-gsoc.org/en/demvessiass-blog/post-2-solid-monkey-patching-a-python-issue-and-network-layouts-through-webrtc/" target="_blank" rel="noopener">https://blogs.python-gsoc.org/en/demvessiass-blog/post-2-solid-monkey-patching-a-python-issue-and-network-layouts-through-webrtc/&lt;/a>&lt;/p>
+&lt;a href="https://blogs.python-gsoc.org/en/demvessiass-blog/post-2-solid-monkey-patching-a-python-issue-and-network-layouts-through-webrtc/">https://blogs.python-gsoc.org/en/demvessiass-blog/post-2-solid-monkey-patching-a-python-issue-and-network-layouts-through-webrtc/&lt;/a>&lt;/p>
 &lt;p>[3] Python GSoC - Post #3: Network layout algorithms using IPC
 -demvessias s Blog,
-n.d.)
-&lt;a href="https://blogs.python-gsoc.org/en/demvessiass-blog/post-3-network-layout-algorithms-using-ipc/" target="_blank" rel="noopener">https://blogs.python-gsoc.org/en/demvessiass-blog/post-3-network-layout-algorithms-using-ipc/&lt;/a>&lt;/p>
+n.d.)&lt;a href="https://blogs.python-gsoc.org/en/demvessiass-blog/post-3-network-layout-algorithms-using-ipc/">https://blogs.python-gsoc.org/en/demvessiass-blog/post-3-network-layout-algorithms-using-ipc/&lt;/a>&lt;/p>
 &lt;p>[4] Rougier, N.P., 2018. An open access book on Python, OpenGL and
 Scientific Visualization [WWW Document]. An open access book on
 Python, OpenGL and Scientific Visualization. URL
-&lt;a href="https://github.com/rougier/python-opengl" target="_blank" rel="noopener">https://github.com/rougier/python-opengl&lt;/a> (accessed 8.21.21).&lt;/p>
+&lt;a href="https://github.com/rougier/python-opengl">https://github.com/rougier/python-opengl&lt;/a> (accessed 8.21.21).&lt;/p>
 &lt;p>[5] Green, C., 2007. Improved alpha-tested magnification for vector
 textures and special effects, in: ACM SIGGRAPH 2007 Courses on -SIGGRAPH
 &amp;lsquo;07. Presented at the ACM SIGGRAPH 2007 courses, ACM Press, San Diego,
-California, p. 9.
-&lt;a href="https://doi.org/10.1145/1281500.1281665" target="_blank" rel="noopener">https://doi.org/10.1145/1281500.1281665&lt;/a>&lt;/p></description></item><item><title>GSoC- SDF fonts and OpenGL</title><link>/pt-br/post/2021-16-08-gsoc-devmessias-11/2021-16-08-gsoc-devmessias-11/</link><pubDate>Mon, 16 Aug 2021 00:00:00 +0000</pubDate><guid>/pt-br/post/2021-16-08-gsoc-devmessias-11/2021-16-08-gsoc-devmessias-11/</guid><description>&lt;h1 id="what-did-i-do-this-week">What did I do this week?&lt;/h1>
+California, p. 9. &lt;a href="https://doi.org/10.1145/1281500.1281665">https://doi.org/10.1145/1281500.1281665&lt;/a>&lt;/p></description></item><item><title>GSoC- SDF fonts and OpenGL</title><link>/pt-br/post/2021-16-08-gsoc-devmessias-11/2021-16-08-gsoc-devmessias-11/</link><pubDate>Mon, 16 Aug 2021 00:00:00 +0000</pubDate><guid>/pt-br/post/2021-16-08-gsoc-devmessias-11/2021-16-08-gsoc-devmessias-11/</guid><description>&lt;h1 id="what-did-i-do-this-week">What did I do this week?&lt;/h1>
 &lt;h2 id="fury">FURY&lt;/h2>
 &lt;ul>
 &lt;li>
@@ -467,7 +455,7 @@ with cuda installed. See the list of opened
 &lt;a href="https://github.com/fury-gl/helios/pull/13" target="_blank" rel="noopener">fury-gl/helios/pull/13&lt;/a>&lt;/li>
 &lt;li>Improved the visual aspects and configurations of the network
 rendering(helios issue #12)
-&lt;a href="https://github.com/devmessias/helios/tree/fury_network_actors_improvements" target="_blank" rel="noopener">https://github.com/devmessias/helios/tree/fury_network_actors_improvements&lt;/a>&lt;/li>
+&lt;a href="https://github.com/devmessias/helios/tree/fury_network_actors_improvements">https://github.com/devmessias/helios/tree/fury_network_actors_improvements&lt;/a>&lt;/li>
 &lt;li>Tests, examples and documentation for Helios (helios issues #3 and
 #4)
 &lt;a href="https://github.com/fury-gl/helios/pull/5" target="_blank" rel="noopener">fury-gl/helios/pull/5&lt;/a>&lt;/li>
@@ -653,5 +641,4 @@ And it's also important to read the official documentation from python.
 It can save you a lot of time. Take a look what the official python
 documentation says about the multiprocessing method&lt;/p>
 &lt;p>&lt;img src="https://user-images.githubusercontent.com/6979335/121958121-b0ebb780-cd39-11eb-862a-37244f7f635b.png" alt="image2">
-Source:
-&lt;a href="https://docs.python.org/3/library/multiprocessing.html" target="_blank" rel="noopener">https://docs.python.org/3/library/multiprocessing.html&lt;/a>&lt;/p></description></item></channel></rss>
+Source:&lt;a href="https://docs.python.org/3/library/multiprocessing.html">https://docs.python.org/3/library/multiprocessing.html&lt;/a>&lt;/p></description></item></channel></rss>

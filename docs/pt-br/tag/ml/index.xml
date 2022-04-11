@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>ml | Bruno Messias</title><link>/pt-br/tag/ml/</link><atom:link href="/pt-br/tag/ml/index.xml" rel="self" type="application/rss+xml"/><description>ml</description><generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>pt-br</language><copyright>Bruno Messias</copyright><lastBuildDate>Tue, 15 Feb 2022 00:00:00 +0000</lastBuildDate><image><url>/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_3.png</url><title>ml</title><link>/pt-br/tag/ml/</link></image><item><title>Grafos e filtragem de arestas: conceitos e confusões. Parte I</title><link>/pt-br/post/edge_graph_filtering/</link><pubDate>Tue, 15 Feb 2022 00:00:00 +0000</pubDate><guid>/pt-br/post/edge_graph_filtering/</guid><description>&lt;h1 id="introdução">Introdução&lt;/h1>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>ml | Bruno Messias</title><link>/pt-br/tag/ml/</link><atom:link href="/pt-br/tag/ml/index.xml" rel="self" type="application/rss+xml"/><description>ml</description><generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>pt-br</language><copyright>Bruno Messias</copyright><lastBuildDate>Tue, 15 Feb 2022 00:00:00 +0000</lastBuildDate><image><url>/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_2.png</url><title>ml</title><link>/pt-br/tag/ml/</link></image><item><title>Grafos e filtragem de arestas: conceitos e confusões. Parte I</title><link>/pt-br/post/edge_graph_filtering/</link><pubDate>Tue, 15 Feb 2022 00:00:00 +0000</pubDate><guid>/pt-br/post/edge_graph_filtering/</guid><description>&lt;h1 id="introdução">Introdução&lt;/h1>
 &lt;div class="alert alert-note">
 &lt;div>
 Esse post é bem informal e foi feito para o grupo de estudos de MlOps. O conteúdo pode mudar significativamente com o passar do tempo.
@@ -85,8 +85,8 @@ C[C R$0]-->|R$0,50|A;
 Filtragem para remover ruídos&lt;/h2>
 &lt;p>Talvez a primeira coisa que vem à sua cabeça quando ouve a palavra filtro é Instagram. Alguns filtros de fotos feitos para embelezar nada mais são que um filtro para remoção de ruídos.&lt;/p>
 &lt;figure id="figure-imagem-original-e-imagem-com-contaminação-de-um-ruído">
-&lt;a data-fancybox="" href="/pt-br/post/edge_graph_filtering/photo_noisy_hu82d76e04dbaf989091cb8bf76c11c929_737197_0x200_resize_lanczos_3.png" data-caption="Imagem original e imagem com contaminação de um ruído.">
-&lt;img data-src="/pt-br/post/edge_graph_filtering/photo_noisy_hu82d76e04dbaf989091cb8bf76c11c929_737197_0x200_resize_lanczos_3.png" class="lazyload" alt="" width="100%" height="200px">
+&lt;a data-fancybox="" href="/pt-br/post/edge_graph_filtering/photo_noisy_hu82d76e04dbaf989091cb8bf76c11c929_737197_0x200_resize_lanczos_2.png" data-caption="Imagem original e imagem com contaminação de um ruído.">
+&lt;img data-src="/pt-br/post/edge_graph_filtering/photo_noisy_hu82d76e04dbaf989091cb8bf76c11c929_737197_0x200_resize_lanczos_2.png" class="lazyload" alt="" width="100%" height="200px">
 &lt;/a>
 &lt;figcaption>
 Imagem original e imagem com contaminação de um ruído.
@@ -107,8 +107,8 @@ Os principios da &lt;em>Gestalt&lt;/em> são apresentados nessa figura. [].
 &lt;/figure>
 &lt;p>Como se relaciona com os grafos? Um dos porquês para realizar a filtragem de um grafo consiste em remover relações (arestas) espúrias para ressaltar um dado padrão que queremos analisar. Comumente, esse padrão são estruturas de comunidades e/ou agrupamentos obtidos via métodos de visualização.&lt;/p>
 &lt;figure id="figure-os-princípios-da-gestalt-são-usados-para-desenvolver-métodos-de-processamento-de-imagens-imagem-retirada-de-">
-&lt;a data-fancybox="" href="/pt-br/post/edge_graph_filtering/gestalt_cv_example_hu5510a9064a332f07be8be12a15f3553e_77088_0x300_resize_lanczos_3.png" data-caption="Os princípios da &amp;lt;em&amp;gt;Gestalt&amp;lt;/em&amp;gt; são usados para desenvolver métodos de processamento de imagens. Imagem retirada de []">
-&lt;img data-src="/pt-br/post/edge_graph_filtering/gestalt_cv_example_hu5510a9064a332f07be8be12a15f3553e_77088_0x300_resize_lanczos_3.png" class="lazyload" alt="" width="100%" height="200px">
+&lt;a data-fancybox="" href="/pt-br/post/edge_graph_filtering/gestalt_cv_example_hu5510a9064a332f07be8be12a15f3553e_77088_0x300_resize_lanczos_2.png" data-caption="Os princípios da &amp;lt;em&amp;gt;Gestalt&amp;lt;/em&amp;gt; são usados para desenvolver métodos de processamento de imagens. Imagem retirada de []">
+&lt;img data-src="/pt-br/post/edge_graph_filtering/gestalt_cv_example_hu5510a9064a332f07be8be12a15f3553e_77088_0x300_resize_lanczos_2.png" class="lazyload" alt="" width="100%" height="200px">
 &lt;/a>
 &lt;figcaption>
 Os princípios da &lt;em>Gestalt&lt;/em> são usados para desenvolver métodos de processamento de imagens. Imagem retirada de []
@@ -249,8 +249,8 @@ plt.imshow(W)
 plt.show()
 &lt;/code>&lt;/pre>
 &lt;figure id="figure-a-matriz-de-adjacência-todos-os-pesos-são-1-do-grafo-gerado-por-nosso-modelo">
-&lt;a data-fancybox="" href="/pt-br/post/edge_graph_filtering/adj_sbm_hueb053748435c7d9559526a97c502365f_19313_400x0_resize_lanczos_3.png" data-caption="A matriz de adjacência (todos os pesos são 1) do grafo gerado por nosso modelo.">
-&lt;img data-src="/pt-br/post/edge_graph_filtering/adj_sbm_hueb053748435c7d9559526a97c502365f_19313_400x0_resize_lanczos_3.png" class="lazyload" alt="" width="400px" height="100%">
+&lt;a data-fancybox="" href="/pt-br/post/edge_graph_filtering/adj_sbm_hueb053748435c7d9559526a97c502365f_19313_400x0_resize_lanczos_2.png" data-caption="A matriz de adjacência (todos os pesos são 1) do grafo gerado por nosso modelo.">
+&lt;img data-src="/pt-br/post/edge_graph_filtering/adj_sbm_hueb053748435c7d9559526a97c502365f_19313_400x0_resize_lanczos_2.png" class="lazyload" alt="" width="400px" height="100%">
 &lt;/a>
 &lt;figcaption>
 A matriz de adjacência (todos os pesos são 1) do grafo gerado por nosso modelo.
@@ -286,8 +286,8 @@ print(f&amp;quot;Found {len(set(g_sbm_community_index))} communities&amp;quot;)
 plot(g_sbm, g_sbm_community_index, p)
 &lt;/code>&lt;/pre>
 &lt;figure id="figure-resultado-da-identificação-de-comunidades-usando-o-algoritmo-guloso-parece-ok">
-&lt;a data-fancybox="" href="/pt-br/post/edge_graph_filtering/modularity_sbm_hu232f725335f418633017afb243ed9c06_2880_400x0_resize_lanczos_3.png" data-caption="Resultado da identificação de comunidades usando o algoritmo guloso. Parece Ok">
-&lt;img data-src="/pt-br/post/edge_graph_filtering/modularity_sbm_hu232f725335f418633017afb243ed9c06_2880_400x0_resize_lanczos_3.png" class="lazyload" alt="" width="400px" height="100%">
+&lt;a data-fancybox="" href="/pt-br/post/edge_graph_filtering/modularity_sbm_hu232f725335f418633017afb243ed9c06_2880_400x0_resize_lanczos_2.png" data-caption="Resultado da identificação de comunidades usando o algoritmo guloso. Parece Ok">
+&lt;img data-src="/pt-br/post/edge_graph_filtering/modularity_sbm_hu232f725335f418633017afb243ed9c06_2880_400x0_resize_lanczos_2.png" class="lazyload" alt="" width="400px" height="100%">
 &lt;/a>
 &lt;figcaption>
 Resultado da identificação de comunidades usando o algoritmo guloso. Parece Ok
@@ -301,8 +301,8 @@ g_community_index = [find_where(n, p) for n in g.nodes]
 plot(g, g_community_index, p)
 &lt;/code>&lt;/pre>
 &lt;figure id="figure-resultado-da-identificação-de-comunidades-usando-o-algoritmo-guloso-para-o-modelo-er">
-&lt;a data-fancybox="" href="/pt-br/post/edge_graph_filtering/modularity_er_hu5a3fc90699528d500dae239de7f4b909_3810_400x0_resize_lanczos_3.png" data-caption="Resultado da identificação de comunidades usando o algoritmo guloso para o modelo ER.">
-&lt;img data-src="/pt-br/post/edge_graph_filtering/modularity_er_hu5a3fc90699528d500dae239de7f4b909_3810_400x0_resize_lanczos_3.png" class="lazyload" alt="" width="400px" height="100%">
+&lt;a data-fancybox="" href="/pt-br/post/edge_graph_filtering/modularity_er_hu5a3fc90699528d500dae239de7f4b909_3810_400x0_resize_lanczos_2.png" data-caption="Resultado da identificação de comunidades usando o algoritmo guloso para o modelo ER.">
+&lt;img data-src="/pt-br/post/edge_graph_filtering/modularity_er_hu5a3fc90699528d500dae239de7f4b909_3810_400x0_resize_lanczos_2.png" class="lazyload" alt="" width="400px" height="100%">
 &lt;/a>
 &lt;figcaption>
 Resultado da identificação de comunidades usando o algoritmo guloso para o modelo ER.
@@ -336,8 +336,8 @@ a2.set_title('ER')
 plt.show()
 &lt;/code>&lt;/pre>
 &lt;figure id="figure-visualização-via-force-directed-para-uma-amostra-de-um-sbm-e-outra-erdos-renyi-cores-representam-as-comunidades-identificadas-pelo-método-guloso-de-maximização-de-modularidade">
-&lt;a data-fancybox="" href="/pt-br/post/edge_graph_filtering/fd_sbm_and_er_hudae8c8a39de2754d2a986f6769de4dd6_25660_400x0_resize_lanczos_3.png" data-caption="Visualização via force-directed para uma amostra de um SBM e outra Erdos-Renyi. Cores representam as comunidades identificadas pelo método guloso de maximização de modularidade">
-&lt;img data-src="/pt-br/post/edge_graph_filtering/fd_sbm_and_er_hudae8c8a39de2754d2a986f6769de4dd6_25660_400x0_resize_lanczos_3.png" class="lazyload" alt="" width="400px" height="100%">
+&lt;a data-fancybox="" href="/pt-br/post/edge_graph_filtering/fd_sbm_and_er_hudae8c8a39de2754d2a986f6769de4dd6_25660_400x0_resize_lanczos_2.png" data-caption="Visualização via force-directed para uma amostra de um SBM e outra Erdos-Renyi. Cores representam as comunidades identificadas pelo método guloso de maximização de modularidade">
+&lt;img data-src="/pt-br/post/edge_graph_filtering/fd_sbm_and_er_hudae8c8a39de2754d2a986f6769de4dd6_25660_400x0_resize_lanczos_2.png" class="lazyload" alt="" width="400px" height="100%">
 &lt;/a>
 &lt;figcaption>
 Visualização via force-directed para uma amostra de um SBM e outra Erdos-Renyi. Cores representam as comunidades identificadas pelo método guloso de maximização de modularidade
@@ -381,8 +381,8 @@ B;
 &lt;/code>&lt;/pre>
 &lt;p>Uma das maiores limitações/perigo de se usar o método um &lt;em>naive threshold&lt;/em> é que em grafos que modelam situações do mundo real (seja ele direto ou não) a distribuição de pesos costuma seguir uma fat-tail e distorcida tal como essa aqui:&lt;/p>
 &lt;figure id="figure-distribuição-de-probabilidade-dos-pesos-das-arestas-em-função-do-peso-note-que-poucas-arestas-tem-um-peso-relevante-fonte-extracting-the-multiscale-backbone-of-complex-weighted-networkshttpsarxivorgabs09042389">
-&lt;a data-fancybox="" href="/pt-br/post/edge_graph_filtering/fat_tail_hua90d0707a945e6e9d352ed2f3ab43782_45362_400x0_resize_lanczos_3.png" data-caption="Distribuição de probabilidade dos pesos das arestas em função do peso. Note que poucas arestas tem um peso relevante. Fonte: &amp;lt;em&amp;gt;&amp;lt;a href=&amp;#34;https://arxiv.org/abs/0904.2389&amp;#34;&amp;gt;Extracting the multiscale backbone of complex weighted networks&amp;lt;/a&amp;gt;&amp;lt;/em&amp;gt;">
-&lt;img data-src="/pt-br/post/edge_graph_filtering/fat_tail_hua90d0707a945e6e9d352ed2f3ab43782_45362_400x0_resize_lanczos_3.png" class="lazyload" alt="" width="400px" height="100%">
+&lt;a data-fancybox="" href="/pt-br/post/edge_graph_filtering/fat_tail_hua90d0707a945e6e9d352ed2f3ab43782_45362_400x0_resize_lanczos_2.png" data-caption="Distribuição de probabilidade dos pesos das arestas em função do peso. Note que poucas arestas tem um peso relevante. Fonte: &amp;lt;em&amp;gt;&amp;lt;a href=&amp;#34;https://arxiv.org/abs/0904.2389&amp;#34;&amp;gt;Extracting the multiscale backbone of complex weighted networks&amp;lt;/a&amp;gt;&amp;lt;/em&amp;gt;">
+&lt;img data-src="/pt-br/post/edge_graph_filtering/fat_tail_hua90d0707a945e6e9d352ed2f3ab43782_45362_400x0_resize_lanczos_2.png" class="lazyload" alt="" width="400px" height="100%">
 &lt;/a>
 &lt;figcaption>
 Distribuição de probabilidade dos pesos das arestas em função do peso. Note que poucas arestas tem um peso relevante. Fonte: &lt;em>&lt;a href="https://arxiv.org/abs/0904.2389">Extracting the multiscale backbone of complex weighted networks&lt;/a>&lt;/em>
@@ -545,7 +545,7 @@ A---C;
 A---D;
 D---C;
 &lt;/code>&lt;/pre>
-&lt;p>Então $(1-p_{BA})^{k_b-1} = (1-1/2)^1 = 1/2$. Ok , então se escolhermos $\alpha$ igual 0.52 a tabela anterior (para &lt;strong>A&lt;/strong>) diz para remover a aresta (A,B) enquanto por &lt;strong>B&lt;/strong> o método nos diz que é para manter. Isso causa uma ambiguidade em como decidir se vamos manter ou não as arestas. Você pode escolher manter se os dois concordam ou manter se apenas um passar no teste. &lt;strong>Essa ambiguidade não aparece no caso de grafos direcionados!&lt;/strong>&lt;/p>
+&lt;p>Então $(1-p_{BA})^{k_b-1} = (1-1/2)^1 = 1/2$. Ok , então se escolhermos $\alpha$ igual 0.52 a tabela anterior (para **A**) diz para remover a aresta (A,B) enquanto por **B** o método nos diz que é para manter. Isso causa uma ambiguidade em como decidir se vamos manter ou não as arestas. Você pode escolher manter se os dois concordam ou manter se apenas um passar no teste. **Essa ambiguidade não aparece no caso de grafos direcionados!**&lt;/p>
 &lt;h3 id="pontos-positivos-1">Pontos positivos&lt;/h3>
 &lt;ul>
 &lt;li>é estabelecido dentro de uma formalização matemática robusta&lt;/li>
