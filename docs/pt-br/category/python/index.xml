@@ -7,9 +7,9 @@ class="toc-inpage d-print-none d-none d-sm-block d-md-none " open>
 &lt;ul>
 &lt;li>&lt;a href="#introdução">Introdução&lt;/a>&lt;/li>
 &lt;li>&lt;a href="#asts-o-que-são">ASTs: O que são?&lt;/a>&lt;/li>
-&lt;li>&lt;a href="#python--interpretado-ou-compilado">Python: interpretado ou compilado?&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#python-é--interpretado-ou-compilado">Python é interpretado ou compilado?&lt;/a>&lt;/li>
 &lt;li>&lt;a href="#extraindo-e-interpretando-asts">Extraindo e interpretando ASTs&lt;/a>&lt;/li>
-&lt;li>&lt;a href="#como-meta-programar-de-forma-eficiente">Como meta-programar de forma eficiente?&lt;/a>
+&lt;li>&lt;a href="#como-metaprogramar-de-forma-eficiente">Como metaprogramar de forma eficiente?&lt;/a>
 &lt;ul>
 &lt;li>&lt;a href="#6-passos-simples">6 passos simples&lt;/a>&lt;/li>
 &lt;/ul>
@@ -47,7 +47,7 @@ simple_method(1, 0)
 16 print(f&amp;quot;{func.__name__}({_args}) -&amp;gt; {result}&amp;quot;)
 ValueError: y doesn't belong to the space of real numbers greater than zero
 &lt;/code>&lt;/pre>
-&lt;p>O outro mostrei como podemos combinar o &lt;code>signature&lt;/code> com &lt;code>sys.trace&lt;/code> para criar um decorador que expõe o &lt;code>locals&lt;/code> da função decorada. O que nos permite fazer coisas legais tais como criar um um decorador &lt;code>@report&lt;/code>&lt;/p>
+&lt;p>No outro exemplo mostrei como podemos combinar o &lt;code>signature&lt;/code> com &lt;code>sys.trace&lt;/code> para criar um decorador que expõe o &lt;code>locals&lt;/code> da função decorada. O que nos permite fazer coisas legais tais como criar um decorador &lt;code>@report&lt;/code>&lt;/p>
 &lt;pre>&lt;code class="language-python">@report('{arg.n_bananas} Monkey {gluttonous_monkey} ate too much bananas. Num monkeys {num_monkeys}')
 def feed_monkeys(n_bananas):
 num_monkeys = 3
@@ -64,7 +64,7 @@ monkey[&amp;quot;bananas&amp;quot;] += 1
 n_bananas -= 1
 gluttonous_monkey = max(monkeys, key=lambda k: monkeys[k][&amp;quot;bananas&amp;quot;])
 &lt;/code>&lt;/pre>
-&lt;p>Contudo, no final do post pssado eu disse que essa solução tem alguns problemas&lt;/p>
+&lt;p>Contudo, no final do post passado eu disse que essa solução tem alguns problemas&lt;/p>
 &lt;p>&lt;div class="spoiler " >
 &lt;p>
 &lt;a class="btn btn-primary" data-toggle="collapse" href="#spoiler-1" role="button" aria-expanded="false" aria-controls="spoiler-1">
@@ -131,7 +131,7 @@ return decorate
 &lt;/div>
 &lt;/div>
 &lt;/div>
-Quais são esses problemas?&lt;/p>
+Quais são os problemas?&lt;/p>
 &lt;ul>
 &lt;li>
 &lt;p>É esperado que o tracing reduza a performance do sistema. Se você usar a solução acima só para casos pontuais ou debug é ok&lt;/p>
@@ -143,7 +143,7 @@ Quais são esses problemas?&lt;/p>
 &lt;p>Parece uma solução feia!&lt;/p>
 &lt;/li>
 &lt;/ul>
-&lt;p>Você pode se perguntar: &amp;ldquo;Overenginerieng! Pq esse cara não faz simplesmente isto aqui?&lt;/p>
+&lt;p>Você pode se perguntar: &amp;ldquo;&lt;em>Overengineering! Era só esse fazer isso aqui:&lt;/em>&amp;rdquo;&lt;/p>
 &lt;pre>&lt;code class="language-python">@report('stuff goes here')
 def func(x, y):
 random_var = np.random.uniform()
@@ -151,20 +151,24 @@ random_var = np.random.uniform()
 result = (x+y)**random_var
 return result, locals
 &lt;/code>&lt;/pre>
-&lt;p>&lt;em>&amp;rdquo;..e dentro do decorador ele muda para isso&amp;quot;&lt;/em>&lt;/p>
+&lt;p>&lt;em>&amp;quot;..e dentro do decorador ele mudar para isso&amp;quot;&lt;/em>&lt;/p>
 &lt;pre>&lt;code class="language-python">_result, local_vars = func(x, y)
 &lt;/code>&lt;/pre>
 &lt;p>A razão é:&lt;/p>
-&lt;p>O ponto de usar um decorador é para evitar ter que fazer mudanças em qualquer outra parte da nossa codebase. Por exemplo, se em qualquer outra parte da nossa codebase &lt;code>func&lt;/code> está sendo chamada, eu teria que fazer mudanças do tipo&lt;/p>
+&lt;p>O ponto de usar um decorador é para evitar mudanças em qualquer outra parte da nossa codebase. Por exemplo, se em qualquer outra parte da nossa codebase func está sendo chamada, eu teria que fazer mudanças do tipo&lt;/p>
 &lt;pre>&lt;code class="language-python">result = func(x, y) # to
 result = func(x, y)[0]
 &lt;/code>&lt;/pre>
-&lt;p>E se futuramente e quisesse remover o decorador de report de uma função eu teria que desfazer todas as mudanças acima&lt;/p>
+&lt;p>E se futuramente eu quisesse remover o decorador de uma função eu teria que desfazer todas as mudanças acima&lt;/p>
 &lt;ul>
-&lt;li>Você ira aumentar o cognitive load de todos os membros do seu time que não precisam saber sobre ou usar o decorador.&lt;/li>
-&lt;li>Se você está ok com fazer mudanças em outros lugares do seu código pq não simplesmente criar novas funções ao invés decoradores que funcionam mais ou menos?&lt;/li>
+&lt;li>
+&lt;p>Você irá aumentar o cognitive load de todos os membros do seu time que não precisam saber sobre ou usar o decorador.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Se você está ok com fazer mudanças em outros lugares do seu código por que não criar novas funções ao invés de decoradores que funcionam mais ou menos?&lt;/p>
+&lt;/li>
 &lt;/ul>
-&lt;p>Ok, você pode estar pensando: &amp;ldquo;Tá , faz sentido não fazer isso que sugeri, mas do que adianta evitar sujar sua codebase se você tá criando problemas de desempenho e debugg? Não parece uma boa solução na maioria dos casos. Eu tenho que concordar com você!&amp;rdquo;&lt;/p>
+&lt;p>Ok, você pode estar pensando: &amp;ldquo;Tá , faz sentido não fazer isso que sugeri, mas do que adianta evitar sujar sua codebase se você tá criando problemas de desempenho e debug? Não parece uma boa solução na maioria dos casos. Eu tenho que concordar com você!&amp;rdquo;&lt;/p>
 &lt;p>Bom, então o que podemos fazer?? O problema que encontramos é que em python não temos context managers que podem lidar com namespaces
 &lt;a href="https://mail.python.org/archives/list/python-ideas@python.org/thread/TAVHEKDZVYKJUGZKWSVZVAOGBPLZVKQG/" target="_blank" rel="noopener">https://mail.python.org/archives/list/python-ideas@python.org/&lt;/a>. Mas se desanime com essa limitação, a questão agora é:&lt;/p>
 &lt;div class="alert alert-note">
@@ -172,7 +176,7 @@ result = func(x, y)[0]
 &lt;strong>Se uma linguagem não tem uma feature que eu preciso o que eu posso fazer?&lt;/strong>
 &lt;/div>
 &lt;/div>
-&lt;p>Em pyhton estamos bem com isso pois é fácil manipular o que é conhecido como &lt;strong>A&lt;/strong>bstract &lt;strong>S&lt;/strong>yntax &lt;strong>T&lt;/strong>ree (árvores sintática abstrata) e compilar ela em uma nova função em tempo de execução (runtime). ** Quando programamos desse jeito estamos no reino da meta-programação! Tentarei esclarecer esses pontos agora**&lt;/p>
+&lt;p>Em pyhton estamos bem com isso pois é fácil manipular o que é conhecido como &lt;strong>A&lt;/strong>bstract &lt;strong>S&lt;/strong>yntax &lt;strong>T&lt;/strong>ree (árvore sintática abstrata) e compilar ela em uma nova função em tempo de execução (runtime). ** Quando programamos desse jeito estamos no reino da metaprogramação! Tentarei esclarecer esses pontos agora**&lt;/p>
 &lt;h2 id="asts-o-que-são">ASTs: O que são?&lt;/h2>
 &lt;p>Uma linguagem de programação é obviamente, pelo menos uma linguagem&amp;hellip; OK, &lt;strong>mas o que é uma linguagem? Todas as linguagens humanas compartilham uma estrutura em comum? Como podemos comparar sentenças diferentes na mesma linguagem?&lt;/strong> Essas questões talvez pareçam ser mais adequadas para serem respondidas por filósofos. Contudo, também é tema de trabalho de matemáticos e computeiros&lt;/p>
 &lt;p>A grande diferença é que matemáticos e computeiros comumente preferem falar sobre coisas usando algum formalismo matemático. Em essência, &lt;strong>AST&lt;/strong> faz parte de um formalismo matemático que permite isso. Uma &lt;strong>AST&lt;/strong> permite representar uma sentença através de um grafo direcionado do tipo árvore. Para isso usamos um conjunto de regras bem definidas em como construir essa árvore.&lt;/p>
@@ -180,31 +184,29 @@ result = func(x, y)[0]
 &lt;p>Você provavelmente se lembra quase institivamente de um conjunto de regras que aprendeu durante sua vida ou acabou se acostumando sobre como organizar e compor verbos, substantivos, adjetivos, etc. Este conjunto de regras e guias é a sintaxe da linguagem que você fala/escreve. &lt;em>AST&lt;/em>s permitem checar e compreender uma sentença utilizando essas regras&lt;/p>
 &lt;p>Pegue por exemplo a sentença&lt;/p>
 &lt;p>&lt;em>&amp;ldquo;I drive a car to my college&amp;rdquo;&lt;/em>, a AST é a seguinte&lt;/p>
-&lt;figure id="figure-a-syntax-tree-for-the-sentence-i-drive-a-car-to-my-college-source-geeks-for-geekssyntax-tree--natural-language-processinghttpswwwgeeksforgeeksorgsyntax-tree-natural-language-processing">
-&lt;a data-fancybox="" href="/pt-br/post/python_ast_metaprogramming_with_introspection_and_decorators/ast_english_sentence_hue5b8d52ce962721ee6d0acb19268cb10_239788_0x400_resize_lanczos_2.png" data-caption="A &amp;lt;strong&amp;gt;S&amp;lt;/strong&amp;gt;yntax &amp;lt;strong&amp;gt;T&amp;lt;/strong&amp;gt;ree for the sentence: &amp;lt;em&amp;gt;I drive a car to my college&amp;lt;/em&amp;gt;. &amp;lt;strong&amp;gt;Source&amp;lt;/strong&amp;gt;:&amp;lt;a href=&amp;#34;https://www.geeksforgeeks.org/syntax-tree-natural-language-processing/&amp;#34;&amp;gt; Geeks for Geeks:Syntax Tree – Natural Language Processing.&amp;lt;/a&amp;gt;">
+&lt;figure id="figure-fonte-geeks-for-geekssyntax-tree--natural-language-processinghttpswwwgeeksforgeeksorgsyntax-tree-natural-language-processing">
+&lt;a data-fancybox="" href="/pt-br/post/python_ast_metaprogramming_with_introspection_and_decorators/ast_english_sentence_hue5b8d52ce962721ee6d0acb19268cb10_239788_0x400_resize_lanczos_2.png" data-caption="&amp;lt;strong&amp;gt;Fonte&amp;lt;/strong&amp;gt;:&amp;lt;a href=&amp;#34;https://www.geeksforgeeks.org/syntax-tree-natural-language-processing/&amp;#34;&amp;gt; Geeks for Geeks:Syntax Tree – Natural Language Processing.&amp;lt;/a&amp;gt;">
 &lt;img src="/pt-br/post/python_ast_metaprogramming_with_introspection_and_decorators/ast_english_sentence_hue5b8d52ce962721ee6d0acb19268cb10_239788_0x400_resize_lanczos_2.png" alt="" height="400px">
 &lt;/a>
 &lt;figcaption>
-A &lt;strong>S&lt;/strong>yntax &lt;strong>T&lt;/strong>ree for the sentence: &lt;em>I drive a car to my college&lt;/em>. &lt;strong>Source&lt;/strong>:&lt;a href="https://www.geeksforgeeks.org/syntax-tree-natural-language-processing/"> Geeks for Geeks:Syntax Tree – Natural Language Processing.&lt;/a>
+&lt;strong>Fonte&lt;/strong>:&lt;a href="https://www.geeksforgeeks.org/syntax-tree-natural-language-processing/"> Geeks for Geeks:Syntax Tree – Natural Language Processing.&lt;/a>
 &lt;/figcaption>
 &lt;/figure>
 &lt;p>Qual a vantagem de usar ASTs? Note que não precisamos falar de espaços, caligrafia ou estilo pessoal de organizar escrita para compreender uma sentença e saber se ela está válida. Além disso, temos uma estrutura hierárquica que permite entender a sentença por níveis!&lt;/p>
 &lt;p>Não é uma surpresa que ASTs são também uma ferramenta comum em processos de analisar a validade de um código ou na construção de um compilador/interpretador. Nesse post iremos manipular a AST! Mas antes disso quero fazer uma pergunta:&lt;/p>
-&lt;h5 class="text-center">Python é uma linguagem interpretada?&lt;/h5>
-&lt;h2 id="python--interpretado-ou-compilado">Python: interpretado ou compilado?&lt;/h2>
-&lt;p>Geralmente, quando encontro um hater de python ou mesmo um entusiasta eu ouço ou leio coisas do tipo:&lt;/p>
+&lt;h2 id="python-é--interpretado-ou-compilado">Python é interpretado ou compilado?&lt;/h2>
+&lt;p>Geralmente, quando encontro um hater de python ou mesmo um entusiasta ouço ou leio coisas do tipo:&lt;/p>
 &lt;ul>
 &lt;li>&amp;ldquo;&lt;em>Python é lento pois é uma linguagem interpretada&lt;/em>&amp;rdquo;&lt;/li>
 &lt;li>&amp;ldquo;*Python é legal pois não tem chatice de compilação&amp;rdquo;&lt;/li>
 &lt;li>&lt;em>&amp;ldquo;Python é ruim comparado a C pois não tem um compilador&amp;rdquo;&lt;/em>&lt;/li>
 &lt;/ul>
-&lt;p>Bem, essas aserções não são verdadeiras, pois estão usando conceitos errados! Outra confusão é
-que geralmente quando se fala em python estamos nos referindo a linguagem (sintaxe) do python mais a maquina virtual do CPython. Vamos conversar um pouco mais sobre isso&lt;/p>
-&lt;p>Dizer que uma linguagem hoje é &lt;em>puramente&lt;/em> compilada ou interpretada é meio confuso, pois atualmente essa divisão é borrada. Veja o seguinte&lt;/p>
+&lt;p>Bem, essas asserções não são verdadeiras, pois estão usando conceitos errados! Outra confusão é que geralmente quando se fala em python estamos nos referindo a linguagem (sintaxe, etc) python mais a máquina virtual do CPython. Vamos conversar um pouco mais sobre isso&lt;/p>
+&lt;p>Dizer que uma linguagem hoje é &lt;em>puramente compilada ou interpretada&lt;/em> é confuso, pois essa divisão é borrada. Veja o seguinte&lt;/p>
 &lt;pre>&lt;code class="language-python">hello_world = &amp;quot;print('Hello, world!')&amp;quot;
 hello_world_obj = compile(hello_world, '&amp;lt;string&amp;gt;', 'single')
 &lt;/code>&lt;/pre>
-&lt;p>Pois é, se você ia tentar defender nos comentários que python é puramente interpretado as coisas estão mais difíceis para você. Por que tem um &lt;code>compile&lt;/code> disponível? O que ele faz?&lt;/p>
+&lt;p>Pois é&amp;hellip; se você tentaria defender nos comentários que python é puramente interpretado as coisas estão mais difíceis para você. Por que tem um &lt;code>compile&lt;/code> disponível? O que ele faz?&lt;/p>
 &lt;pre>&lt;code class="language-python">exec(hello_world_obj)
 Hello, world!
 &lt;/code>&lt;/pre>
@@ -214,8 +216,8 @@ Bad news for you:
 Content: b'e\x00d\x00\x83\x01F\x00d\x01S\x00'
 Type: &amp;lt;class 'bytes'&amp;gt;
 &lt;/code>&lt;/pre>
-&lt;p>Para entender, mesmo que superficialmente, os prints acima você precisa compreender o que acontece por trás dos panos quando um código python é &amp;ldquo;interpretado&amp;rdquo;&lt;/p>
-&lt;p>Após você escrever um código e chamar o comando python, o python inicia um processo de compilação criando as ASTs, depois gerando bytecodes a partir das ASTs e esses últimos serão encapsulados em &lt;code>code_object&lt;/code>s. E na última etapa os code objects serão interpretados pela máquina virtual do CPython. O diagrama à baixo é uma representação simples (com passos omitidos) do processo&lt;/p>
+&lt;p>Para entender os prints acima você precisa compreender o que acontece por trás dos panos quando um código python é &amp;ldquo;&lt;em>interpretado&lt;/em>&amp;rdquo;.&lt;/p>
+&lt;p>Após você escrever um código e chamar o comando python, o python inicia um processo de compilação criando as ASTs, depois gerando bytecodes a partir das ASTs e esses últimos serão encapsulados em &lt;code>code_object&lt;/code>s. Na última etapa os code objects serão interpretados pela máquina virtual do CPython. O diagrama à baixo é uma representação simples (com passos omitidos) do processo&lt;/p>
 &lt;div class="mermaid mermaidContainer">
 graph LR;
 A[Source Code]-->|parsing|B[Parse Tree];
@@ -234,7 +236,7 @@ E-->F[Code Object];
 &lt;/div>
 Se você não conhece os conceitos dos nomes acima não se preocupe, não precisamos de tanto aprofundamento.
 **Bytecodes são apenas uma maneira compacta de dizer ao interpretador o que o código quer que ele faça. Enquanto code objects são coisas que encapsulam esses bytecodes.**
-&lt;p>Ok, onde isso entra na minha solução? O que preciso fazer é manipular a AST e compilar um novo code object que será interpretado pelo cpython!&lt;/p>
+&lt;p>Ok, onde isso entra na minha solução? O que eu proponho fazer é manipular a AST e compilar um novo code object que será interpretado pelo cpython!&lt;/p>
 &lt;blockquote>
 &lt;p>Um história engraçada do Luciano Ramalho:
 &lt;blockquote class="twitter-tweet">&lt;p lang="en" dir="ltr">In 2018 I told a CBP officer I was entering the US to speak at PyCon. He asked: &amp;quot;Is Python interpreted or compiled?&amp;quot; After a 2 second pause I said &amp;quot;Interpreted&amp;quot;. I didn&amp;#39;t give the correct answer because I didn&amp;#39;t want to extend the &amp;quot;pleasant&amp;quot; conversation. He let me in.&lt;/p>&amp;mdash; Luciano Ramalho ☔ 🐍 ⚗ ▶️😷💉💉💉 (@ramalhoorg) &lt;a href="https://twitter.com/ramalhoorg/status/1474044907585167362?ref_src=twsrc%5Etfw">December 23, 2021&lt;/a>&lt;/blockquote>
@@ -274,7 +276,7 @@ returns=Name(id='float'),
 type_comment=None)],
 type_ignores=[])
 &lt;/code>&lt;/pre>
-&lt;p>O output acima é a AST da função. Gaste algum tempo olhando essa saída e tente entender/inferir o que cada coisa signfica e como ela é organizada. A imagem abaixo é a representação visual da saída acima&lt;/p>
+&lt;p>O output acima é a AST da função. Gaste algum tempo olhando essa saída e tente entender/inferir o que cada coisa significa e como ela é organizada. A imagem abaixo é a representação visual da saída acima&lt;/p>
 &lt;figure >
 &lt;a data-fancybox="" href="/pt-br/post/python_ast_metaprogramming_with_introspection_and_decorators/simple_ast_hudca446749283cbe6d28b67a245474890_120568_0x1000_resize_lanczos_2.png" >
 &lt;img src="/pt-br/post/python_ast_metaprogramming_with_introspection_and_decorators/simple_ast_hudca446749283cbe6d28b67a245474890_120568_0x1000_resize_lanczos_2.png" alt="" height="400px">
@@ -285,7 +287,7 @@ Por exemplo em&lt;/p>
 &lt;pre>&lt;code>value=BinOp(left=Name(id='a'), op=Add, right=Name(id='b')),
 &lt;/code>&lt;/pre>
 &lt;p>o &lt;code>ast.Name(...&lt;/code> é usado para referenciar as variáveis &lt;code>a&lt;/code> e &lt;code>b&lt;/code> da nossa função.&lt;/p>
-&lt;p>Ok, voltemos ao nosso problema. Lembre que uma solução ruim era reescrever cada função que precisa ser decorada, por exemplo&lt;/p>
+&lt;p>Ok, voltemos ao nosso problema. Lembre-se que uma solução ruim era reescrever cada função que precisa ser decorada, por exemplo&lt;/p>
 &lt;pre>&lt;code class="language-python">def func(x, y):
 random_var = np.random.uniform()
 ... #more local vars
@@ -300,13 +302,13 @@ result = (x+y)**random_var
 return result, locals
 &lt;/code>&lt;/pre>
 &lt;p>A coisa legal que faremos aqui é &lt;strong>escrever uma função que escrevera essas mudanças para nós! E depois colocaremos a compilação dentro de um decorador para evitar que nossa codebase seja alterada.&lt;/strong>&lt;/p>
-&lt;h2 id="como-meta-programar-de-forma-eficiente">Como meta-programar de forma eficiente?&lt;/h2>
+&lt;h2 id="como-metaprogramar-de-forma-eficiente">Como metaprogramar de forma eficiente?&lt;/h2>
 &lt;p>Fazer um código que faça as alterações desejadas na nossa AST pode ser trabalhoso. Como começar a ter uma ideia do que precisa ser feito? Eu penso em uma sucessão de 6 passos e ir iterando para melhorar&lt;/p>
 &lt;h3 id="6-passos-simples">6 passos simples&lt;/h3>
 &lt;ol>
 &lt;li>Criar uma função exemplo (A)&lt;/li>
 &lt;li>Codar uma função transformada do jeito que queremos que ela seja (B)&lt;/li>
-&lt;li>Escrever um teste para que possa ser usado posteriormete para&lt;br>
+&lt;li>Escrever um teste para que possa ser usado posteriormente para&lt;br>
 checar se nossa função transformada (B) bate com a função gerada pela meta-programação (C)&lt;/li>
 &lt;li>Extrair a AST de A e B&lt;/li>
 &lt;li>Comparar as ASTs. O que elas diferem? Anote as diferenças
@@ -318,7 +320,7 @@ checar se nossa função transformada (B) bate com a função gerada pela meta-p
 &lt;/ol>
 &lt;h2 id="criando-nossa-meta-função">Criando nossa meta-função&lt;/h2>
 &lt;h3 id="primeira-iteração">Primeira iteração&lt;/h3>
-&lt;p>Vamos começar escrevendo uma função incrivelmente simples&lt;/p>
+&lt;p>Começaremos escrevendo uma função incrivelmente simples&lt;/p>
 &lt;pre>&lt;code class="language-python">def example_1(x, y):
 internal_var = 222
 result = (x+y)**internal_var
@@ -333,7 +335,7 @@ result, locals_dict = meta_func(x, y)
 assert result == expected_result
 assert expected_locals == locals_dict
 &lt;/code>&lt;/pre>
-&lt;p>Agora, vou usar o &lt;code>difflib&lt;/code> para entender as diferenças entre as duas ASTs.&lt;/p>
+&lt;p>Agora usaseri a &lt;code>difflib&lt;/code> para entender as diferenças entre as duas ASTs.&lt;/p>
 &lt;pre>&lt;code class="language-python">import difflib
 from pprint import pprint
 example_1_ast_str = astor.dump_tree(ast.parse(inspect.getsource(example_1)))
@@ -354,21 +356,21 @@ difflib.unified_diff(example_1_ast_str.splitlines(), example_1_expected_str.spli
 &amp;quot;+ Return(value=Tuple(elts=[Name(id='result'), &amp;quot;
 &amp;quot;Call(func=Name(id='locals'), args=[], keywords=[])]))],&amp;quot;]
 &lt;/code>&lt;/pre>
-&lt;p>Sabemos então que precisamos mudar o seguinte Node na AST&lt;/p>
+&lt;p>Com o output acima sabemos aogra que precisaremos mudar o seguinte nó na AST&lt;/p>
 &lt;pre>&lt;code>Return(value=Name(id='result'))],
 &lt;/code>&lt;/pre>
 &lt;p>para isto&lt;/p>
 &lt;pre>&lt;code>Return(value=Tuple(elts=[Name(id='result'), Call(func=Name(id='locals'), args=[], keywords=[])]))],
 &lt;/code>&lt;/pre>
-&lt;p>Como aletramos Nodes na AST? Com a ajuda do &lt;code>NodeTransformer&lt;/code>&lt;/p>
+&lt;p>Como alterar nós na AST? Com a ajuda do &lt;code>NodeTransformer&lt;/code>&lt;/p>
 &lt;h3 id="o-nodetransformer">O NodeTransformer&lt;/h3>
 &lt;p>O &lt;code>ast.NodeTransformer&lt;/code> nos permite criar objetos com uma interface de caminhante. O caminhante visitará cada Node da AST e durante cada visita ele pode remover, substituir, modificar ou adicionar Nodes. Após fazer essas alterações o caminhante pode continuar sua caminhada nos filhos do Node ou apenas parar.&lt;/p>
 &lt;p>Vamos iniciar criando uma classe derivada de &lt;code>ast.NodeTransformer&lt;/code>&lt;/p>
 &lt;pre>&lt;code class="language-python">class ASTTransformer(ast.NodeTransformer):
 def visit_Return(self, node):
 &lt;/code>&lt;/pre>
-&lt;p>Se queremos interagir com um Node type &lt;code>AlgumaCoisa&lt;/code> precisamos dar override no método &lt;code>visit_AlgumaCoisa&lt;/code>.
-Portanto, como sabemos que precisamos mudar o &lt;code>Return&lt;/code> iremos sobrescrever o &lt;code>visit_Return&lt;/code>. Nos precisamos também criar um nó para pegar o &lt;code>locals&lt;/code>. Esse nó é um Node to tipo &lt;code>Call&lt;/code>&lt;/p>
+&lt;p>Se queremos interagir com um nó do tipo &lt;code>AlgumaCoisa&lt;/code> precisamos sobrescrever o método &lt;code>visit_AlgumaCoisa&lt;/code>.
+Portanto, como sabemos que precisamos mudar o &lt;code>Return&lt;/code> iremos sobrescrever o &lt;code>visit_Return&lt;/code>. Precisaremos criar também um nó para pegar o &lt;code>locals&lt;/code>. Esse nó é o &lt;code>Call&lt;/code>&lt;/p>
 &lt;pre>&lt;code class="language-python">class ASTTransformer(ast.NodeTransformer):
 def visit_Return(self, node):
 node_locals = ast.Call(
@@ -378,7 +380,7 @@ args=[], keywords=[]
 self.generic_visit(node)
 return node
 &lt;/code>&lt;/pre>
-&lt;p>Veja que usamos o nó &lt;code>Name&lt;/code> para identificar a função &lt;code>locals&lt;/code>. Agora, de acordo com o resultado do nosso diff o resultado do &lt;code>Return&lt;/code> precisa ser uma Node do tipo &lt;code>Tuple&lt;/code>&lt;/p>
+&lt;p>Veja que usamos o nó &lt;code>Name&lt;/code> para identificar a função &lt;code>locals&lt;/code>. Agora, de acordo com o resultado do nosso diff o resultado do &lt;code>Return&lt;/code> precisa ser uma nó do tipo &lt;code>Tuple&lt;/code>&lt;/p>
 &lt;pre>&lt;code class="language-python">class ASTTransformer(ast.NodeTransformer):
 def visit_Return(self, node):
 node_locals = ast.Call(
@@ -395,7 +397,7 @@ ctx=ast.Load()
 self.generic_visit(new_node)
 return new_node
 &lt;/code>&lt;/pre>
-&lt;p>Uma nova coisa apareceu. O argumento &lt;code>elts&lt;/code>. Não se preoucupe em entender tudo. Mas o &lt;code>elts&lt;/code> é um arg que diz qual é a lista de Nodes que a Tupla deve conter. Toda vez que você quiser entender um pouco mais sobre ASTs e a gramática abstrata do python você pode consultar a documentação oficial
+&lt;p>Uma nova coisa apareceu. O argumento &lt;code>elts&lt;/code>. Não se preoucupe em entender tudo. Mas o &lt;code>elts&lt;/code> é um arg que diz qual é a lista de nós que a Tupla deve conter. Toda vez que você quiser entender um pouco mais sobre ASTs e a gramática do python você pode consultar a documentação oficial
 &lt;a href="https://docs.python.org/3/library/ast.html" target="_blank" rel="noopener">aqui&lt;/a>.&lt;/p>
 &lt;p>Quase tudo pronto. A última coisa que precisamos fazer é corrigir nossa AST. Pois ao alterar o Node precisamos preencher/corrigir as informações de line_number e column_offest. O python torna isso fácil com o método &lt;code>fix_missing_locations&lt;/code>&lt;/p>
 &lt;pre>&lt;code class="language-python">
@@ -418,7 +420,7 @@ ast.fix_missing_locations(new_node)
 self.generic_visit(new_node)
 return new_node
 &lt;/code>&lt;/pre>
-&lt;p>Vamos ver se tá funcionando. Precisamos instanciar nosso transformer e chamar o método &lt;code>visit&lt;/code> que diz para o caminhante iniciar a caminhada e fazer as modificações que estamos pedindo.&lt;/p>
+&lt;p>Ok, vamos ver se funcionou. Para isso, precisamos instanciar nosso transformer e chamar o método &lt;code>visit&lt;/code> que diz para o caminhante iniciar a caminhada e fazer as modificações pedidas&lt;/p>
 &lt;pre>&lt;code class="language-python">tree_meta = ast.parse(inspect.getsource(example_1))
 transformer = ASTTransformer()
 transformer.visit(tree_meta)
@@ -436,9 +438,9 @@ difflib.unified_diff(example_1_meta_ast_str.splitlines(), example_1_expected_str
 &amp;quot;- FunctionDef(name='example_1',&amp;quot;,
 &amp;quot;+ FunctionDef(name='example_1_expected',&amp;quot;]
 &lt;/code>&lt;/pre>
-&lt;p>Funcionou! Vamos adicionar um pouco mais de complicação para ver o transformer continuará funcionando.&lt;/p>
+&lt;p>Funcionou! Vamos adicionar um pouco mais de complicação para ver se o NodeTransformer continuará funcionando.&lt;/p>
 &lt;h3 id="a-segunda-iteração">A segunda iteração&lt;/h3>
-&lt;p>Seja criativo na hora de complicar, eu fiz isso aqui, feio, mais adiciona muita confusão para o transformer&lt;/p>
+&lt;p>Seja criativo na hora de complicar, eu fiz isso aqui é feio mais adiciona muita confusão para estressar o NodeTransformer.&lt;/p>
 &lt;pre>&lt;code class="language-python">def example_2(x, y):
 internal_var = 222
 def sub(x, y):
@@ -511,7 +513,7 @@ difflib.unified_diff(example_2_meta_ast_str.splitlines(), example_2_expected_str
 &amp;quot;+ Return(value=BinOp(left=Name(id='x'), op=Sub, &amp;quot;
 &amp;quot;right=Name(id='y')))],&amp;quot;]
 &lt;/code>&lt;/pre>
-&lt;p>Falhou miseravelmente. Qual é o problema? Se você olhar o diff com cuidado verar que o transformer alterou a função interna. Não queremos isso. Portanto diremos para o caminhante evitar modificar se estiver em uma função interna. Para isso, precisamos sobrescrever o método &lt;code>visit_FunctionDef&lt;/code> e criar uma flag para marcar em que nível o caminhante está&lt;/p>
+&lt;p>Falhou miseravelmente. Qual é o problema? Se você olhar o &lt;code>diff&lt;/code> com cuidado verá que o &lt;code>NodeTransformer&lt;/code> alterou a função interna. Não queremos isso. Portanto, diremos para o caminhante evitar modificar se estiver em uma função interna. Para isso, precisamos sobrescrever o método &lt;code>visit_FunctionDef&lt;/code> e criar uma flag para marcar em que nível o caminhante está&lt;/p>
 &lt;pre>&lt;code class="language-python">class ASTTransformer(ast.NodeTransformer):
 def visit_FunctionDef(self, node):
 if self._sub:
@@ -557,9 +559,9 @@ difflib.unified_diff(example_2_meta_ast_str.splitlines(), example_2_expected_str
 &amp;quot;- FunctionDef(name='example_2',&amp;quot;,
 &amp;quot;+ FunctionDef(name='example_2_expected',&amp;quot;]
 &lt;/code>&lt;/pre>
-&lt;p>Tudo ok! Próximo passo&lt;/p>
+&lt;p>Tudo ok! Próximo passo: compilar nossa ast.&lt;/p>
 &lt;h3 id="criando-uma-nova-função-em-runtime">Criando uma nova função em runtime&lt;/h3>
-&lt;p>O que faremos agora é compilar a AST transforamada e associa-la com uma nova função. Em python podemos fazer isso em tempo de execução com &lt;code>type.FunctionType&lt;/code>&lt;/p>
+&lt;p>O que faremos agora é compilar a AST transformada e associa-la com uma nova função. Em python podemos fazer isso em tempo de execução com &lt;code>type.FunctionType&lt;/code>&lt;/p>
 &lt;pre>&lt;code class="language-python">from types import FunctionType, CodeType
 def transform_and_compile(func: FunctionType)-&amp;gt;FunctionType:
 source = inspect.getsource(func)
@@ -623,7 +625,7 @@ return result
 return decorated
 return decorate
 &lt;/code>&lt;/pre>
-&lt;p>Vejamos o resultado em uma função bem simples&lt;/p>
+&lt;p>Veja o resultado em uma função bem simples&lt;/p>
 &lt;pre>&lt;code class="language-python">@report(fmt='{name}(a={a}, b={b}, c={c}); sum_ab {sum_ab}, diff_ab {dif_ab}; r={result}')
 def dummy_example(a, b, c=2):
 sum_ab = a + b
