@@ -1,661 +1,591 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
-  <channel>
-    <title>databases | Bruno Messias</title>
-    <link>/tag/databases/</link>
-      <atom:link href="/tag/databases/index.xml" rel="self" type="application/rss+xml" />
-    <description>databases</description>
-    <generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>en</language><copyright>Bruno Messias</copyright><lastBuildDate>Fri, 04 Feb 2022 08:31:00 -0300</lastBuildDate>
-    <image>
-      <url>/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_2.png</url>
-      <title>databases</title>
-      <link>/tag/databases/</link>
-    </image>
-    
-    <item>
-      <title>Dissecting processes and failures in Linux with lsof and strace: cases for MlOps and DevOps</title>
-      <link>/post/using_lsof_and_strace_to_investigate_process_and_failures/</link>
-      <pubDate>Fri, 04 Feb 2022 08:31:00 -0300</pubDate>
-      <guid>/post/using_lsof_and_strace_to_investigate_process_and_failures/</guid>
-      <description>&lt;p&gt;In DevOps or MlOps discovering what a process is doing now can save your system from a catastrophe. But sometimes we are already in a failure. When those failures happen, the following questions appear:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;
-&lt;p&gt;&lt;em&gt;The process it’s hanging and  I don’t know why!&lt;/em&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;&lt;em&gt;What is the cause of the problem?&lt;/em&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;&lt;em&gt;Is it a network issue?&lt;/em&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;…and so on and so forth.&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;Being able to answer these questions faster and with a precise answer can save you or give you a promotion.  I’ll show you some simple examples of how those questions can be answered.&lt;/p&gt;
-
-
-
-
-
-
-
-  
-  
-
-
-
-
-
-
-
-
-
-
-
-&lt;figure id=&#34;figure-the-strace-logo-is-an-ostrich&#34;&gt;
-
-
-  &lt;a data-fancybox=&#34;&#34; href=&#34;/post/using_lsof_and_strace_to_investigate_process_and_failures/strace_lsof_twitter_hu8f2dca20993b287d55ca9195e297c994_439856_2000x2000_fit_lanczos_2.png&#34; data-caption=&#34;The strace logo is an ostrich.&#34;&gt;
-
-
-  &lt;img src=&#34;/post/using_lsof_and_strace_to_investigate_process_and_failures/strace_lsof_twitter_hu8f2dca20993b287d55ca9195e297c994_439856_2000x2000_fit_lanczos_2.png&#34; alt=&#34;&#34;  &gt;
-&lt;/a&gt;
-
-
-  
-  
-  &lt;figcaption&gt;
-    The strace logo is an ostrich.
-  &lt;/figcaption&gt;
-
-
-&lt;/figure&gt;
-
-&lt;details 
-class=&#34;toc-inpage d-print-none d-none d-sm-block d-md-none  &#34; open&gt;
-  &lt;summary class=&#34;font-weight-bold&#34;&gt;Table of Contents&lt;/summary&gt;
-  &lt;nav id=&#34;TableOfContents&#34;&gt;
-  &lt;ul&gt;
-    &lt;li&gt;&lt;a href=&#34;#concepts&#34;&gt;Concepts&lt;/a&gt;
-      &lt;ul&gt;
-        &lt;li&gt;&lt;a href=&#34;#everything-is-a-file---the-unix-mantra&#34;&gt;&lt;em&gt;“Everything is a file.”&lt;/em&gt; - The UNIX mantra.&lt;/a&gt;
-          &lt;ul&gt;
-            &lt;li&gt;&lt;a href=&#34;#lsof&#34;&gt;LSOF&lt;/a&gt;&lt;/li&gt;
-          &lt;/ul&gt;
-        &lt;/li&gt;
-        &lt;li&gt;&lt;a href=&#34;#system-calls-and-strace&#34;&gt;System Calls and strace&lt;/a&gt;&lt;/li&gt;
-      &lt;/ul&gt;
-    &lt;/li&gt;
-    &lt;li&gt;&lt;a href=&#34;#a-deep-dive-into-failures&#34;&gt;A deep dive into failures&lt;/a&gt;
-      &lt;ul&gt;
-        &lt;li&gt;&lt;a href=&#34;#network-issues&#34;&gt;Network issues&lt;/a&gt;
-          &lt;ul&gt;
-            &lt;li&gt;&lt;a href=&#34;#is-my-server-alive&#34;&gt;Is my server alive?&lt;/a&gt;&lt;/li&gt;
-            &lt;li&gt;&lt;a href=&#34;#is-my-process-stuck-waiting-for-someone-what-is-causing-the-process-hanging&#34;&gt;Is my process stuck waiting for someone? What is causing the process hanging?&lt;/a&gt;&lt;/li&gt;
-          &lt;/ul&gt;
-        &lt;/li&gt;
-        &lt;li&gt;&lt;a href=&#34;#problems-with-regular-files&#34;&gt;Problems with regular files&lt;/a&gt;
-          &lt;ul&gt;
-            &lt;li&gt;&lt;a href=&#34;#which-processes-is-this-file-attached-to&#34;&gt;Which processes is this file attached to?&lt;/a&gt;&lt;/li&gt;
-            &lt;li&gt;&lt;a href=&#34;#i-made-a-mistake-deleted-an-important-file-how-can-i-recover-it&#34;&gt;I made a mistake! Deleted an important file! How can I recover it?&lt;/a&gt;&lt;/li&gt;
-            &lt;li&gt;&lt;a href=&#34;#silent-errors-associated-with-files-and-permissions&#34;&gt;Silent errors associated with files and permissions&lt;/a&gt;&lt;/li&gt;
-            &lt;li&gt;&lt;a href=&#34;#is-this-process-using-a-cache-where-can-i-find-this-cache-which-configs-files-does-this-process-use&#34;&gt;Is this process using a cache? Where can I find this cache? Which configs files does this process use?&lt;/a&gt;&lt;/li&gt;
-          &lt;/ul&gt;
-        &lt;/li&gt;
-        &lt;li&gt;&lt;a href=&#34;#dissecting-your-database-system&#34;&gt;Dissecting your database system&lt;/a&gt;
-          &lt;ul&gt;
-            &lt;li&gt;&lt;a href=&#34;#is-this-process--well-behaved-how-many-connections-does-it-have&#34;&gt;Is this process  well behaved? How many connections does it have?&lt;/a&gt;&lt;/li&gt;
-            &lt;li&gt;&lt;a href=&#34;#everything-is-working-proprely&#34;&gt;Everything is working proprely?&lt;/a&gt;&lt;/li&gt;
-          &lt;/ul&gt;
-        &lt;/li&gt;
-        &lt;li&gt;&lt;a href=&#34;#extras-related-to-files-proc-and-strace&#34;&gt;Extras related to files (&lt;code&gt;/proc/&lt;/code&gt;) and &lt;code&gt;strace&lt;/code&gt;&lt;/a&gt;
-          &lt;ul&gt;
-            &lt;li&gt;&lt;a href=&#34;#creating-a-sys-call-summary-what-does-my-program-do&#34;&gt;Creating a SYS CALL summary: what does my program do?&lt;/a&gt;&lt;/li&gt;
-            &lt;li&gt;&lt;a href=&#34;#did-this-process-start-with-the-correct-environment-variables&#34;&gt;Did this process start with the correct environment variables?&lt;/a&gt;&lt;/li&gt;
-            &lt;li&gt;&lt;a href=&#34;#i-forgot-to-redirect-the-outputs-what-can-i-do-now&#34;&gt;I forgot to redirect the outputs! What can I do now?&lt;/a&gt;&lt;/li&gt;
-            &lt;li&gt;&lt;a href=&#34;#how-this-program-has-been-called-what-is-the-working-dir-of-the-process&#34;&gt;How this program has been called? What is the working dir of the process?&lt;/a&gt;&lt;/li&gt;
-          &lt;/ul&gt;
-        &lt;/li&gt;
-        &lt;li&gt;&lt;a href=&#34;#conclusion--suggestions&#34;&gt;Conclusion &amp;amp; Suggestions&lt;/a&gt;&lt;/li&gt;
-      &lt;/ul&gt;
-    &lt;/li&gt;
-  &lt;/ul&gt;
-&lt;/nav&gt;
-&lt;/details&gt;
-&lt;p&gt;&lt;strong&gt;Introduction&lt;/strong&gt;&lt;/p&gt;
-&lt;p&gt;Linux is a very transparent operating system. Transparency means  that is easy to dig in the system&amp;rsquo;s behavior to understand how it works. Also, Linux is easy to control even in the low-level behaviors.  But how  can this help to understand a process and consequently a failure?&lt;/p&gt;
-&lt;p&gt;The first step to understanding a process is to analyze the output. But sometimes the output doesn’t give us enough information to use. Here I’ll talk about how we can extract useful information using the &lt;code&gt;strace&lt;/code&gt; and &lt;code&gt;lsof&lt;/code&gt; commands. To use these commands it is good to know two concepts: the &lt;em&gt;“Everything is a file ”&lt;/em&gt; mantra and the &lt;strong&gt;system call&lt;/strong&gt; mechanism.&lt;/p&gt;
-&lt;h1 id=&#34;concepts&#34;&gt;Concepts&lt;/h1&gt;
-&lt;h2 id=&#34;everything-is-a-file---the-unix-mantra&#34;&gt;&lt;em&gt;“Everything is a file.”&lt;/em&gt; - The UNIX mantra.&lt;/h2&gt;
-&lt;p&gt;&lt;img src=&#34;everthing_is_a_file.png&#34; alt=&#34;everything_is_a_file&#34;&gt;&lt;/p&gt;
-&lt;p&gt;What  comes to your mind when someone talks about files? Maybe a jpeg or a CSV if you work as a data scientist. But in UNIX approach to do stuff everything can be a file, even network connections. When a thing is not a file it has at least a file descriptor associated with it. Maybe you’re thinking that I’m wandering from the post. &lt;em&gt;“How can this stuff help to improve our comprehension about a process or failure?”&lt;/em&gt; The answer is straightforward: if everything is a file, we can use the same set of tools to list, read and interact (API) with files to analyze a generic process. Here is where &lt;code&gt;lsof&lt;/code&gt; appears.&lt;/p&gt;
-&lt;h3 id=&#34;lsof&#34;&gt;LSOF&lt;/h3&gt;
-&lt;p&gt;lsof is an acronym for &lt;strong&gt;l&lt;/strong&gt;ist of &lt;strong&gt;o&lt;/strong&gt;pen &lt;strong&gt;f&lt;/strong&gt;iles. In simple terms, Lsof is a command-line tool that can list open file descriptors in your machine. Besides that, Lsof allows using a set of different filters to give you a filtered list of opened files. Thus, we can list the open file descriptors of a user or a process.&lt;/p&gt;
-&lt;p&gt;To put all the open files in your machine use the following command:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;username:/$ lsof &amp;gt; lsof_everything.txt
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;The file &lt;code&gt;lsof_everything.txt&lt;/code&gt; is huge and  will look similar to this&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;COMMAND     PID   TID TASKCMD               USER   FD      TYPE             DEVICE  SIZE/OFF       NODE NAME
-systemd       1                             root  cwd   unknown                                         /proc/1/cwd (readlink: Permission denied)
-systemd       1                             root  rtd   unknown                                         /proc/1/root (readlink: Permission denied)
-systemd       1                             root  txt   unknown                                         /proc/1/exe (readlink: Permission denied)
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Take some time to analyze the output. The output relates to the first lines to the &lt;code&gt;root&lt;/code&gt; user and you don’t have permission to gain information about these files, which is good. Let’s remove this wasteful information filtering the SYS CALLs related to just your user.&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;username:/$ lsof -u username &amp;gt; lsof_my.txt
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;The &lt;code&gt;txt&lt;/code&gt; file is still big. Try to look into this file to see if you can find anything interesting, like a webpage address.&lt;/p&gt;
-&lt;p&gt;We have a lot of different columns in the file. But don’t be worried, I’ll show you the columns that I believe are the most important ones.&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;COMMAND
-&lt;ul&gt;
-&lt;li&gt;The command name used to initiate the process&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;PID
-&lt;ul&gt;
-&lt;li&gt;This is an integer number that identifies a process,  &lt;strong&gt;P&lt;/strong&gt;rocess &lt;strong&gt;ID&lt;/strong&gt;entification number.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;USER
-&lt;ul&gt;
-&lt;li&gt;The user to whom the process belongs.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;TYPE
-&lt;ul&gt;
-&lt;li&gt;This may be one of the most important columns. It has more than 60 possible values. Such column says the type of the node associated with the file. If the file is related with connections and sockets you will see things like that:  &lt;strong&gt;IPV4, IPV6,&lt;/strong&gt; &lt;strong&gt;unix&lt;/strong&gt;, &lt;strong&gt;INET&lt;/strong&gt;, etc. If it’s an regular file (csv, jpeg, txt, etc.) you will see the &lt;strong&gt;REG&lt;/strong&gt; value.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;NODE
-&lt;ul&gt;
-&lt;li&gt;This helps us to identify the node associated with the file descriptor. It can be a number, a string, etc. In the case of internet protocols this column will have values like &lt;strong&gt;TCP, UDP&lt;/strong&gt;.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;NAME
-&lt;ul&gt;
-&lt;li&gt;The values here will change a lot.  For example, sometimes it can be a web server address or just a cryptic string. Regardless of the difficulty of interpreting the values in this column you should look carrefully here.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;If you want a more deep understanding of the columns just uses &lt;code&gt;man lsof&lt;/code&gt; .&lt;/p&gt;
-&lt;h2 id=&#34;system-calls-and-strace&#34;&gt;System Calls and strace&lt;/h2&gt;
-&lt;p&gt;The SYSTEM_CALL is a mechanism that allows a program to ask the kernel for some resources, like the access of data stored in the disk. Therefore, if we have a tool to intercept those calls, we can have a deep comprehension of what a program is doing or what it want’s to do in your system. A celebrated tool to intercept the system calls is the &lt;code&gt;strace&lt;/code&gt;.&lt;/p&gt;
-&lt;p&gt;If the strace command is not available in your system, install it. In apt-based distros just calling the following command should be enough.&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ apt install strace
-&lt;/code&gt;&lt;/pre&gt;
-&lt;div class=&#34;alert alert-note&#34;&gt;
-  &lt;div&gt;
-    In older Debian distros (&amp;lt;=10) you can  get the last deb package from here: &lt;a href=&#34;http://ftp.de.debian.org/debian/pool/main/s/strace/strace_5.10-1_amd64.deb&#34;&gt;strace_5.10-1_amd64.deb&lt;/a&gt;. The new version of strace has some cool features that can facilitate our job.
-  &lt;/div&gt;
-&lt;/div&gt;
-&lt;p&gt;You can use &lt;code&gt;strace&lt;/code&gt; in two different ways. The first one is to call strace followed by the strace arguments and the command to be intercepted:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ strace ARGS command
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;In the second way we will replace the command by the &lt;code&gt;-p&lt;/code&gt; argument followed by the process identification number (&lt;strong&gt;PID&lt;/strong&gt;) of the process to be intercepted:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ strace ARGS -p PID
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;To discover the PID of a process, you can use the command &lt;code&gt;ps aux | grep -i ‘[p]rocess_name’&lt;/code&gt;.&lt;/p&gt;
-&lt;p&gt;Let’s see an example. We will ask  &lt;code&gt;strace&lt;/code&gt; to intercept any system call performed by the &lt;code&gt;ls&lt;/code&gt; command and we want to record the time that the system call was performed using the &lt;code&gt;-t&lt;/code&gt; argument.&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ strace -t ls
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;The output will be something similar to this:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;18:02:23 execve(&amp;quot;/usr/bin/ls&amp;quot;, [&amp;quot;ls&amp;quot;], 0x7fffa727a418 /* 54 vars */) = 0
-18:02:23 brk(NULL)                      = 0x55ebef60c000
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>databases | Bruno Messias</title><link>/tag/databases/</link><atom:link href="/tag/databases/index.xml" rel="self" type="application/rss+xml"/><description>databases</description><generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>en</language><copyright>Bruno Messias</copyright><lastBuildDate>Fri, 04 Feb 2022 08:31:00 -0300</lastBuildDate><image><url>/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_2.png</url><title>databases</title><link>/tag/databases/</link></image><item><title>Dissecting processes and failures in Linux with lsof and strace: cases for MlOps and DevOps</title><link>/post/using_lsof_and_strace_to_investigate_process_and_failures/</link><pubDate>Fri, 04 Feb 2022 08:31:00 -0300</pubDate><guid>/post/using_lsof_and_strace_to_investigate_process_and_failures/</guid><description>&lt;p>In DevOps or MlOps discovering what a process is doing now can save your system from a catastrophe. But sometimes we are already in a failure. When those failures happen, the following questions appear:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>&lt;em>The process it’s hanging and I don’t know why!&lt;/em>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;em>What is the cause of the problem?&lt;/em>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;em>Is it a network issue?&lt;/em>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>…and so on and so forth.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>Being able to answer these questions faster and with a precise answer can save you or give you a promotion. I’ll show you some simple examples of how those questions can be answered.&lt;/p>
+&lt;figure id="figure-the-strace-logo-is-an-ostrich">
+&lt;a data-fancybox="" href="/post/using_lsof_and_strace_to_investigate_process_and_failures/strace_lsof_twitter_hu8f2dca20993b287d55ca9195e297c994_439856_2000x2000_fit_lanczos_2.png" data-caption="The strace logo is an ostrich.">
+&lt;img src="/post/using_lsof_and_strace_to_investigate_process_and_failures/strace_lsof_twitter_hu8f2dca20993b287d55ca9195e297c994_439856_2000x2000_fit_lanczos_2.png" alt="" >
+&lt;/a>
+&lt;figcaption>
+The strace logo is an ostrich.
+&lt;/figcaption>
+&lt;/figure>
+&lt;details
+class="toc-inpage d-print-none d-none d-sm-block d-md-none " open>
+&lt;summary class="font-weight-bold">Table of Contents&lt;/summary>
+&lt;nav id="TableOfContents">
+&lt;ul>
+&lt;li>&lt;a href="#concepts">Concepts&lt;/a>
+&lt;ul>
+&lt;li>&lt;a href="#everything-is-a-file---the-unix-mantra">&lt;em>“Everything is a file.”&lt;/em> - The UNIX mantra.&lt;/a>
+&lt;ul>
+&lt;li>&lt;a href="#lsof">LSOF&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;a href="#system-calls-and-strace">System Calls and strace&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;a href="#a-deep-dive-into-failures">A deep dive into failures&lt;/a>
+&lt;ul>
+&lt;li>&lt;a href="#network-issues">Network issues&lt;/a>
+&lt;ul>
+&lt;li>&lt;a href="#is-my-server-alive">Is my server alive?&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#is-my-process-stuck-waiting-for-someone-what-is-causing-the-process-hanging">Is my process stuck waiting for someone? What is causing the process hanging?&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;a href="#problems-with-regular-files">Problems with regular files&lt;/a>
+&lt;ul>
+&lt;li>&lt;a href="#which-processes-is-this-file-attached-to">Which processes is this file attached to?&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#i-made-a-mistake-deleted-an-important-file-how-can-i-recover-it">I made a mistake! Deleted an important file! How can I recover it?&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#silent-errors-associated-with-files-and-permissions">Silent errors associated with files and permissions&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#is-this-process-using-a-cache-where-can-i-find-this-cache-which-configs-files-does-this-process-use">Is this process using a cache? Where can I find this cache? Which configs files does this process use?&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;a href="#dissecting-your-database-system">Dissecting your database system&lt;/a>
+&lt;ul>
+&lt;li>&lt;a href="#is-this-process--well-behaved-how-many-connections-does-it-have">Is this process well behaved? How many connections does it have?&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#everything-is-working-proprely">Everything is working proprely?&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;a href="#extras-related-to-files-proc-and-strace">Extras related to files (&lt;code>/proc/&lt;/code>) and &lt;code>strace&lt;/code>&lt;/a>
+&lt;ul>
+&lt;li>&lt;a href="#creating-a-sys-call-summary-what-does-my-program-do">Creating a SYS CALL summary: what does my program do?&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#did-this-process-start-with-the-correct-environment-variables">Did this process start with the correct environment variables?&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#i-forgot-to-redirect-the-outputs-what-can-i-do-now">I forgot to redirect the outputs! What can I do now?&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#how-this-program-has-been-called-what-is-the-working-dir-of-the-process">How this program has been called? What is the working dir of the process?&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;a href="#conclusion--suggestions">Conclusion &amp;amp; Suggestions&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/nav>
+&lt;/details>
+&lt;p>&lt;strong>Introduction&lt;/strong>&lt;/p>
+&lt;p>Linux is a very transparent operating system. Transparency means that is easy to dig in the system&amp;rsquo;s behavior to understand how it works. Also, Linux is easy to control even in the low-level behaviors. But how can this help to understand a process and consequently a failure?&lt;/p>
+&lt;p>The first step to understanding a process is to analyze the output. But sometimes the output doesn’t give us enough information to use. Here I’ll talk about how we can extract useful information using the &lt;code>strace&lt;/code> and &lt;code>lsof&lt;/code> commands. To use these commands it is good to know two concepts: the &lt;em>“Everything is a file ”&lt;/em> mantra and the &lt;strong>system call&lt;/strong> mechanism.&lt;/p>
+&lt;h1 id="concepts">Concepts&lt;/h1>
+&lt;h2 id="everything-is-a-file---the-unix-mantra">&lt;em>“Everything is a file.”&lt;/em> - The UNIX mantra.&lt;/h2>
+&lt;p>&lt;img src="everthing_is_a_file.png" alt="everything_is_a_file">&lt;/p>
+&lt;p>What comes to your mind when someone talks about files? Maybe a jpeg or a CSV if you work as a data scientist. But in UNIX approach to do stuff everything can be a file, even network connections. When a thing is not a file it has at least a file descriptor associated with it. Maybe you’re thinking that I’m wandering from the post. &lt;em>“How can this stuff help to improve our comprehension about a process or failure?”&lt;/em> The answer is straightforward: if everything is a file, we can use the same set of tools to list, read and interact (API) with files to analyze a generic process. Here is where &lt;code>lsof&lt;/code> appears.&lt;/p>
+&lt;h3 id="lsof">LSOF&lt;/h3>
+&lt;p>lsof is an acronym for &lt;strong>l&lt;/strong>ist of &lt;strong>o&lt;/strong>pen &lt;strong>f&lt;/strong>iles. In simple terms, Lsof is a command-line tool that can list open file descriptors in your machine. Besides that, Lsof allows using a set of different filters to give you a filtered list of opened files. Thus, we can list the open file descriptors of a user or a process.&lt;/p>
+&lt;p>To put all the open files in your machine use the following command:&lt;/p>
+&lt;pre>&lt;code class="language-bash">username:/$ lsof &amp;gt; lsof_everything.txt
+&lt;/code>&lt;/pre>
+&lt;p>The file &lt;code>lsof_everything.txt&lt;/code> is huge and will look similar to this&lt;/p>
+&lt;pre>&lt;code>COMMAND PID TID TASKCMD USER FD TYPE DEVICE SIZE/OFF NODE NAME
+systemd 1 root cwd unknown /proc/1/cwd (readlink: Permission denied)
+systemd 1 root rtd unknown /proc/1/root (readlink: Permission denied)
+systemd 1 root txt unknown /proc/1/exe (readlink: Permission denied)
+&lt;/code>&lt;/pre>
+&lt;p>Take some time to analyze the output. The output relates to the first lines to the &lt;code>root&lt;/code> user and you don’t have permission to gain information about these files, which is good. Let’s remove this wasteful information filtering the SYS CALLs related to just your user.&lt;/p>
+&lt;pre>&lt;code class="language-bash">username:/$ lsof -u username &amp;gt; lsof_my.txt
+&lt;/code>&lt;/pre>
+&lt;p>The &lt;code>txt&lt;/code> file is still big. Try to look into this file to see if you can find anything interesting, like a webpage address.&lt;/p>
+&lt;p>We have a lot of different columns in the file. But don’t be worried, I’ll show you the columns that I believe are the most important ones.&lt;/p>
+&lt;ul>
+&lt;li>COMMAND
+&lt;ul>
+&lt;li>The command name used to initiate the process&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>PID
+&lt;ul>
+&lt;li>This is an integer number that identifies a process, &lt;strong>P&lt;/strong>rocess &lt;strong>ID&lt;/strong>entification number.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>USER
+&lt;ul>
+&lt;li>The user to whom the process belongs.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>TYPE
+&lt;ul>
+&lt;li>This may be one of the most important columns. It has more than 60 possible values. Such column says the type of the node associated with the file. If the file is related with connections and sockets you will see things like that: &lt;strong>IPV4, IPV6,&lt;/strong> &lt;strong>unix&lt;/strong>, &lt;strong>INET&lt;/strong>, etc. If it’s an regular file (csv, jpeg, txt, etc.) you will see the &lt;strong>REG&lt;/strong> value.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>NODE
+&lt;ul>
+&lt;li>This helps us to identify the node associated with the file descriptor. It can be a number, a string, etc. In the case of internet protocols this column will have values like &lt;strong>TCP, UDP&lt;/strong>.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>NAME
+&lt;ul>
+&lt;li>The values here will change a lot. For example, sometimes it can be a web server address or just a cryptic string. Regardless of the difficulty of interpreting the values in this column you should look carrefully here.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;p>If you want a more deep understanding of the columns just uses &lt;code>man lsof&lt;/code> .&lt;/p>
+&lt;h2 id="system-calls-and-strace">System Calls and strace&lt;/h2>
+&lt;p>The SYSTEM_CALL is a mechanism that allows a program to ask the kernel for some resources, like the access of data stored in the disk. Therefore, if we have a tool to intercept those calls, we can have a deep comprehension of what a program is doing or what it want’s to do in your system. A celebrated tool to intercept the system calls is the &lt;code>strace&lt;/code>.&lt;/p>
+&lt;p>If the strace command is not available in your system, install it. In apt-based distros just calling the following command should be enough.&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ apt install strace
+&lt;/code>&lt;/pre>
+&lt;div class="alert alert-note">
+&lt;div>
+In older Debian distros (&amp;lt;=10) you can get the last deb package from here: &lt;a href="http://ftp.de.debian.org/debian/pool/main/s/strace/strace_5.10-1_amd64.deb">strace_5.10-1_amd64.deb&lt;/a>. The new version of strace has some cool features that can facilitate our job.
+&lt;/div>
+&lt;/div>
+&lt;p>You can use &lt;code>strace&lt;/code> in two different ways. The first one is to call strace followed by the strace arguments and the command to be intercepted:&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ strace ARGS command
+&lt;/code>&lt;/pre>
+&lt;p>In the second way we will replace the command by the &lt;code>-p&lt;/code> argument followed by the process identification number (&lt;strong>PID&lt;/strong>) of the process to be intercepted:&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ strace ARGS -p PID
+&lt;/code>&lt;/pre>
+&lt;p>To discover the PID of a process, you can use the command &lt;code>ps aux | grep -i ‘[p]rocess_name’&lt;/code>.&lt;/p>
+&lt;p>Let’s see an example. We will ask &lt;code>strace&lt;/code> to intercept any system call performed by the &lt;code>ls&lt;/code> command and we want to record the time that the system call was performed using the &lt;code>-t&lt;/code> argument.&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ strace -t ls
+&lt;/code>&lt;/pre>
+&lt;p>The output will be something similar to this:&lt;/p>
+&lt;pre>&lt;code>18:02:23 execve(&amp;quot;/usr/bin/ls&amp;quot;, [&amp;quot;ls&amp;quot;], 0x7fffa727a418 /* 54 vars */) = 0
+18:02:23 brk(NULL) = 0x55ebef60c000
 18:02:23 access(&amp;quot;/etc/ld.so.preload&amp;quot;, R_OK) = -1 ENOENT (No such file or directory)
 18:02:23 openat(AT_FDCWD, &amp;quot;/etc/ld.so.cache&amp;quot;, O_RDONLY|O_CLOEXEC) = 3
 ...
-&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;18:02:23 execve(&amp;quot;/usr/bin/ls&amp;quot;, [&amp;quot;ls&amp;quot;], 0x7fffa727a418 /* 54 vars */) = 0
-18:02:23 brk(NULL)                      = 0x55ebef60c000
+&lt;/code>&lt;/pre>
+&lt;pre>&lt;code>18:02:23 execve(&amp;quot;/usr/bin/ls&amp;quot;, [&amp;quot;ls&amp;quot;], 0x7fffa727a418 /* 54 vars */) = 0
+18:02:23 brk(NULL) = 0x55ebef60c000
 18:02:23 access(&amp;quot;/etc/ld.so.preload&amp;quot;, R_OK) = -1 ENOENT (No such file or directory)
 18:02:23 openat(AT_FDCWD, &amp;quot;/etc/ld.so.cache&amp;quot;, O_RDONLY|O_CLOEXEC) = 3
 ...
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Each line of the &lt;code&gt;strace&lt;/code&gt; output represents a single SYSTEM CALL. It’s easy to see the following pattern:&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;Name of the SYS CALL(Arguments to be used in the system call) = Result of the SYS CALL&lt;/strong&gt;&lt;/p&gt;
-&lt;p&gt;Yes, it’s hard to understand the output or impossible without using a manual. For each SYS CALL you can use the &lt;code&gt;man &lt;/code&gt; command to get more information about what each line represents. For example, to see what  &lt;code&gt;openat&lt;/code&gt; does and the meaning of each argument, use the following command:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ man 2 openat
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;code&gt;openat&lt;/code&gt; is a sys call responsible for requesting a file to be opened. The result of the last line in the output of ls commands, &lt;code&gt; 3&lt;/code&gt;, means a successfully SYS CALL.&lt;/p&gt;
-&lt;h1 id=&#34;a-deep-dive-into-failures&#34;&gt;A deep dive into failures&lt;/h1&gt;
-&lt;p&gt;We will see here failures and issues related to files, connections, etc. But don’t be afraid to explore other problems, we are just scratching the surface of &lt;code&gt;strace&lt;/code&gt; and &lt;code&gt;lsof&lt;/code&gt;.&lt;/p&gt;
-&lt;h2 id=&#34;network-issues&#34;&gt;Network issues&lt;/h2&gt;
-&lt;p&gt;First, install the following packages:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ python -m pip install requests flask
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Create a script &lt;code&gt;server_mlops.py&lt;/code&gt; which we will use to simulate a server with network issues&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;# server_mlops.py
+&lt;/code>&lt;/pre>
+&lt;p>Each line of the &lt;code>strace&lt;/code> output represents a single SYSTEM CALL. It’s easy to see the following pattern:&lt;/p>
+&lt;p>&lt;strong>Name of the SYS CALL(Arguments to be used in the system call) = Result of the SYS CALL&lt;/strong>&lt;/p>
+&lt;p>Yes, it’s hard to understand the output or impossible without using a manual. For each SYS CALL you can use the &lt;code>man &lt;/code> command to get more information about what each line represents. For example, to see what &lt;code>openat&lt;/code> does and the meaning of each argument, use the following command:&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ man 2 openat
+&lt;/code>&lt;/pre>
+&lt;p>&lt;code>openat&lt;/code> is a sys call responsible for requesting a file to be opened. The result of the last line in the output of ls commands, &lt;code> 3&lt;/code>, means a successfully SYS CALL.&lt;/p>
+&lt;h1 id="a-deep-dive-into-failures">A deep dive into failures&lt;/h1>
+&lt;p>We will see here failures and issues related to files, connections, etc. But don’t be afraid to explore other problems, we are just scratching the surface of &lt;code>strace&lt;/code> and &lt;code>lsof&lt;/code>.&lt;/p>
+&lt;h2 id="network-issues">Network issues&lt;/h2>
+&lt;p>First, install the following packages:&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ python -m pip install requests flask
+&lt;/code>&lt;/pre>
+&lt;p>Create a script &lt;code>server_mlops.py&lt;/code> which we will use to simulate a server with network issues&lt;/p>
+&lt;pre>&lt;code class="language-python"># server_mlops.py
 import time
 import flask
-
 app = flask.Flask(__name__)
-
-@app.route(&#39;/&#39;)
+@app.route('/')
 def hello_world():
-    sleep_time = flask.request.args.get(&#39;sleep&#39;, default=10, type=int)
-    print(&#39;sleep_time:&#39;, sleep_time)
-    time.sleep(sleep_time)
-    return &#39;Hello World!&#39;
-
-if __name__ == &#39;__main__&#39;:
-    app.run()
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Starts the server:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ python server_mlops.py
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;GET The PID of the process:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ ps aux | grep -i &#39;[s]erver_mlops.py&#39;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;You will see a output similar to this:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;devmess+ 19321 18.0  0.3  29716 24792 pts/5    S+   14:27   0:00 python server_mlops.py
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;The number in front of the username (&lt;code&gt;19321&lt;/code&gt;) is the  &lt;code&gt;PID&lt;/code&gt; of the process.&lt;/p&gt;
-&lt;h3 id=&#34;is-my-server-alive&#34;&gt;Is my server alive?&lt;/h3&gt;
-&lt;p&gt;We have to use a unique set of filters to answer this question using the &lt;code&gt;lsof&lt;/code&gt;. Therefore, we need to use the argument &lt;code&gt;-a&lt;/code&gt; , which represents an &lt;code&gt;AND&lt;/code&gt; operator. The  &lt;code&gt;-i&lt;/code&gt; argument asks to show just the files associated with connections and finally the argument &lt;code&gt;-p INT&lt;/code&gt; makes the &lt;code&gt;losf&lt;/code&gt; list just the files opened by the process with the PID &lt;code&gt;INT&lt;/code&gt;.&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ lsof -a -i -p 19321
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;You will have a output similar to this&lt;/p&gt;
-&lt;table&gt;
-&lt;thead&gt;
-&lt;tr&gt;
-&lt;th&gt;COMMAND&lt;/th&gt;
-&lt;th&gt;PID&lt;/th&gt;
-&lt;th&gt;USER&lt;/th&gt;
-&lt;th&gt;FD&lt;/th&gt;
-&lt;th&gt;TYPE&lt;/th&gt;
-&lt;th&gt;DEVICE&lt;/th&gt;
-&lt;th&gt;SIZE/OFF&lt;/th&gt;
-&lt;th&gt;NODE&lt;/th&gt;
-&lt;th&gt;NAME&lt;/th&gt;
-&lt;/tr&gt;
-&lt;/thead&gt;
-&lt;tbody&gt;
-&lt;tr&gt;
-&lt;td&gt;python&lt;/td&gt;
-&lt;td&gt;19321&lt;/td&gt;
-&lt;td&gt;devmessias&lt;/td&gt;
-&lt;td&gt;4u&lt;/td&gt;
-&lt;td&gt;IPv4&lt;/td&gt;
-&lt;td&gt;16108218&lt;/td&gt;
-&lt;td&gt;0t0&lt;/td&gt;
-&lt;td&gt;TCP&lt;/td&gt;
-&lt;td&gt;localhost:5000 (LISTEN)&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/tbody&gt;
-&lt;/table&gt;
-&lt;p&gt;The output shows that at least our server is listening in the &lt;code&gt;5000&lt;/code&gt; port. Try to remove the &lt;code&gt;-a&lt;/code&gt; argument and see what happens.&lt;/p&gt;
-&lt;h3 id=&#34;is-my-process-stuck-waiting-for-someone-what-is-causing-the-process-hanging&#34;&gt;Is my process stuck waiting for someone? What is causing the process hanging?&lt;/h3&gt;
-&lt;p&gt;This can happen in a myriad of cases. For example, in the dependency management systems like pip/conda. Thus, it is superb to know if you can answer fast if you have a problem on your side or not. Let’s create a simple simulation of this issue. To do so, create the &lt;code&gt;client_mlops.py&lt;/code&gt; using the following code:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;#!/usr/bin/env python
+sleep_time = flask.request.args.get('sleep', default=10, type=int)
+print('sleep_time:', sleep_time)
+time.sleep(sleep_time)
+return 'Hello World!'
+if __name__ == '__main__':
+app.run()
+&lt;/code>&lt;/pre>
+&lt;p>Starts the server:&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ python server_mlops.py
+&lt;/code>&lt;/pre>
+&lt;p>GET The PID of the process:&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ ps aux | grep -i '[s]erver_mlops.py'
+&lt;/code>&lt;/pre>
+&lt;p>You will see a output similar to this:&lt;/p>
+&lt;pre>&lt;code class="language-bash">devmess+ 19321 18.0 0.3 29716 24792 pts/5 S+ 14:27 0:00 python server_mlops.py
+&lt;/code>&lt;/pre>
+&lt;p>The number in front of the username (&lt;code>19321&lt;/code>) is the &lt;code>PID&lt;/code> of the process.&lt;/p>
+&lt;h3 id="is-my-server-alive">Is my server alive?&lt;/h3>
+&lt;p>We have to use a unique set of filters to answer this question using the &lt;code>lsof&lt;/code>. Therefore, we need to use the argument &lt;code>-a&lt;/code> , which represents an &lt;code>AND&lt;/code> operator. The &lt;code>-i&lt;/code> argument asks to show just the files associated with connections and finally the argument &lt;code>-p INT&lt;/code> makes the &lt;code>losf&lt;/code> list just the files opened by the process with the PID &lt;code>INT&lt;/code>.&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ lsof -a -i -p 19321
+&lt;/code>&lt;/pre>
+&lt;p>You will have a output similar to this&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>COMMAND&lt;/th>
+&lt;th>PID&lt;/th>
+&lt;th>USER&lt;/th>
+&lt;th>FD&lt;/th>
+&lt;th>TYPE&lt;/th>
+&lt;th>DEVICE&lt;/th>
+&lt;th>SIZE/OFF&lt;/th>
+&lt;th>NODE&lt;/th>
+&lt;th>NAME&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>python&lt;/td>
+&lt;td>19321&lt;/td>
+&lt;td>devmessias&lt;/td>
+&lt;td>4u&lt;/td>
+&lt;td>IPv4&lt;/td>
+&lt;td>16108218&lt;/td>
+&lt;td>0t0&lt;/td>
+&lt;td>TCP&lt;/td>
+&lt;td>localhost:5000 (LISTEN)&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;p>The output shows that at least our server is listening in the &lt;code>5000&lt;/code> port. Try to remove the &lt;code>-a&lt;/code> argument and see what happens.&lt;/p>
+&lt;h3 id="is-my-process-stuck-waiting-for-someone-what-is-causing-the-process-hanging">Is my process stuck waiting for someone? What is causing the process hanging?&lt;/h3>
+&lt;p>This can happen in a myriad of cases. For example, in the dependency management systems like pip/conda. Thus, it is superb to know if you can answer fast if you have a problem on your side or not. Let’s create a simple simulation of this issue. To do so, create the &lt;code>client_mlops.py&lt;/code> using the following code:&lt;/p>
+&lt;pre>&lt;code class="language-python">#!/usr/bin/env python
 #client_mlops.py
-
 import requests
 import argparse
-
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    &#39;--sleep&#39;, type=int, help=&#39;time to sleep&#39;, default=0)
+'--sleep', type=int, help='time to sleep', default=0)
 args = parser.parse_args()
-
-print(&#39;Ask for localhost:5000 to sleep for {} seconds&#39;.format(args.sleep))
-r = requests.get(&#39;http://localhost:5000&#39;, params={&#39;sleep&#39;: int(args.sleep)})
+print('Ask for localhost:5000 to sleep for {} seconds'.format(args.sleep))
+r = requests.get('http://localhost:5000', params={'sleep': int(args.sleep)})
 print(r.text)
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;In the above code, we have the sleep argument. This argument will ask  &lt;code&gt;server_mlops&lt;/code&gt; to wait for a couple of seconds before sending the answer. Let’s see how these situations appear to us at the system call level.&lt;/p&gt;
-&lt;p&gt;Start the &lt;code&gt;client_mlops.py&lt;/code&gt;  with the  &lt;code&gt;strace:&lt;/code&gt;&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ strace -e poll,select,connect,recvfrom,sendto python client_mlops.py --sleep=20
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;The  &lt;code&gt;-e&lt;/code&gt; argument followed by &lt;code&gt;poll,select,connect,recvfrom,sendto&lt;/code&gt; asks to filter just the sys calls related with connections issues.  The output of this fake failure will be something like this&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;connect(4, {sa_family=AF_INET, sin_port=htons(5000), sin_addr=inet_addr(&amp;quot;127.0.0.1&amp;quot;)}, 16) = 0
+&lt;/code>&lt;/pre>
+&lt;p>In the above code, we have the sleep argument. This argument will ask &lt;code>server_mlops&lt;/code> to wait for a couple of seconds before sending the answer. Let’s see how these situations appear to us at the system call level.&lt;/p>
+&lt;p>Start the &lt;code>client_mlops.py&lt;/code> with the &lt;code>strace:&lt;/code>&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ strace -e poll,select,connect,recvfrom,sendto python client_mlops.py --sleep=20
+&lt;/code>&lt;/pre>
+&lt;p>The &lt;code>-e&lt;/code> argument followed by &lt;code>poll,select,connect,recvfrom,sendto&lt;/code> asks to filter just the sys calls related with connections issues. The output of this fake failure will be something like this&lt;/p>
+&lt;pre>&lt;code>connect(4, {sa_family=AF_INET, sin_port=htons(5000), sin_addr=inet_addr(&amp;quot;127.0.0.1&amp;quot;)}, 16) = 0
 connect(4, {sa_family=AF_INET6, sin6_port=htons(5000), inet_pton(AF_INET6, &amp;quot;::1&amp;quot;, &amp;amp;sin6_addr), sin6_flowinfo=htonl(0), sin6_scope_id=0}, 28) = 0
 connect(4, {sa_family=AF_INET6, sin6_port=htons(5000), inet_pton(AF_INET6, &amp;quot;::1&amp;quot;, &amp;amp;sin6_addr), sin6_flowinfo=htonl(0), sin6_scope_id=0}, 28) = -1 ECONNREFUSED (Connection refused)
 connect(4, {sa_family=AF_INET, sin_port=htons(5000), sin_addr=inet_addr(&amp;quot;127.0.0.1&amp;quot;)}, 16) = 0
 sendto(4, &amp;quot;GET /?sleep=10 HTTP/1.1\r\nHost: l&amp;quot;..., 154, 0, NULL, 0) = 154
-recvfrom(4, 
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;In the last line we see an unfinished &lt;code&gt;recvfrom&lt;/code&gt;  &lt;strong&gt;SYS_CALL&lt;/strong&gt; . Do you want to know more about &lt;code&gt;recvfrom&lt;/code&gt;? Execute &lt;code&gt;man 2 recvfrom&lt;/code&gt; in a terminal session.  But what matters here? The point is that: &lt;code&gt;strace&lt;/code&gt; is telling us  there is no problem with our client program, something is problematic on the server side.&lt;/p&gt;
-&lt;p&gt;You can also use the &lt;code&gt;lsof&lt;/code&gt; to investigate this problem. Let’s simulate this scenario.&lt;/p&gt;
-&lt;p&gt;Starts the client again:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ python client_mlops.py --sleep=100
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Now, get the PID using &lt;code&gt;ps aux | grep -i &#39;[c]lient_mlops.py&#39;&lt;/code&gt; and execute the &lt;code&gt;lsof&lt;/code&gt; with the obtained PID&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;lsof -a -i -p 19321
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;the output will be something like this&lt;/p&gt;
-&lt;table&gt;
-&lt;thead&gt;
-&lt;tr&gt;
-&lt;th&gt;COMMAND&lt;/th&gt;
-&lt;th&gt;PID&lt;/th&gt;
-&lt;th&gt;USER&lt;/th&gt;
-&lt;th&gt;FD&lt;/th&gt;
-&lt;th&gt;TYPE&lt;/th&gt;
-&lt;th&gt;DEVICE&lt;/th&gt;
-&lt;th&gt;SIZE/OFF&lt;/th&gt;
-&lt;th&gt;NODE&lt;/th&gt;
-&lt;th&gt;NAME&lt;/th&gt;
-&lt;/tr&gt;
-&lt;/thead&gt;
-&lt;tbody&gt;
-&lt;tr&gt;
-&lt;td&gt;python&lt;/td&gt;
-&lt;td&gt;31551&lt;/td&gt;
-&lt;td&gt;devmessias&lt;/td&gt;
-&lt;td&gt;4u&lt;/td&gt;
-&lt;td&gt;IPv4&lt;/td&gt;
-&lt;td&gt;16622065&lt;/td&gt;
-&lt;td&gt;0t0&lt;/td&gt;
-&lt;td&gt;TCP&lt;/td&gt;
-&lt;td&gt;localhost:57314-&amp;gt;localhost:5000 (ESTABLISHED)&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/tbody&gt;
-&lt;/table&gt;
-&lt;p&gt;What &lt;code&gt;lsof&lt;/code&gt; is telling us is that: ‘’&lt;em&gt;You client seems fine. At least it is connected with the server&lt;/em&gt;“”. What does this mean? This means the  answer was not of great help.&lt;/p&gt;
-&lt;h2 id=&#34;problems-with-regular-files&#34;&gt;Problems with regular files&lt;/h2&gt;
-&lt;p&gt;Sometimes you can have a problem with regular files and you don’t know. Nothing was printed in the output. For example, a  wrong cache being used, a program that tries to access a file that doesn’t have permission, a malicious or a bad writing process accessing/creating files in your system,  etc.&lt;/p&gt;
-&lt;p&gt;Here we will simulate simple examples related to regular files. To do so, first, copy any  file to the &lt;code&gt;tmp&lt;/code&gt; folder  or just call the following command:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ man strace &amp;gt; /tmp/dummy_file.txt 
-&lt;/code&gt;&lt;/pre&gt;
-&lt;h3 id=&#34;which-processes-is-this-file-attached-to&#34;&gt;Which processes is this file attached to?&lt;/h3&gt;
-&lt;p&gt;Being able to answer this question can be quite useful. For example, suppose that  there is a huge file in your disk being created, almost filling up your system and you want to discover which process is doing this.&lt;/p&gt;
-&lt;p&gt;First, create the following script.&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;#!/usr/bin/env python
+recvfrom(4,
+&lt;/code>&lt;/pre>
+&lt;p>In the last line we see an unfinished &lt;code>recvfrom&lt;/code> &lt;strong>SYS_CALL&lt;/strong> . Do you want to know more about &lt;code>recvfrom&lt;/code>? Execute &lt;code>man 2 recvfrom&lt;/code> in a terminal session. But what matters here? The point is that: &lt;code>strace&lt;/code> is telling us there is no problem with our client program, something is problematic on the server side.&lt;/p>
+&lt;p>You can also use the &lt;code>lsof&lt;/code> to investigate this problem. Let’s simulate this scenario.&lt;/p>
+&lt;p>Starts the client again:&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ python client_mlops.py --sleep=100
+&lt;/code>&lt;/pre>
+&lt;p>Now, get the PID using &lt;code>ps aux | grep -i '[c]lient_mlops.py'&lt;/code> and execute the &lt;code>lsof&lt;/code> with the obtained PID&lt;/p>
+&lt;pre>&lt;code class="language-bash">lsof -a -i -p 19321
+&lt;/code>&lt;/pre>
+&lt;p>the output will be something like this&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>COMMAND&lt;/th>
+&lt;th>PID&lt;/th>
+&lt;th>USER&lt;/th>
+&lt;th>FD&lt;/th>
+&lt;th>TYPE&lt;/th>
+&lt;th>DEVICE&lt;/th>
+&lt;th>SIZE/OFF&lt;/th>
+&lt;th>NODE&lt;/th>
+&lt;th>NAME&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>python&lt;/td>
+&lt;td>31551&lt;/td>
+&lt;td>devmessias&lt;/td>
+&lt;td>4u&lt;/td>
+&lt;td>IPv4&lt;/td>
+&lt;td>16622065&lt;/td>
+&lt;td>0t0&lt;/td>
+&lt;td>TCP&lt;/td>
+&lt;td>localhost:57314-&amp;gt;localhost:5000 (ESTABLISHED)&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;p>What &lt;code>lsof&lt;/code> is telling us is that: ‘’&lt;em>You client seems fine. At least it is connected with the server&lt;/em>“”. What does this mean? This means the answer was not of great help.&lt;/p>
+&lt;h2 id="problems-with-regular-files">Problems with regular files&lt;/h2>
+&lt;p>Sometimes you can have a problem with regular files and you don’t know. Nothing was printed in the output. For example, a wrong cache being used, a program that tries to access a file that doesn’t have permission, a malicious or a bad writing process accessing/creating files in your system, etc.&lt;/p>
+&lt;p>Here we will simulate simple examples related to regular files. To do so, first, copy any file to the &lt;code>tmp&lt;/code> folder or just call the following command:&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ man strace &amp;gt; /tmp/dummy_file.txt
+&lt;/code>&lt;/pre>
+&lt;h3 id="which-processes-is-this-file-attached-to">Which processes is this file attached to?&lt;/h3>
+&lt;p>Being able to answer this question can be quite useful. For example, suppose that there is a huge file in your disk being created, almost filling up your system and you want to discover which process is doing this.&lt;/p>
+&lt;p>First, create the following script.&lt;/p>
+&lt;pre>&lt;code class="language-python">#!/usr/bin/env python
 # file_open.py
 import time
-
-f = open(&#39;/tmp/dummy_file.txt&#39;, &#39;r&#39;)
-input(&#39;Press Enter to continue...&#39;)
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Now open two different terminal sessions and perform the following command &lt;code&gt;python file_open.py &lt;/code&gt;. in each one.&lt;/p&gt;
-&lt;p&gt;To find all the processes which are attached to &lt;code&gt;dummy_file.txt&lt;/code&gt; you just need to call &lt;code&gt;lsof&lt;/code&gt; like this:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ lsof /tmp/dummy_file.txt
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;The output should be something similar to this:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;COMMAND   PID       USER   FD   TYPE DEVICE SIZE/OFF    NODE NAME
-python  15411 devmessias    3r   REG    8,2        0 2911031 /tmp/dummy_file.txt
-python  20777 devmessias    3r   REG    8,2        0 2911031 /tmp/dummy_file.txt
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;We have two distinct processes, two different PIDs, using the same file.&lt;/p&gt;
-&lt;h3 id=&#34;i-made-a-mistake-deleted-an-important-file-how-can-i-recover-it&#34;&gt;I made a mistake! Deleted an important file! How can I recover it?&lt;/h3&gt;
-&lt;p&gt;Here the simulation will be more than one more process attached to a file and you accidentally perform some action that deletes the file.&lt;/p&gt;
-&lt;p&gt;Create a file  &lt;code&gt;accident.txt&lt;/code&gt;. Open a terminal session and perform the following command.  &lt;strong&gt;Don’t close the session!&lt;/strong&gt;&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ python -c &#39;f=open(&amp;quot;accident.txt&amp;quot;, &amp;quot;r&amp;quot;);input(&amp;quot;...&amp;quot;)&#39;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;In another session, perform the following commands:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ rm accident.txt
+f = open('/tmp/dummy_file.txt', 'r')
+input('Press Enter to continue...')
+&lt;/code>&lt;/pre>
+&lt;p>Now open two different terminal sessions and perform the following command &lt;code>python file_open.py &lt;/code>. in each one.&lt;/p>
+&lt;p>To find all the processes which are attached to &lt;code>dummy_file.txt&lt;/code> you just need to call &lt;code>lsof&lt;/code> like this:&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ lsof /tmp/dummy_file.txt
+&lt;/code>&lt;/pre>
+&lt;p>The output should be something similar to this:&lt;/p>
+&lt;pre>&lt;code>COMMAND PID USER FD TYPE DEVICE SIZE/OFF NODE NAME
+python 15411 devmessias 3r REG 8,2 0 2911031 /tmp/dummy_file.txt
+python 20777 devmessias 3r REG 8,2 0 2911031 /tmp/dummy_file.txt
+&lt;/code>&lt;/pre>
+&lt;p>We have two distinct processes, two different PIDs, using the same file.&lt;/p>
+&lt;h3 id="i-made-a-mistake-deleted-an-important-file-how-can-i-recover-it">I made a mistake! Deleted an important file! How can I recover it?&lt;/h3>
+&lt;p>Here the simulation will be more than one more process attached to a file and you accidentally perform some action that deletes the file.&lt;/p>
+&lt;p>Create a file &lt;code>accident.txt&lt;/code>. Open a terminal session and perform the following command. &lt;strong>Don’t close the session!&lt;/strong>&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ python -c 'f=open(&amp;quot;accident.txt&amp;quot;, &amp;quot;r&amp;quot;);input(&amp;quot;...&amp;quot;)'
+&lt;/code>&lt;/pre>
+&lt;p>In another session, perform the following commands:&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ rm accident.txt
 $ ls accident.txt
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;And it’s gone :(&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;ls: cannot access &#39;acidente.txt&#39;: No such file or directory
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Don’t worry! Linux has a lot of cool aspects and one of them will help us to recover our file.&lt;/p&gt;
-&lt;p&gt;In Linux any process has a directory associated with it, this directory will be inside of the &lt;code&gt;/proc&lt;/code&gt; folder. And what do these directories store?  A lot of things! I assure you that you can be surprised. For example, these folders also store the file descriptors associated with any process using &lt;code&gt;accident.txt&lt;/code&gt;. Let’s see if there are any processes using this file.&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ lsof -u your_username | grep &#39;accident.txt&#39;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;In my case, I’ve obtained the following output:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;python    22465 devmessias    3r      REG                8,2     37599   14288174 path/accident.txt (deleted)
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;This is great news! We have a process PID &lt;code&gt;22465&lt;/code&gt; that still has a file descriptor associated with &lt;code&gt;accident.txt&lt;/code&gt;. Now we can use a simple &lt;code&gt;cp&lt;/code&gt; command to recover the data. To do so, we need to use the file descriptor number. In my case is  &lt;code&gt;3&lt;/code&gt; which is the number in front of the  &lt;code&gt;r&lt;/code&gt; character in the output above.&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ cp /proc/22465/fd/3 recovered.txt
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Now just call &lt;code&gt;nano recovered.txt&lt;/code&gt; and testify the result . It’s not magic! It’s just how the  &lt;strong&gt;process pseudo-filesystem&lt;/strong&gt; works!&lt;/p&gt;
-&lt;h3 id=&#34;silent-errors-associated-with-files-and-permissions&#34;&gt;Silent errors associated with files and permissions&lt;/h3&gt;
-&lt;p&gt;Let’s create a simple example of an undue access to a file using the following script&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;#!/usr/bin/env python
+&lt;/code>&lt;/pre>
+&lt;p>And it’s gone :(&lt;/p>
+&lt;pre>&lt;code>ls: cannot access 'acidente.txt': No such file or directory
+&lt;/code>&lt;/pre>
+&lt;p>Don’t worry! Linux has a lot of cool aspects and one of them will help us to recover our file.&lt;/p>
+&lt;p>In Linux any process has a directory associated with it, this directory will be inside of the &lt;code>/proc&lt;/code> folder. And what do these directories store? A lot of things! I assure you that you can be surprised. For example, these folders also store the file descriptors associated with any process using &lt;code>accident.txt&lt;/code>. Let’s see if there are any processes using this file.&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ lsof -u your_username | grep 'accident.txt'
+&lt;/code>&lt;/pre>
+&lt;p>In my case, I’ve obtained the following output:&lt;/p>
+&lt;pre>&lt;code>python 22465 devmessias 3r REG 8,2 37599 14288174 path/accident.txt (deleted)
+&lt;/code>&lt;/pre>
+&lt;p>This is great news! We have a process PID &lt;code>22465&lt;/code> that still has a file descriptor associated with &lt;code>accident.txt&lt;/code>. Now we can use a simple &lt;code>cp&lt;/code> command to recover the data. To do so, we need to use the file descriptor number. In my case is &lt;code>3&lt;/code> which is the number in front of the &lt;code>r&lt;/code> character in the output above.&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ cp /proc/22465/fd/3 recovered.txt
+&lt;/code>&lt;/pre>
+&lt;p>Now just call &lt;code>nano recovered.txt&lt;/code> and testify the result . It’s not magic! It’s just how the &lt;strong>process pseudo-filesystem&lt;/strong> works!&lt;/p>
+&lt;h3 id="silent-errors-associated-with-files-and-permissions">Silent errors associated with files and permissions&lt;/h3>
+&lt;p>Let’s create a simple example of an undue access to a file using the following script&lt;/p>
+&lt;pre>&lt;code class="language-python">#!/usr/bin/env python
 # file_404.py
 import time
-
 try:
-    f = open(&#39;/tmp/file_that_dosent_exist.csv&#39;, &#39;r&#39;)
+f = open('/tmp/file_that_dosent_exist.csv', 'r')
 except FileNotFoundError:
-    pass
-
+pass
 try:
-    # create a file with sudo and then change the permission using chmod 700
-    f = open(&#39;/tmp/file_wrong_permission.csv&#39;, &#39;r&#39;)
+# create a file with sudo and then change the permission using chmod 700
+f = open('/tmp/file_wrong_permission.csv', 'r')
 except PermissionError:
-    pass
-
-input(&#39;Press Enter to continue...&#39;)
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Call &lt;code&gt;python file_404.py&lt;/code&gt;, nothing will appears.&lt;/p&gt;
-&lt;p&gt;To trace any SYS CALL related to regular files made by  &lt;code&gt;python file_404.py &lt;/code&gt;  you just need to use the &lt;code&gt;-e trace=file&lt;/code&gt; arg, like this:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ strace -f -e trace=file python file_404.py
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;The argument  &lt;code&gt;-f&lt;/code&gt; says to  &lt;code&gt;strace&lt;/code&gt; to monitor any children&amp;rsquo;s process. You probably will use  &lt;code&gt;-f&lt;/code&gt; every time when you’re dealing with strace in real case scenarios.&lt;/p&gt;
-&lt;p&gt;The output of the previous command should be like this&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;lstat(&amp;quot;something/file_404.py&amp;quot;, {st_mode=S_IFREG|0644, st_size=242, ...}) = 0
+pass
+input('Press Enter to continue...')
+&lt;/code>&lt;/pre>
+&lt;p>Call &lt;code>python file_404.py&lt;/code>, nothing will appears.&lt;/p>
+&lt;p>To trace any SYS CALL related to regular files made by &lt;code>python file_404.py &lt;/code> you just need to use the &lt;code>-e trace=file&lt;/code> arg, like this:&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ strace -f -e trace=file python file_404.py
+&lt;/code>&lt;/pre>
+&lt;p>The argument &lt;code>-f&lt;/code> says to &lt;code>strace&lt;/code> to monitor any children&amp;rsquo;s process. You probably will use &lt;code>-f&lt;/code> every time when you’re dealing with strace in real case scenarios.&lt;/p>
+&lt;p>The output of the previous command should be like this&lt;/p>
+&lt;pre>&lt;code>lstat(&amp;quot;something/file_404.py&amp;quot;, {st_mode=S_IFREG|0644, st_size=242, ...}) = 0
 openat(AT_FDCWD, &amp;quot;file_404.py&amp;quot;, O_RDONLY) = 3
 openat(AT_FDCWD, &amp;quot;/tmp/file_that_dosent_exist.csv&amp;quot;, O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
 openat(AT_FDCWD, &amp;quot;/tmp/file_wrong_permission.csv&amp;quot;, O_RDONLY|O_CLOEXEC) = -1 EACCES (Permission denied)
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Cool! With the  &lt;code&gt;strace&lt;/code&gt;  we are able to identify errors even when the programmer used a dangerous practice in the code.&lt;/p&gt;
-&lt;p&gt;Ok, but let’s improve our output. We can filter the strace output redirecting into it the &lt;code&gt;awk&lt;/code&gt; (or &lt;code&gt;grep&lt;/code&gt;) and performing a conditional check that each line should start with the &lt;code&gt;open&lt;/code&gt; string and have the pattern &lt;code&gt;= -1&lt;/code&gt; in the line. The &lt;code&gt;-1&lt;/code&gt; means that the &lt;code&gt;openat&lt;/code&gt; SYS CALL had returned an error.&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ strace -f -e trace=file python file_404.py 2&amp;gt;&amp;amp;1 | awk &#39;/^open/ &amp;amp;&amp;amp; /= -1/ {print}&#39;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;The output now will be simpler and easier to analyze:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;openat(AT_FDCWD, &amp;quot;/home/devmessias/anaconda3/pyvenv.cfg&amp;quot;, O_RDONLY) = -1 ENOENT (No such file or directory)
+&lt;/code>&lt;/pre>
+&lt;p>Cool! With the &lt;code>strace&lt;/code> we are able to identify errors even when the programmer used a dangerous practice in the code.&lt;/p>
+&lt;p>Ok, but let’s improve our output. We can filter the strace output redirecting into it the &lt;code>awk&lt;/code> (or &lt;code>grep&lt;/code>) and performing a conditional check that each line should start with the &lt;code>open&lt;/code> string and have the pattern &lt;code>= -1&lt;/code> in the line. The &lt;code>-1&lt;/code> means that the &lt;code>openat&lt;/code> SYS CALL had returned an error.&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ strace -f -e trace=file python file_404.py 2&amp;gt;&amp;amp;1 | awk '/^open/ &amp;amp;&amp;amp; /= -1/ {print}'
+&lt;/code>&lt;/pre>
+&lt;p>The output now will be simpler and easier to analyze:&lt;/p>
+&lt;pre>&lt;code>openat(AT_FDCWD, &amp;quot;/home/devmessias/anaconda3/pyvenv.cfg&amp;quot;, O_RDONLY) = -1 ENOENT (No such file or directory)
 openat(AT_FDCWD, &amp;quot;/tmp/arquivo_404.csv&amp;quot;, O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
 openat(AT_FDCWD, &amp;quot;/tmp/arquivo_permission.csv&amp;quot;, O_RDONLY|O_CLOEXEC) = -1 EACCES (Permission denied)
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;If you are using the last versions of &lt;code&gt;strace&lt;/code&gt; (5.2&amp;gt;=) you can use a more simple command like this:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ strace -f -e trace=openat -e status=failed python file_404.py
-&lt;/code&gt;&lt;/pre&gt;
-&lt;h3 id=&#34;is-this-process-using-a-cache-where-can-i-find-this-cache-which-configs-files-does-this-process-use&#34;&gt;Is this process using a cache? Where can I find this cache? Which configs files does this process use?&lt;/h3&gt;
-&lt;p&gt;It is a tedious task to search for cache or configs files used by a process and sometimes we need to delete these cache files. Another task that appears very often is to discover which files a process is using or if it is doing anything strange in your system. Maybe you want to discover if your python script is using the correct libs and files. For all these situations, you can use the following command:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ strace -f -e trace=file command
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;If you want to get just the SYS CALLs that was perfomed succesfully do the next:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ strace -f -e trace=file comando 2&amp;gt;&amp;amp;1 | awk &#39;/^open/ &amp;amp;&amp;amp; !/= -1/ {print}&#39;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;In the above command the &lt;code&gt;!&lt;/code&gt;  is as a negation parameter for the &lt;code&gt;awk&lt;/code&gt; search.&lt;/p&gt;
-&lt;p&gt;Again, the new versions of strace allows the status flag:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ strace -f -e trace=openat -e status=successful python file_404.py
-&lt;/code&gt;&lt;/pre&gt;
-&lt;h2 id=&#34;dissecting-your-database-system&#34;&gt;Dissecting your database system&lt;/h2&gt;
-&lt;p&gt;The &lt;code&gt;strace&lt;/code&gt; and &lt;code&gt;lsof&lt;/code&gt; are powerful tools to discover and solve bugs. You don’t need to believe me. Just check the number of bugs in MySQL that &lt;code&gt;strace&lt;/code&gt; was used to tackle 
-&lt;a href=&#34;http://mysqlentomologist.blogspot.com/2017/12/using-strace-for-mysql-troubleshooting.html&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;“using strace for mysql troubleshooting&lt;/a&gt;. Thus, it’s not a surprise that we can use &lt;code&gt;strace&lt;/code&gt; in our daily life dealing with databases.&lt;/p&gt;
-&lt;h3 id=&#34;is-this-process--well-behaved-how-many-connections-does-it-have&#34;&gt;Is this process  well behaved? How many connections does it have?&lt;/h3&gt;
-&lt;p&gt;In MlOps or DevOps we always need to deal with database connections. Sometimes we must check if a process is closing these connections or is creating more than necessary. If these connections are made using the &lt;strong&gt;TCP&lt;/strong&gt; protocol you can list all established connections using the following command:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ lsof -iTCP -sTCP:ESTABLISHED 
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;As expected, we get a lot of unwanted information like website addresses and other application communications. If we want to list just the &lt;strong&gt;TCP&lt;/strong&gt; connection in a process, we must pass the &lt;strong&gt;PID&lt;/strong&gt; like this:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ lsof -iTCP -sTCP:ESTABLISHED -p 22157
-
-COMMAND   PID       USER   FD   TYPE  DEVICE SIZE/OFF NODE NAME
-python  22157 devmessias    4u  IPv4 9474517      0t0  TCP localhost:35932-&amp;gt;localhost:mysql (ESTABLISHED)
-python  22157 devmessias    5u  IPv4 9474518      0t0  TCP localhost:35934-&amp;gt;localhost:mysql (ESTABLISHED)
-python  22157 devmessias    6u  IPv4 9475529      0t0  TCP localhost:37048-&amp;gt;localhost:5000 (ESTABLISHED)
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;As can you see we also have some connections in our server that are not related to the &lt;code&gt;mysql&lt;/code&gt;. If we want to investigate just the &lt;code&gt;mysql&lt;/code&gt; connections between all the processes in our system just do:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ lsof -iTCP:mysql -sTCP:ESTABLISHED 
-python  22157 devmessias    4u  IPv4 9474517      0t0  TCP localhost:35932-&amp;gt;localhost:mysql (ESTABLISHED)
-python  22157 devmessias    5u  IPv4 9474518      0t0  TCP localhost:35934-&amp;gt;localhost:mysql (ESTABLISHED)
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;The process identified by &lt;em&gt;22157&lt;/em&gt; PID has two connections with our mysql server.&lt;/p&gt;
-&lt;p&gt;Notice we have used a pattern in the &lt;code&gt;-i&lt;/code&gt; argument. This pattern follows this structure:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;lsof -i[protocol][@hostname|hostaddr][:service|port]
-&lt;/code&gt;&lt;/pre&gt;
-&lt;h3 id=&#34;everything-is-working-proprely&#34;&gt;Everything is working proprely?&lt;/h3&gt;
-&lt;p&gt;Let’s give you a taste of what we can extract from the mysql service using &lt;code&gt;strace&lt;/code&gt; in order to get a comprehension about the processes.&lt;/p&gt;
-&lt;p&gt;Get the PID of &lt;code&gt;mysqld&lt;/code&gt;&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ps aux | grep -i &#39;[m]ysqld&#39;
-mysql    14001     1  0 13:41 ?        00:00:18 /usr/sbin/mysqld
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;We will ask the &lt;code&gt;strace&lt;/code&gt; to increase the size of the strings up to 50 characters (&lt;code&gt;-s 50&lt;/code&gt;) and we will omit any SYS CALL of the type &lt;code&gt;io_getevents&lt;/code&gt; , &lt;code&gt;nanosleep&lt;/code&gt; and &lt;code&gt;futex&lt;/code&gt;.&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ sudo strace -s 50 -f -e trace=!io_getevents,nanosleep,futex -p 10767
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Chose one of your databases and tables to do the following examples. Here, I’ve perfomed this SQL query:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-sql&#34;&gt;SELECT * FROM  product WHERE product_id = 1;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;My output prompted some stuff like this&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;[pid 14334] recvfrom(52, &amp;quot;,\0\0\0&amp;quot;, 4, MSG_DONTWAIT, NULL, NULL) = 4
-[pid 14334] recvfrom(52, &amp;quot;\3SELECT * FROM  product WHERE product_id = 1&amp;quot;, 44, MSG_DONTWAIT, NULL, NULL) = 44
+&lt;/code>&lt;/pre>
+&lt;p>If you are using the last versions of &lt;code>strace&lt;/code> (5.2&amp;gt;=) you can use a more simple command like this:&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ strace -f -e trace=openat -e status=failed python file_404.py
+&lt;/code>&lt;/pre>
+&lt;h3 id="is-this-process-using-a-cache-where-can-i-find-this-cache-which-configs-files-does-this-process-use">Is this process using a cache? Where can I find this cache? Which configs files does this process use?&lt;/h3>
+&lt;p>It is a tedious task to search for cache or configs files used by a process and sometimes we need to delete these cache files. Another task that appears very often is to discover which files a process is using or if it is doing anything strange in your system. Maybe you want to discover if your python script is using the correct libs and files. For all these situations, you can use the following command:&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ strace -f -e trace=file command
+&lt;/code>&lt;/pre>
+&lt;p>If you want to get just the SYS CALLs that was perfomed succesfully do the next:&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ strace -f -e trace=file comando 2&amp;gt;&amp;amp;1 | awk '/^open/ &amp;amp;&amp;amp; !/= -1/ {print}'
+&lt;/code>&lt;/pre>
+&lt;p>In the above command the &lt;code>!&lt;/code> is as a negation parameter for the &lt;code>awk&lt;/code> search.&lt;/p>
+&lt;p>Again, the new versions of strace allows the status flag:&lt;/p>
+&lt;pre>&lt;code>$ strace -f -e trace=openat -e status=successful python file_404.py
+&lt;/code>&lt;/pre>
+&lt;h2 id="dissecting-your-database-system">Dissecting your database system&lt;/h2>
+&lt;p>The &lt;code>strace&lt;/code> and &lt;code>lsof&lt;/code> are powerful tools to discover and solve bugs. You don’t need to believe me. Just check the number of bugs in MySQL that &lt;code>strace&lt;/code> was used to tackle
+&lt;a href="http://mysqlentomologist.blogspot.com/2017/12/using-strace-for-mysql-troubleshooting.html" target="_blank" rel="noopener">“using strace for mysql troubleshooting&lt;/a>. Thus, it’s not a surprise that we can use &lt;code>strace&lt;/code> in our daily life dealing with databases.&lt;/p>
+&lt;h3 id="is-this-process--well-behaved-how-many-connections-does-it-have">Is this process well behaved? How many connections does it have?&lt;/h3>
+&lt;p>In MlOps or DevOps we always need to deal with database connections. Sometimes we must check if a process is closing these connections or is creating more than necessary. If these connections are made using the &lt;strong>TCP&lt;/strong> protocol you can list all established connections using the following command:&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ lsof -iTCP -sTCP:ESTABLISHED
+&lt;/code>&lt;/pre>
+&lt;p>As expected, we get a lot of unwanted information like website addresses and other application communications. If we want to list just the &lt;strong>TCP&lt;/strong> connection in a process, we must pass the &lt;strong>PID&lt;/strong> like this:&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ lsof -iTCP -sTCP:ESTABLISHED -p 22157
+COMMAND PID USER FD TYPE DEVICE SIZE/OFF NODE NAME
+python 22157 devmessias 4u IPv4 9474517 0t0 TCP localhost:35932-&amp;gt;localhost:mysql (ESTABLISHED)
+python 22157 devmessias 5u IPv4 9474518 0t0 TCP localhost:35934-&amp;gt;localhost:mysql (ESTABLISHED)
+python 22157 devmessias 6u IPv4 9475529 0t0 TCP localhost:37048-&amp;gt;localhost:5000 (ESTABLISHED)
+&lt;/code>&lt;/pre>
+&lt;p>As can you see we also have some connections in our server that are not related to the &lt;code>mysql&lt;/code>. If we want to investigate just the &lt;code>mysql&lt;/code> connections between all the processes in our system just do:&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ lsof -iTCP:mysql -sTCP:ESTABLISHED
+python 22157 devmessias 4u IPv4 9474517 0t0 TCP localhost:35932-&amp;gt;localhost:mysql (ESTABLISHED)
+python 22157 devmessias 5u IPv4 9474518 0t0 TCP localhost:35934-&amp;gt;localhost:mysql (ESTABLISHED)
+&lt;/code>&lt;/pre>
+&lt;p>The process identified by &lt;em>22157&lt;/em> PID has two connections with our mysql server.&lt;/p>
+&lt;p>Notice we have used a pattern in the &lt;code>-i&lt;/code> argument. This pattern follows this structure:&lt;/p>
+&lt;pre>&lt;code class="language-bash">lsof -i[protocol][@hostname|hostaddr][:service|port]
+&lt;/code>&lt;/pre>
+&lt;h3 id="everything-is-working-proprely">Everything is working proprely?&lt;/h3>
+&lt;p>Let’s give you a taste of what we can extract from the mysql service using &lt;code>strace&lt;/code> in order to get a comprehension about the processes.&lt;/p>
+&lt;p>Get the PID of &lt;code>mysqld&lt;/code>&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ps aux | grep -i '[m]ysqld'
+mysql 14001 1 0 13:41 ? 00:00:18 /usr/sbin/mysqld
+&lt;/code>&lt;/pre>
+&lt;p>We will ask the &lt;code>strace&lt;/code> to increase the size of the strings up to 50 characters (&lt;code>-s 50&lt;/code>) and we will omit any SYS CALL of the type &lt;code>io_getevents&lt;/code> , &lt;code>nanosleep&lt;/code> and &lt;code>futex&lt;/code>.&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ sudo strace -s 50 -f -e trace=!io_getevents,nanosleep,futex -p 10767
+&lt;/code>&lt;/pre>
+&lt;p>Chose one of your databases and tables to do the following examples. Here, I’ve perfomed this SQL query:&lt;/p>
+&lt;pre>&lt;code class="language-sql">SELECT * FROM product WHERE product_id = 1;
+&lt;/code>&lt;/pre>
+&lt;p>My output prompted some stuff like this&lt;/p>
+&lt;pre>&lt;code class="language-bash">[pid 14334] recvfrom(52, &amp;quot;,\0\0\0&amp;quot;, 4, MSG_DONTWAIT, NULL, NULL) = 4
+[pid 14334] recvfrom(52, &amp;quot;\3SELECT * FROM product WHERE product_id = 1&amp;quot;, 44, MSG_DONTWAIT, NULL, NULL) = 44
 [pid 14334] sendto(52, &amp;quot;\1\0\0\1\5F\0\0\2\3def\16farmers_market\7product\7product\nprodu&amp;quot;..., 477, MSG_DONTWAIT, NULL, 0 &amp;lt;unfinished ...&amp;gt;
 [pid 14207] sched_yield( &amp;lt;unfinished ...&amp;gt;
-[pid 14334] &amp;lt;... sendto resumed&amp;gt;)       = 477
-[pid 14207] &amp;lt;... sched_yield resumed&amp;gt;)  = 0
+[pid 14334] &amp;lt;... sendto resumed&amp;gt;) = 477
+[pid 14207] &amp;lt;... sched_yield resumed&amp;gt;) = 0
 ...
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;We can see the SQL query above. This also shows how &lt;code&gt;strace&lt;/code&gt; can help us to gain a deep understanding about our system. We can see how the sql queries are  comunicating using de &lt;code&gt;recvfrom&lt;/code&gt; and &lt;code&gt;sendfrom&lt;/code&gt; calls.     The &lt;code&gt;man 2 recvfrom&lt;/code&gt; says the first number, 52, represents the file descriptor associated with a unix socket.&lt;/p&gt;
-&lt;p&gt;We can use this approach to investigate $IO$ problems (
-&lt;a href=&#34;https://newbiedba.wordpress.com/2017/01/04/using-strace-in-linux-to-troubleshoot-database-performance-issues/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;using-strace-in-linux-to-troubleshoot-database-performance-issues&lt;/a&gt;) as well many others. But let’s simulate a lock condition and see what happens.&lt;/p&gt;
-&lt;p&gt;Start a session and initiate any transaction. Don’t finish with a &lt;strong&gt;COMMIT;&lt;/strong&gt; command!&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;# first session
+&lt;/code>&lt;/pre>
+&lt;p>We can see the SQL query above. This also shows how &lt;code>strace&lt;/code> can help us to gain a deep understanding about our system. We can see how the sql queries are comunicating using de &lt;code>recvfrom&lt;/code> and &lt;code>sendfrom&lt;/code> calls. The &lt;code>man 2 recvfrom&lt;/code> says the first number, 52, represents the file descriptor associated with a unix socket.&lt;/p>
+&lt;p>We can use this approach to investigate $IO$ problems (
+&lt;a href="https://newbiedba.wordpress.com/2017/01/04/using-strace-in-linux-to-troubleshoot-database-performance-issues/" target="_blank" rel="noopener">using-strace-in-linux-to-troubleshoot-database-performance-issues&lt;/a>) as well many others. But let’s simulate a lock condition and see what happens.&lt;/p>
+&lt;p>Start a session and initiate any transaction. Don’t finish with a &lt;strong>COMMIT;&lt;/strong> command!&lt;/p>
+&lt;pre>&lt;code># first session
 MariaDB [you_db]&amp;gt; BEGIN;
 Query OK, 0 rows affected (0.001 sec)
-MariaDB [your_db]&amp;gt; UPDATE customer SET customer_first_name = &#39;something&#39; WHERE customer_id=1;
+MariaDB [your_db]&amp;gt; UPDATE customer SET customer_first_name = 'something' WHERE customer_id=1;
 Query OK, 0 rows affected (0.001 sec)
-Rows matched: 1  Changed: 0  Warnings: 0
+Rows matched: 1 Changed: 0 Warnings: 0
 MariaDB [you_db]&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Looks in the &lt;code&gt;strace&lt;/code&gt; output, something like this should appear&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;[pid 14334] recvfrom(52, &amp;quot;I\0\0\0&amp;quot;, 4, MSG_DONTWAIT, NULL, NULL) = 4
-[pid 14334] recvfrom(52, &amp;quot;\3UPDATE customer SET customer_first_name = &#39;Brun&amp;quot;..., 73, MSG_DONTWAIT, NULL, NULL) = 73
-[pid 14334] sendto(52, &amp;quot;0\0\0\1\0\0\0\3\0\0\0(Rows matched: 1  Changed: 0  Warnings:&amp;quot;..., 52, MSG_DONTWAIT, NULL, 0) = 52
-[pid 14334] recvfrom(52, 0x7fd354007348, 4, MSG_DONTWAIT, NULL, NULL) = -1 EAGAIN 
+&lt;/code>&lt;/pre>
+&lt;p>Looks in the &lt;code>strace&lt;/code> output, something like this should appear&lt;/p>
+&lt;pre>&lt;code>[pid 14334] recvfrom(52, &amp;quot;I\0\0\0&amp;quot;, 4, MSG_DONTWAIT, NULL, NULL) = 4
+[pid 14334] recvfrom(52, &amp;quot;\3UPDATE customer SET customer_first_name = 'Brun&amp;quot;..., 73, MSG_DONTWAIT, NULL, NULL) = 73
+[pid 14334] sendto(52, &amp;quot;0\0\0\1\0\0\0\3\0\0\0(Rows matched: 1 Changed: 0 Warnings:&amp;quot;..., 52, MSG_DONTWAIT, NULL, 0) = 52
+[pid 14334] recvfrom(52, 0x7fd354007348, 4, MSG_DONTWAIT, NULL, NULL) = -1 EAGAIN
 [pid 14334] poll([{fd=52, events=POLLIN|POLLPRI}], 1, 28800000
-
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;The &lt;code&gt;poll&lt;/code&gt;  is a system call that will wait for any change in the file descriptor 52.  The process is waiting for the &lt;code&gt;COMMIT;&lt;/code&gt; clause in our first mysql session. Note the absence of the enclosing &lt;code&gt;)&lt;/code&gt; in the last line.&lt;/p&gt;
-&lt;p&gt;Open another mysql session, try to execute the same SQL query (whitouth the BEGIN)&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;# second session
-MariaDB [your_db]&amp;gt; UPDATE customer SET customer_first_name = &#39;something&#39; WHERE customer_id=1;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;The db row it’s in a lock state. If we look in the &lt;code&gt;strace&lt;/code&gt; output just some new lines will be printed, like this&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt; &amp;lt;unfinished ...&amp;gt;
+&lt;/code>&lt;/pre>
+&lt;p>The &lt;code>poll&lt;/code> is a system call that will wait for any change in the file descriptor 52. The process is waiting for the &lt;code>COMMIT;&lt;/code> clause in our first mysql session. Note the absence of the enclosing &lt;code>)&lt;/code> in the last line.&lt;/p>
+&lt;p>Open another mysql session, try to execute the same SQL query (whitouth the BEGIN)&lt;/p>
+&lt;pre>&lt;code># second session
+MariaDB [your_db]&amp;gt; UPDATE customer SET customer_first_name = 'something' WHERE customer_id=1;
+&lt;/code>&lt;/pre>
+&lt;p>The db row it’s in a lock state. If we look in the &lt;code>strace&lt;/code> output just some new lines will be printed, like this&lt;/p>
+&lt;pre>&lt;code> &amp;lt;unfinished ...&amp;gt;
 [pid 29884] recvfrom(83, &amp;quot;I\0\0\0&amp;quot;, 4, MSG_DONTWAIT, NULL, NULL) = 4
-[pid 29884] recvfrom(83, &amp;quot;\3UPDATE customer   SET customer_first_name = &#39;someth&amp;quot;..., 73, MSG_DONTWAIT, NULL, NULL) = 73
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Our second transction is waiting for the first to be commited in our db. If you perform a commit in the first session this will hapen in the &lt;code&gt;strace&lt;/code&gt; output:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;[pid 14334] &amp;lt;... poll resumed&amp;gt;)         = 1 ([{fd=52, revents=POLLIN}])
+[pid 29884] recvfrom(83, &amp;quot;\3UPDATE customer SET customer_first_name = 'someth&amp;quot;..., 73, MSG_DONTWAIT, NULL, NULL) = 73
+&lt;/code>&lt;/pre>
+&lt;p>Our second transction is waiting for the first to be commited in our db. If you perform a commit in the first session this will hapen in the &lt;code>strace&lt;/code> output:&lt;/p>
+&lt;pre>&lt;code>[pid 14334] &amp;lt;... poll resumed&amp;gt;) = 1 ([{fd=52, revents=POLLIN}])
 [pid 14334] recvfrom(52, &amp;quot;\7\0\0\0&amp;quot;, 4, MSG_DONTWAIT, NULL, NULL) = 4
 [pid 14334] recvfrom(52, &amp;quot;\3COMMIT&amp;quot;, 7, MSG_DONTWAIT, NULL, NULL) = 7
 ...
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Your first transaction was performed and the lock was released allowing the second transaction to be executed.&lt;/p&gt;
-&lt;h2 id=&#34;extras-related-to-files-proc-and-strace&#34;&gt;Extras related to files (&lt;code&gt;/proc/&lt;/code&gt;) and &lt;code&gt;strace&lt;/code&gt;&lt;/h2&gt;
-&lt;p&gt;I gave you some examples about connection issues, regular files accidents and database management. Here I’ll give  more examples that I believe are not so useful although they are very interesting.&lt;/p&gt;
-&lt;h3 id=&#34;creating-a-sys-call-summary-what-does-my-program-do&#34;&gt;Creating a SYS CALL summary: what does my program do?&lt;/h3&gt;
-&lt;p&gt;An overview of what your program does  can help you to perform some optimizations or  discover something strange. We can use the &lt;code&gt;strace -c&lt;/code&gt; to get an overview of the system calls. For example, the following command gave me a summary of system calls of a &lt;code&gt;make sync-env&lt;/code&gt;  that I’m using in one of my projects:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ strace -c -e trace=!\wait4 make sync-env
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;The exclamation mark, &lt;code&gt;-e trace=!\wait4&lt;/code&gt;, in the above command tells  &lt;code&gt;strace&lt;/code&gt;  to ignore any &lt;code&gt;wait4&lt;/code&gt; system call.&lt;/p&gt;
-&lt;p&gt;What I’ve obtained was this&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;% time     seconds  usecs/call     calls    errors syscall
+&lt;/code>&lt;/pre>
+&lt;p>Your first transaction was performed and the lock was released allowing the second transaction to be executed.&lt;/p>
+&lt;h2 id="extras-related-to-files-proc-and-strace">Extras related to files (&lt;code>/proc/&lt;/code>) and &lt;code>strace&lt;/code>&lt;/h2>
+&lt;p>I gave you some examples about connection issues, regular files accidents and database management. Here I’ll give more examples that I believe are not so useful although they are very interesting.&lt;/p>
+&lt;h3 id="creating-a-sys-call-summary-what-does-my-program-do">Creating a SYS CALL summary: what does my program do?&lt;/h3>
+&lt;p>An overview of what your program does can help you to perform some optimizations or discover something strange. We can use the &lt;code>strace -c&lt;/code> to get an overview of the system calls. For example, the following command gave me a summary of system calls of a &lt;code>make sync-env&lt;/code> that I’m using in one of my projects:&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ strace -c -e trace=!\wait4 make sync-env
+&lt;/code>&lt;/pre>
+&lt;p>The exclamation mark, &lt;code>-e trace=!\wait4&lt;/code>, in the above command tells &lt;code>strace&lt;/code> to ignore any &lt;code>wait4&lt;/code> system call.&lt;/p>
+&lt;p>What I’ve obtained was this&lt;/p>
+&lt;pre>&lt;code>% time seconds usecs/call calls errors syscall
 ------ ----------- ----------- --------- --------- ----------------
- 14,54    0,000209           6        33        13 openat
- 13,01    0,000187          17        11           vfork
- 12,32    0,000177           7        25           mmap
-  8,49    0,000122           3        31           close
-  8,42    0,000121           5        21           rt_sigprocmask
-  8,14    0,000117           6        17           read
-  6,89    0,000099           5        19        11 stat
-  5,85    0,000084           3        23           fstat
-  2,85    0,000041           8         5           mprotect
-  2,64    0,000038           9         4           write
-  2,51    0,000036           2        16           fcntl
-  2,02    0,000029           3         9           rt_sigaction
-  1,95    0,000028          14         2           readlink
-  1,95    0,000028          14         2           getdents64
-  1,25    0,000018           4         4           brk
-  1,25    0,000018          18         1         1 access
-  1,25    0,000018           3         5           pipe
-  1,11    0,000016           4         4           ioctl
-  0,84    0,000012           6         2           getcwd
-  0,70    0,000010          10         1           munmap
-  0,49    0,000007           7         1           lstat
-  0,49    0,000007           7         1           execve
-  0,49    0,000007           3         2           prlimit64
-  0,35    0,000005           5         1           chdir
-  0,21    0,000003           3         1           arch_prctl
+14,54 0,000209 6 33 13 openat
+13,01 0,000187 17 11 vfork
+12,32 0,000177 7 25 mmap
+8,49 0,000122 3 31 close
+8,42 0,000121 5 21 rt_sigprocmask
+8,14 0,000117 6 17 read
+6,89 0,000099 5 19 11 stat
+5,85 0,000084 3 23 fstat
+2,85 0,000041 8 5 mprotect
+2,64 0,000038 9 4 write
+2,51 0,000036 2 16 fcntl
+2,02 0,000029 3 9 rt_sigaction
+1,95 0,000028 14 2 readlink
+1,95 0,000028 14 2 getdents64
+1,25 0,000018 4 4 brk
+1,25 0,000018 18 1 1 access
+1,25 0,000018 3 5 pipe
+1,11 0,000016 4 4 ioctl
+0,84 0,000012 6 2 getcwd
+0,70 0,000010 10 1 munmap
+0,49 0,000007 7 1 lstat
+0,49 0,000007 7 1 execve
+0,49 0,000007 3 2 prlimit64
+0,35 0,000005 5 1 chdir
+0,21 0,000003 3 1 arch_prctl
 ------ ----------- ----------- --------- --------- ----------------
-100.00    0,001437                   241        25 total
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;What  can we extract from the above output? A lot of things. For example  &lt;code&gt;make sync-env&lt;/code&gt; spent 14% of the time doing system calls of the type &lt;code&gt;opennat&lt;/code&gt; and 20 of these 33  &lt;code&gt;openat&lt;/code&gt; calls  had some problem.&lt;/p&gt;
-&lt;h3 id=&#34;did-this-process-start-with-the-correct-environment-variables&#34;&gt;Did this process start with the correct environment variables?&lt;/h3&gt;
-&lt;p&gt;We have several reasons to use environment variables. These variables are easy to configure, improve security, and prevent errors. So they are used everywhere to store a secret, point to a lib and much more. However, sometimes we are not so sure whether a process is using the correct environment variables or not.&lt;/p&gt;
-&lt;p&gt;Let’s try something simple&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ ANSWER=42 python script.py
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;As I said previously the &lt;code&gt;/proc&lt;/code&gt; is responsible for storing the state of any process running in your machine.  So, it’s not a surprise that we can extract the environment variables from that.&lt;/p&gt;
-&lt;p&gt;To print the environment variables of the process with a PID &lt;code&gt;4301&lt;/code&gt; just call this &lt;code&gt;cat /proc/4031/environ&lt;/code&gt; and get an ugly output. To improve the output we can use the &lt;code&gt;tr&lt;/code&gt; and replace the null characters  &lt;code&gt;\0&lt;/code&gt; by break lines &lt;code&gt;\n&lt;/code&gt;. Like this:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ tr &#39;\0&#39; &#39;\n&#39; &amp;lt; /proc/4031/environ
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;You will have a output similar to this&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;ANSWER=42
+100.00 0,001437 241 25 total
+&lt;/code>&lt;/pre>
+&lt;p>What can we extract from the above output? A lot of things. For example &lt;code>make sync-env&lt;/code> spent 14% of the time doing system calls of the type &lt;code>opennat&lt;/code> and 20 of these 33 &lt;code>openat&lt;/code> calls had some problem.&lt;/p>
+&lt;h3 id="did-this-process-start-with-the-correct-environment-variables">Did this process start with the correct environment variables?&lt;/h3>
+&lt;p>We have several reasons to use environment variables. These variables are easy to configure, improve security, and prevent errors. So they are used everywhere to store a secret, point to a lib and much more. However, sometimes we are not so sure whether a process is using the correct environment variables or not.&lt;/p>
+&lt;p>Let’s try something simple&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ ANSWER=42 python script.py
+&lt;/code>&lt;/pre>
+&lt;p>As I said previously the &lt;code>/proc&lt;/code> is responsible for storing the state of any process running in your machine. So, it’s not a surprise that we can extract the environment variables from that.&lt;/p>
+&lt;p>To print the environment variables of the process with a PID &lt;code>4301&lt;/code> just call this &lt;code>cat /proc/4031/environ&lt;/code> and get an ugly output. To improve the output we can use the &lt;code>tr&lt;/code> and replace the null characters &lt;code>\0&lt;/code> by break lines &lt;code>\n&lt;/code>. Like this:&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ tr '\0' '\n' &amp;lt; /proc/4031/environ
+&lt;/code>&lt;/pre>
+&lt;p>You will have a output similar to this&lt;/p>
+&lt;pre>&lt;code>ANSWER=42
 SHELL=/bin/bash
 LANGUAGE=en_US
 JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/bin/java
 ...more stuff
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;If you want to look just at the environment variables with a given string pattern you can use &lt;code&gt;awk&lt;/code&gt; , &lt;code&gt;grep&lt;/code&gt;, or anything that you feel more comfortable.  For example, doing this&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ tr &#39;\0&#39; &#39;\n&#39; &amp;lt; /proc/4031/environ 2&amp;gt;&amp;amp;1 | awk &#39;/^CONDA/ {print}&#39;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;I’ve obtained this&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;CONDA_EXE=/home/devmessias/anaconda3/bin/conda
+&lt;/code>&lt;/pre>
+&lt;p>If you want to look just at the environment variables with a given string pattern you can use &lt;code>awk&lt;/code> , &lt;code>grep&lt;/code>, or anything that you feel more comfortable. For example, doing this&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ tr '\0' '\n' &amp;lt; /proc/4031/environ 2&amp;gt;&amp;amp;1 | awk '/^CONDA/ {print}'
+&lt;/code>&lt;/pre>
+&lt;p>I’ve obtained this&lt;/p>
+&lt;pre>&lt;code>CONDA_EXE=/home/devmessias/anaconda3/bin/conda
 CONDA_PREFIX=/home/devmessias/anaconda3
-CONDA_PROMPT_MODIFIER=(base) 
+CONDA_PROMPT_MODIFIER=(base)
 CONDA_SHLVL=1
 CONDA_PYTHON_EXE=/home/devmessias/anaconda3/bin/python
 CONDA_DEFAULT_ENV=base
-&lt;/code&gt;&lt;/pre&gt;
-&lt;h3 id=&#34;i-forgot-to-redirect-the-outputs-what-can-i-do-now&#34;&gt;I forgot to redirect the outputs! What can I do now?&lt;/h3&gt;
-&lt;p&gt;Suppose  you  started a process without redirecting the output to a file. Maybe you forgot or you are too optimistic about the problems and now you want to persist the errors.  If restart the process it’s out of question you can use the &lt;code&gt;strace&lt;/code&gt; to solve your headache. Let’s see how we can solve that.&lt;/p&gt;
-&lt;p&gt;The system calls responsible to request the kernel to write in the &lt;strong&gt;stdin, stdout&lt;/strong&gt; and &lt;strong&gt;stderr&lt;/strong&gt; is the &lt;code&gt;write&lt;/code&gt; . If you want to know more  you should read the manual&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ man 2 write
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;But the most important part of the &lt;code&gt;write&lt;/code&gt; manual  is on the top and is this:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;NAME
-       write - write to a file descriptor
+&lt;/code>&lt;/pre>
+&lt;h3 id="i-forgot-to-redirect-the-outputs-what-can-i-do-now">I forgot to redirect the outputs! What can I do now?&lt;/h3>
+&lt;p>Suppose you started a process without redirecting the output to a file. Maybe you forgot or you are too optimistic about the problems and now you want to persist the errors. If restart the process it’s out of question you can use the &lt;code>strace&lt;/code> to solve your headache. Let’s see how we can solve that.&lt;/p>
+&lt;p>The system calls responsible to request the kernel to write in the &lt;strong>stdin, stdout&lt;/strong> and &lt;strong>stderr&lt;/strong> is the &lt;code>write&lt;/code> . If you want to know more you should read the manual&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ man 2 write
+&lt;/code>&lt;/pre>
+&lt;p>But the most important part of the &lt;code>write&lt;/code> manual is on the top and is this:&lt;/p>
+&lt;pre>&lt;code>NAME
+write - write to a file descriptor
 SYNOPSIS
-       #include &amp;lt;unistd.h&amp;gt;
-       ssize_t write(int fd, const void *buf, size_t count);
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;As you can see the first argument is an integer that represents the file descriptor. If &lt;strong&gt;fd=1&lt;/strong&gt; this means a writing in the &lt;strong&gt;stdout&lt;/strong&gt; and if &lt;strong&gt;fd=2&lt;/strong&gt; the writing will be in the &lt;strong&gt;stderr&lt;/strong&gt;. So, it’s an easy piece here. We just need to monitor any sys call &lt;code&gt;write&lt;/code&gt; with the &lt;code&gt;fd&lt;/code&gt; equals to $1$ or $2$ and save the values in a file.&lt;/p&gt;
-&lt;p&gt;When I need to do this (two or three times in my  life time) I use the following pattern&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ strace -f -t -etrace=write -s 1000 -p 4320 2&amp;gt;&amp;amp;1 | grep --line-buffered -e &#39;write(2, &#39; -e &#39;write(1, &#39; &amp;gt; out.txt
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;I’m asking  &lt;code&gt;strace&lt;/code&gt; to monitor any SYS CALL &lt;code&gt;write&lt;/code&gt; from the process  with the PID &lt;code&gt;4320&lt;/code&gt; or  children created by them (&lt;code&gt;-f&lt;/code&gt;) . And  saving the output in the &lt;code&gt;out.txt&lt;/code&gt; file.&lt;/p&gt;
-&lt;p&gt;The following code changes the &lt;code&gt;server_mlops.py&lt;/code&gt;  to help you to explore more this scenario.&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;# server_mlops.py
+#include &amp;lt;unistd.h&amp;gt;
+ssize_t write(int fd, const void *buf, size_t count);
+&lt;/code>&lt;/pre>
+&lt;p>As you can see the first argument is an integer that represents the file descriptor. If &lt;strong>fd=1&lt;/strong> this means a writing in the &lt;strong>stdout&lt;/strong> and if &lt;strong>fd=2&lt;/strong> the writing will be in the &lt;strong>stderr&lt;/strong>. So, it’s an easy piece here. We just need to monitor any sys call &lt;code>write&lt;/code> with the &lt;code>fd&lt;/code> equals to $1$ or $2$ and save the values in a file.&lt;/p>
+&lt;p>When I need to do this (two or three times in my life time) I use the following pattern&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ strace -f -t -etrace=write -s 1000 -p 4320 2&amp;gt;&amp;amp;1 | grep --line-buffered -e 'write(2, ' -e 'write(1, ' &amp;gt; out.txt
+&lt;/code>&lt;/pre>
+&lt;p>I’m asking &lt;code>strace&lt;/code> to monitor any SYS CALL &lt;code>write&lt;/code> from the process with the PID &lt;code>4320&lt;/code> or children created by them (&lt;code>-f&lt;/code>) . And saving the output in the &lt;code>out.txt&lt;/code> file.&lt;/p>
+&lt;p>The following code changes the &lt;code>server_mlops.py&lt;/code> to help you to explore more this scenario.&lt;/p>
+&lt;pre>&lt;code class="language-python"># server_mlops.py
 import time
 import flask
 import sys
-
 app = flask.Flask(__name__)
-
-@app.route(&#39;/&#39;)
+@app.route('/')
 def hello_world():
-    sleep_time = flask.request.args.get(&#39;sleep&#39;, default=10, type=int)
-    print(&#39;sleep_time:&#39;, sleep_time)
-    for i in range(sleep_time):
-        print(f&#39;INFO: {i} of sleep_time \n asdf \t &#39;)
-        print(f&#39;ERROR: Example msg {i}&#39;, file=sys.stderr) 
-        time.sleep(1)
-    return &#39;Hello World!&#39;
-
-if __name__ == &#39;__main__&#39;:
-    app.run()
-&lt;/code&gt;&lt;/pre&gt;
-&lt;h3 id=&#34;how-this-program-has-been-called-what-is-the-working-dir-of-the-process&#34;&gt;How this program has been called? What is the working dir of the process?&lt;/h3&gt;
-&lt;p&gt;Ok, you can answer these  questions  using &lt;code&gt;htop&lt;/code&gt;. However we can get the same information without installing anything, just looking in a file inside of the &lt;code&gt;/proc/&lt;/code&gt; folder, like this&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ tr &#39;\0&#39; &#39;\t&#39; &amp;lt; /proc/A_PID_NUMBER/cmdline
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;In my case I’ve obtined this&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;python client.py --sleep 1000
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;To discover the working directory do this&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ readlink /proc/A_PID_NUMBER/cwd
-&lt;/code&gt;&lt;/pre&gt;
-&lt;h2 id=&#34;conclusion--suggestions&#34;&gt;Conclusion &amp;amp; Suggestions&lt;/h2&gt;
-&lt;p&gt;I hope that after reading this post you can be more prepared to face problems in your daily tasks. But if you have any suggestion you can send me an email 
-&lt;a href=&#34;devmessias@gmail.com&#34;&gt;devmessias@gmail.com&lt;/a&gt;. Thanks!&lt;/p&gt;
-&lt;p&gt;If you want to know more about &lt;code&gt;strace &lt;/code&gt;  and linux in general I strongly recommend spent some hours navigating and reading  Julia Evans’ blog 
-&lt;a href=&#34;https://jvns.ca/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;https://jvns.ca/&lt;/a&gt;.&lt;/p&gt;
-</description>
-    </item>
-    
-  </channel>
-</rss>
+sleep_time = flask.request.args.get('sleep', default=10, type=int)
+print('sleep_time:', sleep_time)
+for i in range(sleep_time):
+print(f'INFO: {i} of sleep_time \n asdf \t ')
+print(f'ERROR: Example msg {i}', file=sys.stderr)
+time.sleep(1)
+return 'Hello World!'
+if __name__ == '__main__':
+app.run()
+&lt;/code>&lt;/pre>
+&lt;h3 id="how-this-program-has-been-called-what-is-the-working-dir-of-the-process">How this program has been called? What is the working dir of the process?&lt;/h3>
+&lt;p>Ok, you can answer these questions using &lt;code>htop&lt;/code>. However we can get the same information without installing anything, just looking in a file inside of the &lt;code>/proc/&lt;/code> folder, like this&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ tr '\0' '\t' &amp;lt; /proc/A_PID_NUMBER/cmdline
+&lt;/code>&lt;/pre>
+&lt;p>In my case I’ve obtined this&lt;/p>
+&lt;pre>&lt;code>python client.py --sleep 1000
+&lt;/code>&lt;/pre>
+&lt;p>To discover the working directory do this&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ readlink /proc/A_PID_NUMBER/cwd
+&lt;/code>&lt;/pre>
+&lt;h2 id="conclusion--suggestions">Conclusion &amp;amp; Suggestions&lt;/h2>
+&lt;p>I hope that after reading this post you can be more prepared to face problems in your daily tasks. But if you have any suggestion you can send me an email
+&lt;a href="devmessias@gmail.com">devmessias@gmail.com&lt;/a>. Thanks!&lt;/p>
+&lt;p>If you want to know more about &lt;code>strace &lt;/code> and linux in general I strongly recommend spent some hours navigating and reading Julia Evans’ blog
+&lt;a href="https://jvns.ca/" target="_blank" rel="noopener">https://jvns.ca/&lt;/a>.&lt;/p></description></item></channel></rss>

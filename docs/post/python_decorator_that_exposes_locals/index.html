@@ -1,825 +1,10 @@
-<!DOCTYPE html><html lang="en" >
-
-<head>
-
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="generator" content="Source Themes Academic 4.8.0">
-
-  
-
-  
-  
-  
-  
-  
-    
-    
-    
-  
-  
-
-  <meta name="author" content="Bruno Messias">
-
-  
-  
-  
-    
-  
-  <meta name="description" content="Here I will discuss how to use the inspect module and the sys.trace to introspect in a python method using a decorator. With that, we can create a lot cool things like mathematical validation for our arguments, a report generator or any other kind of introspection.">
-
-  
-  <link rel="alternate" hreflang="pt-br" href="/pt-br/post/python_decorator_that_exposes_locals/">
-  
-  <link rel="alternate" hreflang="en" href="/post/python_decorator_that_exposes_locals/">
-
-  
-
-
-  
-  
-  
-  <meta name="theme-color" content="#2962ff">
-  
-
-  
-  
-  
-  <script src="/js/mathjax-config.js"></script>
-  
-
-  
-  
-  
-  
-    
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/academicons/1.8.6/css/academicons.min.css" integrity="sha256-uFVgMKfistnJAfoCUQigIl+JfUaP47GrRKjf6CTPVmw=" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.0-1/css/all.min.css" integrity="sha256-4w9DunooKSr3MFXHXWyFER38WmPdm361bQS/2KUWZbU=" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" integrity="sha256-Vzbj7sDDS/woiFS3uNKo8eIuni59rjyNGtXfstRzStA=" crossorigin="anonymous">
-
-    
-    
-    
-      
-    
-    
-      
-      
-        
-          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/github.min.css" crossorigin="anonymous" title="hl-light">
-          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/dracula.min.css" crossorigin="anonymous" title="hl-dark" disabled>
-        
-      
-    
-
-    
-
-    
-
-    
-    
-      
-
-      
-      
-
-      
-    
-      
-
-      
-      
-
-      
-    
-      
-
-      
-      
-
-      
-    
-      
-
-      
-      
-
-      
-    
-      
-
-      
-      
-
-      
-    
-      
-
-      
-      
-
-      
-    
-      
-
-      
-      
-
-      
-    
-      
-
-      
-      
-
-      
-    
-      
-
-      
-      
-
-      
-    
-      
-
-      
-      
-
-      
-    
-      
-
-      
-      
-
-      
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/lazysizes/5.1.2/lazysizes.min.js" integrity="sha256-Md1qLToewPeKjfAHU1zyPwOutccPAm5tahnaw7Osw0A=" crossorigin="anonymous" async></script>
-      
-    
-      
-
-      
-      
-
-      
-    
-      
-
-      
-      
-
-      
-    
-      
-
-      
-      
-
-      
-        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" integrity="" crossorigin="anonymous" async></script>
-      
-    
-      
-
-      
-      
-
-      
-    
-
-  
-
-  
-  
-  
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,700%7CRoboto:400,400italic,700%7CRoboto+Mono&display=swap">
-  
-
-  
-  
-  
-  
-  <link rel="stylesheet" href="/css/academic.css">
-
-  
-
-
-
-
-
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-178064356-1"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-
-  function gtag() {
-      dataLayer.push(arguments);
-  }
-
-  function trackOutboundLink(url, target) {
-    gtag('event', 'click', {
-         'event_category': 'outbound',
-         'event_label': url,
-         'transport_type': 'beacon',
-         'event_callback': function () {
-           if (target !== '_blank') {
-             document.location = url;
-           }
-         }
-    });
-    console.debug("Outbound link clicked: " + url);
-  }
-
-  function onClickCallback(event) {
-    if ((event.target.tagName !== 'A') || (event.target.host === window.location.host)) {
-      return;
-    }
-    trackOutboundLink(event.target, event.target.getAttribute('target'));  
-  }
-
-  gtag('js', new Date());
-  gtag('config', 'UA-178064356-1', {});
-
-  
-  document.addEventListener('click', onClickCallback, false);
-</script>
-
-
-  
-
-
-  
-  
-
-  
-
-  <link rel="manifest" href="/index.webmanifest">
-  <link rel="icon" type="image/png" href="/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_32x32_fill_lanczos_center_2.png">
-  <link rel="apple-touch-icon" type="image/png" href="/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_192x192_fill_lanczos_center_2.png">
-
-  <link rel="canonical" href="/post/python_decorator_that_exposes_locals/">
-
-  
-  
-  
-  
-  
-  
-  
-    
-    
-  
-  
-  <meta property="twitter:card" content="summary">
-  
-  <meta property="twitter:site" content="@devmessias">
-  <meta property="twitter:creator" content="@devmessias">
-  
-  
-  <meta property="og:site_name" content="Bruno Messias">
-  <meta property="og:url" content="/post/python_decorator_that_exposes_locals/">
-  <meta property="og:title" content="An introspective python decorator using  stack frames and the inspect module | Bruno Messias">
-  <meta property="og:description" content="Here I will discuss how to use the inspect module and the sys.trace to introspect in a python method using a decorator. With that, we can create a lot cool things like mathematical validation for our arguments, a report generator or any other kind of introspection."><meta property="og:image" content="/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_2.png"><meta property="og:locale" content="en">
-  
-    
-      <meta property="article:published_time" content="2022-04-04T00:00:00&#43;00:00">
-    
-    <meta property="article:modified_time" content="2022-04-04T00:00:00&#43;00:00">
-  
-
-  
-
-
-    
-
-
-
-
-
-
-  
-
-
-
-
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "BlogPosting",
-  "mainEntityOfPage": {
-    "@type": "WebPage",
-    "@id": "/post/python_decorator_that_exposes_locals/"
-  },
-  "headline": "An introspective python decorator using  stack frames and the inspect module",
-  
-  "datePublished": "2022-04-04T00:00:00Z",
-  "dateModified": "2022-04-04T00:00:00Z",
-  
-  "author": {
-    "@type": "Person",
-    "name": "Bruno Messias"
-  },
-  
-  "publisher": {
-    "@type": "Organization",
-    "name": "Bruno Messias",
-    "logo": {
-      "@type": "ImageObject",
-      "url": "/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_192x192_fill_lanczos_center_2.png"
-    }
-  },
-  "description": "Here I will discuss how to use the inspect module and the sys.trace to introspect in a python method using a decorator. With that, we can create a lot cool things like mathematical validation for our arguments, a report generator or any other kind of introspection."
-}
-</script>
-
-  
-
-  
-
-
-  
-
-
-  
-
-
-
-
-
-  <title>An introspective python decorator using  stack frames and the inspect module | Bruno Messias</title>
-
-</head>
-
-<body id="top" class='page-wrapper' data-spy="scroll" data-offset="70" data-target="#TableOfContents" >
-
-
-  <aside class="search-results" id="search">
-  <div class="container">
-    <section class="search-header">
-
-      <div class="row no-gutters justify-content-between mb-3">
-        <div class="col-6">
-          <h1>Search</h1>
-        </div>
-        <div class="col-6 col-search-close">
-          <a class="js-search" href="#"><i class="fas fa-times-circle text-muted" aria-hidden="true"></i></a>
-        </div>
-      </div>
-
-      <div id="search-box">
-        
-        <input name="q" id="search-query" placeholder="Search..." autocapitalize="off"
-        autocomplete="off" autocorrect="off" spellcheck="false" type="search">
-        
-      </div>
-
-    </section>
-    <section class="section-search-results">
-
-      <div id="search-hits">
-        
-      </div>
-
-    </section>
-  </div>
-</aside>
-
-
-  
-
-
-
-
-
-
-
-<div class='page-header'>
-<nav class="navbar navbar-expand-lg navbar-light compensate-for-scrollbar" id="navbar-main">
-  <div class="container">
-
-    
-    <div class="d-none d-lg-inline-flex">
-      <a class="navbar-brand" href="/">Bruno Messias</a>
-    </div>
-    
-
-    
-    <button type="button" class="navbar-toggler" data-toggle="collapse"
-            data-target="#navbar-content" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
-    <span><i class="fas fa-bars"></i></span>
-    </button>
-    
-
-    
-    <div class="navbar-brand-mobile-wrapper d-inline-flex d-lg-none">
-      <a class="navbar-brand" href="/">Bruno Messias</a>
-    </div>
-    
-
-    
-    
-    <div class="navbar-collapse main-menu-item collapse justify-content-start" id="navbar-content">
-
-      
-      <ul class="navbar-nav d-md-inline-flex">
-        
-
-        
-
-        
-        
-        
-          
-        
-
-        
-        
-        
-        
-        
-        
-          
-          
-          
-            
-          
-          
-        
-
-        <li class="nav-item">
-          <a class="nav-link " href="/#about"><span>About</span></a>
-        </li>
-
-        
-        
-
-        
-
-        
-        
-        
-          
-        
-
-        
-        
-        
-        
-        
-        
-          
-          
-          
-            
-          
-          
-        
-
-        <li class="nav-item">
-          <a class="nav-link " href="/#posts"><span>Recent Posts</span></a>
-        </li>
-
-        
-        
-
-        
-
-        
-        
-        
-          
-        
-
-        
-        
-        
-        
-        
-        
-          
-          
-          
-            
-          
-          
-        
-
-        <li class="nav-item">
-          <a class="nav-link " href="/#projects"><span>Projects</span></a>
-        </li>
-
-        
-        
-
-        
-
-        
-        
-        
-          
-        
-
-        
-        
-        
-        
-        
-        
-          
-          
-          
-            
-          
-          
-        
-
-        <li class="nav-item">
-          <a class="nav-link " href="/#featured"><span>Publications</span></a>
-        </li>
-
-        
-        
-
-        
-
-        
-        
-        
-          
-        
-
-        
-        
-        
-        
-        
-        
-
-        <li class="nav-item">
-          <a class="nav-link  active" href="/post/"><span>Posts</span></a>
-        </li>
-
-        
-        
-
-      
-
-        
-      </ul>
-    </div>
-
-    <ul class="nav-icons navbar-nav flex-row ml-auto d-flex pl-md-2">
-      
-      <li class="nav-item">
-        <a class="nav-link js-search" href="#" aria-label="Search"><i class="fas fa-search" aria-hidden="true"></i></a>
-      </li>
-      
-
-      
-
-      
-      <li class="nav-item dropdown i18n-dropdown">
-        <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true">
-          <i class="fas fa-globe mr-1" aria-hidden="true"></i><span class="d-none d-lg-inline">English</span>
-        </a>
-        <div class="dropdown-menu">
-          <div class="dropdown-item dropdown-item-active">
-            <span>English</span>
-          </div>
-          
-          <a class="dropdown-item" href="/pt-br/post/python_decorator_that_exposes_locals/">
-            <span>Português (Brasil)</span>
-          </a>
-          
-        </div>
-      </li>
-      
-
-    </ul>
-
-  </div>
-</nav>
-</div>
-
-
-  <div id='macaquinho123' class='page-body'>
-  
-<div class="container-fluid docs">
-
-  
-  <div class="row flex-xl-nowrap">
-    
-    
-    
-    
-    
-    
-    
-    
-
-    <div class="col-12 col-md-10 offset-md-2">
-      
-      
-      <div class='bg-overlay-img' style='--bg-url: url(/images/nsbm_my_hu89297f8c1e21eaee320ab5441af174cf_1288119_0x200_resize_lanczos_2.png);'>
-      
-        <h1 class="text-left">An introspective python decorator using  stack frames and the inspect module</h1>
-  
-      
-      <p class="page-subtitle text-left">A decorator that allow allows you to inspect a method and its final state.</p>
-      
-
-      
-      
-
-
-<div class="article-metadata">
-
-  
-  
-
-  
-  <span class="article-date">
-    
-    
-      
-    
-    Apr 4, 2022
-  </span>
-  
-
-  
-
-  
-
-  
-  
-  
-  <span class="middot-divider"></span>
-  <a href="/post/python_decorator_that_exposes_locals/#disqus_thread"></a>
-  
-
-  
-  
-  <span class="middot-divider"></span>
-  <span class="article-categories">
-    <i class="fas fa-folder mr-1"></i><a href="/category/python/">Python</a></span>
-  
-
-</div>
-
-      
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      
-      </div>
-    </div>
-    
-    
-    
-  </div>
-
-    
-  <div class="row flex-xl-nowrap">
-    
-    
-    <div class="d-none d-md-block col-md-3 docs-toc sidebar-toc">
-      <ul class="nav toc-top ">
-        <li><a href="#" id="back_to_top" class="docs-toc-title">Contents</a></li>
-      </ul>
-      <nav id="TableOfContents">
-  <ul>
-    <li>
-      <ul>
-        <li><a href="#gaining-a-deeper-understanding-about-the-execution-context-of-a-function">Gaining a deeper understanding about the execution context of a function</a>
-          <ul>
-            <li><a href="#the-fluent-python-book-example">The Fluent Python Book example</a></li>
-            <li><a href="#current-issues-and-limitations">Current issues and limitations</a></li>
-          </ul>
-        </li>
-        <li><a href="#creating-an-introspective-code-with-the-inspect-module">Creating an introspective code with the inspect module</a>
-          <ul>
-            <li><a href="#a-decorator-that-validates-arguments-using-mathematical-notation">A decorator that validates arguments using mathematical notation</a></li>
-            <li><a href="#going-back-to-the-fluent-python-example">Going back to the Fluent python example</a></li>
-          </ul>
-        </li>
-        <li><a href="#how-to-expose-the-locals-inside-of-a-decorator">How to expose the locals() inside of a decorator?</a>
-          <ul>
-            <li><a href="#call-stack-and-frames-in-python">Call stack and frames in python</a></li>
-            <li><a href="#using-systrace-to-track-our-frames">Using sys.trace to track our frames</a></li>
-            <li><a href="#lets-solve-our-problem">Let&rsquo;s solve our problem</a></li>
-          </ul>
-        </li>
-        <li><a href="#conclusion-and-next-steps">Conclusion and next steps</a>
-          <ul>
-            <li><a href="#it-depends">&ldquo;&hellip;it depends&rdquo;</a></li>
-            <li><a href="#the-next-step-we-dont-need-a-trace-we-can-do-better-using-ast-manipulation">The next step: we don&rsquo;t need a trace! We can do better using AST manipulation</a></li>
-            <li><a href="#simplenamespace-for-dictkey-instead-of-dictkey">SimpleNamespace for dict.key instead of dict[&ldquo;key]</a></li>
-            <li><a href="#want-to-know-more-about-call-stack--inspect-and-trace">Want to know more about call stack , inspect and trace?</a></li>
-          </ul>
-        </li>
-      </ul>
-    </li>
-  </ul>
-</nav>
-      
-    </div>
-    
-    
-    <main class="col-12 col-md-9 py-md-3 pl-md-5 docs-content" role="main">
-
-<article class="article">
-
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-
-  
-  
-  
-
-
-
-
-
-  <div class="article-container">
-
-    <div class="article-style">
-      <details 
-class="toc-inpage d-print-none d-none d-sm-block d-md-none  " open>
-  <summary class="font-weight-bold">Table of Contents</summary>
-  <nav id="TableOfContents">
-  <ul>
-    <li>
-      <ul>
-        <li><a href="#gaining-a-deeper-understanding-about-the-execution-context-of-a-function">Gaining a deeper understanding about the execution context of a function</a>
-          <ul>
-            <li><a href="#the-fluent-python-book-example">The Fluent Python Book example</a></li>
-            <li><a href="#current-issues-and-limitations">Current issues and limitations</a></li>
-          </ul>
-        </li>
-        <li><a href="#creating-an-introspective-code-with-the-inspect-module">Creating an introspective code with the inspect module</a>
-          <ul>
-            <li><a href="#a-decorator-that-validates-arguments-using-mathematical-notation">A decorator that validates arguments using mathematical notation</a></li>
-            <li><a href="#going-back-to-the-fluent-python-example">Going back to the Fluent python example</a></li>
-          </ul>
-        </li>
-        <li><a href="#how-to-expose-the-locals-inside-of-a-decorator">How to expose the locals() inside of a decorator?</a>
-          <ul>
-            <li><a href="#call-stack-and-frames-in-python">Call stack and frames in python</a></li>
-            <li><a href="#using-systrace-to-track-our-frames">Using sys.trace to track our frames</a></li>
-            <li><a href="#lets-solve-our-problem">Let&rsquo;s solve our problem</a></li>
-          </ul>
-        </li>
-        <li><a href="#conclusion-and-next-steps">Conclusion and next steps</a>
-          <ul>
-            <li><a href="#it-depends">&ldquo;&hellip;it depends&rdquo;</a></li>
-            <li><a href="#the-next-step-we-dont-need-a-trace-we-can-do-better-using-ast-manipulation">The next step: we don&rsquo;t need a trace! We can do better using AST manipulation</a></li>
-            <li><a href="#simplenamespace-for-dictkey-instead-of-dictkey">SimpleNamespace for dict.key instead of dict[&ldquo;key]</a></li>
-            <li><a href="#want-to-know-more-about-call-stack--inspect-and-trace">Want to know more about call stack , inspect and trace?</a></li>
-          </ul>
-        </li>
-      </ul>
-    </li>
-  </ul>
-</nav>
-</details>
-<p>
-<a href="https://www.amazon.com.br/Fluent-Python-Luciano-Ramalho/dp/1491946008" target="_blank" rel="noopener">Fluent Python</a> is the best resource to learn to use and love python. Some days ago I was reading a section of the chapter 7: <em>&ldquo;Function Decorators and Closures</em>&rdquo;. This chapter has a lot of interesting and cool examples. Here I&rsquo;ll discuss one of them and how I tried to put more shiny stuff in it.</p>
-<h2 id="gaining-a-deeper-understanding-about-the-execution-context-of-a-function">Gaining a deeper understanding about the execution context of a function</h2>
-<h3 id="the-fluent-python-book-example">The Fluent Python Book example</h3>
-<p>Ramalho’s book presents us with a <code>@clock</code> decorator that can be used to decorate a method, measure the time it takes to execute, and print in a human-readable format the arguments and name of the method. The example is shown below:</p>
-<pre><code class="language-python">import time
+<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=generator content="Source Themes Academic 4.8.0"><meta name=author content="Bruno Messias"><meta name=description content="Here I will discuss how to use the inspect module and the sys.trace to introspect in a python method using a decorator. With that, we can create a lot cool things like mathematical validation for our arguments, a report generator or any other kind of introspection."><link rel=alternate hreflang=pt-br href=/pt-br/post/python_decorator_that_exposes_locals/><link rel=alternate hreflang=en href=/post/python_decorator_that_exposes_locals/><meta name=theme-color content="#2962ff"><script src=/js/mathjax-config.js></script><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/academicons/1.8.6/css/academicons.min.css integrity="sha256-uFVgMKfistnJAfoCUQigIl+JfUaP47GrRKjf6CTPVmw=" crossorigin=anonymous><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.0-1/css/all.min.css integrity="sha256-4w9DunooKSr3MFXHXWyFER38WmPdm361bQS/2KUWZbU=" crossorigin=anonymous><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css integrity="sha256-Vzbj7sDDS/woiFS3uNKo8eIuni59rjyNGtXfstRzStA=" crossorigin=anonymous><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/github.min.css crossorigin=anonymous title=hl-light><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/dracula.min.css crossorigin=anonymous title=hl-dark disabled><script src=https://cdnjs.cloudflare.com/ajax/libs/lazysizes/5.1.2/lazysizes.min.js integrity="sha256-Md1qLToewPeKjfAHU1zyPwOutccPAm5tahnaw7Osw0A=" crossorigin=anonymous async></script><script src=https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js integrity crossorigin=anonymous async></script><link rel=stylesheet href="https://fonts.googleapis.com/css?family=Montserrat:400,700%7CRoboto:400,400italic,700%7CRoboto+Mono&display=swap"><link rel=stylesheet href=/css/academic.css><script async src="https://www.googletagmanager.com/gtag/js?id=UA-178064356-1"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+function trackOutboundLink(url,target){gtag('event','click',{'event_category':'outbound','event_label':url,'transport_type':'beacon','event_callback':function(){if(target!=='_blank'){document.location=url;}}});console.debug("Outbound link clicked: "+url);}
+function onClickCallback(event){if((event.target.tagName!=='A')||(event.target.host===window.location.host)){return;}
+trackOutboundLink(event.target,event.target.getAttribute('target'));}
+gtag('js',new Date());gtag('config','UA-178064356-1',{});document.addEventListener('click',onClickCallback,false);</script><link rel=manifest href=/index.webmanifest><link rel=icon type=image/png href=/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_32x32_fill_lanczos_center_2.png><link rel=apple-touch-icon type=image/png href=/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_192x192_fill_lanczos_center_2.png><link rel=canonical href=/post/python_decorator_that_exposes_locals/><meta property="twitter:card" content="summary"><meta property="twitter:site" content="@devmessias"><meta property="twitter:creator" content="@devmessias"><meta property="og:site_name" content="Bruno Messias"><meta property="og:url" content="/post/python_decorator_that_exposes_locals/"><meta property="og:title" content="An introspective python decorator using  stack frames and the inspect module | Bruno Messias"><meta property="og:description" content="Here I will discuss how to use the inspect module and the sys.trace to introspect in a python method using a decorator. With that, we can create a lot cool things like mathematical validation for our arguments, a report generator or any other kind of introspection."><meta property="og:image" content="/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_2.png"><meta property="og:locale" content="en"><meta property="article:published_time" content="2022-04-04T00:00:00+00:00"><meta property="article:modified_time" content="2022-04-04T00:00:00+00:00"><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"/post/python_decorator_that_exposes_locals/"},"headline":"An introspective python decorator using  stack frames and the inspect module","datePublished":"2022-04-04T00:00:00Z","dateModified":"2022-04-04T00:00:00Z","author":{"@type":"Person","name":"Bruno Messias"},"publisher":{"@type":"Organization","name":"Bruno Messias","logo":{"@type":"ImageObject","url":"/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_192x192_fill_lanczos_center_2.png"}},"description":"Here I will discuss how to use the inspect module and the sys.trace to introspect in a python method using a decorator. With that, we can create a lot cool things like mathematical validation for our arguments, a report generator or any other kind of introspection."}</script><title>An introspective python decorator using stack frames and the inspect module | Bruno Messias</title></head><body id=top class=page-wrapper data-spy=scroll data-offset=70 data-target=#TableOfContents><aside class=search-results id=search><div class=container><section class=search-header><div class="row no-gutters justify-content-between mb-3"><div class=col-6><h1>Search</h1></div><div class="col-6 col-search-close"><a class=js-search href=#><i class="fas fa-times-circle text-muted" aria-hidden=true></i></a></div></div><div id=search-box><input name=q id=search-query placeholder=Search... autocapitalize=off autocomplete=off autocorrect=off spellcheck=false type=search></div></section><section class=section-search-results><div id=search-hits></div></section></div></aside><div class=page-header><nav class="navbar navbar-expand-lg navbar-light compensate-for-scrollbar" id=navbar-main><div class=container><div class="d-none d-lg-inline-flex"><a class=navbar-brand href=/>Bruno Messias</a></div><button type=button class=navbar-toggler data-toggle=collapse data-target=#navbar-content aria-controls=navbar aria-expanded=false aria-label="Toggle navigation">
+<span><i class="fas fa-bars"></i></span></button><div class="navbar-brand-mobile-wrapper d-inline-flex d-lg-none"><a class=navbar-brand href=/>Bruno Messias</a></div><div class="navbar-collapse main-menu-item collapse justify-content-start" id=navbar-content><ul class="navbar-nav d-md-inline-flex"><li class=nav-item><a class=nav-link href=/#about><span>About</span></a></li><li class=nav-item><a class=nav-link href=/#posts><span>Recent Posts</span></a></li><li class=nav-item><a class=nav-link href=/#projects><span>Projects</span></a></li><li class=nav-item><a class=nav-link href=/#featured><span>Publications</span></a></li><li class=nav-item><a class="nav-link active" href=/post/><span>Posts</span></a></li></ul></div><ul class="nav-icons navbar-nav flex-row ml-auto d-flex pl-md-2"><li class=nav-item><a class="nav-link js-search" href=# aria-label=Search><i class="fas fa-search" aria-hidden=true></i></a></li><li class="nav-item dropdown i18n-dropdown"><a href=# class="nav-link dropdown-toggle" data-toggle=dropdown aria-haspopup=true><i class="fas fa-globe mr-1" aria-hidden=true></i><span class="d-none d-lg-inline">English</span></a><div class=dropdown-menu><div class="dropdown-item dropdown-item-active"><span>English</span></div><a class=dropdown-item href=/pt-br/post/python_decorator_that_exposes_locals/><span>Português (Brasil)</span></a></div></li></ul></div></nav></div><div id=macaquinho123 class=page-body><div class="container-fluid docs"><div class="row flex-xl-nowrap"><div class="col-12 col-md-10 offset-md-2"><div class=bg-overlay-img style="--bg-url: url(/images/nsbm_my_hu89297f8c1e21eaee320ab5441af174cf_1288119_0x200_resize_lanczos_2.png)"><h1 class=text-left>An introspective python decorator using stack frames and the inspect module</h1><p class="page-subtitle text-left">A decorator that allow allows you to inspect a method and its final state.</p><div class=article-metadata><span class=article-date>Apr 4, 2022</span>
+<span class=middot-divider></span><a href=/post/python_decorator_that_exposes_locals/#disqus_thread></a><span class=middot-divider></span><span class=article-categories><i class="fas fa-folder mr-1"></i><a href=/category/python/>Python</a></span></div></div></div></div><div class="row flex-xl-nowrap"><div class="d-none d-md-block col-md-3 docs-toc sidebar-toc"><ul class="nav toc-top"><li><a href=# id=back_to_top class=docs-toc-title>Contents</a></li></ul><nav id=TableOfContents><ul><li><ul><li><a href=#gaining-a-deeper-understanding-about-the-execution-context-of-a-function>Gaining a deeper understanding about the execution context of a function</a><ul><li><a href=#the-fluent-python-book-example>The Fluent Python Book example</a></li><li><a href=#current-issues-and-limitations>Current issues and limitations</a></li></ul></li><li><a href=#creating-an-introspective-code-with-the-inspect-module>Creating an introspective code with the inspect module</a><ul><li><a href=#a-decorator-that-validates-arguments-using-mathematical-notation>A decorator that validates arguments using mathematical notation</a></li><li><a href=#going-back-to-the-fluent-python-example>Going back to the Fluent python example</a></li></ul></li><li><a href=#how-to-expose-the-locals-inside-of-a-decorator>How to expose the locals() inside of a decorator?</a><ul><li><a href=#call-stack-and-frames-in-python>Call stack and frames in python</a></li><li><a href=#using-systrace-to-track-our-frames>Using sys.trace to track our frames</a></li><li><a href=#lets-solve-our-problem>Let&rsquo;s solve our problem</a></li></ul></li><li><a href=#conclusion-and-next-steps>Conclusion and next steps</a><ul><li><a href=#it-depends>&ldquo;&mldr;it depends&rdquo;</a></li><li><a href=#the-next-step-we-dont-need-a-trace-we-can-do-better-using-ast-manipulation>The next step: we don&rsquo;t need a trace! We can do better using AST manipulation</a></li><li><a href=#simplenamespace-for-dictkey-instead-of-dictkey>SimpleNamespace for dict.key instead of dict[&ldquo;key]</a></li><li><a href=#want-to-know-more-about-call-stack--inspect-and-trace>Want to know more about call stack , inspect and trace?</a></li></ul></li></ul></li></ul></nav></div><main class="col-12 col-md-9 py-md-3 pl-md-5 docs-content" role=main><article class=article><div class=article-container><div class=article-style><details class="toc-inpage d-print-none d-none d-sm-block d-md-none" open><summary class=font-weight-bold>Table of Contents</summary><nav id=TableOfContents><ul><li><ul><li><a href=#gaining-a-deeper-understanding-about-the-execution-context-of-a-function>Gaining a deeper understanding about the execution context of a function</a><ul><li><a href=#the-fluent-python-book-example>The Fluent Python Book example</a></li><li><a href=#current-issues-and-limitations>Current issues and limitations</a></li></ul></li><li><a href=#creating-an-introspective-code-with-the-inspect-module>Creating an introspective code with the inspect module</a><ul><li><a href=#a-decorator-that-validates-arguments-using-mathematical-notation>A decorator that validates arguments using mathematical notation</a></li><li><a href=#going-back-to-the-fluent-python-example>Going back to the Fluent python example</a></li></ul></li><li><a href=#how-to-expose-the-locals-inside-of-a-decorator>How to expose the locals() inside of a decorator?</a><ul><li><a href=#call-stack-and-frames-in-python>Call stack and frames in python</a></li><li><a href=#using-systrace-to-track-our-frames>Using sys.trace to track our frames</a></li><li><a href=#lets-solve-our-problem>Let&rsquo;s solve our problem</a></li></ul></li><li><a href=#conclusion-and-next-steps>Conclusion and next steps</a><ul><li><a href=#it-depends>&ldquo;&mldr;it depends&rdquo;</a></li><li><a href=#the-next-step-we-dont-need-a-trace-we-can-do-better-using-ast-manipulation>The next step: we don&rsquo;t need a trace! We can do better using AST manipulation</a></li><li><a href=#simplenamespace-for-dictkey-instead-of-dictkey>SimpleNamespace for dict.key instead of dict[&ldquo;key]</a></li><li><a href=#want-to-know-more-about-call-stack--inspect-and-trace>Want to know more about call stack , inspect and trace?</a></li></ul></li></ul></li></ul></nav></details><p><a href=https://www.amazon.com.br/Fluent-Python-Luciano-Ramalho/dp/1491946008 target=_blank rel=noopener>Fluent Python</a> is the best resource to learn to use and love python. Some days ago I was reading a section of the chapter 7: <em>&ldquo;Function Decorators and Closures</em>&rdquo;. This chapter has a lot of interesting and cool examples. Here I&rsquo;ll discuss one of them and how I tried to put more shiny stuff in it.</p><h2 id=gaining-a-deeper-understanding-about-the-execution-context-of-a-function>Gaining a deeper understanding about the execution context of a function</h2><h3 id=the-fluent-python-book-example>The Fluent Python Book example</h3><p>Ramalho’s book presents us with a <code>@clock</code> decorator that can be used to decorate a method, measure the time it takes to execute, and print in a human-readable format the arguments and name of the method. The example is shown below:</p><pre><code class=language-python>import time
 
 DEFAULT_FMT = '[{elapsed:0.8f}s] {name}({args}) -&gt; {result}'
 
@@ -847,23 +32,10 @@ def snooze(seconds):
 
 for _ in range(3):
     snooze(.123)
-</code></pre>
-<pre><code>[0.12315798s] snooze(0.123)
+</code></pre><pre><code>[0.12315798s] snooze(0.123)
 [0.12315822s] snooze(0.123)
 [0.12317085s] snooze(0.123)
-</code></pre>
-<p>If you don&rsquo;t understand something in the above code I recommend that you take some time searching and reading about each aspect. There are many cool things being used there, for example:</p>
-<ul>
-<li><code>repr</code> which is a function that returns a string representation of an object.
-<ul>
-<li>This is essential because the <code>DEFAULT_FMT</code> is a string, not a <code>f-string</code>, we can&rsquo;t just put a generic object to be printed in <code>DEFAULT_FMT</code>.</li>
-</ul>
-</li>
-<li><code>log_string = fmt.format(**locals())</code>: instead of creating a repetitive code like <code>fmt.format(**{&quot;result&quot;:result, &quot;args&quot;:args, ...})</code> we can just use the <code>locals()</code> which is a dictionary that contains all the local variables of the current scope.</li>
-</ul>
-<p>When I study something I always like to create a fresh problem with the stuff that I&rsquo;ve learned and try to solve it. Sometimes there is no solution. But even if there is no solution, we still learn a lot trying to solve the problem.</p>
-<p>I&rsquo;ve started by creating the following example:</p>
-<pre><code class="language-python">import numpy as np
+</code></pre><p>If you don&rsquo;t understand something in the above code I recommend that you take some time searching and reading about each aspect. There are many cool things being used there, for example:</p><ul><li><code>repr</code> which is a function that returns a string representation of an object.<ul><li>This is essential because the <code>DEFAULT_FMT</code> is a string, not a <code>f-string</code>, we can&rsquo;t just put a generic object to be printed in <code>DEFAULT_FMT</code>.</li></ul></li><li><code>log_string = fmt.format(**locals())</code>: instead of creating a repetitive code like <code>fmt.format(**{"result":result, "args":args, ...})</code> we can just use the <code>locals()</code> which is a dictionary that contains all the local variables of the current scope.</li></ul><p>When I study something I always like to create a fresh problem with the stuff that I&rsquo;ve learned and try to solve it. Sometimes there is no solution. But even if there is no solution, we still learn a lot trying to solve the problem.</p><p>I&rsquo;ve started by creating the following example:</p><pre><code class=language-python>import numpy as np
 
 @clock('[{elapsed:0.8f}s] {name}({args})')
 def snooze_and_snore(seconds, snore_loud, min_prob_to_snore=0.4):
@@ -879,67 +51,32 @@ def snooze_and_snore(seconds, snore_loud, min_prob_to_snore=0.4):
 for _ in range(3):
     snooze_and_snore(.4, True, .1)
     snooze_and_snore(.4, False, .1)
-</code></pre>
-<pre><code>[0.40229130s] snooze_and_snore(0.4, True, 0.1)
+</code></pre><pre><code>[0.40229130s] snooze_and_snore(0.4, True, 0.1)
 [0.40049720s] snooze_and_snore(0.4, False, 0.1)
 [0.40058565s] snooze_and_snore(0.4, True, 0.1)
 [0.40013075s] snooze_and_snore(0.4, False, 0.1)
 [0.40052223s] snooze_and_snore(0.4, True, 0.1)
 [0.40057564s] snooze_and_snore(0.4, False, 0.1)
-</code></pre>
-<p>Ok, what are the problems/issues/limitations that the above code showed  me?</p>
-<h3 id="current-issues-and-limitations">Current issues and limitations</h3>
-<ol>
-<li>We don&rsquo;t have information about the names of the arguments passed to the method.
-<ul>
-<li>If the list of arguments is long, trying to understand what is happening becomes a hard task. Because we are increasing the amount of stuff that we must  keep in our mind. We are increasing the <strong>cognitive load</strong> in the terms presented in the excelsior book: 
-<a href="https://linghao.io/notes/a-philosophy-of-software-design" target="_blank" rel="noopener">A Philosophy of Software Design</a>.</li>
-<li>A person who is not familiar with the codebase cannot understand what is happening by analyzing the outputs of the decorator. If these outputs are being stored in the ELK stack, this will be unproductive.</li>
-</ul>
-</li>
-<li>We have the <code>locals()</code> information from the decorator which is fed by the result of the decorated method. However, we can&rsquo;t get any information about the <code>locals()</code> of the decorated method. Why is this bad?
-<ul>
-<li>The final internal state of the method is commonly used to understand the execution of a method.</li>
-<li>Sometimes a method depends on random variables defined in the local context. Thus, the same set of arguments can give different executions. Until now, we don&rsquo;t have a way to get the <code>locals()</code> of the decorated method. For example, in the <code>snooze_and_snore</code> we can&rsquo;t know if the person snored or not.</li>
-</ul>
-</li>
-</ol>
-<p>We will attack the first issue using the inspect module. As I&rsquo;ll show you, we can do cool things with this module.</p>
-<div class="alert alert-note">
-  <div>
-    If you know about <code>sys.trace</code>, <code>call stack</code> and <code>inspect.signatures</code> I recommend
-you go directly to the section <a href="#lets_solve_our_problem">Let&rsquo;s solve our problem</a>
-  </div>
-</div>
-<h2 id="creating-an-introspective-code-with-the-inspect-module">Creating an introspective code with the inspect module</h2>
-<p>The 
-<a href="https://docs.python.org/3/library/inspect.html" target="_blank" rel="noopener">inspect</a> module is a Python standard library that provides several tools to help you to introspect and consequently learn about live objects like functions, modules, classes, instances, frame objects (I&rsquo;ll talk about frames later in this post), etc. Well, what can you do with this? Really, a lot of things. You can use it to  automatically create  documentation, parse the docstrings, manipulate the AST, etc.</p>
-<h3 id="a-decorator-that-validates-arguments-using-mathematical-notation">A decorator that validates arguments using mathematical notation</h3>
-<p>In the last years, we have seen the development of the <code>typing</code> module and the <code>mypy</code> static analysis tool for python. This module and tool can be very useful sometimes. However, it is still doesn&rsquo;t provide some features that are essential for proper validation. But at least in my experience creating code for my Ph.D., I usually don&rsquo;t need so much sophisticated type theory and validation to be able to write a good code for a mathematical modeling tool. Most of the mathematical validation that I need is just checking if an argument still satisfies some constraints or lives in a proper subspace. If not, I need to raise an exception or perform some kind of regularization.</p>
-<p>Let&rsquo;s create a decorator that will validate arguments using simple mathematical notation.</p>
-<p>We will create a dictionary that will contain the annotation as a key and the value will be a human-readable
-description of the annotation and a method responsible for check if everything is right.</p>
-<pre><code class="language-python">import inspect
+</code></pre><p>Ok, what are the problems/issues/limitations that the above code showed me?</p><h3 id=current-issues-and-limitations>Current issues and limitations</h3><ol><li>We don&rsquo;t have information about the names of the arguments passed to the method.<ul><li>If the list of arguments is long, trying to understand what is happening becomes a hard task. Because we are increasing the amount of stuff that we must keep in our mind. We are increasing the <strong>cognitive load</strong> in the terms presented in the excelsior book:
+<a href=https://linghao.io/notes/a-philosophy-of-software-design target=_blank rel=noopener>A Philosophy of Software Design</a>.</li><li>A person who is not familiar with the codebase cannot understand what is happening by analyzing the outputs of the decorator. If these outputs are being stored in the ELK stack, this will be unproductive.</li></ul></li><li>We have the <code>locals()</code> information from the decorator which is fed by the result of the decorated method. However, we can&rsquo;t get any information about the <code>locals()</code> of the decorated method. Why is this bad?<ul><li>The final internal state of the method is commonly used to understand the execution of a method.</li><li>Sometimes a method depends on random variables defined in the local context. Thus, the same set of arguments can give different executions. Until now, we don&rsquo;t have a way to get the <code>locals()</code> of the decorated method. For example, in the <code>snooze_and_snore</code> we can&rsquo;t know if the person snored or not.</li></ul></li></ol><p>We will attack the first issue using the inspect module. As I&rsquo;ll show you, we can do cool things with this module.</p><div class="alert alert-note"><div>If you know about <code>sys.trace</code>, <code>call stack</code> and <code>inspect.signatures</code> I recommend
+you go directly to the section <a href=#lets_solve_our_problem>Let&rsquo;s solve our problem</a></div></div><h2 id=creating-an-introspective-code-with-the-inspect-module>Creating an introspective code with the inspect module</h2><p>The
+<a href=https://docs.python.org/3/library/inspect.html target=_blank rel=noopener>inspect</a> module is a Python standard library that provides several tools to help you to introspect and consequently learn about live objects like functions, modules, classes, instances, frame objects (I&rsquo;ll talk about frames later in this post), etc. Well, what can you do with this? Really, a lot of things. You can use it to automatically create documentation, parse the docstrings, manipulate the AST, etc.</p><h3 id=a-decorator-that-validates-arguments-using-mathematical-notation>A decorator that validates arguments using mathematical notation</h3><p>In the last years, we have seen the development of the <code>typing</code> module and the <code>mypy</code> static analysis tool for python. This module and tool can be very useful sometimes. However, it is still doesn&rsquo;t provide some features that are essential for proper validation. But at least in my experience creating code for my Ph.D., I usually don&rsquo;t need so much sophisticated type theory and validation to be able to write a good code for a mathematical modeling tool. Most of the mathematical validation that I need is just checking if an argument still satisfies some constraints or lives in a proper subspace. If not, I need to raise an exception or perform some kind of regularization.</p><p>Let&rsquo;s create a decorator that will validate arguments using simple mathematical notation.</p><p>We will create a dictionary that will contain the annotation as a key and the value will be a human-readable
+description of the annotation and a method responsible for check if everything is right.</p><pre><code class=language-python>import inspect
 
 MATH_SPACES = {
     &quot;\in R&quot;: {&quot;name&quot; : &quot;real space&quot;, &quot;validator&quot;: lambda x: isinstance(x, (int, float))},
     &quot;\in R_+&quot;: {&quot;name&quot;: &quot;space of real numbers greater than zero&quot;, &quot;validator&quot;: lambda x: isinstance(x, (int, float)) and x &gt; 0},
 }
-</code></pre>
-<p>We will use the <code>inspect.signature</code> to get the annotations of each argument of the decorated method.
-For example, if the decorated method is <code>def foo(a: '\in R', b)</code> the <code>inspect.signature(foo)</code> will return an object which we can use to extract an ordered dictionary with the arguments and the annotations. Like this</p>
-<pre><code class="language-python">def foo(a: &quot;\in R&quot;, b, c:int, d= 2):
+</code></pre><p>We will use the <code>inspect.signature</code> to get the annotations of each argument of the decorated method.
+For example, if the decorated method is <code>def foo(a: '\in R', b)</code> the <code>inspect.signature(foo)</code> will return an object which we can use to extract an ordered dictionary with the arguments and the annotations. Like this</p><pre><code class=language-python>def foo(a: &quot;\in R&quot;, b, c:int, d= 2):
     pass
 for k, v in inspect.signature(foo).parameters.items():
     print(k, v, type(v._annotation), v.default)
-</code></pre>
-<pre><code>a a: '\\in R' &lt;class 'str'&gt; &lt;class 'inspect._empty'&gt;
+</code></pre><pre><code>a a: '\\in R' &lt;class 'str'&gt; &lt;class 'inspect._empty'&gt;
 b b &lt;class 'type'&gt; &lt;class 'inspect._empty'&gt;
 c c: int &lt;class 'type'&gt; &lt;class 'inspect._empty'&gt;
 d d=2 &lt;class 'type'&gt; 2
-</code></pre>
-<p>Let&rsquo;s create our decorator. It should be really simple. Just check if we should verify the argument and if so, check if the value respects the annotated mathematical space.</p>
-<pre><code class="language-python">def math_validator():
+</code></pre><p>Let&rsquo;s create our decorator. It should be really simple. Just check if we should verify the argument and if so, check if the value respects the annotated mathematical space.</p><pre><code class=language-python>def math_validator():
     def decorate(func):
         def decorated(*_args):
             sig = inspect.signature(func)
@@ -960,8 +97,7 @@ d d=2 &lt;class 'type'&gt; 2
         return decorated
     return decorate
 
-</code></pre>
-<pre><code class="language-python">@math_validator()
+</code></pre><pre><code class=language-python>@math_validator()
 def simple_method(x: &quot;\in R&quot;, y: &quot;\in R_+&quot;, z: float = 2) -&gt; float:
     &quot;&quot;&quot;Simple method to add two numbers together and 
     divide by the last number
@@ -980,8 +116,7 @@ def simple_method(x: &quot;\in R&quot;, y: &quot;\in R_+&quot;, z: float = 2) -&
 
 simple_method(1, 2)
 simple_method(1, 0)
-</code></pre>
-<pre><code>simple_method((1, 2)) -&gt; 1.5
+</code></pre><pre><code>simple_method((1, 2)) -&gt; 1.5
 ---&gt; 19 simple_method(1, 0)
 ...
 &lt;locals&gt;.decorate.&lt;locals&gt;.decorated(*_args)
@@ -992,15 +127,7 @@ simple_method(1, 0)
      16 print(f&quot;{func.__name__}({_args}) -&gt; {result}&quot;)
 
 ValueError: y doesn't belong to the space of real numbers greater than zero
-</code></pre>
-<p>Our decorator is quite simple but does the job. You can go deeper into this and use a more sophisticated mathematical notation, printing using latex, etc. But now, let&rsquo;s go back to the Python Fluent example because the <code>inspect.signature</code> already provides us with a way to solve the first limitation!</p>
-<h3 id="going-back-to-the-fluent-python-example">Going back to the Fluent python example</h3>
-<p>Let&rsquo;s remember one thing that I&rsquo;ve pointed out:</p>
-<blockquote>
-<p>A person who is not familiar with the code base will not be able to understand what is happening just by analyzing the outputs of the decorator.</p>
-</blockquote>
-<p>It&rsquo;s obvious that we can overcome this issue by using the <code>inspect</code> module. Let&rsquo;s create a more elaborated example using monkeys and a zookeeper that must record and report the information about how the life of the monkeys are going.</p>
-<pre><code class="language-python">NUM_MONKEYS = 20
+</code></pre><p>Our decorator is quite simple but does the job. You can go deeper into this and use a more sophisticated mathematical notation, printing using latex, etc. But now, let&rsquo;s go back to the Python Fluent example because the <code>inspect.signature</code> already provides us with a way to solve the first limitation!</p><h3 id=going-back-to-the-fluent-python-example>Going back to the Fluent python example</h3><p>Let&rsquo;s remember one thing that I&rsquo;ve pointed out:</p><blockquote><p>A person who is not familiar with the code base will not be able to understand what is happening just by analyzing the outputs of the decorator.</p></blockquote><p>It&rsquo;s obvious that we can overcome this issue by using the <code>inspect</code> module. Let&rsquo;s create a more elaborated example using monkeys and a zookeeper that must record and report the information about how the life of the monkeys are going.</p><pre><code class=language-python>NUM_MONKEYS = 20
 def feed_monkeys(n_bananas, n_apples=0): 
     monkeys = {
         f&quot;monkey_{i}&quot;: {&quot;bananas&quot;: 0, &quot;apples&quot;: 0}
@@ -1018,9 +145,7 @@ def feed_monkeys(n_bananas, n_apples=0):
             n_apples -= 1
         if n_apples == 0 and n_bananas == 0:
             break
-</code></pre>
-<p>My solution is the <code>@report</code> decorator presented below.</p>
-<pre><code class="language-python">def report(fmt=DEFAULT_FMT):
+</code></pre><p>My solution is the <code>@report</code> decorator presented below.</p><pre><code class=language-python>def report(fmt=DEFAULT_FMT):
     def decorate(func):
         def  decorated(*_args):
             sig = inspect.signature(func)
@@ -1045,9 +170,7 @@ def feed_monkeys(n_bananas, n_apples=0):
             return result
         return decorated 
     return decorate
-</code></pre>
-<p>What is important here are the following statements:</p>
-<pre><code class="language-python">sig = inspect.signature(func)
+</code></pre><p>What is important here are the following statements:</p><pre><code class=language-python>sig = inspect.signature(func)
 named_args = {}
 num_args = len(_args)
 for i, (k, v) in enumerate(sig.parameters.items()):
@@ -1055,10 +178,7 @@ for i, (k, v) in enumerate(sig.parameters.items()):
         named_args[k] = repr(_args[i])
     else:
         named_args[k] = repr(v.default)
-</code></pre>
-<p>We are iterating over the signature parameters and checking if it have passed the value to <code>func</code>. If not, we extract the default value from the signature.</p>
-<p>Using the <code>@report</code> decorator in the <code>feed_monkeys</code> we have this output:</p>
-<pre><code class="language-python">NUM_MONKEYS = 20
+</code></pre><p>We are iterating over the signature parameters and checking if it have passed the value to <code>func</code>. If not, we extract the default value from the signature.</p><p>Using the <code>@report</code> decorator in the <code>feed_monkeys</code> we have this output:</p><pre><code class=language-python>NUM_MONKEYS = 20
 @report('The zookeeper feeds the monkeys with {n_bananas} bananas and {n_apples} apples. Time to feed: {elapsed:0.4f}s')
 def feed_monkeys(n_bananas, n_apples=0): 
     monkeys = {
@@ -1083,28 +203,14 @@ for _ in range(3):
     feed_monkeys(np.random.randint(10, 100))
     feed_monkeys(np.random.randint(10, 100), 10)
 
-</code></pre>
-<pre><code>The zookeeper feeds the monkeys with 69 bananas and 0 apples. Time to feed: 0.0000s
+</code></pre><pre><code>The zookeeper feeds the monkeys with 69 bananas and 0 apples. Time to feed: 0.0000s
 The zookeeper feeds the monkeys with 92 bananas and 10 apples. Time to feed: 0.0011s
 The zookeeper feeds the monkeys with 58 bananas and 0 apples. Time to feed: 0.0000s
 The zookeeper feeds the monkeys with 53 bananas and 10 apples. Time to feed: 0.0048s
 The zookeeper feeds the monkeys with 42 bananas and 0 apples. Time to feed: 0.0000s
 The zookeeper feeds the monkeys with 51 bananas and 10 apples. Time to feed: 0.0025s
-</code></pre>
-<p>First issue solved! But our decorator is still not useful to the zookeeper and managers. We can’t know how good any monkey is doing or if there is any monkey that eats too much. You could already know that somehow we must have a way to access the monkeys' dictionary inside our <code>def decorated</code> method. Unfortunately, this is not a trivial task in python because it lacks namespaces decorators. But we also can overcome this with a little trick using a trace tool.</p>
-<h2 id="how-to-expose-the-locals-inside-of-a-decorator">How to expose the locals() inside of a decorator?</h2>
-<p>Now we just need to access the local variables of the decorated method. Let&rsquo;s think more deeply about this:</p>
-<ul>
-<li>After the execution of the decorated method, all the information about the local variables is lost. Fortunately, we don&rsquo;t want irrelevant information occupying our system memory.</li>
-<li>The decorator will call the decorated method and will receive the return value. Thus, <strong>there is no way to extract the local variables because now there are no more local variables!</strong></li>
-</ul>
-<p>How to solve it? Well,  think first about where the local variables are been stored before being erased.</p>
-<h3 id="call-stack-and-frames-in-python">Call stack and frames in python</h3>
-<p>If you came from a non-CS background, maybe you don&rsquo;t know about an important concept called  the 
-<a href="https://en.wikipedia.org/wiki/Call_stack" target="_blank" rel="noopener"><strong>call stack</strong></a>. A call stack is a data structure that stores information related to living things in our program.</p>
-<p>If you call a function in python, a new block of information (<strong>frame</strong>) is pushed to the top of the call stack. After the function returns the value, this block of information is popped off the call stack. This comprehension can give insights into how to do things in python and how to create good or strange behaviors.</p>
-<p>Well, you can think. If the elements of the call stack are always added on the top if a function (inner) is called by another function (outer) <strong>can I access the values of the local variables from the outer function inside of the inner? Yes, you can!</strong> Obviously, this is not always a good idea but it&rsquo;s good to understand this concept. Because this approach can be  useful to deal with  rigid frameworks like Django.</p>
-<pre><code class="language-python">%%writefile test_stack.py
+</code></pre><p>First issue solved! But our decorator is still not useful to the zookeeper and managers. We can’t know how good any monkey is doing or if there is any monkey that eats too much. You could already know that somehow we must have a way to access the monkeys' dictionary inside our <code>def decorated</code> method. Unfortunately, this is not a trivial task in python because it lacks namespaces decorators. But we also can overcome this with a little trick using a trace tool.</p><h2 id=how-to-expose-the-locals-inside-of-a-decorator>How to expose the locals() inside of a decorator?</h2><p>Now we just need to access the local variables of the decorated method. Let&rsquo;s think more deeply about this:</p><ul><li>After the execution of the decorated method, all the information about the local variables is lost. Fortunately, we don&rsquo;t want irrelevant information occupying our system memory.</li><li>The decorator will call the decorated method and will receive the return value. Thus, <strong>there is no way to extract the local variables because now there are no more local variables!</strong></li></ul><p>How to solve it? Well, think first about where the local variables are been stored before being erased.</p><h3 id=call-stack-and-frames-in-python>Call stack and frames in python</h3><p>If you came from a non-CS background, maybe you don&rsquo;t know about an important concept called the
+<a href=https://en.wikipedia.org/wiki/Call_stack target=_blank rel=noopener><strong>call stack</strong></a>. A call stack is a data structure that stores information related to living things in our program.</p><p>If you call a function in python, a new block of information (<strong>frame</strong>) is pushed to the top of the call stack. After the function returns the value, this block of information is popped off the call stack. This comprehension can give insights into how to do things in python and how to create good or strange behaviors.</p><p>Well, you can think. If the elements of the call stack are always added on the top if a function (inner) is called by another function (outer) <strong>can I access the values of the local variables from the outer function inside of the inner? Yes, you can!</strong> Obviously, this is not always a good idea but it&rsquo;s good to understand this concept. Because this approach can be useful to deal with rigid frameworks like Django.</p><pre><code class=language-python>%%writefile test_stack.py
 import inspect
 
 N_BANANAS = 12
@@ -1141,12 +247,9 @@ frames = [
 for frame_local in frames:
     for var_name, value in frame_local:
         print(f'\t\t Name: {var_name:25s}Type: {type(value)}')
-</code></pre>
-<pre><code>Overwriting test_stack.py
-</code></pre>
-<pre><code class="language-python">!python test_stack.py
-</code></pre>
-<pre><code> Before outer_call() call
+</code></pre><pre><code>Overwriting test_stack.py
+</code></pre><pre><code class=language-python>!python test_stack.py
+</code></pre><pre><code> Before outer_call() call
 
 	 inner_call stack position: 3
 		 Name: n_bananas                Type: &lt;class 'int'&gt;
@@ -1192,21 +295,13 @@ for frame_local in frames:
 		 Name: outer_call               Type: &lt;class 'function'&gt;
 		 Name: inner_call               Type: &lt;class 'function'&gt;
 
-</code></pre>
-<p>First, draw your attention here</p>
-<pre><code>outer_call stack position: 2
+</code></pre><p>First, draw your attention here</p><pre><code>outer_call stack position: 2
 		 Name: n_bananas                Type: &lt;class 'int'&gt;
 			 Value: 13
 		 Name: var_inside_outer_call    Type: &lt;class 'int'&gt;
 			 Value: 2
-</code></pre>
-<p><strong>Even if we don&rsquo;t pass a  variable as an argument to the <code>inner_call</code> function, this variable can be accessed because still lives in the call stack!</strong> As I’ve told you, after the execution of <code>outer_call</code> the call stack doesn&rsquo;t have any information about what happened inside our functions. This discussion will help us to understand the limitations of our solution. Because <strong>our solution is just to watch the call stack and keep the frame before being popped off!</strong></p>
-<h3 id="using-systrace-to-track-our-frames">Using sys.trace to track our frames</h3>
-<p>Some time ago I&rsquo;ve talked about how to dissect a  process using <code>lsof</code> and <code>strace</code>: 
-<a href="https://medium.com/@devmessias/dissecting-process-and-failures-in-linux-with-lsof-and-strace-cases-for-mlops-d7755b2ce6ca" target="_blank" rel="noopener">Dissecting processes and failures in Linux with lsof and strace</a>. The <code>strace</code> is a tracing tool that intercepts and records in someplace any system call made by a process. Python has a built-in tool to do this kind of stuff. Thus, let&rsquo;s use it to track our frames.</p>
-<h3 id="lets-solve-our-problem">Let&rsquo;s solve our problem</h3>
-<p>We will ask our code to monitor any call made with the decorated function. To do so, we will create a new function that will do this and release the trace after the execution of the decorated function.</p>
-<pre><code class="language-python">import sys
+</code></pre><p><strong>Even if we don&rsquo;t pass a variable as an argument to the <code>inner_call</code> function, this variable can be accessed because still lives in the call stack!</strong> As I’ve told you, after the execution of <code>outer_call</code> the call stack doesn&rsquo;t have any information about what happened inside our functions. This discussion will help us to understand the limitations of our solution. Because <strong>our solution is just to watch the call stack and keep the frame before being popped off!</strong></p><h3 id=using-systrace-to-track-our-frames>Using sys.trace to track our frames</h3><p>Some time ago I&rsquo;ve talked about how to dissect a process using <code>lsof</code> and <code>strace</code>:
+<a href=https://medium.com/@devmessias/dissecting-process-and-failures-in-linux-with-lsof-and-strace-cases-for-mlops-d7755b2ce6ca target=_blank rel=noopener>Dissecting processes and failures in Linux with lsof and strace</a>. The <code>strace</code> is a tracing tool that intercepts and records in someplace any system call made by a process. Python has a built-in tool to do this kind of stuff. Thus, let&rsquo;s use it to track our frames.</p><h3 id=lets-solve-our-problem>Let&rsquo;s solve our problem</h3><p>We will ask our code to monitor any call made with the decorated function. To do so, we will create a new function that will do this and release the trace after the execution of the decorated function.</p><pre><code class=language-python>import sys
 
 def call_and_extract_frame(func, *args, **kwargs):
     frame_var = None
@@ -1236,9 +331,7 @@ def call_and_extract_frame(func, *args, **kwargs):
     return frame_var, func_result
 
 
-</code></pre>
-<p>Now to use this trick, we just need to call the above function in our <code>@report</code> decorator. Like this:</p>
-<pre><code class="language-python">def report(formater):
+</code></pre><p>Now to use this trick, we just need to call the above function in our <code>@report</code> decorator. Like this:</p><pre><code class=language-python>def report(formater):
     def decorate(func):
         def decorated(*_args):
             sig = inspect.signature(func)
@@ -1266,9 +359,7 @@ def call_and_extract_frame(func, *args, **kwargs):
             return _result 
         return decorated
     return decorate
-</code></pre>
-<p>Let&rsquo;s see the results:</p>
-<pre><code class="language-python">@report(' Monkey {gluttonous_monkey} ate too much bananas.  Num monkeys {num_monkeys}')
+</code></pre><p>Let&rsquo;s see the results:</p><pre><code class=language-python>@report(' Monkey {gluttonous_monkey} ate too much bananas.  Num monkeys {num_monkeys}')
 def feed_monkeys(n_bananas): 
     num_monkeys = 3
     monkeys = {
@@ -1287,84 +378,21 @@ def feed_monkeys(n_bananas):
 for _ in range(3):
     feed_monkeys(np.random.randint(10, 100))
 
-</code></pre>
-<pre><code> The monkey monkey_0 eat too much bananas.  Num monkeys 3
+</code></pre><pre><code> The monkey monkey_0 eat too much bananas.  Num monkeys 3
  The monkey monkey_1 eat too much bananas.  Num monkeys 3
  The monkey monkey_2 eat too much bananas.  Num monkeys 3
-</code></pre>
-<h2 id="conclusion-and-next-steps">Conclusion and next steps</h2>
-<h3 id="it-depends">&ldquo;&hellip;it depends&rdquo;</h3>
-<p>Nice! It worked. But should you use it?</p>
-
-
-
-
-
-
-
-  
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<figure >
-
-
-  <a data-fancybox="" href="/post/python_decorator_that_exposes_locals/depends_hue4832d1f9bd8c3212ee44b9859787ce4_80720_0x400_resize_q90_lanczos.jpg" >
-
-
-  <img src="/post/python_decorator_that_exposes_locals/depends_hue4832d1f9bd8c3212ee44b9859787ce4_80720_0x400_resize_q90_lanczos.jpg" alt=""  height="400px">
-</a>
-
-
-
-</figure>
-
-<ul>
-<li>We have drawbacks in our approach:
-<ul>
-<li>a tracing always creates a cost. Thus, is expected that we will reduce the performance of our system. If you use this just for debugging purposes, it&rsquo;s ok.</li>
-<li>can have conflicts with other tools and libs that also trying to use the trace tool</li>
-<li>it seems dirty!</li>
-</ul>
-</li>
-</ul>
-<h3 id="the-next-step-we-dont-need-a-trace-we-can-do-better-using-ast-manipulation">The next step: we don&rsquo;t need a trace! We can do better using AST manipulation</h3>
-<ul>
-<li>Using the inspect module to get the argument names it&rsquo;s ok but I&rsquo;ve told you the trace tool can be problematic.  But we can replace the trace with another approach. Although, it&rsquo;s more conceptually complex don&rsquo;t require  dirty tricks and I believe it&rsquo;s far more beautiful. <strong>The next post it&rsquo;s about this!</strong></li>
-</ul>
-<h3 id="simplenamespace-for-dictkey-instead-of-dictkey">SimpleNamespace for dict.key instead of dict[&ldquo;key]</h3>
-<p>We have a minor issue and point of improvement. If you&rsquo;re an cautious developer, probably you notice a flaw here</p>
-<pre><code class="language-python">args_dict = {
+</code></pre><h2 id=conclusion-and-next-steps>Conclusion and next steps</h2><h3 id=it-depends>&ldquo;&mldr;it depends&rdquo;</h3><p>Nice! It worked. But should you use it?</p><figure><a data-fancybox href=/post/python_decorator_that_exposes_locals/depends_hue4832d1f9bd8c3212ee44b9859787ce4_80720_0x400_resize_q90_lanczos.jpg><img src=/post/python_decorator_that_exposes_locals/depends_hue4832d1f9bd8c3212ee44b9859787ce4_80720_0x400_resize_q90_lanczos.jpg alt height=400px></a></figure><ul><li>We have drawbacks in our approach:<ul><li>a tracing always creates a cost. Thus, is expected that we will reduce the performance of our system. If you use this just for debugging purposes, it&rsquo;s ok.</li><li>can have conflicts with other tools and libs that also trying to use the trace tool</li><li>it seems dirty!</li></ul></li></ul><h3 id=the-next-step-we-dont-need-a-trace-we-can-do-better-using-ast-manipulation>The next step: we don&rsquo;t need a trace! We can do better using AST manipulation</h3><ul><li>Using the inspect module to get the argument names it&rsquo;s ok but I&rsquo;ve told you the trace tool can be problematic. But we can replace the trace with another approach. Although, it&rsquo;s more conceptually complex don&rsquo;t require dirty tricks and I believe it&rsquo;s far more beautiful. <strong>The next post it&rsquo;s about this!</strong></li></ul><h3 id=simplenamespace-for-dictkey-instead-of-dictkey>SimpleNamespace for dict.key instead of dict[&ldquo;key]</h3><p>We have a minor issue and point of improvement. If you&rsquo;re an cautious developer, probably you notice a flaw here</p><pre><code class=language-python>args_dict = {
     **named_args, 
     **locals(),
     **frame_func.f_locals,
 }
-</code></pre>
-<p>if any of the dicts have common keys, one of them will overwrite the other. This is not what we want. You can use a simple solution like this:</p>
-<pre><code class="language-python">args_dict = {
+</code></pre><p>if any of the dicts have common keys, one of them will overwrite the other. This is not what we want. You can use a simple solution like this:</p><pre><code class=language-python>args_dict = {
     &quot;args&quot;: **named_args, 
     **locals(),
     &quot;func_locals&quot;: **frame_func.f_locals,
 }
-</code></pre>
-<p>But this is still annoying because we can do this with a format string:</p>
-<pre><code>@report(fmt=&quot;{args['n_bananas']} ...&quot;)
-</code></pre>
-<p>Well, how to solve it? Just use a SimpleNamespace to construct an object!</p>
-<pre><code class="language-python">from types import SimpleNamespace
+</code></pre><p>But this is still annoying because we can do this with a format string:</p><pre><code>@report(fmt=&quot;{args['n_bananas']} ...&quot;)
+</code></pre><p>Well, how to solve it? Just use a SimpleNamespace to construct an object!</p><pre><code class=language-python>from types import SimpleNamespace
 
 
 def report(formater):
@@ -1425,382 +453,20 @@ def feed_monkeys(n_bananas):
 for _ in range(3):
     feed_monkeys(np.random.randint(10, 100))
 
-</code></pre>
-<pre><code>The zookeeper feeds the monkeys with 15,bananas. We loost 15 bananas. Args namespace(n_bananas='15')
+</code></pre><pre><code>The zookeeper feeds the monkeys with 15,bananas. We loost 15 bananas. Args namespace(n_bananas='15')
 The zookeeper feeds the monkeys with 80,bananas. We loost 77 bananas. Args namespace(n_bananas='80')
 The zookeeper feeds the monkeys with 95,bananas. We loost 92 bananas. Args namespace(n_bananas='95')
-</code></pre>
-<h3 id="want-to-know-more-about-call-stack--inspect-and-trace">Want to know more about call stack , inspect and trace?</h3>
-<ul>
-<li>Call stack and frames: 
-<a href="https://www.linkedin.com/in/reza-bagheri-71882a76/" target="_blank" rel="noopener">Reza Bagheri</a> explained 
-<a href="https://reza-bagheri79.medium.com/python-stack-frames-and-tail-call-optimization-4d0ea55b0542" target="_blank" rel="noopener">here</a> how to add a tail-call optimization in python using python stack frames.</li>
-<li>Fluent Python book by Luciano Ramalho</li>
-<li>Python documentation: 
-<a href="https://docs.python.org/3/library/traceback.html" target="_blank" rel="noopener">tracebak</a>, 
-<a href="https://docs.python.org/3/library/inspect.html" target="_blank" rel="noopener">inspect and stack</a>.</li>
-<li>
-<a href="https://stackoverflow.com/questions/4214936/how-can-i-get-the-values-of-the-locals-of-a-function-after-it-has-been-executed/4249347#4249347" target="_blank" rel="noopener">Stackoverflow discussion</a></li>
-</ul>
-
-    </div>
-
-    
-
-
-
-
-
-
-<div class="article-tags">
-  
-  <a class="badge badge-light" href="/tag/python/">python</a>
-  
-  <a class="badge badge-light" href="/tag/decorators/">decorators</a>
-  
-  <a class="badge badge-light" href="/tag/inspect/">inspect</a>
-  
-  <a class="badge badge-light" href="/tag/call-stack/">call stack</a>
-  
-  <a class="badge badge-light" href="/tag/debugging/">debugging</a>
-  
-  <a class="badge badge-light" href="/tag/simplenamespace/">SimpleNamespace</a>
-  
-</div>
-
-
-
-<div class="share-box" aria-hidden="true">
-  <h5 class='text-center'>Share this page if you like it</h5>
-  <ul class="share">
-    
-      
-      
-      
-        
-      
-      
-      
-      <li>
-        <a href="https://twitter.com/intent/tweet?url=/post/python_decorator_that_exposes_locals/&amp;text=An%20introspective%20python%20decorator%20using%20%20stack%20frames%20and%20the%20inspect%20module" target="_blank" rel="noopener" class="share-btn-twitter">
-          <i class="fab fa-twitter"></i>
-        </a>
-      </li>
-    
-      
-      
-      
-        
-      
-      
-      
-      <li>
-        <a href="https://www.facebook.com/sharer.php?u=/post/python_decorator_that_exposes_locals/&amp;t=An%20introspective%20python%20decorator%20using%20%20stack%20frames%20and%20the%20inspect%20module" target="_blank" rel="noopener" class="share-btn-facebook">
-          <i class="fab fa-facebook"></i>
-        </a>
-      </li>
-    
-      
-      
-      
-        
-      
-      
-      
-      <li>
-        <a href="mailto:?subject=An%20introspective%20python%20decorator%20using%20%20stack%20frames%20and%20the%20inspect%20module&amp;body=/post/python_decorator_that_exposes_locals/" target="_blank" rel="noopener" class="share-btn-email">
-          <i class="fas fa-envelope"></i>
-        </a>
-      </li>
-    
-      
-      
-      
-        
-      
-      
-      
-      <li>
-        <a href="https://www.linkedin.com/shareArticle?url=/post/python_decorator_that_exposes_locals/&amp;title=An%20introspective%20python%20decorator%20using%20%20stack%20frames%20and%20the%20inspect%20module" target="_blank" rel="noopener" class="share-btn-linkedin">
-          <i class="fab fa-linkedin-in"></i>
-        </a>
-      </li>
-    
-      
-      
-      
-        
-      
-      
-      
-      <li>
-        <a href="whatsapp://send?text=An%20introspective%20python%20decorator%20using%20%20stack%20frames%20and%20the%20inspect%20module%20/post/python_decorator_that_exposes_locals/" target="_blank" rel="noopener" class="share-btn-whatsapp">
-          <i class="fab fa-whatsapp"></i>
-        </a>
-      </li>
-    
-      
-      
-      
-        
-      
-      
-      
-      <li>
-        <a href="https://service.weibo.com/share/share.php?url=/post/python_decorator_that_exposes_locals/&amp;title=An%20introspective%20python%20decorator%20using%20%20stack%20frames%20and%20the%20inspect%20module" target="_blank" rel="noopener" class="share-btn-weibo">
-          <i class="fab fa-weibo"></i>
-        </a>
-      </li>
-    
-  </ul>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-  
-  
-
-
-
-
-
-  
-    
-    
-    
-      
-    
-    
-    
-    <div class="media author-card content-widget-hr">
-      
-        
-        <img class="avatar mr-3 avatar-circle" src="/author/bruno-messias/avatar_hu8c5dc81c7296f83357bec0b4ab814f69_6046_270x270_fill_lanczos_center_2.png" alt="Bruno Messias">
-      
-
-      <div class="media-body">
-        <h5 class="card-title"><a href="/">Bruno Messias</a></h5>
-        <h6 class="card-subtitle">Ph.D Candidate/Software Developer</h6>
-        <p class="card-text">Free-software enthusiast, researcher, and software developer. Currently, working in the field of Graphs, Complex Systems and Machine Learning.</p>
-        <ul class="network-icon" aria-hidden="true">
-  
-    
-    
-    
-      
-    
-    
-    
-    
-    
-    <li>
-      <a href="mailto:devmessias@gmail.com" >
-        <i class="fas fa-envelope"></i>
-      </a>
-    </li>
-  
-    
-    
-    
-      
-    
-    
-    
-    
-    
-      
-    
-    <li>
-      <a href="https://twitter.com/devmessias" target="_blank" rel="noopener">
-        <i class="fab fa-twitter"></i>
-      </a>
-    </li>
-  
-    
-    
-    
-      
-    
-    
-    
-    
-    
-      
-    
-    <li>
-      <a href="https://github.com/devmessias" target="_blank" rel="noopener">
-        <i class="fab fa-github"></i>
-      </a>
-    </li>
-  
-    
-    
-    
-      
-    
-    
-    
-    
-    
-      
-    
-    <li>
-      <a href="https://www.linkedin.com/in/bruno-messias-510553193/" target="_blank" rel="noopener">
-        <i class="fab fa-linkedin"></i>
-      </a>
-    </li>
-  
-</ul>
-
-      </div>
-    </div>
-  
-
-
-
-
-
-
-
-<section id="comments">
-  
-    
-<div id="disqus_thread"></div>
-<script>
-  let disqus_config = function () {
-    
-    
-    
-  };
-  (function() {
-    if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
-      document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
-      return;
-    }
-    var d = document, s = d.createElement('script'); s.async = true;
-    s.src = 'https://' + "devmessias" + '.disqus.com/embed.js';
-    s.setAttribute('data-timestamp', +new Date());
-    (d.head || d.body).appendChild(s);
-  })();
-</script>
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
-
-
-  
-</section>
-
-
-
-
-
-
-
-
-  
-  
-  <div class="article-widget content-widget-hr">
-    <h3>Related</h3>
-    <ul>
-      
-      <li><a href="/post/python_ast_and_decorators_with_locals/">Going meta with python: manipulating ASTs to create an introspective decorator at runtime [draft]</a></li>
-      
-      <li><a href="/post/using_lsof_and_strace_to_investigate_process_and_failures/">Dissecting processes and failures in Linux with lsof and strace: cases for MlOps and DevOps</a></li>
-      
-      <li><a href="/post/edge_graph_filtering/">Grafos e filtragem de arestas: conceitos e confusões. Parte I</a></li>
-      
-      <li><a href="/post/random_matrix_portfolio/">Variações do teorema central do limite para matrizes aleatórias.</a></li>
-      
-      <li><a href="/project/helios/">Helios: graph layout viz and streaming</a></li>
-      
-    </ul>
-  </div>
-  
-
-
-
-
-
-  </div>
-</article>
-
-      </main>
-    </div>
-  </div>
-      
-</div>
-
-      
-
-    
-    
-    
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/4.1.4/imagesloaded.pkgd.min.js" integrity="sha256-lqvxZrPLtfffUl2G/e7szqSvPBILGbwmsGE1MKlOi0Q=" crossorigin="anonymous"></script>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.isotope/3.0.6/isotope.pkgd.min.js" integrity="sha256-CBrpuqrMhXwcLLUd5tvQ4euBHCdh7wGlDfNz8vbu/iI=" crossorigin="anonymous"></script>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" integrity="sha256-yt2kYMy0w8AbtF89WXb2P1rfjcP/HTHLT7097U8Y5b8=" crossorigin="anonymous"></script>
-
-      
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/8.4.8/mermaid.min.js" integrity="sha256-lyWCDMnMeZiXRi7Zl54sZGKYmgQs4izcT7+tKc+KUBk=" crossorigin="anonymous" title="mermaid"></script>
-      
-
-      
-        
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/highlight.min.js" integrity="sha256-eOgo0OtLL4cdq7RdwRUiGKLX9XsIJ7nGhWEKbohmVAQ=" crossorigin="anonymous"></script>
-        
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/languages/r.min.js"></script>
-        
-      
-
-    
-
-    
-    
-
-    
-    
-    <script>const code_highlighting = true;</script>
-    
-
-    
-    
-    <script>const isSiteThemeDark = false;</script>
-    
-
-    
-    
-    
-    
-    
-    
-    <script>
-      const search_config = {"indexURI":"/index.json","minLength":1,"threshold":0.3};
-      const i18n = {"no_results":"No results found","placeholder":"Search...","results":"results found"};
-      const content_type = {
-        'post': "Posts",
-        'project': "Projects",
-        'publication' : "Publications",
-        'talk' : "Talks",
-        'slides' : "Slides"
-        };
-    </script>
-    
-
-    
-    
-
-    
-    
-    <script id="search-hit-fuse-template" type="text/x-template">
+</code></pre><h3 id=want-to-know-more-about-call-stack--inspect-and-trace>Want to know more about call stack , inspect and trace?</h3><ul><li>Call stack and frames:
+<a href=https://www.linkedin.com/in/reza-bagheri-71882a76/ target=_blank rel=noopener>Reza Bagheri</a> explained
+<a href=https://reza-bagheri79.medium.com/python-stack-frames-and-tail-call-optimization-4d0ea55b0542 target=_blank rel=noopener>here</a> how to add a tail-call optimization in python using python stack frames.</li><li>Fluent Python book by Luciano Ramalho</li><li>Python documentation:
+<a href=https://docs.python.org/3/library/traceback.html target=_blank rel=noopener>tracebak</a>,
+<a href=https://docs.python.org/3/library/inspect.html target=_blank rel=noopener>inspect and stack</a>.</li><li><a href=https://stackoverflow.com/questions/4214936/how-can-i-get-the-values-of-the-locals-of-a-function-after-it-has-been-executed/4249347#4249347 target=_blank rel=noopener>Stackoverflow discussion</a></li></ul></div><div class=article-tags><a class="badge badge-light" href=/tag/python/>python</a>
+<a class="badge badge-light" href=/tag/decorators/>decorators</a>
+<a class="badge badge-light" href=/tag/inspect/>inspect</a>
+<a class="badge badge-light" href=/tag/call-stack/>call stack</a>
+<a class="badge badge-light" href=/tag/debugging/>debugging</a>
+<a class="badge badge-light" href=/tag/simplenamespace/>SimpleNamespace</a></div><div class=share-box aria-hidden=true><h5 class=text-center>Share this page if you like it</h5><ul class=share><li><a href="https://twitter.com/intent/tweet?url=/post/python_decorator_that_exposes_locals/&text=An%20introspective%20python%20decorator%20using%20%20stack%20frames%20and%20the%20inspect%20module" target=_blank rel=noopener class=share-btn-twitter><i class="fab fa-twitter"></i></a></li><li><a href="https://www.facebook.com/sharer.php?u=/post/python_decorator_that_exposes_locals/&t=An%20introspective%20python%20decorator%20using%20%20stack%20frames%20and%20the%20inspect%20module" target=_blank rel=noopener class=share-btn-facebook><i class="fab fa-facebook"></i></a></li><li><a href="mailto:?subject=An%20introspective%20python%20decorator%20using%20%20stack%20frames%20and%20the%20inspect%20module&body=/post/python_decorator_that_exposes_locals/" target=_blank rel=noopener class=share-btn-email><i class="fas fa-envelope"></i></a></li><li><a href="https://www.linkedin.com/shareArticle?url=/post/python_decorator_that_exposes_locals/&title=An%20introspective%20python%20decorator%20using%20%20stack%20frames%20and%20the%20inspect%20module" target=_blank rel=noopener class=share-btn-linkedin><i class="fab fa-linkedin-in"></i></a></li><li><a href="whatsapp://send?text=An%20introspective%20python%20decorator%20using%20%20stack%20frames%20and%20the%20inspect%20module%20/post/python_decorator_that_exposes_locals/" target=_blank rel=noopener class=share-btn-whatsapp><i class="fab fa-whatsapp"></i></a></li><li><a href="https://service.weibo.com/share/share.php?url=/post/python_decorator_that_exposes_locals/&title=An%20introspective%20python%20decorator%20using%20%20stack%20frames%20and%20the%20inspect%20module" target=_blank rel=noopener class=share-btn-weibo><i class="fab fa-weibo"></i></a></li></ul></div><div class="media author-card content-widget-hr"><img class="avatar mr-3 avatar-circle" src=/author/bruno-messias/avatar_hu8c5dc81c7296f83357bec0b4ab814f69_6046_270x270_fill_lanczos_center_2.png alt="Bruno Messias"><div class=media-body><h5 class=card-title><a href=/>Bruno Messias</a></h5><h6 class=card-subtitle>Ph.D Candidate/Software Developer</h6><p class=card-text>Free-software enthusiast, researcher, and software developer. Currently, working in the field of Graphs, Complex Systems and Machine Learning.</p><ul class=network-icon aria-hidden=true><li><a href=mailto:devmessias@gmail.com><i class="fas fa-envelope"></i></a></li><li><a href=https://twitter.com/devmessias target=_blank rel=noopener><i class="fab fa-twitter"></i></a></li><li><a href=https://github.com/devmessias target=_blank rel=noopener><i class="fab fa-github"></i></a></li><li><a href=https://www.linkedin.com/in/bruno-messias-510553193/ target=_blank rel=noopener><i class="fab fa-linkedin"></i></a></li></ul></div></div><section id=comments><div id=disqus_thread></div><script>let disqus_config=function(){};(function(){if(["localhost","127.0.0.1"].indexOf(window.location.hostname)!=-1){document.getElementById('disqus_thread').innerHTML='Disqus comments not available by default when the website is previewed locally.';return;}
+var d=document,s=d.createElement('script');s.async=true;s.src='https://'+"devmessias"+'.disqus.com/embed.js';s.setAttribute('data-timestamp',+new Date());(d.head||d.body).appendChild(s);})();</script><noscript>Please enable JavaScript to view the <a href=https://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript><a href=https://disqus.com class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a></section><div class="article-widget content-widget-hr"><h3>Related</h3><ul><li><a href=/post/python_ast_and_decorators_with_locals/>Going meta with python: manipulating ASTs to create an introspective decorator at runtime [draft]</a></li><li><a href=/post/using_lsof_and_strace_to_investigate_process_and_failures/>Dissecting processes and failures in Linux with lsof and strace: cases for MlOps and DevOps</a></li><li><a href=/post/edge_graph_filtering/>Grafos e filtragem de arestas: conceitos e confusões. Parte I</a></li><li><a href=/post/random_matrix_portfolio/>Variações do teorema central do limite para matrizes aleatórias.</a></li><li><a href=/project/helios/>Helios: graph layout viz and streaming</a></li></ul></div></div></article></main></div></div></div><script src=https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/4.1.4/imagesloaded.pkgd.min.js integrity="sha256-lqvxZrPLtfffUl2G/e7szqSvPBILGbwmsGE1MKlOi0Q=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/jquery.isotope/3.0.6/isotope.pkgd.min.js integrity="sha256-CBrpuqrMhXwcLLUd5tvQ4euBHCdh7wGlDfNz8vbu/iI=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js integrity="sha256-yt2kYMy0w8AbtF89WXb2P1rfjcP/HTHLT7097U8Y5b8=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/mermaid/8.4.8/mermaid.min.js integrity="sha256-lyWCDMnMeZiXRi7Zl54sZGKYmgQs4izcT7+tKc+KUBk=" crossorigin=anonymous title=mermaid></script><script src=https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/highlight.min.js integrity="sha256-eOgo0OtLL4cdq7RdwRUiGKLX9XsIJ7nGhWEKbohmVAQ=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/languages/r.min.js></script><script>const code_highlighting=true;</script><script>const isSiteThemeDark=false;</script><script>const search_config={"indexURI":"/index.json","minLength":1,"threshold":0.3};const i18n={"no_results":"No results found","placeholder":"Search...","results":"results found"};const content_type={'post':"Posts",'project':"Projects",'publication':"Publications",'talk':"Talks",'slides':"Slides"};</script><script id=search-hit-fuse-template type=text/x-template>
       <div class="search-hit" id="summary-{{key}}">
       <div class="search-hit-content">
         <div class="search-hit-name">
@@ -1810,124 +476,11 @@ The zookeeper feeds the monkeys with 95,bananas. We loost 92 bananas. Args names
         </div>
       </div>
       </div>
-    </script>
-    
-
-    
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.2.1/fuse.min.js" integrity="sha256-VzgmKYmhsGNNN4Ph1kMW+BjoYJM2jV5i4IlFoeZA9XI=" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script>
-    
-
-    
-    
-
-    
-    
-
-    
-    
-    <script id="dsq-count-scr" src="https://devmessias.disqus.com/count.js" async></script>
-    
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-      
-    
-    
-    
-    
-    <script src="/js/academic.min.37431be2d92d7fb0160054761ab79602.js"></script>
-
-    
-
-
-
-
-
-
-  
-  
-  <div class="page-footer">
-  <div class="container">
-    <footer class="site-footer">
-  
-  <p class="powered-by">
-    
-      <a href="/privacy/">Privacy Policy</a>
-    
-    
-       &middot; 
-      <a href="/terms/">Terms</a>
-    
-  </p>
-  
-
-  <p class="powered-by">
-    Bruno Messias
-  </p>
-
-  
-  
-
-
-
-
-
-
-  <p class="powered-by">
-    Powered by the
-    <a href="https://sourcethemes.com/academic/" target="_blank" rel="noopener">Academic theme</a> for
-    <a href="https://gohugo.io" target="_blank" rel="noopener">Hugo</a>.
-
-    
-    <span class="float-right" aria-hidden="true">
-      <a href="#" class="back-to-top">
-        <span class="button_icon">
-          <i class="fas fa-chevron-up fa-2x"></i>
-        </span>
-      </a>
-    </span>
-    
-  </p>
-</footer>
-
-  </div>
-  </div>
-  
-
-  
-<div id="modal" class="modal fade" role="dialog">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Cite</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <pre><code class="tex hljs"></code></pre>
-      </div>
-      <div class="modal-footer">
-        <a class="btn btn-outline-primary my-1 js-copy-cite" href="#" target="_blank">
-          <i class="fas fa-copy"></i> Copy
-        </a>
-        <a class="btn btn-outline-primary my-1 js-download-cite" href="#" target="_blank">
-          <i class="fas fa-download"></i> Download
-        </a>
-        <div id="modal-error"></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-</body>
-</html>
+    </script><script src=https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.2.1/fuse.min.js integrity="sha256-VzgmKYmhsGNNN4Ph1kMW+BjoYJM2jV5i4IlFoeZA9XI=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin=anonymous></script><script id=dsq-count-scr src=https://devmessias.disqus.com/count.js async></script><script src=/js/academic.min.37431be2d92d7fb0160054761ab79602.js></script><div class=page-footer><div class=container><footer class=site-footer><p class=powered-by><a href=/privacy/>Privacy Policy</a>
+&#183;
+<a href=/terms/>Terms</a></p><p class=powered-by>Bruno Messias</p><p class=powered-by>Powered by the
+<a href=https://sourcethemes.com/academic/ target=_blank rel=noopener>Academic theme</a> for
+<a href=https://gohugo.io target=_blank rel=noopener>Hugo</a>.
+<span class=float-right aria-hidden=true><a href=# class=back-to-top><span class=button_icon><i class="fas fa-chevron-up fa-2x"></i></span></a></span></p></footer></div></div><div id=modal class="modal fade" role=dialog><div class=modal-dialog><div class=modal-content><div class=modal-header><h5 class=modal-title>Cite</h5><button type=button class=close data-dismiss=modal aria-label=Close>
+<span aria-hidden=true>&#215;</span></button></div><div class=modal-body><pre><code class="tex hljs"></code></pre></div><div class=modal-footer><a class="btn btn-outline-primary my-1 js-copy-cite" href=# target=_blank><i class="fas fa-copy"></i>Copy</a>
+<a class="btn btn-outline-primary my-1 js-download-cite" href=# target=_blank><i class="fas fa-download"></i>Download</a><div id=modal-error></div></div></div></div></div></body></html>

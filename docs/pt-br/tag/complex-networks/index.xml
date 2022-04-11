@@ -1,298 +1,169 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
-  <channel>
-    <title>Complex Networks | Bruno Messias</title>
-    <link>/pt-br/tag/complex-networks/</link>
-      <atom:link href="/pt-br/tag/complex-networks/index.xml" rel="self" type="application/rss+xml" />
-    <description>Complex Networks</description>
-    <generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>pt-br</language><copyright>Bruno Messias</copyright><lastBuildDate>Tue, 15 Feb 2022 00:00:00 +0000</lastBuildDate>
-    <image>
-      <url>/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_2.png</url>
-      <title>Complex Networks</title>
-      <link>/pt-br/tag/complex-networks/</link>
-    </image>
-    
-    <item>
-      <title>Grafos e filtragem de arestas: conceitos e confusões. Parte I</title>
-      <link>/pt-br/post/edge_graph_filtering/</link>
-      <pubDate>Tue, 15 Feb 2022 00:00:00 +0000</pubDate>
-      <guid>/pt-br/post/edge_graph_filtering/</guid>
-      <description>&lt;h1 id=&#34;introdução&#34;&gt;Introdução&lt;/h1&gt;
-&lt;div class=&#34;alert alert-note&#34;&gt;
-  &lt;div&gt;
-    Esse post é bem informal e foi feito para  o grupo de estudos de MlOps. O conteúdo pode mudar significativamente com o passar do tempo.
-  &lt;/div&gt;
-&lt;/div&gt;
-&lt;p&gt;Quando olhamos uma imagem temos a tendência de procurar padrões  o que reduz o esforço e tempo necessário para identificar do que se trata. Em análise de dados  filtros podem ser aplicados com a mesma motivação.&lt;/p&gt;
-&lt;p&gt;Enquanto o processo de filtragem  em um conjunto de pontos é apresentado em cursos  acadêmicos e tutoriais, existe pouco  material  em relação a grafos.  Portanto, criei  esse post para discutir o conceito de filtragem e padrões em grafos e as diferentes maneiras de se obter tal filtragem. Tentei ser didático o suficiente para que uma pessoa fora da computação ou exatas (que esteja iniciando em dados) consiga compreender o texto. Sinta-se à vontade para pular qualquer seção do post :)&lt;/p&gt;
-&lt;div class=&#34;alert alert-note&#34;&gt;
-  &lt;div&gt;
-    Grafos,  redes e redes complexas são praticamente o mesmo conceito. Portanto, você pode encontrar termos como &lt;em&gt;filtering edges on complex networks&lt;/em&gt;.
-  &lt;/div&gt;
-&lt;/div&gt;
-&lt;p&gt;Os exemplos desse post usam python e as seguintes bibliotecas:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ python3 -m pip install numpy matplotlib networkx
-&lt;/code&gt;&lt;/pre&gt;
-&lt;details 
-class=&#34;toc-inpage d-print-none d-none d-sm-block d-md-none  &#34; open&gt;
-  &lt;summary class=&#34;font-weight-bold&#34;&gt;Lista de Conteúdos&lt;/summary&gt;
-  &lt;nav id=&#34;TableOfContents&#34;&gt;
-  &lt;ul&gt;
-    &lt;li&gt;&lt;a href=&#34;#introdução&#34;&gt;Introdução&lt;/a&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;a href=&#34;#o-que-é-um-grafo&#34;&gt;O que é um grafo?&lt;/a&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;a href=&#34;#o-que-é-filtragem&#34;&gt;O que é filtragem?&lt;/a&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;a href=&#34;#confusões-sobre-o-que-é-filtragem-em-grafos&#34;&gt;Confusões sobre o que é filtragem em grafos&lt;/a&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;a href=&#34;#algumas-propriedades-de-grafos&#34;&gt;Algumas propriedades de grafos&lt;/a&gt;
-      &lt;ul&gt;
-        &lt;li&gt;&lt;a href=&#34;#componentes&#34;&gt;Componentes&lt;/a&gt;&lt;/li&gt;
-        &lt;li&gt;&lt;a href=&#34;#comunidades&#34;&gt;Comunidades&lt;/a&gt;
-          &lt;ul&gt;
-            &lt;li&gt;&lt;a href=&#34;#caminho-1-inferir&#34;&gt;Caminho 1: &lt;strong&gt;Inferir&lt;/strong&gt;&lt;/a&gt;&lt;/li&gt;
-            &lt;li&gt;&lt;a href=&#34;#caminho-2-quantificardescrever&#34;&gt;Caminho 2: &lt;strong&gt;Quantificar/Descrever&lt;/strong&gt;&lt;/a&gt;&lt;/li&gt;
-            &lt;li&gt;&lt;a href=&#34;#caminho-3-visualizar&#34;&gt;Caminho 3: &lt;strong&gt;Visualizar&lt;/strong&gt;&lt;/a&gt;&lt;/li&gt;
-          &lt;/ul&gt;
-        &lt;/li&gt;
-      &lt;/ul&gt;
-    &lt;/li&gt;
-    &lt;li&gt;&lt;a href=&#34;#filtros&#34;&gt;Filtros&lt;/a&gt;
-      &lt;ul&gt;
-        &lt;li&gt;&lt;a href=&#34;#estrutural-threshold&#34;&gt;Estrutural: threshold&lt;/a&gt;
-          &lt;ul&gt;
-            &lt;li&gt;&lt;a href=&#34;#pontos-positivos&#34;&gt;Pontos positivos&lt;/a&gt;&lt;/li&gt;
-            &lt;li&gt;&lt;a href=&#34;#pontos-negativos&#34;&gt;Pontos negativos&lt;/a&gt;&lt;/li&gt;
-          &lt;/ul&gt;
-        &lt;/li&gt;
-        &lt;li&gt;&lt;a href=&#34;#estatistico&#34;&gt;Estatístico: quebrando a varinha, processo de Dirichlet&lt;/a&gt;
-          &lt;ul&gt;
-            &lt;li&gt;&lt;a href=&#34;#pontos-positivos-1&#34;&gt;Pontos positivos&lt;/a&gt;&lt;/li&gt;
-            &lt;li&gt;&lt;a href=&#34;#pontos-negativos-1&#34;&gt;Pontos negativos&lt;/a&gt;&lt;/li&gt;
-          &lt;/ul&gt;
-        &lt;/li&gt;
-      &lt;/ul&gt;
-    &lt;/li&gt;
-  &lt;/ul&gt;
-&lt;/nav&gt;
-&lt;/details&gt;
-&lt;h1 id=&#34;o-que-é-um-grafo&#34;&gt;O que é um grafo?&lt;/h1&gt;
-&lt;p&gt;Um grafo é uma estrutura de dados que  você constantemente  está em contato. Alguns exemplos: sua rede de seguidores e seguidores no twitter, as  transações financeiras associadas a sua chave PIX, as relações de repositório e contribuições no github, etc.&lt;/p&gt;
-&lt;p&gt;Um grafo armazena objetos que têm relações pares a pares entre si. Sendo que é possível associar a cada objeto ou relação um outro tipo de dado genérico tais como um número real, um vetor, uma imagem ou mesmo outro grafo.&lt;/p&gt;
-&lt;p&gt;A imagem abaixo representa um grafo dirigido formado por 4 vértices.&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-mermaid&#34;&gt;graph TD;
-  A--&amp;gt;B;
-  B--&amp;gt;A;
-  A--&amp;gt;C;
-  B--&amp;gt;D;
-  C--&amp;gt;D;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Vamos usar a letra $G$ para representar um grafo. A letra $V$ para o conjunto de vértices (objetos) e $E$ para o conjunto de arestas (relações). Na imagem acima nosso grafo seria dado então pelo conjunto $V=\{A,B,C,D\}$  e $E=\{(A,B), (B,A), (A,C), (B,D), (C,D)\}$.&lt;/p&gt;
-&lt;p&gt;Como disse  no início desta seção é possível associar &lt;em&gt;coisas&lt;/em&gt; tanto as arestas quanto os vértices.  Por exemplo, o grafo abaixo poderia representar transações financeiras entre 3 pessoas e o valor que cada uma tem em sua conta corrente&lt;/p&gt;
-&lt;pre class=&#34;mermaid  ignoreTex mermaidContainer&#34;&gt;
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Complex Networks | Bruno Messias</title><link>/pt-br/tag/complex-networks/</link><atom:link href="/pt-br/tag/complex-networks/index.xml" rel="self" type="application/rss+xml"/><description>Complex Networks</description><generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>pt-br</language><copyright>Bruno Messias</copyright><lastBuildDate>Tue, 15 Feb 2022 00:00:00 +0000</lastBuildDate><image><url>/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_2.png</url><title>Complex Networks</title><link>/pt-br/tag/complex-networks/</link></image><item><title>Grafos e filtragem de arestas: conceitos e confusões. Parte I</title><link>/pt-br/post/edge_graph_filtering/</link><pubDate>Tue, 15 Feb 2022 00:00:00 +0000</pubDate><guid>/pt-br/post/edge_graph_filtering/</guid><description>&lt;h1 id="introdução">Introdução&lt;/h1>
+&lt;div class="alert alert-note">
+&lt;div>
+Esse post é bem informal e foi feito para o grupo de estudos de MlOps. O conteúdo pode mudar significativamente com o passar do tempo.
+&lt;/div>
+&lt;/div>
+&lt;p>Quando olhamos uma imagem temos a tendência de procurar padrões o que reduz o esforço e tempo necessário para identificar do que se trata. Em análise de dados filtros podem ser aplicados com a mesma motivação.&lt;/p>
+&lt;p>Enquanto o processo de filtragem em um conjunto de pontos é apresentado em cursos acadêmicos e tutoriais, existe pouco material em relação a grafos. Portanto, criei esse post para discutir o conceito de filtragem e padrões em grafos e as diferentes maneiras de se obter tal filtragem. Tentei ser didático o suficiente para que uma pessoa fora da computação ou exatas (que esteja iniciando em dados) consiga compreender o texto. Sinta-se à vontade para pular qualquer seção do post :)&lt;/p>
+&lt;div class="alert alert-note">
+&lt;div>
+Grafos, redes e redes complexas são praticamente o mesmo conceito. Portanto, você pode encontrar termos como &lt;em>filtering edges on complex networks&lt;/em>.
+&lt;/div>
+&lt;/div>
+&lt;p>Os exemplos desse post usam python e as seguintes bibliotecas:&lt;/p>
+&lt;pre>&lt;code class="language-bash">$ python3 -m pip install numpy matplotlib networkx
+&lt;/code>&lt;/pre>
+&lt;details
+class="toc-inpage d-print-none d-none d-sm-block d-md-none " open>
+&lt;summary class="font-weight-bold">Lista de Conteúdos&lt;/summary>
+&lt;nav id="TableOfContents">
+&lt;ul>
+&lt;li>&lt;a href="#introdução">Introdução&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#o-que-é-um-grafo">O que é um grafo?&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#o-que-é-filtragem">O que é filtragem?&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#confusões-sobre-o-que-é-filtragem-em-grafos">Confusões sobre o que é filtragem em grafos&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#algumas-propriedades-de-grafos">Algumas propriedades de grafos&lt;/a>
+&lt;ul>
+&lt;li>&lt;a href="#componentes">Componentes&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#comunidades">Comunidades&lt;/a>
+&lt;ul>
+&lt;li>&lt;a href="#caminho-1-inferir">Caminho 1: &lt;strong>Inferir&lt;/strong>&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#caminho-2-quantificardescrever">Caminho 2: &lt;strong>Quantificar/Descrever&lt;/strong>&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#caminho-3-visualizar">Caminho 3: &lt;strong>Visualizar&lt;/strong>&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;a href="#filtros">Filtros&lt;/a>
+&lt;ul>
+&lt;li>&lt;a href="#estrutural-threshold">Estrutural: threshold&lt;/a>
+&lt;ul>
+&lt;li>&lt;a href="#pontos-positivos">Pontos positivos&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#pontos-negativos">Pontos negativos&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;a href="#estatistico">Estatístico: quebrando a varinha, processo de Dirichlet&lt;/a>
+&lt;ul>
+&lt;li>&lt;a href="#pontos-positivos-1">Pontos positivos&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#pontos-negativos-1">Pontos negativos&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/nav>
+&lt;/details>
+&lt;h1 id="o-que-é-um-grafo">O que é um grafo?&lt;/h1>
+&lt;p>Um grafo é uma estrutura de dados que você constantemente está em contato. Alguns exemplos: sua rede de seguidores e seguidores no twitter, as transações financeiras associadas a sua chave PIX, as relações de repositório e contribuições no github, etc.&lt;/p>
+&lt;p>Um grafo armazena objetos que têm relações pares a pares entre si. Sendo que é possível associar a cada objeto ou relação um outro tipo de dado genérico tais como um número real, um vetor, uma imagem ou mesmo outro grafo.&lt;/p>
+&lt;p>A imagem abaixo representa um grafo dirigido formado por 4 vértices.&lt;/p>
+&lt;pre>&lt;code class="language-mermaid">graph TD;
+A--&amp;gt;B;
+B--&amp;gt;A;
+A--&amp;gt;C;
+B--&amp;gt;D;
+C--&amp;gt;D;
+&lt;/code>&lt;/pre>
+&lt;p>Vamos usar a letra $G$ para representar um grafo. A letra $V$ para o conjunto de vértices (objetos) e $E$ para o conjunto de arestas (relações). Na imagem acima nosso grafo seria dado então pelo conjunto $V=\{A,B,C,D\}$ e $E=\{(A,B), (B,A), (A,C), (B,D), (C,D)\}$.&lt;/p>
+&lt;p>Como disse no início desta seção é possível associar &lt;em>coisas&lt;/em> tanto as arestas quanto os vértices. Por exemplo, o grafo abaixo poderia representar transações financeiras entre 3 pessoas e o valor que cada uma tem em sua conta corrente&lt;/p>
+&lt;pre class="mermaid ignoreTex mermaidContainer">
 graph TD;
-  A[A R$100,00]--&gt;|R$1|B;
-  B[B R$3,00]--&gt;|R$2|A;
-  C[C R$0]--&gt;|R$0,50|A;
-&lt;/pre&gt;
-&lt;p&gt;Tais grafos de transações financeiras são usados, por exemplo, para detectar crimes de lavagem de dinheiro, formação de quadrilhas e fraudes quando o comportamento de um dado cliente é anómalo. Os valores nas arestas são os  &lt;strong&gt;pesos&lt;/strong&gt; do grafo.&lt;/p&gt;
-&lt;h1 id=&#34;o-que-é-filtragem&#34;&gt;O que é filtragem?&lt;/h1&gt;
-&lt;p&gt;&lt;strong&gt;Filtro tem origem na palavra feltro. O feltro era o material feito principalmente de lã   usado antigamente para separar um líquido de suas impurezas.&lt;/strong&gt; Um filtro em análise de dados é a mesma coisa: uma ferramenta que separa um conjunto de dados de uma sujeira, ruído. Portanto, assim como para filtrar uma bebida temos que decidir antes algumas coisas:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;O que queremos que seja removido?&lt;/li&gt;
-&lt;li&gt;O quão eficiente é nosso filtro?&lt;/li&gt;
-&lt;li&gt;Qual é o resultado esperado?&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2 href=&#34;ruidos&#34;&gt;
-Filtragem para remover ruídos&lt;/h2&gt;
-&lt;p&gt;Talvez a primeira coisa que vem à sua cabeça quando  ouve a palavra filtro é Instagram. Alguns filtros de fotos feitos para embelezar nada mais são que um filtro para remoção de ruídos.&lt;/p&gt;
-
-
-
-
-
-
-
-  
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-&lt;figure id=&#34;figure-imagem-original-e-imagem-com-contaminação-de-um-ruído&#34;&gt;
-
-
-  &lt;a data-fancybox=&#34;&#34; href=&#34;/pt-br/post/edge_graph_filtering/photo_noisy_hu82d76e04dbaf989091cb8bf76c11c929_737197_0x200_resize_lanczos_2.png&#34; data-caption=&#34;Imagem original e imagem com contaminação de um ruído.&#34;&gt;
-
-
-  &lt;img data-src=&#34;/pt-br/post/edge_graph_filtering/photo_noisy_hu82d76e04dbaf989091cb8bf76c11c929_737197_0x200_resize_lanczos_2.png&#34; class=&#34;lazyload&#34; alt=&#34;&#34; width=&#34;100%&#34; height=&#34;200px&#34;&gt;
-&lt;/a&gt;
-
-
-  
-  
-  &lt;figcaption&gt;
-    Imagem original e imagem com contaminação de um ruído.
-  &lt;/figcaption&gt;
-
-
-&lt;/figure&gt;
-
-&lt;p&gt;O que consideramos ruído depende das respostas das perguntas que levantei anteriormente. Um ruído em uma imagem pode ser uma contribuição espúria devido ao sensor de uma câmera ser ruim. Um ruído pode ser também algo intrínseco, por exemplo os poros e rugas na sua pele.&lt;/p&gt;
-&lt;h2 href=&#34;gestalt&#34;&gt;
-Filtragem para ressaltar características e  Gestalt
-&lt;/h2&gt;
-&lt;p&gt;Os princípios de &lt;em&gt;Gestalt&lt;/em&gt;  são suposições de certas leis sobre como a mente humana processa imagens  através do reconhecimento de padrões. Em resumo, tal princípio estabelece que a percepção não é baseada em elementos individuais, mas em padrões  em que os elementos são arranjados ou têm contrastes entre si. &lt;strong&gt;Você não compreende uma imagem analisando cada pixel individualmente, mas como os pixels se organizam e diferem entre si!&lt;/strong&gt;&lt;/p&gt;
-
-
-
-
-
-
-
-  
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-&lt;figure id=&#34;figure-os-principios-da-gestalt-são-apresentados-nessa-figura--&#34;&gt;
-
-
-  &lt;a data-fancybox=&#34;&#34; href=&#34;/pt-br/post/edge_graph_filtering/gestalt_principles_hu63f5cabf0d008b5b0b2fbf74c03a67fd_175876_0x400_resize_q90_lanczos.jpg&#34; data-caption=&#34;Os principios da &amp;lt;em&amp;gt;Gestalt&amp;lt;/em&amp;gt; são apresentados nessa figura.  [].&#34;&gt;
-
-
-  &lt;img data-src=&#34;/pt-br/post/edge_graph_filtering/gestalt_principles_hu63f5cabf0d008b5b0b2fbf74c03a67fd_175876_0x400_resize_q90_lanczos.jpg&#34; class=&#34;lazyload&#34; alt=&#34;&#34; width=&#34;100%&#34; height=&#34;200px&#34;&gt;
-&lt;/a&gt;
-
-
-  
-  
-  &lt;figcaption&gt;
-    Os principios da &lt;em&gt;Gestalt&lt;/em&gt; são apresentados nessa figura.  [].
-  &lt;/figcaption&gt;
-
-
-&lt;/figure&gt;
-
-&lt;p&gt;Como se relaciona com os grafos? Um dos porquês para realizar a filtragem de um grafo consiste em remover relações (arestas) espúrias para ressaltar um dado padrão que queremos analisar. Comumente, esse padrão são estruturas de comunidades e/ou agrupamentos obtidos via métodos de visualização.&lt;/p&gt;
-
-
-
-
-
-
-
-  
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-&lt;figure id=&#34;figure-os-princípios-da-gestalt-são-usados-para-desenvolver-métodos-de-processamento-de-imagens-imagem-retirada-de-&#34;&gt;
-
-
-  &lt;a data-fancybox=&#34;&#34; href=&#34;/pt-br/post/edge_graph_filtering/gestalt_cv_example_hu5510a9064a332f07be8be12a15f3553e_77088_0x300_resize_lanczos_2.png&#34; data-caption=&#34;Os princípios da &amp;lt;em&amp;gt;Gestalt&amp;lt;/em&amp;gt; são usados para desenvolver métodos de processamento de imagens. Imagem retirada de []&#34;&gt;
-
-
-  &lt;img data-src=&#34;/pt-br/post/edge_graph_filtering/gestalt_cv_example_hu5510a9064a332f07be8be12a15f3553e_77088_0x300_resize_lanczos_2.png&#34; class=&#34;lazyload&#34; alt=&#34;&#34; width=&#34;100%&#34; height=&#34;200px&#34;&gt;
-&lt;/a&gt;
-
-
-  
-  
-  &lt;figcaption&gt;
-    Os princípios da &lt;em&gt;Gestalt&lt;/em&gt; são usados para desenvolver métodos de processamento de imagens. Imagem retirada de []
-  &lt;/figcaption&gt;
-
-
-&lt;/figure&gt;
-
-&lt;p&gt;Na imagem acima é mostrado o resultado de um método baseado na &lt;em&gt;Gestalt&lt;/em&gt; para simplificar uma imagem. Em que um algoritmo extrair um padrão de linhas de uma imagem. Em redes complexas temos o conceito de &lt;em&gt;backbones&lt;/em&gt; que são uma espécie de espinha dorsal, esqueleto, que representa as relações mais importantes entres os vértices (ficará mais claro na seção  sobre 
-&lt;a href=&#34;#estatistico&#34;&gt;backbones&lt;/a&gt; . Nesse ponto não necessariamente estamos removendo relações assumindo que elas são um ruído da nossa medida, mas apenas queremos ressaltar esse backbone.&lt;/p&gt;
-&lt;h2 href=&#34;comutacional&#34;&gt;
-Filtragem para reduzir o custo computacional&lt;/h2&gt;
-&lt;p&gt;Embora a filtragem possa ser usada para remover uma contaminação em um dado e/ou facilitar termos &lt;em&gt;insights&lt;/em&gt;  Conseguimos também reduzir o custo computacional de algoritmos que atuam nesses dados. Um exemplo simples é mostrado no código abaixo:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;import numpy as np
+A[A R$100,00]-->|R$1|B;
+B[B R$3,00]-->|R$2|A;
+C[C R$0]-->|R$0,50|A;
+&lt;/pre>
+&lt;p>Tais grafos de transações financeiras são usados, por exemplo, para detectar crimes de lavagem de dinheiro, formação de quadrilhas e fraudes quando o comportamento de um dado cliente é anómalo. Os valores nas arestas são os &lt;strong>pesos&lt;/strong> do grafo.&lt;/p>
+&lt;h1 id="o-que-é-filtragem">O que é filtragem?&lt;/h1>
+&lt;p>&lt;strong>Filtro tem origem na palavra feltro. O feltro era o material feito principalmente de lã usado antigamente para separar um líquido de suas impurezas.&lt;/strong> Um filtro em análise de dados é a mesma coisa: uma ferramenta que separa um conjunto de dados de uma sujeira, ruído. Portanto, assim como para filtrar uma bebida temos que decidir antes algumas coisas:&lt;/p>
+&lt;ul>
+&lt;li>O que queremos que seja removido?&lt;/li>
+&lt;li>O quão eficiente é nosso filtro?&lt;/li>
+&lt;li>Qual é o resultado esperado?&lt;/li>
+&lt;/ul>
+&lt;h2 href="ruidos">
+Filtragem para remover ruídos&lt;/h2>
+&lt;p>Talvez a primeira coisa que vem à sua cabeça quando ouve a palavra filtro é Instagram. Alguns filtros de fotos feitos para embelezar nada mais são que um filtro para remoção de ruídos.&lt;/p>
+&lt;figure id="figure-imagem-original-e-imagem-com-contaminação-de-um-ruído">
+&lt;a data-fancybox="" href="/pt-br/post/edge_graph_filtering/photo_noisy_hu82d76e04dbaf989091cb8bf76c11c929_737197_0x200_resize_lanczos_2.png" data-caption="Imagem original e imagem com contaminação de um ruído.">
+&lt;img data-src="/pt-br/post/edge_graph_filtering/photo_noisy_hu82d76e04dbaf989091cb8bf76c11c929_737197_0x200_resize_lanczos_2.png" class="lazyload" alt="" width="100%" height="200px">
+&lt;/a>
+&lt;figcaption>
+Imagem original e imagem com contaminação de um ruído.
+&lt;/figcaption>
+&lt;/figure>
+&lt;p>O que consideramos ruído depende das respostas das perguntas que levantei anteriormente. Um ruído em uma imagem pode ser uma contribuição espúria devido ao sensor de uma câmera ser ruim. Um ruído pode ser também algo intrínseco, por exemplo os poros e rugas na sua pele.&lt;/p>
+&lt;h2 href="gestalt">
+Filtragem para ressaltar características e Gestalt
+&lt;/h2>
+&lt;p>Os princípios de &lt;em>Gestalt&lt;/em> são suposições de certas leis sobre como a mente humana processa imagens através do reconhecimento de padrões. Em resumo, tal princípio estabelece que a percepção não é baseada em elementos individuais, mas em padrões em que os elementos são arranjados ou têm contrastes entre si. &lt;strong>Você não compreende uma imagem analisando cada pixel individualmente, mas como os pixels se organizam e diferem entre si!&lt;/strong>&lt;/p>
+&lt;figure id="figure-os-principios-da-gestalt-são-apresentados-nessa-figura--">
+&lt;a data-fancybox="" href="/pt-br/post/edge_graph_filtering/gestalt_principles_hu63f5cabf0d008b5b0b2fbf74c03a67fd_175876_0x400_resize_q90_lanczos.jpg" data-caption="Os principios da &amp;lt;em&amp;gt;Gestalt&amp;lt;/em&amp;gt; são apresentados nessa figura. [].">
+&lt;img data-src="/pt-br/post/edge_graph_filtering/gestalt_principles_hu63f5cabf0d008b5b0b2fbf74c03a67fd_175876_0x400_resize_q90_lanczos.jpg" class="lazyload" alt="" width="100%" height="200px">
+&lt;/a>
+&lt;figcaption>
+Os principios da &lt;em>Gestalt&lt;/em> são apresentados nessa figura. [].
+&lt;/figcaption>
+&lt;/figure>
+&lt;p>Como se relaciona com os grafos? Um dos porquês para realizar a filtragem de um grafo consiste em remover relações (arestas) espúrias para ressaltar um dado padrão que queremos analisar. Comumente, esse padrão são estruturas de comunidades e/ou agrupamentos obtidos via métodos de visualização.&lt;/p>
+&lt;figure id="figure-os-princípios-da-gestalt-são-usados-para-desenvolver-métodos-de-processamento-de-imagens-imagem-retirada-de-">
+&lt;a data-fancybox="" href="/pt-br/post/edge_graph_filtering/gestalt_cv_example_hu5510a9064a332f07be8be12a15f3553e_77088_0x300_resize_lanczos_2.png" data-caption="Os princípios da &amp;lt;em&amp;gt;Gestalt&amp;lt;/em&amp;gt; são usados para desenvolver métodos de processamento de imagens. Imagem retirada de []">
+&lt;img data-src="/pt-br/post/edge_graph_filtering/gestalt_cv_example_hu5510a9064a332f07be8be12a15f3553e_77088_0x300_resize_lanczos_2.png" class="lazyload" alt="" width="100%" height="200px">
+&lt;/a>
+&lt;figcaption>
+Os princípios da &lt;em>Gestalt&lt;/em> são usados para desenvolver métodos de processamento de imagens. Imagem retirada de []
+&lt;/figcaption>
+&lt;/figure>
+&lt;p>Na imagem acima é mostrado o resultado de um método baseado na &lt;em>Gestalt&lt;/em> para simplificar uma imagem. Em que um algoritmo extrair um padrão de linhas de uma imagem. Em redes complexas temos o conceito de &lt;em>backbones&lt;/em> que são uma espécie de espinha dorsal, esqueleto, que representa as relações mais importantes entres os vértices (ficará mais claro na seção sobre
+&lt;a href="#estatistico">backbones&lt;/a> . Nesse ponto não necessariamente estamos removendo relações assumindo que elas são um ruído da nossa medida, mas apenas queremos ressaltar esse backbone.&lt;/p>
+&lt;h2 href="comutacional">
+Filtragem para reduzir o custo computacional&lt;/h2>
+&lt;p>Embora a filtragem possa ser usada para remover uma contaminação em um dado e/ou facilitar termos &lt;em>insights&lt;/em> Conseguimos também reduzir o custo computacional de algoritmos que atuam nesses dados. Um exemplo simples é mostrado no código abaixo:&lt;/p>
+&lt;pre>&lt;code class="language-python">import numpy as np
 import io
-
 X, Y = np.meshgrid(
-    np.linspace(-5, 5, 100), np.linspace(-5, 5, 100))
-
+np.linspace(-5, 5, 100), np.linspace(-5, 5, 100))
 z = np.exp(-0.1*(X**2 + Y**2))
 z_noise = z + np.random.normal(0, 0.1, z.shape)
-
 z = (z / z.max()*255).astype(np.uint8)
 z_noise = (z_noise / z_noise.max()*255).astype(np.uint8)
-
 data_noisy = io.BytesIO()
-data = io.BytesIO()   
+data = io.BytesIO()
 np.savez_compressed(data_noisy, z_noise)
 np.savez_compressed(data, z)
-
 print(f&amp;quot;Noisy {data_noisy.getbuffer().nbytes/10**6:.1f} MB&amp;quot;)
 print(f&amp;quot;Original {data.getbuffer().nbytes/10**6:.1f} MB&amp;quot;)
-&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;Noisy 3.6 MB
+&lt;/code>&lt;/pre>
+&lt;pre>&lt;code>Noisy 3.6 MB
 Original 0.2 MB
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;O output indica que &lt;strong&gt;o resultado de contaminação por ruído aumenta o custo de armazenamento de um mesmo padrão de dados.&lt;/strong&gt;&lt;/p&gt;
-&lt;p&gt;Em grafos,  filtrar para reduzir custo computacional costuma ser essencial. Por exemplo, muitos algoritmos   escalam com o número de arestas. Portanto, um grafo em que cada par de vértices tem uma aresta teria custo computacional $O(número\ \ de\ \ vértices^2)$ &lt;strong&gt;o que é impraticável para apenas algumas dezenas de milhares de vértices. Portanto, tornando a análise de dados impossível.&lt;/strong&gt;&lt;/p&gt;
-&lt;h1 id=&#34;confusões-sobre-o-que-é-filtragem-em-grafos&#34;&gt;Confusões sobre o que é filtragem em grafos&lt;/h1&gt;
-&lt;p&gt;Antes de entrar mais a fundo na filtragem de grafos é melhor você ler   com calma a seguinte desambiguação para você  não ficar perdido na literatura.&lt;/p&gt;
-&lt;div class=&#34;alert alert-warning&#34;&gt;
-  &lt;div&gt;
-    &lt;p&gt;&lt;strong&gt;Desambiguação.&lt;/strong&gt;&lt;/p&gt;
-&lt;p&gt;A área de grafos/redes foi/é  é meio bagunçada pois cada campo de estudos  (engenharia, computação, matemática, física, sociologia, etc) costuma reinventar o mesmo método com outro nome ou usar nomes iguais para coisas diferentes.&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;
-&lt;p&gt;Graph coarsening&lt;/p&gt;
-&lt;p&gt;Em ciência da computação: o processo de obter uma representação mais grosseira de um grafo removendo arestas e/ou vértices.&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;Edge filtering:&lt;/p&gt;
-&lt;p&gt;Em ciência da computação: o processo de aplicar um filtro (processamento de sinais) em valores definidos nas arestas. &lt;strong&gt;Uma filtragem nos valores associados às arestas!&lt;/strong&gt;&lt;/p&gt;
-&lt;p&gt;Outras disciplinas:  o processo de remover arestas que não se adequam a um dado padrão.&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;Graph sparsification&lt;/p&gt;
-&lt;p&gt;Termo usado  para representar tanto a remoção de vértices quanto arestas (no mesmo sentido de graph coarsening). Por exemplo: “spectral edge sparsification”. Contudo, é mais utilizado quando você parte de um grafo vazio (sem relações) e vai adicionando tentando preservar as propriedades espectrais do grafo original.&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;Você pode encontrar trabalhos com o termo  &lt;em&gt;spectral filtering&lt;/em&gt; ou &lt;em&gt;spectral coarsening&lt;/em&gt; , ambos significando a  mesma coisa. Contudo, spectral filters  costuma ser usado mais em trabalhos de processamento de sinal em grafos.&lt;/p&gt;
-  &lt;/div&gt;
-&lt;/div&gt;
-&lt;p&gt;Quando você aplica um filtro em uma foto para te deixar mais bonito você obviamente objetiva que as pessoas ainda te reconheçam. Isto é, as formas e aspectos mais importantes do seu rosto devem ser preservadas ou pouco alteradas. Vamos representar essas considerações por:
+&lt;/code>&lt;/pre>
+&lt;p>O output indica que &lt;strong>o resultado de contaminação por ruído aumenta o custo de armazenamento de um mesmo padrão de dados.&lt;/strong>&lt;/p>
+&lt;p>Em grafos, filtrar para reduzir custo computacional costuma ser essencial. Por exemplo, muitos algoritmos escalam com o número de arestas. Portanto, um grafo em que cada par de vértices tem uma aresta teria custo computacional $O(número\ \ de\ \ vértices^2)$ &lt;strong>o que é impraticável para apenas algumas dezenas de milhares de vértices. Portanto, tornando a análise de dados impossível.&lt;/strong>&lt;/p>
+&lt;h1 id="confusões-sobre-o-que-é-filtragem-em-grafos">Confusões sobre o que é filtragem em grafos&lt;/h1>
+&lt;p>Antes de entrar mais a fundo na filtragem de grafos é melhor você ler com calma a seguinte desambiguação para você não ficar perdido na literatura.&lt;/p>
+&lt;div class="alert alert-warning">
+&lt;div>
+&lt;p>&lt;strong>Desambiguação.&lt;/strong>&lt;/p>
+&lt;p>A área de grafos/redes foi/é é meio bagunçada pois cada campo de estudos (engenharia, computação, matemática, física, sociologia, etc) costuma reinventar o mesmo método com outro nome ou usar nomes iguais para coisas diferentes.&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>Graph coarsening&lt;/p>
+&lt;p>Em ciência da computação: o processo de obter uma representação mais grosseira de um grafo removendo arestas e/ou vértices.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Edge filtering:&lt;/p>
+&lt;p>Em ciência da computação: o processo de aplicar um filtro (processamento de sinais) em valores definidos nas arestas. &lt;strong>Uma filtragem nos valores associados às arestas!&lt;/strong>&lt;/p>
+&lt;p>Outras disciplinas: o processo de remover arestas que não se adequam a um dado padrão.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Graph sparsification&lt;/p>
+&lt;p>Termo usado para representar tanto a remoção de vértices quanto arestas (no mesmo sentido de graph coarsening). Por exemplo: “spectral edge sparsification”. Contudo, é mais utilizado quando você parte de um grafo vazio (sem relações) e vai adicionando tentando preservar as propriedades espectrais do grafo original.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>Você pode encontrar trabalhos com o termo &lt;em>spectral filtering&lt;/em> ou &lt;em>spectral coarsening&lt;/em> , ambos significando a mesma coisa. Contudo, spectral filters costuma ser usado mais em trabalhos de processamento de sinal em grafos.&lt;/p>
+&lt;/div>
+&lt;/div>
+&lt;p>Quando você aplica um filtro em uma foto para te deixar mais bonito você obviamente objetiva que as pessoas ainda te reconheçam. Isto é, as formas e aspectos mais importantes do seu rosto devem ser preservadas ou pouco alteradas. Vamos representar essas considerações por:
 $$
 \begin{eqnarray}
 \mathcal P_{forma}(foto\ \ original) \sim \mathcal P_{forma}(foto\ \ filtrada)\newline
@@ -300,67 +171,66 @@ $$
 &amp;hellip;etc
 \end{eqnarray}
 $$
-Também espera-se que  o ruído da câmera, rugas e imperfeições sejam reduzidas $\mathcal P_{rugas}(foto\ \ original) \neq \mathcal P_{rugas}(foto\ \ filtrada)$  e $|rugas\  \ foto \  \ original| \ll  |rugas\  \ foto \  \ filtrada|$.  O símbolo $|.|$ significa que estamos contando o número de rugas da foto, do conjunto de rugas, e $\ll$ significa muito menor.&lt;/p&gt;
-&lt;p&gt;Da mesma maneira que no caso de fotos, se temos um grafo, $G$, queremos que sua versão filtrada, $\tilde G$, tenha uma ou mais  propriedades (definido de antemão) preservadas após efetuar a filtragem, isto é
+Também espera-se que o ruído da câmera, rugas e imperfeições sejam reduzidas $\mathcal P_{rugas}(foto\ \ original) \neq \mathcal P_{rugas}(foto\ \ filtrada)$ e $|rugas\ \ foto \ \ original| \ll |rugas\ \ foto \ \ filtrada|$. O símbolo $|.|$ significa que estamos contando o número de rugas da foto, do conjunto de rugas, e $\ll$ significa muito menor.&lt;/p>
+&lt;p>Da mesma maneira que no caso de fotos, se temos um grafo, $G$, queremos que sua versão filtrada, $\tilde G$, tenha uma ou mais propriedades (definido de antemão) preservadas após efetuar a filtragem, isto é
 $$
 \mathcal P_{algo} (G) \sim \mathcal P_{algo} (\tilde G)
-$$&lt;/p&gt;
-&lt;p&gt;Sendo que o objetivo principal  costuma ser uma redução drástica no número de relações (arestas), $|E| \le |\tilde E|$. OK, então antes de entrar nos métodos de filtragem precisamos discorrer sobre quais seriam essas propriedades que queremos preservar.&lt;/p&gt;
-&lt;div class=&#34;alert alert-note&#34;&gt;
-  &lt;div&gt;
-    &lt;p&gt;Diferente de uma imagem em que filtros só ocorrem nos valores definidos na posição dos pixels em um grafo, podemos filtrar tanto os valores definidos nos vértices/arestas quanto a própria estrutura do grafo em si.&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;Novamente: filtrar a estrutura de um grafo $\neq$ filtrar valores definidos na estrutura de um grafo&lt;/li&gt;
-&lt;/ul&gt;
-  &lt;/div&gt;
-&lt;/div&gt;
-&lt;h1 id=&#34;algumas-propriedades-de-grafos&#34;&gt;Algumas propriedades de grafos&lt;/h1&gt;
-&lt;h2 id=&#34;componentes&#34;&gt;Componentes&lt;/h2&gt;
-&lt;p&gt;Uma propriedade importante de um grafo é o número de componentes. Um grafo é fortemente conectado quando é possível sair de qualquer vértice e chegar em qualquer outro. &lt;strong&gt;Um grafo fortemente conectado tem apenas uma componente&lt;/strong&gt;.&lt;/p&gt;
-&lt;p&gt;Por exemplo,  abaixo é apresentado um grafo fortemente conectado&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-mermaid&#34;&gt;graph LR;
-  A---B;
-  D---A;
-  B---C
-  A---C;
-  D---E;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Ao remover a aresta $(D , A)$ obtemos o seguinte grafo&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-mermaid&#34;&gt;graph LR;
-  A---B;
-  B---C
-  A---C;
-  D---E;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Como é impossível sair de $D$ ou $E$ e chegar em $A$, $B$ ou $C$ após a remoção, o grafo não é mais fortemente conectado e tem duas componentes. Qual a relação disso com filtragem?&lt;/p&gt;
-&lt;div class=&#34;alert alert-note&#34;&gt;
-  &lt;div&gt;
-    &lt;p&gt;Para muitos problemas, espera-se que métodos de filtragem sejam bons em preservar o número de componentes. Pois isso afeta em muito as dinâmicas ocorrendo no grafo. Assim como algoritmos de análise de dados. x&#39;&lt;/p&gt;
-&lt;p&gt;Imagina se ao realizar uma filtragem você remova uma aresta que impede a contaminação por um vírus entre duas cidades no seu modelo?&lt;/p&gt;
-  &lt;/div&gt;
-&lt;/div&gt;
-&lt;h2 id=&#34;comunidades&#34;&gt;Comunidades&lt;/h2&gt;
-&lt;p&gt;Dentro de cada componente de um grafo temos o conceito de comunidade. Intuitivamente, quando pensamos em comunidade no âmbito das relações pessoais imaginamos um grupo de pessoas que tem fortes relações entre si, muito mais fortes que as relações com outras pessoas fora do grupo. Por exemplo, família, colegas de trabalho etc. Nesse contexto, qual é a tarefa de detecção de comunidades? Como efetuar tal tarefa?&lt;/p&gt;
-&lt;div class=&#34;alert alert-note&#34;&gt;
-  &lt;div&gt;
-    Em certos casos queremos que a filtragem não altere a identificação das estruturas de comunidade no nosso grafo.
-  &lt;/div&gt;
-&lt;/div&gt;
-&lt;p&gt;Suponha que você queira modelar o grupo de pessoas pertencentes a dois partidos políticos,  opostos na ideologia. Você pode representar as relações entre as pessoas usando grafos. Colocando uma aresta entre uma pessoa e outra com o peso representado um grau de &lt;em&gt;concordância&lt;/em&gt; entre certos assuntos. O que seria um algoritmo de detecção de comunidade em tal caso? Se temos o &lt;em&gt;ground truth&lt;/em&gt;, isto é, o partido que cada pessoa se identifica, o algoritmo é uma  função, $f$, que recebendo  as relações , $E$, cospe  um indíce  que associa cada pessoa um partido  $f: (Pessoa, E) \mapsto \{Esquerda,Direita\}$. Mas como construir essa  $f$?  &lt;strong&gt;Na minha opinião existem três caminhos principais:&lt;/strong&gt;&lt;/p&gt;
-&lt;div class=&#34;alert alert-note&#34;&gt;
-  &lt;div&gt;
-    Não existe uma única definição formal para comunidade. Esse conceito muda dependendo da abordagem que você escolheu para encontrar as comunidades dentro de cada componente.
-  &lt;/div&gt;
-&lt;/div&gt;
-&lt;h3 id=&#34;caminho-1-inferir&#34;&gt;Caminho 1: &lt;strong&gt;Inferir&lt;/strong&gt;&lt;/h3&gt;
-&lt;ul&gt;
-&lt;li&gt;Pegue por exemplo a distribuição normal. Quando trabalhamos com dados que acreditamos que podem ser modelados por tal distribuição realizamos um processo de ajuste de parâmetros, tentando estimar a média e o desvio padrão da população. A ideia aqui é similar. Propõe-se um modelo capaz de gerar grafos  tendo como restrições um conjunto de parâmetros.. O objetivo é otimizar tais parâmetros tal que o modelo generativo seja um bom candidato para &lt;em&gt;gerador&lt;/em&gt; do grafo original.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;O modelo generativo mais famoso é conhecido como &lt;strong&gt;S&lt;/strong&gt;tocahastic  &lt;strong&gt;B&lt;/strong&gt;lock &lt;strong&gt;M&lt;/strong&gt;odel (&lt;strong&gt;SBM&lt;/strong&gt;).  Em português, Modelo de Bloco Estocástico. Usando o networkx você pode gerar uma amostra de um grafo através desse modelo usando o seguinte código&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;import networkx as nx
+$$&lt;/p>
+&lt;p>Sendo que o objetivo principal costuma ser uma redução drástica no número de relações (arestas), $|E| \le |\tilde E|$. OK, então antes de entrar nos métodos de filtragem precisamos discorrer sobre quais seriam essas propriedades que queremos preservar.&lt;/p>
+&lt;div class="alert alert-note">
+&lt;div>
+&lt;p>Diferente de uma imagem em que filtros só ocorrem nos valores definidos na posição dos pixels em um grafo, podemos filtrar tanto os valores definidos nos vértices/arestas quanto a própria estrutura do grafo em si.&lt;/p>
+&lt;ul>
+&lt;li>Novamente: filtrar a estrutura de um grafo $\neq$ filtrar valores definidos na estrutura de um grafo&lt;/li>
+&lt;/ul>
+&lt;/div>
+&lt;/div>
+&lt;h1 id="algumas-propriedades-de-grafos">Algumas propriedades de grafos&lt;/h1>
+&lt;h2 id="componentes">Componentes&lt;/h2>
+&lt;p>Uma propriedade importante de um grafo é o número de componentes. Um grafo é fortemente conectado quando é possível sair de qualquer vértice e chegar em qualquer outro. &lt;strong>Um grafo fortemente conectado tem apenas uma componente&lt;/strong>.&lt;/p>
+&lt;p>Por exemplo, abaixo é apresentado um grafo fortemente conectado&lt;/p>
+&lt;pre>&lt;code class="language-mermaid">graph LR;
+A---B;
+D---A;
+B---C
+A---C;
+D---E;
+&lt;/code>&lt;/pre>
+&lt;p>Ao remover a aresta $(D , A)$ obtemos o seguinte grafo&lt;/p>
+&lt;pre>&lt;code class="language-mermaid">graph LR;
+A---B;
+B---C
+A---C;
+D---E;
+&lt;/code>&lt;/pre>
+&lt;p>Como é impossível sair de $D$ ou $E$ e chegar em $A$, $B$ ou $C$ após a remoção, o grafo não é mais fortemente conectado e tem duas componentes. Qual a relação disso com filtragem?&lt;/p>
+&lt;div class="alert alert-note">
+&lt;div>
+&lt;p>Para muitos problemas, espera-se que métodos de filtragem sejam bons em preservar o número de componentes. Pois isso afeta em muito as dinâmicas ocorrendo no grafo. Assim como algoritmos de análise de dados. x'&lt;/p>
+&lt;p>Imagina se ao realizar uma filtragem você remova uma aresta que impede a contaminação por um vírus entre duas cidades no seu modelo?&lt;/p>
+&lt;/div>
+&lt;/div>
+&lt;h2 id="comunidades">Comunidades&lt;/h2>
+&lt;p>Dentro de cada componente de um grafo temos o conceito de comunidade. Intuitivamente, quando pensamos em comunidade no âmbito das relações pessoais imaginamos um grupo de pessoas que tem fortes relações entre si, muito mais fortes que as relações com outras pessoas fora do grupo. Por exemplo, família, colegas de trabalho etc. Nesse contexto, qual é a tarefa de detecção de comunidades? Como efetuar tal tarefa?&lt;/p>
+&lt;div class="alert alert-note">
+&lt;div>
+Em certos casos queremos que a filtragem não altere a identificação das estruturas de comunidade no nosso grafo.
+&lt;/div>
+&lt;/div>
+&lt;p>Suponha que você queira modelar o grupo de pessoas pertencentes a dois partidos políticos, opostos na ideologia. Você pode representar as relações entre as pessoas usando grafos. Colocando uma aresta entre uma pessoa e outra com o peso representado um grau de &lt;em>concordância&lt;/em> entre certos assuntos. O que seria um algoritmo de detecção de comunidade em tal caso? Se temos o &lt;em>ground truth&lt;/em>, isto é, o partido que cada pessoa se identifica, o algoritmo é uma função, $f$, que recebendo as relações , $E$, cospe um indíce que associa cada pessoa um partido $f: (Pessoa, E) \mapsto \{Esquerda,Direita\}$. Mas como construir essa $f$? &lt;strong>Na minha opinião existem três caminhos principais:&lt;/strong>&lt;/p>
+&lt;div class="alert alert-note">
+&lt;div>
+Não existe uma única definição formal para comunidade. Esse conceito muda dependendo da abordagem que você escolheu para encontrar as comunidades dentro de cada componente.
+&lt;/div>
+&lt;/div>
+&lt;h3 id="caminho-1-inferir">Caminho 1: &lt;strong>Inferir&lt;/strong>&lt;/h3>
+&lt;ul>
+&lt;li>Pegue por exemplo a distribuição normal. Quando trabalhamos com dados que acreditamos que podem ser modelados por tal distribuição realizamos um processo de ajuste de parâmetros, tentando estimar a média e o desvio padrão da população. A ideia aqui é similar. Propõe-se um modelo capaz de gerar grafos tendo como restrições um conjunto de parâmetros.. O objetivo é otimizar tais parâmetros tal que o modelo generativo seja um bom candidato para &lt;em>gerador&lt;/em> do grafo original.&lt;/li>
+&lt;/ul>
+&lt;p>O modelo generativo mais famoso é conhecido como &lt;strong>S&lt;/strong>tocahastic &lt;strong>B&lt;/strong>lock &lt;strong>M&lt;/strong>odel (&lt;strong>SBM&lt;/strong>). Em português, Modelo de Bloco Estocástico. Usando o networkx você pode gerar uma amostra de um grafo através desse modelo usando o seguinte código&lt;/p>
+&lt;pre>&lt;code class="language-python">import networkx as nx
 import matplotlib.pyplot as plt
-
-# esses são os parâmetros que definiram o número de indivíduos 
+# esses são os parâmetros que definiram o número de indivíduos
 # dentro de cada comunidade
 n1, n2, n3 = 30, 40, 60
 # esses são os parâmetros que definem a probabilidade
@@ -371,818 +241,555 @@ p11, p22, p33 = 0.4, 0.3, 0.7
 p12 = .01
 p13 = .1
 p23 = .01
-
 sizes = [n1, n2, n3]
 probs = [[p11, p12, p13], [p12, p22, p23], [p13, p23, p33]]
-
 g_sbm = nx.stochastic_block_model(sizes, probs, seed=0)
 W = nx.adjacency_matrix(g_sbm).todense()
-
 plt.imshow(W)
 plt.show()
-&lt;/code&gt;&lt;/pre&gt;
-
-
-
-
-
-
-
-  
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-&lt;figure id=&#34;figure-a-matriz-de-adjacência-todos-os-pesos-são-1-do-grafo-gerado-por-nosso-modelo&#34;&gt;
-
-
-  &lt;a data-fancybox=&#34;&#34; href=&#34;/pt-br/post/edge_graph_filtering/adj_sbm_hueb053748435c7d9559526a97c502365f_19313_400x0_resize_lanczos_2.png&#34; data-caption=&#34;A matriz de adjacência (todos os pesos são 1) do grafo gerado por nosso modelo.&#34;&gt;
-
-
-  &lt;img data-src=&#34;/pt-br/post/edge_graph_filtering/adj_sbm_hueb053748435c7d9559526a97c502365f_19313_400x0_resize_lanczos_2.png&#34; class=&#34;lazyload&#34; alt=&#34;&#34; width=&#34;400px&#34; height=&#34;100%&#34;&gt;
-&lt;/a&gt;
-
-
-  
-  
-  &lt;figcaption&gt;
-    A matriz de adjacência (todos os pesos são 1) do grafo gerado por nosso modelo.
-  &lt;/figcaption&gt;
-
-
-&lt;/figure&gt;
-
-&lt;p&gt;A ideia de inferência de métodos que usam  SBM  de forma geral é a seguinte:&lt;/p&gt;
-&lt;ol&gt;
-&lt;li&gt;Extraia o conjunto de arestas, $E$, de um grafo qualquer: uma rede social, uma rede de transações financeiras, etc.&lt;/li&gt;
-&lt;li&gt;Pegue um SBM, tente estimar o número de partições, probabilidade de conexões intra e entre grupos e em qual bloco cada vértice pertence tal que os grafos gerados pelo SBM melhor represente o seu grafo original.  No final, você tem uma maneira de identificar com cada vértice uma comunidade (partição).&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;O SBM é poderoso e ao contrário dos outros métodos te fornece uma maneira de checar a qualidade das comunidades encontradas. Isto é, se fazem sentido ou só são frutos de algo aleatório. Contudo, por ser uma técnica mais recente com uma implementação  difícil, não são todas as bibliotecas que fornecem esse recurso. A biblioteca mais famosa para SBM é o 
-&lt;a href=&#34;https://graph-tool.skewed.de/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Graph Tool&lt;/a&gt; que consegue estimar comunidades para  grafos com centenas de milhares de vértices. Não poderei discorrer mais ou mostrar como usar o SBM pois é um tema bem  complexo, tema para um post separado.  Mas o importante agora é você ter conseguido absorver pelo menos a ideia.&lt;/p&gt;
-&lt;h3 id=&#34;caminho-2-quantificardescrever&#34;&gt;Caminho 2: &lt;strong&gt;Quantificar/Descrever&lt;/strong&gt;&lt;/h3&gt;
-&lt;ul&gt;
-&lt;li&gt;Você  parte de uma função $f$ qualquer. Exemplo, $f$ é uma função que identifica todo mundo como esquerda ou direita, um sorteio aleatório, etc.&lt;/li&gt;
-&lt;li&gt;Com tal identificação você estipula uma grandeza que vai mensurar o quão forte é a coesão entre as pessoas de cada grupo e quão fraca é entre os grupos. Um exemplo de grandeza que mensura isso é a &lt;strong&gt;modularidade&lt;/strong&gt;.&lt;/li&gt;
-&lt;li&gt;Você irá alterar a sua $f$ tentando maximizar tal grandeza.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;O networkx por exemplo possui um método de maximização de modularidade usando um algoritmo guloso. Vamos usar o grafo gerado pelo sbm para testar esse método usando o seguinte script:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;from networkx.algorithms import community
-
+&lt;/code>&lt;/pre>
+&lt;figure id="figure-a-matriz-de-adjacência-todos-os-pesos-são-1-do-grafo-gerado-por-nosso-modelo">
+&lt;a data-fancybox="" href="/pt-br/post/edge_graph_filtering/adj_sbm_hueb053748435c7d9559526a97c502365f_19313_400x0_resize_lanczos_2.png" data-caption="A matriz de adjacência (todos os pesos são 1) do grafo gerado por nosso modelo.">
+&lt;img data-src="/pt-br/post/edge_graph_filtering/adj_sbm_hueb053748435c7d9559526a97c502365f_19313_400x0_resize_lanczos_2.png" class="lazyload" alt="" width="400px" height="100%">
+&lt;/a>
+&lt;figcaption>
+A matriz de adjacência (todos os pesos são 1) do grafo gerado por nosso modelo.
+&lt;/figcaption>
+&lt;/figure>
+&lt;p>A ideia de inferência de métodos que usam SBM de forma geral é a seguinte:&lt;/p>
+&lt;ol>
+&lt;li>Extraia o conjunto de arestas, $E$, de um grafo qualquer: uma rede social, uma rede de transações financeiras, etc.&lt;/li>
+&lt;li>Pegue um SBM, tente estimar o número de partições, probabilidade de conexões intra e entre grupos e em qual bloco cada vértice pertence tal que os grafos gerados pelo SBM melhor represente o seu grafo original. No final, você tem uma maneira de identificar com cada vértice uma comunidade (partição).&lt;/li>
+&lt;/ol>
+&lt;p>O SBM é poderoso e ao contrário dos outros métodos te fornece uma maneira de checar a qualidade das comunidades encontradas. Isto é, se fazem sentido ou só são frutos de algo aleatório. Contudo, por ser uma técnica mais recente com uma implementação difícil, não são todas as bibliotecas que fornecem esse recurso. A biblioteca mais famosa para SBM é o
+&lt;a href="https://graph-tool.skewed.de/" target="_blank" rel="noopener">Graph Tool&lt;/a> que consegue estimar comunidades para grafos com centenas de milhares de vértices. Não poderei discorrer mais ou mostrar como usar o SBM pois é um tema bem complexo, tema para um post separado. Mas o importante agora é você ter conseguido absorver pelo menos a ideia.&lt;/p>
+&lt;h3 id="caminho-2-quantificardescrever">Caminho 2: &lt;strong>Quantificar/Descrever&lt;/strong>&lt;/h3>
+&lt;ul>
+&lt;li>Você parte de uma função $f$ qualquer. Exemplo, $f$ é uma função que identifica todo mundo como esquerda ou direita, um sorteio aleatório, etc.&lt;/li>
+&lt;li>Com tal identificação você estipula uma grandeza que vai mensurar o quão forte é a coesão entre as pessoas de cada grupo e quão fraca é entre os grupos. Um exemplo de grandeza que mensura isso é a &lt;strong>modularidade&lt;/strong>.&lt;/li>
+&lt;li>Você irá alterar a sua $f$ tentando maximizar tal grandeza.&lt;/li>
+&lt;/ul>
+&lt;p>O networkx por exemplo possui um método de maximização de modularidade usando um algoritmo guloso. Vamos usar o grafo gerado pelo sbm para testar esse método usando o seguinte script:&lt;/p>
+&lt;pre>&lt;code class="language-python">from networkx.algorithms import community
 def find_where(n, p):
-    return [i for i in range(len(p)) if n in p[i]][0]
-
+return [i for i in range(len(p)) if n in p[i]][0]
 def plot(g, community_index, p):
-    labels = [chr(ord(&#39;A&#39;) + i) for i in range(len(p))]
-
-	plt.scatter(range(len(g.nodes)), community_index)
-    plt.ylabel(&#39;Community&#39;)
-    plt.xlabel(&#39;Vertex Id&#39;)
-    plt.yticks(range(len(p)), labels)
-    plt.show()
-
+labels = [chr(ord('A') + i) for i in range(len(p))]
+plt.scatter(range(len(g.nodes)), community_index)
+plt.ylabel('Community')
+plt.xlabel('Vertex Id')
+plt.yticks(range(len(p)), labels)
+plt.show()
 p = community.greedy_modularity_communities(g_sbm)
 g_sbm_community_index = [find_where(n, p) for n in g_sbm.nodes]
 print(f&amp;quot;Found {len(set(g_sbm_community_index))} communities&amp;quot;)
-
 plot(g_sbm, g_sbm_community_index, p)
-&lt;/code&gt;&lt;/pre&gt;
-
-
-
-
-
-
-
-  
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-&lt;figure id=&#34;figure-resultado-da-identificação-de-comunidades-usando-o-algoritmo-guloso-parece-ok&#34;&gt;
-
-
-  &lt;a data-fancybox=&#34;&#34; href=&#34;/pt-br/post/edge_graph_filtering/modularity_sbm_hu232f725335f418633017afb243ed9c06_2880_400x0_resize_lanczos_2.png&#34; data-caption=&#34;Resultado da identificação de comunidades usando o algoritmo guloso. Parece Ok&#34;&gt;
-
-
-  &lt;img data-src=&#34;/pt-br/post/edge_graph_filtering/modularity_sbm_hu232f725335f418633017afb243ed9c06_2880_400x0_resize_lanczos_2.png&#34; class=&#34;lazyload&#34; alt=&#34;&#34; width=&#34;400px&#34; height=&#34;100%&#34;&gt;
-&lt;/a&gt;
-
-
-  
-  
-  &lt;figcaption&gt;
-    Resultado da identificação de comunidades usando o algoritmo guloso. Parece Ok
-  &lt;/figcaption&gt;
-
-
-&lt;/figure&gt;
-
-&lt;p&gt;Temos um resultado muito bom. Mas será que podemos empregar isso em qualquer caso? Vejamos o que acontece quando aplicamos o mesmo algoritmo para um grafo aleatório.&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;# erdos_reyni é um modelo de grafo aleatório
+&lt;/code>&lt;/pre>
+&lt;figure id="figure-resultado-da-identificação-de-comunidades-usando-o-algoritmo-guloso-parece-ok">
+&lt;a data-fancybox="" href="/pt-br/post/edge_graph_filtering/modularity_sbm_hu232f725335f418633017afb243ed9c06_2880_400x0_resize_lanczos_2.png" data-caption="Resultado da identificação de comunidades usando o algoritmo guloso. Parece Ok">
+&lt;img data-src="/pt-br/post/edge_graph_filtering/modularity_sbm_hu232f725335f418633017afb243ed9c06_2880_400x0_resize_lanczos_2.png" class="lazyload" alt="" width="400px" height="100%">
+&lt;/a>
+&lt;figcaption>
+Resultado da identificação de comunidades usando o algoritmo guloso. Parece Ok
+&lt;/figcaption>
+&lt;/figure>
+&lt;p>Temos um resultado muito bom. Mas será que podemos empregar isso em qualquer caso? Vejamos o que acontece quando aplicamos o mesmo algoritmo para um grafo aleatório.&lt;/p>
+&lt;pre>&lt;code class="language-python"># erdos_reyni é um modelo de grafo aleatório
 g = nx.erdos_renyi_graph(150, 0.1, seed=0)
 p = community.greedy_modularity_communities(g)
 g_community_index = [find_where(n, p) for n in g.nodes]
 plot(g, g_community_index, p)
-&lt;/code&gt;&lt;/pre&gt;
-
-
-
-
-
-
-
-  
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-&lt;figure id=&#34;figure-resultado-da-identificação-de-comunidades-usando-o-algoritmo-guloso-para-o-modelo-er&#34;&gt;
-
-
-  &lt;a data-fancybox=&#34;&#34; href=&#34;/pt-br/post/edge_graph_filtering/modularity_er_hu5a3fc90699528d500dae239de7f4b909_3810_400x0_resize_lanczos_2.png&#34; data-caption=&#34;Resultado da identificação de comunidades usando o algoritmo guloso para o modelo ER.&#34;&gt;
-
-
-  &lt;img data-src=&#34;/pt-br/post/edge_graph_filtering/modularity_er_hu5a3fc90699528d500dae239de7f4b909_3810_400x0_resize_lanczos_2.png&#34; class=&#34;lazyload&#34; alt=&#34;&#34; width=&#34;400px&#34; height=&#34;100%&#34;&gt;
-&lt;/a&gt;
-
-
-  
-  
-  &lt;figcaption&gt;
-    Resultado da identificação de comunidades usando o algoritmo guloso para o modelo ER.
-  &lt;/figcaption&gt;
-
-
-&lt;/figure&gt;
-
-&lt;p&gt;O algoritmo guloso encontrou 4 comunidades e o ponto ruim é que não temos como saber o quão confiável é essa resposta. Mas podemos dizer que provavelmente ela não deveria ser usada pois partimos de um modelo de grafo aleatório.&lt;/p&gt;
-&lt;p&gt;Devemos tomar muito cuidado com métodos de detecção por maximização de modularidade e similares. Recomendo ver alguns trabalhos sobre modelos de bloco estocástico, especialmente os feitos pelo Tiago Peixoto.&lt;/p&gt;
-&lt;blockquote class=&#34;twitter-tweet&#34;&gt;&lt;p lang=&#34;en&#34; dir=&#34;ltr&#34;&gt;New blog post! This time, on something tame and uncontroversial:&lt;br&gt;&lt;br&gt;&amp;quot;Modularity maximization considered harmful&amp;quot;&lt;br&gt;&lt;br&gt;It&amp;#39;s the most popular method used for community detection. It is also one of the most problematic. 1/11&lt;br&gt;&lt;br&gt;(Based on &lt;a href=&#34;https://t.co/iCxFjKOIT1&#34;&gt;https://t.co/iCxFjKOIT1&lt;/a&gt;)&lt;a href=&#34;https://t.co/IRdCFwttQL&#34;&gt;https://t.co/IRdCFwttQL&lt;/a&gt;&lt;/p&gt;&amp;mdash; Tiago Peixoto (@tiagopeixoto) &lt;a href=&#34;https://twitter.com/tiagopeixoto/status/1467798790346260484?ref_src=twsrc%5Etfw&#34;&gt;December 6, 2021&lt;/a&gt;&lt;/blockquote&gt;
-&lt;script async src=&#34;https://platform.twitter.com/widgets.js&#34; charset=&#34;utf-8&#34;&gt;&lt;/script&gt;
-
-&lt;div class=&#34;alert alert-warning&#34;&gt;
-  &lt;div&gt;
-    Métodos de detecção de comunidade usando modularidade (Gelphi) são úteis. Contudo, podemos identificar comunidades mesmo no caso de um grafo totalmente aleatório! Tome cuidado.
-  &lt;/div&gt;
-&lt;/div&gt;
-&lt;h3 id=&#34;caminho-3-visualizar&#34;&gt;Caminho 3: &lt;strong&gt;Visualizar&lt;/strong&gt;&lt;/h3&gt;
-&lt;ul&gt;
-&lt;li&gt;Você utiliza um método que mapeia  cada vértice do seu grafo em um espaço vetorial. Por exemplo &lt;strong&gt;t-sne&lt;/strong&gt;, &lt;strong&gt;UMAP&lt;/strong&gt;, &lt;strong&gt;force-directed&lt;/strong&gt;, &lt;strong&gt;spectral embedding&lt;/strong&gt; etc. Com sua visualização você realiza uma inspeção (totalmente subjetiva!)  para identificar as comunidades (agrupamentos). Em alguns casos é aceitável realizar um k-means nesse espaço para encontrar os &lt;em&gt;clusters&lt;/em&gt;.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;O script abaixo gera uma visualização dos dois grafos usados nos exemplos anteriores: um obtido do SBM e outro do Erdos-Renyi.&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;import numpy as np
-
+&lt;/code>&lt;/pre>
+&lt;figure id="figure-resultado-da-identificação-de-comunidades-usando-o-algoritmo-guloso-para-o-modelo-er">
+&lt;a data-fancybox="" href="/pt-br/post/edge_graph_filtering/modularity_er_hu5a3fc90699528d500dae239de7f4b909_3810_400x0_resize_lanczos_2.png" data-caption="Resultado da identificação de comunidades usando o algoritmo guloso para o modelo ER.">
+&lt;img data-src="/pt-br/post/edge_graph_filtering/modularity_er_hu5a3fc90699528d500dae239de7f4b909_3810_400x0_resize_lanczos_2.png" class="lazyload" alt="" width="400px" height="100%">
+&lt;/a>
+&lt;figcaption>
+Resultado da identificação de comunidades usando o algoritmo guloso para o modelo ER.
+&lt;/figcaption>
+&lt;/figure>
+&lt;p>O algoritmo guloso encontrou 4 comunidades e o ponto ruim é que não temos como saber o quão confiável é essa resposta. Mas podemos dizer que provavelmente ela não deveria ser usada pois partimos de um modelo de grafo aleatório.&lt;/p>
+&lt;p>Devemos tomar muito cuidado com métodos de detecção por maximização de modularidade e similares. Recomendo ver alguns trabalhos sobre modelos de bloco estocástico, especialmente os feitos pelo Tiago Peixoto.&lt;/p>
+&lt;blockquote class="twitter-tweet">&lt;p lang="en" dir="ltr">New blog post! This time, on something tame and uncontroversial:&lt;br>&lt;br>&amp;quot;Modularity maximization considered harmful&amp;quot;&lt;br>&lt;br>It&amp;#39;s the most popular method used for community detection. It is also one of the most problematic. 1/11&lt;br>&lt;br>(Based on &lt;a href="https://t.co/iCxFjKOIT1">https://t.co/iCxFjKOIT1&lt;/a>)&lt;a href="https://t.co/IRdCFwttQL">https://t.co/IRdCFwttQL&lt;/a>&lt;/p>&amp;mdash; Tiago Peixoto (@tiagopeixoto) &lt;a href="https://twitter.com/tiagopeixoto/status/1467798790346260484?ref_src=twsrc%5Etfw">December 6, 2021&lt;/a>&lt;/blockquote>
+&lt;script async src="https://platform.twitter.com/widgets.js" charset="utf-8">&lt;/script>
+&lt;div class="alert alert-warning">
+&lt;div>
+Métodos de detecção de comunidade usando modularidade (Gelphi) são úteis. Contudo, podemos identificar comunidades mesmo no caso de um grafo totalmente aleatório! Tome cuidado.
+&lt;/div>
+&lt;/div>
+&lt;h3 id="caminho-3-visualizar">Caminho 3: &lt;strong>Visualizar&lt;/strong>&lt;/h3>
+&lt;ul>
+&lt;li>Você utiliza um método que mapeia cada vértice do seu grafo em um espaço vetorial. Por exemplo &lt;strong>t-sne&lt;/strong>, &lt;strong>UMAP&lt;/strong>, &lt;strong>force-directed&lt;/strong>, &lt;strong>spectral embedding&lt;/strong> etc. Com sua visualização você realiza uma inspeção (totalmente subjetiva!) para identificar as comunidades (agrupamentos). Em alguns casos é aceitável realizar um k-means nesse espaço para encontrar os &lt;em>clusters&lt;/em>.&lt;/li>
+&lt;/ul>
+&lt;p>O script abaixo gera uma visualização dos dois grafos usados nos exemplos anteriores: um obtido do SBM e outro do Erdos-Renyi.&lt;/p>
+&lt;pre>&lt;code class="language-python">import numpy as np
 pos_sbm = np.array([ v for v in nx.layout.spring_layout(g_sbm, iterations=1000).values()])
 pos = np.array([ v for v in nx.layout.spring_layout(g, iterations=1000).values()])
 fig, (a1, a2) = plt.subplots(1, 2)
-
-a1.scatter(pos_sbm[:, 0], pos_sbm[:, 1], c=g_sbm_community_index, cmap=&#39;tab20&#39;)
-a2.scatter(pos[:, 0], pos[:, 1], c=g_community_index, cmap=&#39;tab20&#39;)
+a1.scatter(pos_sbm[:, 0], pos_sbm[:, 1], c=g_sbm_community_index, cmap='tab20')
+a2.scatter(pos[:, 0], pos[:, 1], c=g_community_index, cmap='tab20')
 for ax in (a1, a2):
-    ax.set_yticklabels([])
-    ax.set_xticklabels([])
-a1.set_title(&#39;SBM&#39;)
-a2.set_title(&#39;ER&#39;)
+ax.set_yticklabels([])
+ax.set_xticklabels([])
+a1.set_title('SBM')
+a2.set_title('ER')
 plt.show()
-&lt;/code&gt;&lt;/pre&gt;
-
-
-
-
-
-
-
-  
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-&lt;figure id=&#34;figure-visualização-via-force-directed-para-uma-amostra-de-um-sbm-e-outra-erdos-renyi-cores-representam-as-comunidades-identificadas-pelo-método-guloso-de-maximização-de-modularidade&#34;&gt;
-
-
-  &lt;a data-fancybox=&#34;&#34; href=&#34;/pt-br/post/edge_graph_filtering/fd_sbm_and_er_hudae8c8a39de2754d2a986f6769de4dd6_25660_400x0_resize_lanczos_2.png&#34; data-caption=&#34;Visualização via force-directed para uma amostra de um SBM e outra Erdos-Renyi. Cores representam as comunidades identificadas pelo método guloso de maximização de modularidade&#34;&gt;
-
-
-  &lt;img data-src=&#34;/pt-br/post/edge_graph_filtering/fd_sbm_and_er_hudae8c8a39de2754d2a986f6769de4dd6_25660_400x0_resize_lanczos_2.png&#34; class=&#34;lazyload&#34; alt=&#34;&#34; width=&#34;400px&#34; height=&#34;100%&#34;&gt;
-&lt;/a&gt;
-
-
-  
-  
-  &lt;figcaption&gt;
-    Visualização via force-directed para uma amostra de um SBM e outra Erdos-Renyi. Cores representam as comunidades identificadas pelo método guloso de maximização de modularidade
-  &lt;/figcaption&gt;
-
-
-&lt;/figure&gt;
-
-&lt;p&gt;Note que o método de visualização mostrou um agrupamento de vértices para o SBM. Contudo, no caso do grafo aleatório (ER) só parece uma grande confusão. As cores representam as comunidades obtidas via maximização da modularidade. O que podemos tirar desse exemplo? Que você deve tomar cuidado quando falar que encontrou uma comunidade ou que existe uma &lt;em&gt;“bolha”&lt;/em&gt;  na rede social que você encontrou. Outra coisa que isso nos mostra é que usar métodos diferentes é uma boa alternativa para evitar ser enganado por seus resultados.&lt;/p&gt;
-&lt;div class=&#34;alert alert-note&#34;&gt;
-  &lt;div&gt;
-    No caso de visualizações de grafos, especialmente de force-directed, talvez seja melhor você utilizar algum sistema de visualização iterativo e 3D.  Visualizações em 2D obtidas pelo force-directed podem não ser de grande ajuda e ainda ficarem presas em alguma configuração não ótima.
-  &lt;/div&gt;
-&lt;/div&gt;
-&lt;div class=&#34;alert alert-warning&#34;&gt;
-  &lt;div&gt;
-    Tome cuidado ao interpretar um grafo usando apenas métodos  de visualização como force-directed, force-atlas, etc. Lembre que temos a tendência a reconhecer padrões  baseado em agrupamentos, contraste etc. A &lt;a href=&#34;#gestalt&#34;&gt;Gestalt&lt;/a&gt; também atua para nos enganar.  Você pode  estar sujeito a &lt;a href=&#34;https://en.wikipedia.org/wiki/Pareidolia&#34;&gt;pareidolia&lt;/a&gt;.
-  &lt;/div&gt;
-&lt;/div&gt;
-&lt;hr/&gt;
-&lt;p&gt;O tema de comunidades merece alguns posts separados para cada caminho, pois é um assunto denso e com muitos métodos diferentes.&lt;/p&gt;
-&lt;h1 id=&#34;filtros&#34;&gt;Filtros&lt;/h1&gt;
-&lt;h2 id=&#34;estrutural-threshold&#34;&gt;Estrutural: threshold&lt;/h2&gt;
-&lt;p&gt;O método de threshold é um método estrutural, isto é, um método de filtragem que depende apenas dos pesos e das arestas. Com certeza,  é o método mais simples e mais rápido, embora o mais controverso. É aplicável somente se cada relação  (aresta) possuir um número real associado. O método de threshold consiste em descartar qualquer aresta cuja o peso ultrapasse um dado valor.&lt;/p&gt;
-&lt;p&gt;O método de threshold é muito utilizado em neurociência (com  críticas) e para análise de dados em  geral quando as arestas representam uma medida de correlação (Pearson) entre dois elementos. Como as medidas de correlações podem ser negativas é comum que o threshold seja aplicado no absoluto dos valores associados às arestas.&lt;/p&gt;
-&lt;p&gt;Tome o seguinte grafo como exemplo:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-mermaid&#34;&gt;graph LR;
-  A--&amp;gt;|-0.5|B;
-  B--&amp;gt;|0.4|C
-  C--&amp;gt;|2|A;
-  D--&amp;gt;|-1|C;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Ao realizar um threshold de $0.5$ iremos remover a relação $(B, C)$ e $(A, B)$. O grafo não é mais fortemente conectado.&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-mermaid&#34;&gt;graph LR;
-  C--&amp;gt;|2|A;
-  D--&amp;gt;|-1|C;
-  B;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;É comum que após o threshold todas as arestas que sobraram sejam truncadas em $1$. Ficaríamos com algo assim no final:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-mermaid&#34;&gt;graph LR;
-  C--&amp;gt;|1|A;
-  D--&amp;gt;|1|C;
-  B;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Uma das maiores limitações/perigo de se usar o método um &lt;em&gt;naive threshold&lt;/em&gt; é que em grafos que modelam situações do mundo real  (seja ele direto ou não) a distribuição de pesos costuma seguir uma fat-tail e distorcida tal como essa aqui:&lt;/p&gt;
-
-
-
-
-
-
-
-  
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-&lt;figure id=&#34;figure-distribuição-de-probabilidade-dos-pesos-das-arestas-em-função-do-peso-note-que-poucas-arestas-tem-um-peso-relevante-fonte-extracting-the-multiscale-backbone-of-complex-weighted-networkshttpsarxivorgabs09042389&#34;&gt;
-
-
-  &lt;a data-fancybox=&#34;&#34; href=&#34;/pt-br/post/edge_graph_filtering/fat_tail_hua90d0707a945e6e9d352ed2f3ab43782_45362_400x0_resize_lanczos_2.png&#34; data-caption=&#34;Distribuição de probabilidade dos pesos das arestas em função do peso. Note que poucas arestas tem um peso relevante. Fonte: &amp;lt;em&amp;gt;&amp;lt;a href=&amp;#34;https://arxiv.org/abs/0904.2389&amp;#34;&amp;gt;Extracting the multiscale backbone of complex weighted networks&amp;lt;/a&amp;gt;&amp;lt;/em&amp;gt;&#34;&gt;
-
-
-  &lt;img data-src=&#34;/pt-br/post/edge_graph_filtering/fat_tail_hua90d0707a945e6e9d352ed2f3ab43782_45362_400x0_resize_lanczos_2.png&#34; class=&#34;lazyload&#34; alt=&#34;&#34; width=&#34;400px&#34; height=&#34;100%&#34;&gt;
-&lt;/a&gt;
-
-
-  
-  
-  &lt;figcaption&gt;
-    Distribuição de probabilidade dos pesos das arestas em função do peso. Note que poucas arestas tem um peso relevante. Fonte: &lt;em&gt;&lt;a href=&#34;https://arxiv.org/abs/0904.2389&#34;&gt;Extracting the multiscale backbone of complex weighted networks&lt;/a&gt;&lt;/em&gt;
-  &lt;/figcaption&gt;
-
-
-&lt;/figure&gt;
-
-&lt;p&gt;Bom, o que acontece se você tentar passar um threshold no grafo que tem uma distribuição parecida com essa na imagem? Vai ser difícil. Qualquer valor um pouco maior criará um monte de componentes desconectados. Além do que, como você justificaria seu valor de threshold ? Não dá para falar um argumento dois desvios padrões a partir da média. Se fosse uma distribuição normal de pesos você poderia estar bem.&lt;/p&gt;
-&lt;p&gt;O threshold tem outro problema, ele é local. Isto é,  você poderia penalizar muito as arestas de uma comunidade e nada de outra. Para deixar isso mais claro veja o exemplo de grafo com pesos a seguir:&lt;/p&gt;
-&lt;div class=&#34;mermaid mermaidContainer&#34;&gt;
+&lt;/code>&lt;/pre>
+&lt;figure id="figure-visualização-via-force-directed-para-uma-amostra-de-um-sbm-e-outra-erdos-renyi-cores-representam-as-comunidades-identificadas-pelo-método-guloso-de-maximização-de-modularidade">
+&lt;a data-fancybox="" href="/pt-br/post/edge_graph_filtering/fd_sbm_and_er_hudae8c8a39de2754d2a986f6769de4dd6_25660_400x0_resize_lanczos_2.png" data-caption="Visualização via force-directed para uma amostra de um SBM e outra Erdos-Renyi. Cores representam as comunidades identificadas pelo método guloso de maximização de modularidade">
+&lt;img data-src="/pt-br/post/edge_graph_filtering/fd_sbm_and_er_hudae8c8a39de2754d2a986f6769de4dd6_25660_400x0_resize_lanczos_2.png" class="lazyload" alt="" width="400px" height="100%">
+&lt;/a>
+&lt;figcaption>
+Visualização via force-directed para uma amostra de um SBM e outra Erdos-Renyi. Cores representam as comunidades identificadas pelo método guloso de maximização de modularidade
+&lt;/figcaption>
+&lt;/figure>
+&lt;p>Note que o método de visualização mostrou um agrupamento de vértices para o SBM. Contudo, no caso do grafo aleatório (ER) só parece uma grande confusão. As cores representam as comunidades obtidas via maximização da modularidade. O que podemos tirar desse exemplo? Que você deve tomar cuidado quando falar que encontrou uma comunidade ou que existe uma &lt;em>“bolha”&lt;/em> na rede social que você encontrou. Outra coisa que isso nos mostra é que usar métodos diferentes é uma boa alternativa para evitar ser enganado por seus resultados.&lt;/p>
+&lt;div class="alert alert-note">
+&lt;div>
+No caso de visualizações de grafos, especialmente de force-directed, talvez seja melhor você utilizar algum sistema de visualização iterativo e 3D. Visualizações em 2D obtidas pelo force-directed podem não ser de grande ajuda e ainda ficarem presas em alguma configuração não ótima.
+&lt;/div>
+&lt;/div>
+&lt;div class="alert alert-warning">
+&lt;div>
+Tome cuidado ao interpretar um grafo usando apenas métodos de visualização como force-directed, force-atlas, etc. Lembre que temos a tendência a reconhecer padrões baseado em agrupamentos, contraste etc. A &lt;a href="#gestalt">Gestalt&lt;/a> também atua para nos enganar. Você pode estar sujeito a &lt;a href="https://en.wikipedia.org/wiki/Pareidolia">pareidolia&lt;/a>.
+&lt;/div>
+&lt;/div>
+&lt;hr/>
+&lt;p>O tema de comunidades merece alguns posts separados para cada caminho, pois é um assunto denso e com muitos métodos diferentes.&lt;/p>
+&lt;h1 id="filtros">Filtros&lt;/h1>
+&lt;h2 id="estrutural-threshold">Estrutural: threshold&lt;/h2>
+&lt;p>O método de threshold é um método estrutural, isto é, um método de filtragem que depende apenas dos pesos e das arestas. Com certeza, é o método mais simples e mais rápido, embora o mais controverso. É aplicável somente se cada relação (aresta) possuir um número real associado. O método de threshold consiste em descartar qualquer aresta cuja o peso ultrapasse um dado valor.&lt;/p>
+&lt;p>O método de threshold é muito utilizado em neurociência (com críticas) e para análise de dados em geral quando as arestas representam uma medida de correlação (Pearson) entre dois elementos. Como as medidas de correlações podem ser negativas é comum que o threshold seja aplicado no absoluto dos valores associados às arestas.&lt;/p>
+&lt;p>Tome o seguinte grafo como exemplo:&lt;/p>
+&lt;pre>&lt;code class="language-mermaid">graph LR;
+A--&amp;gt;|-0.5|B;
+B--&amp;gt;|0.4|C
+C--&amp;gt;|2|A;
+D--&amp;gt;|-1|C;
+&lt;/code>&lt;/pre>
+&lt;p>Ao realizar um threshold de $0.5$ iremos remover a relação $(B, C)$ e $(A, B)$. O grafo não é mais fortemente conectado.&lt;/p>
+&lt;pre>&lt;code class="language-mermaid">graph LR;
+C--&amp;gt;|2|A;
+D--&amp;gt;|-1|C;
+B;
+&lt;/code>&lt;/pre>
+&lt;p>É comum que após o threshold todas as arestas que sobraram sejam truncadas em $1$. Ficaríamos com algo assim no final:&lt;/p>
+&lt;pre>&lt;code class="language-mermaid">graph LR;
+C--&amp;gt;|1|A;
+D--&amp;gt;|1|C;
+B;
+&lt;/code>&lt;/pre>
+&lt;p>Uma das maiores limitações/perigo de se usar o método um &lt;em>naive threshold&lt;/em> é que em grafos que modelam situações do mundo real (seja ele direto ou não) a distribuição de pesos costuma seguir uma fat-tail e distorcida tal como essa aqui:&lt;/p>
+&lt;figure id="figure-distribuição-de-probabilidade-dos-pesos-das-arestas-em-função-do-peso-note-que-poucas-arestas-tem-um-peso-relevante-fonte-extracting-the-multiscale-backbone-of-complex-weighted-networkshttpsarxivorgabs09042389">
+&lt;a data-fancybox="" href="/pt-br/post/edge_graph_filtering/fat_tail_hua90d0707a945e6e9d352ed2f3ab43782_45362_400x0_resize_lanczos_2.png" data-caption="Distribuição de probabilidade dos pesos das arestas em função do peso. Note que poucas arestas tem um peso relevante. Fonte: &amp;lt;em&amp;gt;&amp;lt;a href=&amp;#34;https://arxiv.org/abs/0904.2389&amp;#34;&amp;gt;Extracting the multiscale backbone of complex weighted networks&amp;lt;/a&amp;gt;&amp;lt;/em&amp;gt;">
+&lt;img data-src="/pt-br/post/edge_graph_filtering/fat_tail_hua90d0707a945e6e9d352ed2f3ab43782_45362_400x0_resize_lanczos_2.png" class="lazyload" alt="" width="400px" height="100%">
+&lt;/a>
+&lt;figcaption>
+Distribuição de probabilidade dos pesos das arestas em função do peso. Note que poucas arestas tem um peso relevante. Fonte: &lt;em>&lt;a href="https://arxiv.org/abs/0904.2389">Extracting the multiscale backbone of complex weighted networks&lt;/a>&lt;/em>
+&lt;/figcaption>
+&lt;/figure>
+&lt;p>Bom, o que acontece se você tentar passar um threshold no grafo que tem uma distribuição parecida com essa na imagem? Vai ser difícil. Qualquer valor um pouco maior criará um monte de componentes desconectados. Além do que, como você justificaria seu valor de threshold ? Não dá para falar um argumento dois desvios padrões a partir da média. Se fosse uma distribuição normal de pesos você poderia estar bem.&lt;/p>
+&lt;p>O threshold tem outro problema, ele é local. Isto é, você poderia penalizar muito as arestas de uma comunidade e nada de outra. Para deixar isso mais claro veja o exemplo de grafo com pesos a seguir:&lt;/p>
+&lt;div class="mermaid mermaidContainer">
 graph LR;
-  *---|0.4|1;
-  1---|0.8|2;
-  3---|0.4|2;
-  1---|0.6|3;
-  1---|0.6|4;
-  4---|0.3|3;
-  4---|...|...;
-  1---|...|...;
-  *---|0.4|a;
-  a---|1|b;
-  a---|0.8|c;
-  a---|0.8|d;
-  c---|0.7|e;
-  b---|0.7|f;
-  d---|0.8|g;
-  g---|...|?_1;
-  f---|...|?_2;
-  e---|...|?_3;
-  b---|0.3|c;
-  c---|0.3|d;
-&lt;/div&gt;
-&lt;p&gt;Se aplicássemos um threshold em $0.5$ teríamos algo do tipo&lt;/p&gt;
-&lt;div class=&#34;mermaid mermaidContainer&#34;&gt;
+*---|0.4|1;
+1---|0.8|2;
+3---|0.4|2;
+1---|0.6|3;
+1---|0.6|4;
+4---|0.3|3;
+4---|...|...;
+1---|...|...;
+*---|0.4|a;
+a---|1|b;
+a---|0.8|c;
+a---|0.8|d;
+c---|0.7|e;
+b---|0.7|f;
+d---|0.8|g;
+g---|...|?_1;
+f---|...|?_2;
+e---|...|?_3;
+b---|0.3|c;
+c---|0.3|d;
+&lt;/div>
+&lt;p>Se aplicássemos um threshold em $0.5$ teríamos algo do tipo&lt;/p>
+&lt;div class="mermaid mermaidContainer">
 graph LR;
-  *;
-  1---2;
-  1---3;
-  1---4;
-  4---|...|...;
-  1---|...|...;
-  a---b;
-  a---c;
-  a---d;
-  c---e;
-  b---f;
-  d---g;
-  g---|...|?_1;
-  f---|...|?_2;
-  e---|...|?_3;
-&lt;/div&gt;
-&lt;p&gt;Produzindo 3 componentes no nosso grafo se alterássemos ligeiramente o threshold produziremos mais componentes ainda.  Ele é muito sensível. Qual o problema disso?  Se fossemos aplicar um algoritmo de detecção de comunidades teríamos que fazer isso para cada componente. Em uma rede social isso pode ser problemático porque já estaremos analisando “bolhas” isoladas. Então como proceder? Portanto, vocẽ pode até usar o threshold para encontrar as arestas que são a &lt;strong&gt;sustentação&lt;/strong&gt; para o grafo. &lt;em&gt;A espinha dorsal do grafo, backbone&lt;/em&gt;.  Contudo, ele costuma falhar.&lt;/p&gt;
-&lt;h3 id=&#34;pontos-positivos&#34;&gt;Pontos positivos&lt;/h3&gt;
-&lt;ul&gt;
-&lt;li&gt;custo computacional baixo $O(n)$
-&lt;ul&gt;
-&lt;li&gt;apenas iterar e comparar os valores.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;paralelizável&lt;/li&gt;
-&lt;li&gt;trivial de implementar&lt;/li&gt;
-&lt;li&gt;apenas um parâmetro&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h3 id=&#34;pontos-negativos&#34;&gt;Pontos negativos&lt;/h3&gt;
-&lt;ul&gt;
-&lt;li&gt;tendência de produzir muitas componentes desconectadas,&lt;/li&gt;
-&lt;li&gt;parâmetro arbitrário,
-&lt;ul&gt;
-&lt;li&gt;cherry-picking.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;A remoção de uma aresta só depende do valor atribuído a ela. Isto é, local.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h4 id=&#34;considerações-finais&#34;&gt;Considerações finais&lt;/h4&gt;
-&lt;p&gt;Outros métodos estruturais como o &lt;em&gt;high-salience network&lt;/em&gt;  tentam reduzir os problemas do threshold adicionando contribuições não locais. Isto é, uma aresta é  mantida/removida dependendo também das outras arestas no grafo. Contudo, como o &lt;em&gt;high-salience network&lt;/em&gt; É um filtro definido pelos menores caminhos no grafo ele costuma ser adequado apenas para grafos que esse conceito de filtragem é útil, por exemplo grafos que modelam infraestrutura de transporte.&lt;/p&gt;
-&lt;h2 id=&#34;estatistico&#34;&gt;Estatístico: quebrando a varinha, processo de Dirichlet&lt;/h2&gt;
-&lt;p&gt;Métodos estatísticos têm uma abordagem mais generalista quando comparados aos estruturais. Pois métodos estatísticos não dependem de algum conceito direto como caminhos mínimos usados pelo &lt;em&gt;high-salience network&lt;/em&gt; para redes de infraestrutura.&lt;/p&gt;
-&lt;p&gt;Um método estatístico muito usado para filtrar arestas faz uso do 
-&lt;a href=&#34;https://en.wikipedia.org/wiki/Dirichlet_process&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;processo  estocástico de Dirichlet&lt;/a&gt;. Intuitivamente, podemos usar esse processo  para modelar uma situação que temos uma varinha e vamos quebrando ela em $k$ pedaços e queremos descobrir a probabilidade de um pedaço de tamanho $p$ aparecer no processo, &lt;em&gt;
-&lt;a href=&#34;https://en.wikipedia.org/wiki/Dirichlet_process#The_stick-breaking_process&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;stick-breaking process&lt;/a&gt;&lt;/em&gt;.&lt;/p&gt;
-&lt;div class=&#34;alert alert-note&#34;&gt;
-  &lt;div&gt;
-    O processo de Dirichlet foi redescoberto  em 2009 com o nome de &lt;strong&gt;filtro de disparidade&lt;/strong&gt;. Embora os autores do filtro de disparidade não citem trabalhos prévios ou o próprio processo Dirichlet em si.
-  &lt;/div&gt;
-&lt;/div&gt;
-&lt;p&gt;Certo, vamos tentar entender como usar esse processo para filtrar arestas.&lt;/p&gt;
-&lt;p&gt;Começamos definindo  os pesos efetivos para &lt;strong&gt;cada vértice&lt;/strong&gt; e aresta.  Esse  peso efetivo para uma aresta entre os vértices &lt;strong&gt;A&lt;/strong&gt; e &lt;strong&gt;B&lt;/strong&gt; é dado pela seguinte expressão:
+*;
+1---2;
+1---3;
+1---4;
+4---|...|...;
+1---|...|...;
+a---b;
+a---c;
+a---d;
+c---e;
+b---f;
+d---g;
+g---|...|?_1;
+f---|...|?_2;
+e---|...|?_3;
+&lt;/div>
+&lt;p>Produzindo 3 componentes no nosso grafo se alterássemos ligeiramente o threshold produziremos mais componentes ainda. Ele é muito sensível. Qual o problema disso? Se fossemos aplicar um algoritmo de detecção de comunidades teríamos que fazer isso para cada componente. Em uma rede social isso pode ser problemático porque já estaremos analisando “bolhas” isoladas. Então como proceder? Portanto, vocẽ pode até usar o threshold para encontrar as arestas que são a &lt;strong>sustentação&lt;/strong> para o grafo. &lt;em>A espinha dorsal do grafo, backbone&lt;/em>. Contudo, ele costuma falhar.&lt;/p>
+&lt;h3 id="pontos-positivos">Pontos positivos&lt;/h3>
+&lt;ul>
+&lt;li>custo computacional baixo $O(n)$
+&lt;ul>
+&lt;li>apenas iterar e comparar os valores.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>paralelizável&lt;/li>
+&lt;li>trivial de implementar&lt;/li>
+&lt;li>apenas um parâmetro&lt;/li>
+&lt;/ul>
+&lt;h3 id="pontos-negativos">Pontos negativos&lt;/h3>
+&lt;ul>
+&lt;li>tendência de produzir muitas componentes desconectadas,&lt;/li>
+&lt;li>parâmetro arbitrário,
+&lt;ul>
+&lt;li>cherry-picking.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>A remoção de uma aresta só depende do valor atribuído a ela. Isto é, local.&lt;/li>
+&lt;/ul>
+&lt;h4 id="considerações-finais">Considerações finais&lt;/h4>
+&lt;p>Outros métodos estruturais como o &lt;em>high-salience network&lt;/em> tentam reduzir os problemas do threshold adicionando contribuições não locais. Isto é, uma aresta é mantida/removida dependendo também das outras arestas no grafo. Contudo, como o &lt;em>high-salience network&lt;/em> É um filtro definido pelos menores caminhos no grafo ele costuma ser adequado apenas para grafos que esse conceito de filtragem é útil, por exemplo grafos que modelam infraestrutura de transporte.&lt;/p>
+&lt;h2 id="estatistico">Estatístico: quebrando a varinha, processo de Dirichlet&lt;/h2>
+&lt;p>Métodos estatísticos têm uma abordagem mais generalista quando comparados aos estruturais. Pois métodos estatísticos não dependem de algum conceito direto como caminhos mínimos usados pelo &lt;em>high-salience network&lt;/em> para redes de infraestrutura.&lt;/p>
+&lt;p>Um método estatístico muito usado para filtrar arestas faz uso do
+&lt;a href="https://en.wikipedia.org/wiki/Dirichlet_process" target="_blank" rel="noopener">processo estocástico de Dirichlet&lt;/a>. Intuitivamente, podemos usar esse processo para modelar uma situação que temos uma varinha e vamos quebrando ela em $k$ pedaços e queremos descobrir a probabilidade de um pedaço de tamanho $p$ aparecer no processo, &lt;em>
+&lt;a href="https://en.wikipedia.org/wiki/Dirichlet_process#The_stick-breaking_process" target="_blank" rel="noopener">stick-breaking process&lt;/a>&lt;/em>.&lt;/p>
+&lt;div class="alert alert-note">
+&lt;div>
+O processo de Dirichlet foi redescoberto em 2009 com o nome de &lt;strong>filtro de disparidade&lt;/strong>. Embora os autores do filtro de disparidade não citem trabalhos prévios ou o próprio processo Dirichlet em si.
+&lt;/div>
+&lt;/div>
+&lt;p>Certo, vamos tentar entender como usar esse processo para filtrar arestas.&lt;/p>
+&lt;p>Começamos definindo os pesos efetivos para &lt;strong>cada vértice&lt;/strong> e aresta. Esse peso efetivo para uma aresta entre os vértices &lt;strong>A&lt;/strong> e &lt;strong>B&lt;/strong> é dado pela seguinte expressão:
 $$
 p_{AB} = \frac{Peso\ da\ aresta\ (A,B)}{Soma\ dos\ pesos\ de\ todas\ as\ arestas\ de\ A}
 $$
 $$
 p_{AB}= \frac{w_{AB}}{\sum\limits_C w_{AC}}
-$$&lt;/p&gt;
-&lt;p&gt;Pegue o grafo a seguir com os pesos dados nas arestas&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-mermaid&#34;&gt;graph LR;
+$$&lt;/p>
+&lt;p>Pegue o grafo a seguir com os pesos dados nas arestas&lt;/p>
+&lt;pre>&lt;code class="language-mermaid">graph LR;
 A---|1|B;
 B---|1|C;
 A---|2|C;
 A---|4|D;
 D---|1|C;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Calculando o peso efetivo para todas as arestas relacionadas ao vértice &lt;strong&gt;A&lt;/strong&gt;.  É fácil  ver que&lt;/p&gt;
-&lt;p&gt;$p_{AB} =1/7$, $p_{AC}=2/7$, e $p_{AD}=4/7$ e claro que $\sum_B p_{AB}=1$.&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-mermaid&#34;&gt;graph LR;
+&lt;/code>&lt;/pre>
+&lt;p>Calculando o peso efetivo para todas as arestas relacionadas ao vértice &lt;strong>A&lt;/strong>. É fácil ver que&lt;/p>
+&lt;p>$p_{AB} =1/7$, $p_{AC}=2/7$, e $p_{AD}=4/7$ e claro que $\sum_B p_{AB}=1$.&lt;/p>
+&lt;pre>&lt;code class="language-mermaid">graph LR;
 A---|1/7|B;
 B---C;
 A---|2/7|C;
 A---|4/7|D;
 D---C;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Iremos decidir se removeremos alguma ou mais  arestas de &lt;strong&gt;A&lt;/strong&gt;.&lt;/p&gt;
-&lt;p&gt;Nossos pesos efetivos somam   1. A ideia do filtro é imaginar que os pesos efetivos são influências do vértice &lt;strong&gt;A&lt;/strong&gt; nos seus vizinhos. O modelo  parte da hipótese que os pesos efetivos são distribuídos de forma uniforme entres os vizinhos de &lt;strong&gt;A&lt;/strong&gt;.  Portanto, &lt;strong&gt;podemos modelar a distribuição de pesos nas três arestas de A  como um 
-&lt;a href=&#34;https://en.wikipedia.org/wiki/Dirichlet_process#The_stick-breaking_process&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;stick-breaking process&lt;/a&gt;&lt;/strong&gt;. Desta maneira, podemos escolher remover as arestas cujo os pesos efetivos tenham uma probabilidade maior de ter vindo desse processo. Estamos mantendo os pesos efetivos dispares do processo!&lt;/p&gt;
-&lt;p&gt;Ok, como fazer isso? Como os pesos efetivos podem ter qualquer valor entre 0 e 1 precisamos de uma densidade de probabilidade. O stick-breaking deve modelar um processo de quebra de um graveto em $k$ pedacinhos. No nosso caso, os $k$ pedacinhos são as $3$ arestas de &lt;strong&gt;A&lt;/strong&gt;. Então a densidade de probabilidade precisa  ter $k$ como parâmetro.&lt;/p&gt;
-
-
-
-
-
-
-
-  
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-&lt;figure &gt;
-
-
-  &lt;a data-fancybox=&#34;&#34; href=&#34;/pt-br/post/edge_graph_filtering/dirichet_disparity_hu96ca0e2ae94d6035ae4226a77316451b_94065_0x400_resize_q90_lanczos.jpeg&#34; &gt;
-
-
-  &lt;img data-src=&#34;/pt-br/post/edge_graph_filtering/dirichet_disparity_hu96ca0e2ae94d6035ae4226a77316451b_94065_0x400_resize_q90_lanczos.jpeg&#34; class=&#34;lazyload&#34; alt=&#34;&#34; width=&#34;100%&#34; height=&#34;200px&#34;&gt;
-&lt;/a&gt;
-
-
-
-&lt;/figure&gt;
-
-&lt;p&gt;Demonstrar a densidade de probabilidade desse processo de quebra é trabalhoso, mas a expressão final é bem simples. São funções decrescentes que caem mais rápido quanto maior  o $k$. O que faz sentido, já que quanto mais pedacinhos quebrarmos menos provável é achar um pedacinho com um tamanho próximo do original do graveto.&lt;/p&gt;
-&lt;p&gt;A filtragem via stick-breaking (disparidade) baseia-se então em remover somente as arestas cujo os pesos efetivos são mais prováveis (um p-teste)  dado um fator $\alpha$ , um número real entre 0 e 1. Isto é, a aresta AB é mantida se a inequação abaixo é verificada:
+&lt;/code>&lt;/pre>
+&lt;p>Iremos decidir se removeremos alguma ou mais arestas de &lt;strong>A&lt;/strong>.&lt;/p>
+&lt;p>Nossos pesos efetivos somam 1. A ideia do filtro é imaginar que os pesos efetivos são influências do vértice &lt;strong>A&lt;/strong> nos seus vizinhos. O modelo parte da hipótese que os pesos efetivos são distribuídos de forma uniforme entres os vizinhos de &lt;strong>A&lt;/strong>. Portanto, &lt;strong>podemos modelar a distribuição de pesos nas três arestas de A como um
+&lt;a href="https://en.wikipedia.org/wiki/Dirichlet_process#The_stick-breaking_process" target="_blank" rel="noopener">stick-breaking process&lt;/a>&lt;/strong>. Desta maneira, podemos escolher remover as arestas cujo os pesos efetivos tenham uma probabilidade maior de ter vindo desse processo. Estamos mantendo os pesos efetivos dispares do processo!&lt;/p>
+&lt;p>Ok, como fazer isso? Como os pesos efetivos podem ter qualquer valor entre 0 e 1 precisamos de uma densidade de probabilidade. O stick-breaking deve modelar um processo de quebra de um graveto em $k$ pedacinhos. No nosso caso, os $k$ pedacinhos são as $3$ arestas de &lt;strong>A&lt;/strong>. Então a densidade de probabilidade precisa ter $k$ como parâmetro.&lt;/p>
+&lt;figure >
+&lt;a data-fancybox="" href="/pt-br/post/edge_graph_filtering/dirichet_disparity_hu96ca0e2ae94d6035ae4226a77316451b_94065_0x400_resize_q90_lanczos.jpeg" >
+&lt;img data-src="/pt-br/post/edge_graph_filtering/dirichet_disparity_hu96ca0e2ae94d6035ae4226a77316451b_94065_0x400_resize_q90_lanczos.jpeg" class="lazyload" alt="" width="100%" height="200px">
+&lt;/a>
+&lt;/figure>
+&lt;p>Demonstrar a densidade de probabilidade desse processo de quebra é trabalhoso, mas a expressão final é bem simples. São funções decrescentes que caem mais rápido quanto maior o $k$. O que faz sentido, já que quanto mais pedacinhos quebrarmos menos provável é achar um pedacinho com um tamanho próximo do original do graveto.&lt;/p>
+&lt;p>A filtragem via stick-breaking (disparidade) baseia-se então em remover somente as arestas cujo os pesos efetivos são mais prováveis (um p-teste) dado um fator $\alpha$ , um número real entre 0 e 1. Isto é, a aresta AB é mantida se a inequação abaixo é verificada:
 $$
 (1-p_{AB})^{k_A-1} &amp;lt; \alpha
-$$&lt;/p&gt;
-&lt;p&gt;A tabela abaixo mostra o que acontece com as arestas de $A$ a medida que o parâmetro $\alpha$ é alterado&lt;/p&gt;
-&lt;table&gt;
-&lt;thead&gt;
-&lt;tr&gt;
-&lt;th&gt;Aresta/$\alpha$&lt;/th&gt;
-&lt;th&gt;0. 19&lt;/th&gt;
-&lt;th&gt;0.52&lt;/th&gt;
-&lt;th&gt;0.74&lt;/th&gt;
-&lt;/tr&gt;
-&lt;/thead&gt;
-&lt;tbody&gt;
-&lt;tr&gt;
-&lt;td&gt;A,B&lt;/td&gt;
-&lt;td&gt;Removida&lt;/td&gt;
-&lt;td&gt;Removida&lt;/td&gt;
-&lt;td&gt;Mantida&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;A,C&lt;/td&gt;
-&lt;td&gt;Removida&lt;/td&gt;
-&lt;td&gt;Mantida&lt;/td&gt;
-&lt;td&gt;Mantida&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;A,D&lt;/td&gt;
-&lt;td&gt;Mantida&lt;/td&gt;
-&lt;td&gt;Mantida&lt;/td&gt;
-&lt;td&gt;Mantida&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/tbody&gt;
-&lt;/table&gt;
-&lt;p&gt;OK, parece muito bom. Mas veja o seguinte: ressaltei várias vezes &lt;strong&gt;A&lt;/strong&gt; no texto. Isto  por que o filtro é definido por vértice. Bom, e o que acontece se olharmos a partir do vértice &lt;strong&gt;B&lt;/strong&gt;?&lt;/p&gt;
-&lt;p&gt;Partindo de $B$ teremos $p_{BC}=1/2$ e $p_{BA}=1/2$!&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-mermaid&#34;&gt;graph LR;
+$$&lt;/p>
+&lt;p>A tabela abaixo mostra o que acontece com as arestas de $A$ a medida que o parâmetro $\alpha$ é alterado&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>Aresta/$\alpha$&lt;/th>
+&lt;th>0. 19&lt;/th>
+&lt;th>0.52&lt;/th>
+&lt;th>0.74&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>A,B&lt;/td>
+&lt;td>Removida&lt;/td>
+&lt;td>Removida&lt;/td>
+&lt;td>Mantida&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>A,C&lt;/td>
+&lt;td>Removida&lt;/td>
+&lt;td>Mantida&lt;/td>
+&lt;td>Mantida&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>A,D&lt;/td>
+&lt;td>Mantida&lt;/td>
+&lt;td>Mantida&lt;/td>
+&lt;td>Mantida&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;p>OK, parece muito bom. Mas veja o seguinte: ressaltei várias vezes &lt;strong>A&lt;/strong> no texto. Isto por que o filtro é definido por vértice. Bom, e o que acontece se olharmos a partir do vértice &lt;strong>B&lt;/strong>?&lt;/p>
+&lt;p>Partindo de $B$ teremos $p_{BC}=1/2$ e $p_{BA}=1/2$!&lt;/p>
+&lt;pre>&lt;code class="language-mermaid">graph LR;
 A---|1/2|B;
 B---|1/2|C;
 A---C;
 A---D;
 D---C;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Então  $(1-p_{BA})^{k_b-1} = (1-1/2)^1 = 1/2$. Ok , então se escolhermos $\alpha$ igual 0.52 a tabela anterior (para **A**) diz para remover a aresta (A,B) enquanto  por **B** o método nos diz que é para manter. Isso causa uma  ambiguidade em como decidir se vamos manter ou não as arestas. Você pode escolher manter se os dois concordam ou manter se apenas um passar no teste.  **Essa ambiguidade não aparece no caso de grafos direcionados!**&lt;/p&gt;
-&lt;h3 id=&#34;pontos-positivos-1&#34;&gt;Pontos positivos&lt;/h3&gt;
-&lt;ul&gt;
-&lt;li&gt;é estabelecido dentro de uma formalização matemática robusta&lt;/li&gt;
-&lt;li&gt;tenta evitar que o grafo se desconecte&lt;/li&gt;
-&lt;li&gt;custo computacional baixo&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h3 id=&#34;pontos-negativos-1&#34;&gt;Pontos negativos&lt;/h3&gt;
-&lt;ul&gt;
-&lt;li&gt;
-&lt;p&gt;podemos argumentar que o teste de hipótese é arbitrário&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;parâmetro $\alpha$ precisa ser escolhido, embora mais robusto do que apenas o parâmetro de threshold&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Helios: graph layout viz and streaming</title>
-      <link>/pt-br/project/helios/</link>
-      <pubDate>Mon, 13 Sep 2021 17:43:22 +0000</pubDate>
-      <guid>/pt-br/project/helios/</guid>
-      <description>&lt;a href=&#34;https://github.com/fury-gl/helios&#34;&gt;
+&lt;/code>&lt;/pre>
+&lt;p>Então $(1-p_{BA})^{k_b-1} = (1-1/2)^1 = 1/2$. Ok , então se escolhermos $\alpha$ igual 0.52 a tabela anterior (para **A**) diz para remover a aresta (A,B) enquanto por **B** o método nos diz que é para manter. Isso causa uma ambiguidade em como decidir se vamos manter ou não as arestas. Você pode escolher manter se os dois concordam ou manter se apenas um passar no teste. **Essa ambiguidade não aparece no caso de grafos direcionados!**&lt;/p>
+&lt;h3 id="pontos-positivos-1">Pontos positivos&lt;/h3>
+&lt;ul>
+&lt;li>é estabelecido dentro de uma formalização matemática robusta&lt;/li>
+&lt;li>tenta evitar que o grafo se desconecte&lt;/li>
+&lt;li>custo computacional baixo&lt;/li>
+&lt;/ul>
+&lt;h3 id="pontos-negativos-1">Pontos negativos&lt;/h3>
+&lt;ul>
+&lt;li>
+&lt;p>podemos argumentar que o teste de hipótese é arbitrário&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>parâmetro $\alpha$ precisa ser escolhido, embora mais robusto do que apenas o parâmetro de threshold&lt;/p>
+&lt;/li>
+&lt;/ul></description></item><item><title>Helios: graph layout viz and streaming</title><link>/pt-br/project/helios/</link><pubDate>Mon, 13 Sep 2021 17:43:22 +0000</pubDate><guid>/pt-br/project/helios/</guid><description>&lt;a href="https://github.com/fury-gl/helios">
 Helios repo
-&lt;/a&gt;
-&lt;p&gt;Helios is a Python library aiming to provide an easy way to visualize huge networks dynamically. Helios also provides visualizations through an interactive Stadia-like streaming system in which users can be collaboratively access (and share) visualizations created in a server or through Jupyter Notebook/Lab environments. It incorporates state-of-the-art layout algorithms and optimized rendering techniques (powered by 
-&lt;a href=&#34;https://github.com/fury-gl/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;FURY&lt;/a&gt;).&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://user-images.githubusercontent.com/6979335/125310065-a3a9f480-e308-11eb-98d9-0ff5406a0e96.gif&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
-&lt;center&gt;&lt;img src=&#34;https://user-images.githubusercontent.com/6979335/126175583-c7d85f0a-3d0c-400e-bbdd-4cbcd2a36fed.gif&#34; alt=&#34;...&#34; height=&#34;300&#34;/&gt;&lt;/center&gt;
-&lt;p align=&#34;center&#34;&gt;
-  &lt;a href=&#34;#general-information&#34;&gt;General Information&lt;/a&gt; •
-  &lt;a href=&#34;#key-features&#34;&gt;Key Features&lt;/a&gt; •
-  &lt;a href=&#34;#installation&#34;&gt;Installation&lt;/a&gt; •
-  &lt;a href=&#34;#how-to-use&#34;&gt;Usage&lt;/a&gt; •
-  &lt;a href=&#34;#history&#34;&gt;History&lt;/a&gt; •
-  &lt;a href=&#34;#credits&#34;&gt;Credits&lt;/a&gt; 
-&lt;/p&gt;
-&lt;h1 id=&#34;general-information&#34;&gt;General Information&lt;/h1&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;strong&gt;Website and Documentation:&lt;/strong&gt;  &lt;a href=&#34;https://heliosnetwork.io/&#34;&gt;https://heliosnetwork.io/&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Examples:&lt;/strong&gt; &lt;a href=&#34;https://heliosnetwork.io/examples_gallery/index.html&#34;&gt;https://heliosnetwork.io/examples_gallery/index.html&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Blog:&lt;/strong&gt;  &lt;a href=&#34;https://heliosnetwork.io/blog.html&#34;&gt;https://heliosnetwork.io/blog.html&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Free software:&lt;/strong&gt; MIT license&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Community:&lt;/strong&gt; Come to chat on 
-&lt;a href=&#34;https://discord.gg/6btFPPj&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Discord&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h1 id=&#34;key-features&#34;&gt;Key Features&lt;/h1&gt;
-&lt;ul&gt;
-&lt;li&gt;Force-directed layout using octrees&lt;/li&gt;
-&lt;li&gt;Minimum-distortion embeddings&lt;/li&gt;
-&lt;li&gt;ForceAtlas2 using cugraph&lt;/li&gt;
-&lt;li&gt;Interactive local and Remote rendering in Jupyter Notebooks&lt;/li&gt;
-&lt;li&gt;WebRTC or MJPEG interactive streaming system&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h1 id=&#34;installation&#34;&gt;Installation&lt;/h1&gt;
-&lt;p&gt;Use pip install pointed to this repository:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;pip git+https://github.com/fury-gl/helios.git
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;As an alternative, Helios can be installed from the source code through the following steps:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;
-&lt;p&gt;&lt;strong&gt;Step 1.&lt;/strong&gt; Get the latest source by cloning this repo:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;git clone https://github.com/fury-gl/helios.git
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;&lt;strong&gt;Step 2.&lt;/strong&gt; Install requirements:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;pip install -r requirements.txt
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;&lt;strong&gt;Step 3.&lt;/strong&gt; Install Helios&lt;/p&gt;
-&lt;p&gt;As a 
-&lt;a href=&#34;https://pip.pypa.io/en/stable/reference/pip_install/#id44&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;local project installation&lt;/a&gt; using:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;  pip install .
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Or as an 
-&lt;a href=&#34;https://pip.pypa.io/en/stable/reference/pip_install/#id44&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;&amp;ldquo;editable&amp;rdquo; installation&lt;/a&gt; using:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;  pip install -e .
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;&lt;strong&gt;Step 4:&lt;/strong&gt; Enjoy!&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;For more information, see also 
-&lt;a href=&#34;https://heliosnetwork.io/latest/installation.html&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;installation page on heliosnetwork.io&lt;/a&gt;&lt;/p&gt;
-&lt;h2 id=&#34;dependencies&#34;&gt;Dependencies&lt;/h2&gt;
-&lt;p&gt;Helios requires Python 3.7+ and the following mandatory dependencies:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;numpy &amp;gt;= 1.7.1&lt;/li&gt;
-&lt;li&gt;vtk &amp;gt;= 8.1.0&lt;/li&gt;
-&lt;li&gt;fury&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;To enable WebRTC streaming and enable optimizations to the streaming system, install the following optional packages:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;
-&lt;p&gt;Required for WebRTC streaming&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;aiohttp&lt;/li&gt;
-&lt;li&gt;aiortc&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;Optional packages that may improve performance&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;cython&lt;/li&gt;
-&lt;li&gt;opencv&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2 id=&#34;testing&#34;&gt;Testing&lt;/h2&gt;
-&lt;p&gt;After installation, you can install test suite requirements:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;pip install -r requirements_dev.txt
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;And to launch test suite:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;pytest -svv helios
-&lt;/code&gt;&lt;/pre&gt;
-&lt;h1 id=&#34;usage&#34;&gt;Usage&lt;/h1&gt;
-&lt;p&gt;There are many ways to start using Helios:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;Go to 
-&lt;a href=&#34;https://heliosnetwork.io/getting_started.html&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Getting Started&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;Explore our 
-&lt;a href=&#34;https://heliosnetwork.io/examples_gallery/index.html&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Examples&lt;/a&gt; or 
-&lt;a href=&#34;https://heliosnetwork.io/latest/auto_examples/index.htmlhttps://heliosnetwork.io/api.html&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;API&lt;/a&gt;.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;Example usage:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;   from helios import NetworkDraw
-   from helios.layouts import HeliosFr
-   import numpy as np
-   
-   vertex_count = 8
-   
-   edges = np.array([
-      [0,1],
-      [0,2],
-      [1,2],
-      [2,3],
-      [3,4],
-      [3,5],
-      [4,5],
-      [5,6],
-      [6,7],
-      [7,0]
-   ]);
-   
-  centers = np.random.normal(size=(vertex_count, 3))
-
-  network_draw = NetworkDraw(
-          positions=centers,
-          edges=edges,
-          colors=(0.25,0.25,0.25),
-          scales=1,
-          node_edge_width=0,
-          marker=&#39;s&#39;,
-          edge_line_color=(0.5,0.5,0.5),
-          window_size=(600, 600)
-  )
-  
-  layout = HeliosFr(edges, network_draw)
-  layout.start()
-  network_draw.showm.initialize()
-  network_draw.showm.start()
-&lt;/code&gt;&lt;/pre&gt;
-&lt;h1 id=&#34;history&#34;&gt;History&lt;/h1&gt;
-&lt;p&gt;Helios project started as a replacement to the desktop version of the 
-&lt;a href=&#34;https://filipinascimento.github.io/networks3d/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Networks 3D&lt;/a&gt; tools. The project evolved quickly along the summer of 2021 due to the GSoC’21 under the responsibility of the Python Software Foundation and the FURY team. The majority of the initial work has been done by 
-&lt;a href=&#34;https://github.com/devmessias&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;@devmessias&lt;/a&gt; mentored by 
-&lt;a href=&#34;https://github.com/filipinascimento&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;@filipinascimento&lt;/a&gt; and 
-&lt;a href=&#34;https://github.com/skoudoro&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;@skoudoro&lt;/a&gt;. The GSoC’21 project associated with Helios is “A system for collaborative visualization of large network layouts using FURY”. Check out the 
-&lt;a href=&#34;https://gist.github.com/devmessias/1cb802efb0a094686c129259498710b3&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;final report&lt;/a&gt; for more information.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>eMaTe</title>
-      <link>/pt-br/project/emate/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>/pt-br/project/emate/</guid>
-      <description>&lt;p&gt;eMaTe it is a python package which the main goal is to provide  methods capable of estimating the spectral densities and trace
-functions of large sparse matrices. eMaTe can run in both CPU and GPU and can estimate the spectral density and related trace functions, such as entropy and Estrada index, even in directed or undirected networks with million of nodes.&lt;/p&gt;
-&lt;h2 id=&#34;install&#34;&gt;Install&lt;/h2&gt;
-&lt;pre&gt;&lt;code&gt;pip install emate
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;If you a have a GPU you should also install cupy.&lt;/p&gt;
-&lt;h2 id=&#34;kernel-polynomial-method-kpm&#34;&gt;Kernel Polynomial Method (KPM)&lt;/h2&gt;
-&lt;p&gt;The Kernel Polynomial Method can estimate the spectral density of large sparse Hermitan matrices with a computational cost almost linear. This method combines three key ingredients: the Chebyshev expansion + the stochastic trace estimator + kernel smoothing.&lt;/p&gt;
-&lt;h3 id=&#34;example&#34;&gt;Example&lt;/h3&gt;
-&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;import networkx as nx
+&lt;/a>
+&lt;p>Helios is a Python library aiming to provide an easy way to visualize huge networks dynamically. Helios also provides visualizations through an interactive Stadia-like streaming system in which users can be collaboratively access (and share) visualizations created in a server or through Jupyter Notebook/Lab environments. It incorporates state-of-the-art layout algorithms and optimized rendering techniques (powered by
+&lt;a href="https://github.com/fury-gl/" target="_blank" rel="noopener">FURY&lt;/a>).&lt;/p>
+&lt;p>&lt;img src="https://user-images.githubusercontent.com/6979335/125310065-a3a9f480-e308-11eb-98d9-0ff5406a0e96.gif" alt="">&lt;/p>
+&lt;center>&lt;img src="https://user-images.githubusercontent.com/6979335/126175583-c7d85f0a-3d0c-400e-bbdd-4cbcd2a36fed.gif" alt="..." height="300"/>&lt;/center>
+&lt;p align="center">
+&lt;a href="#general-information">General Information&lt;/a> •
+&lt;a href="#key-features">Key Features&lt;/a> •
+&lt;a href="#installation">Installation&lt;/a> •
+&lt;a href="#how-to-use">Usage&lt;/a> •
+&lt;a href="#history">History&lt;/a> •
+&lt;a href="#credits">Credits&lt;/a>
+&lt;/p>
+&lt;h1 id="general-information">General Information&lt;/h1>
+&lt;ul>
+&lt;li>&lt;strong>Website and Documentation:&lt;/strong> &lt;a href="https://heliosnetwork.io/">https://heliosnetwork.io/&lt;/a>&lt;/li>
+&lt;li>&lt;strong>Examples:&lt;/strong> &lt;a href="https://heliosnetwork.io/examples_gallery/index.html">https://heliosnetwork.io/examples_gallery/index.html&lt;/a>&lt;/li>
+&lt;li>&lt;strong>Blog:&lt;/strong> &lt;a href="https://heliosnetwork.io/blog.html">https://heliosnetwork.io/blog.html&lt;/a>&lt;/li>
+&lt;li>&lt;strong>Free software:&lt;/strong> MIT license&lt;/li>
+&lt;li>&lt;strong>Community:&lt;/strong> Come to chat on
+&lt;a href="https://discord.gg/6btFPPj" target="_blank" rel="noopener">Discord&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h1 id="key-features">Key Features&lt;/h1>
+&lt;ul>
+&lt;li>Force-directed layout using octrees&lt;/li>
+&lt;li>Minimum-distortion embeddings&lt;/li>
+&lt;li>ForceAtlas2 using cugraph&lt;/li>
+&lt;li>Interactive local and Remote rendering in Jupyter Notebooks&lt;/li>
+&lt;li>WebRTC or MJPEG interactive streaming system&lt;/li>
+&lt;/ul>
+&lt;h1 id="installation">Installation&lt;/h1>
+&lt;p>Use pip install pointed to this repository:&lt;/p>
+&lt;pre>&lt;code>pip git+https://github.com/fury-gl/helios.git
+&lt;/code>&lt;/pre>
+&lt;p>As an alternative, Helios can be installed from the source code through the following steps:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>&lt;strong>Step 1.&lt;/strong> Get the latest source by cloning this repo:&lt;/p>
+&lt;pre>&lt;code>git clone https://github.com/fury-gl/helios.git
+&lt;/code>&lt;/pre>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>Step 2.&lt;/strong> Install requirements:&lt;/p>
+&lt;pre>&lt;code>pip install -r requirements.txt
+&lt;/code>&lt;/pre>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>Step 3.&lt;/strong> Install Helios&lt;/p>
+&lt;p>As a
+&lt;a href="https://pip.pypa.io/en/stable/reference/pip_install/#id44" target="_blank" rel="noopener">local project installation&lt;/a> using:&lt;/p>
+&lt;pre>&lt;code> pip install .
+&lt;/code>&lt;/pre>
+&lt;p>Or as an
+&lt;a href="https://pip.pypa.io/en/stable/reference/pip_install/#id44" target="_blank" rel="noopener">&amp;ldquo;editable&amp;rdquo; installation&lt;/a> using:&lt;/p>
+&lt;pre>&lt;code> pip install -e .
+&lt;/code>&lt;/pre>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>Step 4:&lt;/strong> Enjoy!&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>For more information, see also
+&lt;a href="https://heliosnetwork.io/latest/installation.html" target="_blank" rel="noopener">installation page on heliosnetwork.io&lt;/a>&lt;/p>
+&lt;h2 id="dependencies">Dependencies&lt;/h2>
+&lt;p>Helios requires Python 3.7+ and the following mandatory dependencies:&lt;/p>
+&lt;ul>
+&lt;li>numpy &amp;gt;= 1.7.1&lt;/li>
+&lt;li>vtk &amp;gt;= 8.1.0&lt;/li>
+&lt;li>fury&lt;/li>
+&lt;/ul>
+&lt;p>To enable WebRTC streaming and enable optimizations to the streaming system, install the following optional packages:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>Required for WebRTC streaming&lt;/p>
+&lt;ul>
+&lt;li>aiohttp&lt;/li>
+&lt;li>aiortc&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>Optional packages that may improve performance&lt;/p>
+&lt;ul>
+&lt;li>cython&lt;/li>
+&lt;li>opencv&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="testing">Testing&lt;/h2>
+&lt;p>After installation, you can install test suite requirements:&lt;/p>
+&lt;pre>&lt;code>pip install -r requirements_dev.txt
+&lt;/code>&lt;/pre>
+&lt;p>And to launch test suite:&lt;/p>
+&lt;pre>&lt;code>pytest -svv helios
+&lt;/code>&lt;/pre>
+&lt;h1 id="usage">Usage&lt;/h1>
+&lt;p>There are many ways to start using Helios:&lt;/p>
+&lt;ul>
+&lt;li>Go to
+&lt;a href="https://heliosnetwork.io/getting_started.html" target="_blank" rel="noopener">Getting Started&lt;/a>&lt;/li>
+&lt;li>Explore our
+&lt;a href="https://heliosnetwork.io/examples_gallery/index.html" target="_blank" rel="noopener">Examples&lt;/a> or
+&lt;a href="https://heliosnetwork.io/latest/auto_examples/index.htmlhttps://heliosnetwork.io/api.html" target="_blank" rel="noopener">API&lt;/a>.&lt;/li>
+&lt;/ul>
+&lt;p>Example usage:&lt;/p>
+&lt;pre>&lt;code class="language-python"> from helios import NetworkDraw
+from helios.layouts import HeliosFr
 import numpy as np
-
+vertex_count = 8
+edges = np.array([
+[0,1],
+[0,2],
+[1,2],
+[2,3],
+[3,4],
+[3,5],
+[4,5],
+[5,6],
+[6,7],
+[7,0]
+]);
+centers = np.random.normal(size=(vertex_count, 3))
+network_draw = NetworkDraw(
+positions=centers,
+edges=edges,
+colors=(0.25,0.25,0.25),
+scales=1,
+node_edge_width=0,
+marker='s',
+edge_line_color=(0.5,0.5,0.5),
+window_size=(600, 600)
+)
+layout = HeliosFr(edges, network_draw)
+layout.start()
+network_draw.showm.initialize()
+network_draw.showm.start()
+&lt;/code>&lt;/pre>
+&lt;h1 id="history">History&lt;/h1>
+&lt;p>Helios project started as a replacement to the desktop version of the
+&lt;a href="https://filipinascimento.github.io/networks3d/" target="_blank" rel="noopener">Networks 3D&lt;/a> tools. The project evolved quickly along the summer of 2021 due to the GSoC’21 under the responsibility of the Python Software Foundation and the FURY team. The majority of the initial work has been done by
+&lt;a href="https://github.com/devmessias" target="_blank" rel="noopener">@devmessias&lt;/a> mentored by
+&lt;a href="https://github.com/filipinascimento" target="_blank" rel="noopener">@filipinascimento&lt;/a> and
+&lt;a href="https://github.com/skoudoro" target="_blank" rel="noopener">@skoudoro&lt;/a>. The GSoC’21 project associated with Helios is “A system for collaborative visualization of large network layouts using FURY”. Check out the
+&lt;a href="https://gist.github.com/devmessias/1cb802efb0a094686c129259498710b3" target="_blank" rel="noopener">final report&lt;/a> for more information.&lt;/p></description></item><item><title>eMaTe</title><link>/pt-br/project/emate/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>/pt-br/project/emate/</guid><description>&lt;p>eMaTe it is a python package which the main goal is to provide methods capable of estimating the spectral densities and trace
+functions of large sparse matrices. eMaTe can run in both CPU and GPU and can estimate the spectral density and related trace functions, such as entropy and Estrada index, even in directed or undirected networks with million of nodes.&lt;/p>
+&lt;h2 id="install">Install&lt;/h2>
+&lt;pre>&lt;code>pip install emate
+&lt;/code>&lt;/pre>
+&lt;p>If you a have a GPU you should also install cupy.&lt;/p>
+&lt;h2 id="kernel-polynomial-method-kpm">Kernel Polynomial Method (KPM)&lt;/h2>
+&lt;p>The Kernel Polynomial Method can estimate the spectral density of large sparse Hermitan matrices with a computational cost almost linear. This method combines three key ingredients: the Chebyshev expansion + the stochastic trace estimator + kernel smoothing.&lt;/p>
+&lt;h3 id="example">Example&lt;/h3>
+&lt;pre>&lt;code class="language-python">import networkx as nx
+import numpy as np
 n = 3000
 g = nx.erdos_renyi_graph(n , 3/n)
 W = nx.adjacency_matrix(g)
-
-vals  = np.linalg.eigvals(W.todense()).real
-&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;from emate.hermitian import tfkpm
-
-
+vals = np.linalg.eigvals(W.todense()).real
+&lt;/code>&lt;/pre>
+&lt;pre>&lt;code class="language-python">from emate.hermitian import tfkpm
 num_moments = 40
 num_vecs = 40
 extra_points = 10
 ek, rho = tfkpm(W, num_moments, num_vecs, extra_points)
-&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;import matplotlib.pyplot as plt
+&lt;/code>&lt;/pre>
+&lt;pre>&lt;code class="language-python">import matplotlib.pyplot as plt
 plt.hist(vals, density=True, bins=100, alpha=.9, color=&amp;quot;steelblue&amp;quot;)
 plt.scatter(ek, rho, c=&amp;quot;tomato&amp;quot;, zorder=999, alpha=0.9, marker=&amp;quot;d&amp;quot;)
-
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;If the CUPY package it is available in your machine, you can also use the cupy implementation. When compared to tf-kpm, the
-Cupy-kpm is slower for median matrices (100k) and faster for larger matrices (&amp;gt; 10^6). The main reason it&amp;rsquo;s because the tf-kpm was implemented in order to calc all te moments in a single step.&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;import matplotlib.pyplot as plt
+&lt;/code>&lt;/pre>
+&lt;p>If the CUPY package it is available in your machine, you can also use the cupy implementation. When compared to tf-kpm, the
+Cupy-kpm is slower for median matrices (100k) and faster for larger matrices (&amp;gt; 10^6). The main reason it&amp;rsquo;s because the tf-kpm was implemented in order to calc all te moments in a single step.&lt;/p>
+&lt;pre>&lt;code class="language-python">import matplotlib.pyplot as plt
 from emate.hermitian import cupykpm
-
 num_moments = 40
 num_vecs = 40
 extra_points = 10
 ek, rho = cupykpm(W.tocsr(), num_moments, num_vecs, extra_points)
 plt.hist(vals, density=True, bins=100, alpha=.9, color=&amp;quot;steelblue&amp;quot;)
 plt.scatter(ek.get(), rho.get(), c=&amp;quot;tomato&amp;quot;, zorder=999, alpha=0.9, marker=&amp;quot;d&amp;quot;)
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src=&#34;docs/source/imgs/kpm.png&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
-&lt;h2 id=&#34;stochastic-lanczos-quadrature-slq&#34;&gt;Stochastic Lanczos Quadrature (SLQ)&lt;/h2&gt;
-&lt;blockquote&gt;
-&lt;p&gt;The problem of estimating the trace of matrix functions appears in applications ranging from machine learning and scientific computing, to computational biology.[2]&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;h3 id=&#34;example-1&#34;&gt;Example&lt;/h3&gt;
-&lt;h4 id=&#34;computing-the-estrada-index&#34;&gt;Computing the Estrada index&lt;/h4&gt;
-&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;from emate.symmetric.slq import pyslq
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="docs/source/imgs/kpm.png" alt="">&lt;/p>
+&lt;h2 id="stochastic-lanczos-quadrature-slq">Stochastic Lanczos Quadrature (SLQ)&lt;/h2>
+&lt;blockquote>
+&lt;p>The problem of estimating the trace of matrix functions appears in applications ranging from machine learning and scientific computing, to computational biology.[2]&lt;/p>
+&lt;/blockquote>
+&lt;h3 id="example-1">Example&lt;/h3>
+&lt;h4 id="computing-the-estrada-index">Computing the Estrada index&lt;/h4>
+&lt;pre>&lt;code class="language-python">from emate.symmetric.slq import pyslq
 import tensorflow as tf
-
 def trace_function(eig_vals):
-    return tf.exp(eig_vals)
-
+return tf.exp(eig_vals)
 num_vecs = 100
 num_steps = 50
-approximated_estrada_index, _ = pyslq(L_sparse, num_vecs, num_steps,  trace_function)
-exact_estrada_index =  np.sum(np.exp(vals_laplacian))
+approximated_estrada_index, _ = pyslq(L_sparse, num_vecs, num_steps, trace_function)
+exact_estrada_index = np.sum(np.exp(vals_laplacian))
 approximated_estrada_index, exact_estrada_index
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;The above code returns&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;(3058.012, 3063.16457163222)
-&lt;/code&gt;&lt;/pre&gt;
-&lt;h4 id=&#34;entropy&#34;&gt;Entropy&lt;/h4&gt;
-&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;import scipy
+&lt;/code>&lt;/pre>
+&lt;p>The above code returns&lt;/p>
+&lt;pre>&lt;code>(3058.012, 3063.16457163222)
+&lt;/code>&lt;/pre>
+&lt;h4 id="entropy">Entropy&lt;/h4>
+&lt;pre>&lt;code class="language-python">import scipy
 import scipy.sparse
-
 def entropy(eig_vals):
-  s = 0.
-  for val in eig_vals:
-    if val &amp;gt; 0:
-      s += -val*np.log(val)
-  return s
-
+s = 0.
+for val in eig_vals:
+if val &amp;gt; 0:
+s += -val*np.log(val)
+return s
 L = np.array(G.laplacian(normalized=True), dtype=np.float64)
 vals_laplacian = np.linalg.eigvalsh(L).real
-
-exact_entropy =  entropy(vals_laplacian)
-
-
+exact_entropy = entropy(vals_laplacian)
 def trace_function(eig_vals):
-  def entropy(val):
-    return tf.cond(val&amp;gt;0, lambda:-val*tf.log(val), lambda: 0.)
-  
-  return tf.map_fn(entropy, eig_vals)
- 
+def entropy(val):
+return tf.cond(val&amp;gt;0, lambda:-val*tf.log(val), lambda: 0.)
+return tf.map_fn(entropy, eig_vals)
 L_sparse = scipy.sparse.coo_matrix(L)
-    
 num_vecs = 100
 num_steps = 50
-approximated_entropy, _ = pyslq(L_sparse, num_vecs, num_steps,  trace_function)
-
+approximated_entropy, _ = pyslq(L_sparse, num_vecs, num_steps, trace_function)
 approximated_entropy, exact_entropy
-&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;(-509.46283, -512.5283224633046)
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;
-&lt;a href=&#34;https://www.tandfonline.com/doi/abs/10.1080/03610919008812866&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;[1] Hutchinson, M. F. (1990). A stochastic estimator of the trace of the influence matrix for laplacian smoothing splines. Communications in Statistics-Simulation and Computation, 19(2), 433-450.&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;
-&lt;a href=&#34;https://epubs.siam.org/doi/abs/10.1137/16M1104974&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;[2] Ubaru, S., Chen, J., &amp;amp; Saad, Y. (2017). Fast Estimation of tr(f(A)) via Stochastic Lanczos Quadrature. SIAM Journal on Matrix Analysis and Applications, 38(4), 1075-1099.&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;
-&lt;a href=&#34;&#34;&gt;[3] The Kernel Polynomial Method applied to
+&lt;/code>&lt;/pre>
+&lt;pre>&lt;code>(-509.46283, -512.5283224633046)
+&lt;/code>&lt;/pre>
+&lt;p>
+&lt;a href="https://www.tandfonline.com/doi/abs/10.1080/03610919008812866" target="_blank" rel="noopener">[1] Hutchinson, M. F. (1990). A stochastic estimator of the trace of the influence matrix for laplacian smoothing splines. Communications in Statistics-Simulation and Computation, 19(2), 433-450.&lt;/a>&lt;/p>
+&lt;p>
+&lt;a href="https://epubs.siam.org/doi/abs/10.1137/16M1104974" target="_blank" rel="noopener">[2] Ubaru, S., Chen, J., &amp;amp; Saad, Y. (2017). Fast Estimation of tr(f(A)) via Stochastic Lanczos Quadrature. SIAM Journal on Matrix Analysis and Applications, 38(4), 1075-1099.&lt;/a>&lt;/p>
+&lt;p>
+&lt;a href="">[3] The Kernel Polynomial Method applied to
 tight binding systems with
-time-dependence&lt;/a&gt;&lt;/p&gt;
-</description>
-    </item>
-    
-  </channel>
-</rss>
+time-dependence&lt;/a>&lt;/p></description></item></channel></rss>
