@@ -31,14 +31,12 @@ class="toc-inpage d-print-none d-none d-sm-block d-md-none " open>
 &lt;h2 id="introdução">Introdução&lt;/h2>
 &lt;p>Não se assuste com as palavras no título. Embora elas podem ser estranhas para você provavelmente em algum momento você utilizou ferramentas que fazem uso de técnicas de metaprogramação ou inspeção de AST. Pytest e Numba são exemplos.&lt;/p>
 &lt;p>No post anterior eu falei sobre python frames e inspection. Mostrei como podemos usar &lt;code>inspect.signautre&lt;/code> para criar um decorador que valide argumentos:&lt;/p>
-&lt;pre>&lt;code class="language-python">
-@math_validator()
+&lt;pre>&lt;code class="language-python">@math_validator()
 def simple_method(x: &amp;quot;\in R&amp;quot;, y: &amp;quot;\in R_+&amp;quot;, z: float = 2) -&amp;gt; float:
 ...
 simple_method(1, 0)
 &lt;/code>&lt;/pre>
-&lt;pre>&lt;code>
-simple_method((1, 2)) -&amp;gt; 1.5
+&lt;pre>&lt;code>simple_method((1, 2)) -&amp;gt; 1.5
 ---&amp;gt; 19 simple_method(1, 0)
 ...
 &amp;lt;locals&amp;gt;.decorate.&amp;lt;locals&amp;gt;.decorated(*_args)
@@ -50,8 +48,7 @@ simple_method((1, 2)) -&amp;gt; 1.5
 ValueError: y doesn't belong to the space of real numbers greater than zero
 &lt;/code>&lt;/pre>
 &lt;p>O outro mostrei como podemos combinar o &lt;code>signature&lt;/code> com &lt;code>sys.trace&lt;/code> para criar um decorador que expõe o &lt;code>locals&lt;/code> da função decorada. O que nos permite fazer coisas legais tais como criar um um decorador &lt;code>@report&lt;/code>&lt;/p>
-&lt;pre>&lt;code class="language-python">
-@report('{arg.n_bananas} Monkey {gluttonous_monkey} ate too much bananas. Num monkeys {num_monkeys}')
+&lt;pre>&lt;code class="language-python">@report('{arg.n_bananas} Monkey {gluttonous_monkey} ate too much bananas. Num monkeys {num_monkeys}')
 def feed_monkeys(n_bananas):
 num_monkeys = 3
 monkeys = {
@@ -68,7 +65,7 @@ n_bananas -= 1
 gluttonous_monkey = max(monkeys, key=lambda k: monkeys[k][&amp;quot;bananas&amp;quot;])
 &lt;/code>&lt;/pre>
 &lt;p>Contudo, no final do post pssado eu disse que essa solução tem alguns problemas&lt;/p>
-&lt;div class="spoiler " >
+&lt;p>&lt;div class="spoiler " >
 &lt;p>
 &lt;a class="btn btn-primary" data-toggle="collapse" href="#spoiler-1" role="button" aria-expanded="false" aria-controls="spoiler-1">
 Click here to see the solution
@@ -76,8 +73,7 @@ Click here to see the solution
 &lt;/p>
 &lt;div class="collapse card " id="spoiler-1">
 &lt;div class="card-body">
-&lt;pre>&lt;code class="language-python">
-import sys
+&lt;pre>&lt;code class="language-python">import sys
 import inspect
 from types import SimpleNamespace
 def call_and_extract_frame(func, *args, **kwargs):
@@ -135,7 +131,7 @@ return decorate
 &lt;/div>
 &lt;/div>
 &lt;/div>
-&lt;p>Quais são esses problemas?&lt;/p>
+Quais são esses problemas?&lt;/p>
 &lt;ul>
 &lt;li>
 &lt;p>É esperado que o tracing reduza a performance do sistema. Se você usar a solução acima só para casos pontuais ou debug é ok&lt;/p>
@@ -148,8 +144,7 @@ return decorate
 &lt;/li>
 &lt;/ul>
 &lt;p>Você pode se perguntar: &amp;ldquo;Overenginerieng! Pq esse cara não faz simplesmente isto aqui?&lt;/p>
-&lt;pre>&lt;code class="language-python">
-@report('stuff goes here')
+&lt;pre>&lt;code class="language-python">@report('stuff goes here')
 def func(x, y):
 random_var = np.random.uniform()
 ... #more local vars
@@ -157,23 +152,17 @@ result = (x+y)**random_var
 return result, locals
 &lt;/code>&lt;/pre>
 &lt;p>&lt;em>&amp;rdquo;..e dentro do decorador ele muda para isso&amp;quot;&lt;/em>&lt;/p>
-&lt;pre>&lt;code class="language-python">
-_result, local_vars = func(x, y)
+&lt;pre>&lt;code class="language-python">_result, local_vars = func(x, y)
 &lt;/code>&lt;/pre>
 &lt;p>A razão é:&lt;/p>
 &lt;p>O ponto de usar um decorador é para evitar ter que fazer mudanças em qualquer outra parte da nossa codebase. Por exemplo, se em qualquer outra parte da nossa codebase &lt;code>func&lt;/code> está sendo chamada, eu teria que fazer mudanças do tipo&lt;/p>
-&lt;pre>&lt;code class="language-python">
-result = func(x, y) # to
+&lt;pre>&lt;code class="language-python">result = func(x, y) # to
 result = func(x, y)[0]
 &lt;/code>&lt;/pre>
 &lt;p>E se futuramente e quisesse remover o decorador de report de uma função eu teria que desfazer todas as mudanças acima&lt;/p>
 &lt;ul>
-&lt;li>
-&lt;p>Você ira aumentar o cognitive load de todos os membros do seu time que não precisam saber sobre ou usar o decorador.&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>Se você está ok com fazer mudanças em outros lugares do seu código pq não simplesmente criar novas funções ao invés decoradores que funcionam mais ou menos?&lt;/p>
-&lt;/li>
+&lt;li>Você ira aumentar o cognitive load de todos os membros do seu time que não precisam saber sobre ou usar o decorador.&lt;/li>
+&lt;li>Se você está ok com fazer mudanças em outros lugares do seu código pq não simplesmente criar novas funções ao invés decoradores que funcionam mais ou menos?&lt;/li>
 &lt;/ul>
 &lt;p>Ok, você pode estar pensando: &amp;ldquo;Tá , faz sentido não fazer isso que sugeri, mas do que adianta evitar sujar sua codebase se você tá criando problemas de desempenho e debugg? Não parece uma boa solução na maioria dos casos. Eu tenho que concordar com você!&amp;rdquo;&lt;/p>
 &lt;p>Bom, então o que podemos fazer?? O problema que encontramos é que em python não temos context managers que podem lidar com namespaces
@@ -205,15 +194,9 @@ A &lt;strong>S&lt;/strong>yntax &lt;strong>T&lt;/strong>ree for the sentence: &l
 &lt;h2 id="python--interpretado-ou-compilado">Python: interpretado ou compilado?&lt;/h2>
 &lt;p>Geralmente, quando encontro um hater de python ou mesmo um entusiasta eu ouço ou leio coisas do tipo:&lt;/p>
 &lt;ul>
-&lt;li>
-&lt;p>&amp;ldquo;&lt;em>Python é lento pois é uma linguagem interpretada&lt;/em>&amp;rdquo;&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>&amp;ldquo;*Python é legal pois não tem chatice de compilação&amp;rdquo;&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>&lt;em>&amp;ldquo;Python é ruim comparado a C pois não tem um compilador&amp;rdquo;&lt;/em>&lt;/p>
-&lt;/li>
+&lt;li>&amp;ldquo;&lt;em>Python é lento pois é uma linguagem interpretada&lt;/em>&amp;rdquo;&lt;/li>
+&lt;li>&amp;ldquo;*Python é legal pois não tem chatice de compilação&amp;rdquo;&lt;/li>
+&lt;li>&lt;em>&amp;ldquo;Python é ruim comparado a C pois não tem um compilador&amp;rdquo;&lt;/em>&lt;/li>
 &lt;/ul>
 &lt;p>Bem, essas aserções não são verdadeiras, pois estão usando conceitos errados! Outra confusão é
 que geralmente quando se fala em python estamos nos referindo a linguagem (sintaxe) do python mais a maquina virtual do CPython. Vamos conversar um pouco mais sobre isso&lt;/p>
@@ -227,8 +210,7 @@ Hello, world!
 &lt;/code>&lt;/pre>
 &lt;p>O que será que tem dentro desse &lt;code>hello_world_obj&lt;/code>?&lt;/p>
 &lt;pre>&lt;code class="language-python">print(f&amp;quot;Bad news for you:\n\tContent: {hello_world_obj.co_code}\n\tType: {type(hello_world_obj.co_code)}&amp;quot;)
-&lt;/code>&lt;/pre>
-&lt;pre>&lt;code>Bad news for you:
+Bad news for you:
 Content: b'e\x00d\x00\x83\x01F\x00d\x01S\x00'
 Type: &amp;lt;class 'bytes'&amp;gt;
 &lt;/code>&lt;/pre>
@@ -362,8 +344,7 @@ difflib.unified_diff(example_1_ast_str.splitlines(), example_1_expected_str.spli
 )
 )
 &lt;/code>&lt;/pre>
-&lt;pre>&lt;code>
-['--- \n',
+&lt;pre>&lt;code>['--- \n',
 '+++ \n',
 '@@ -3 +3 @@\n',
 &amp;quot;- FunctionDef(name='example_1',&amp;quot;,
@@ -449,8 +430,7 @@ difflib.unified_diff(example_1_meta_ast_str.splitlines(), example_1_expected_str
 )
 )
 &lt;/code>&lt;/pre>
-&lt;pre>&lt;code>
-['--- \n',
+&lt;pre>&lt;code>['--- \n',
 '+++ \n',
 '@@ -3 +3 @@\n',
 &amp;quot;- FunctionDef(name='example_1',&amp;quot;,
@@ -489,7 +469,7 @@ difflib.unified_diff(example_2_ast_str.splitlines(), example_2_expected_str.spli
 )
 )
 &lt;/code>&lt;/pre>
-&lt;pre>&lt;code> ['--- \n',
+&lt;pre>&lt;code>['--- \n',
 '+++ \n',
 '@@ -3 +3 @@\n',
 &amp;quot;- FunctionDef(name='example_2',&amp;quot;,
@@ -516,7 +496,7 @@ difflib.unified_diff(example_2_meta_ast_str.splitlines(), example_2_expected_str
 )
 )
 &lt;/code>&lt;/pre>
-&lt;pre>&lt;code> ['--- \n',
+&lt;pre>&lt;code>['--- \n',
 '+++ \n',
 '@@ -3 +3 @@\n',
 &amp;quot;- FunctionDef(name='example_2',&amp;quot;,
@@ -571,7 +551,7 @@ difflib.unified_diff(example_2_meta_ast_str.splitlines(), example_2_expected_str
 )
 )
 &lt;/code>&lt;/pre>
-&lt;pre>&lt;code> ['--- \n',
+&lt;pre>&lt;code>['--- \n',
 '+++ \n',
 '@@ -3 +3 @@\n',
 &amp;quot;- FunctionDef(name='example_2',&amp;quot;,
