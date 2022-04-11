@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>ast | Bruno Messias</title><link>/pt-br/tag/ast/</link><atom:link href="/pt-br/tag/ast/index.xml" rel="self" type="application/rss+xml"/><description>ast</description><generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>pt-br</language><copyright>Bruno Messias</copyright><lastBuildDate>Fri, 08 Apr 2022 00:00:00 +0000</lastBuildDate><image><url>/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_2.png</url><title>ast</title><link>/pt-br/tag/ast/</link></image><item><title>Going meta with python: manipulating ASTs to create an introspective decorator at runtime</title><link>/pt-br/post/python_ast_and_decorators_with_locals/</link><pubDate>Fri, 08 Apr 2022 00:00:00 +0000</pubDate><guid>/pt-br/post/python_ast_and_decorators_with_locals/</guid><description>&lt;details
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>ast | Bruno Messias</title><link>/pt-br/tag/ast/</link><atom:link href="/pt-br/tag/ast/index.xml" rel="self" type="application/rss+xml"/><description>ast</description><generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>pt-br</language><copyright>Bruno Messias</copyright><lastBuildDate>Fri, 08 Apr 2022 00:00:00 +0000</lastBuildDate><image><url>/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_2.png</url><title>ast</title><link>/pt-br/tag/ast/</link></image><item><title>Going meta with python: manipulating ASTs to create an introspective decorator at runtime [draft]</title><link>/pt-br/post/python_ast_and_decorators_with_locals/</link><pubDate>Fri, 08 Apr 2022 00:00:00 +0000</pubDate><guid>/pt-br/post/python_ast_and_decorators_with_locals/</guid><description>&lt;details
 class="toc-inpage d-print-none d-none d-sm-block d-md-none " open>
 &lt;summary class="font-weight-bold">Lista de Conteúdos&lt;/summary>
 &lt;nav id="TableOfContents">
@@ -156,7 +156,7 @@ if in any part of the codebase &lt;code>func&lt;/code> has been called you will 
 &lt;pre>&lt;code class="language-python">result = func(x, y) # to
 result = func(x, y)[0]
 &lt;/code>&lt;/pre>
-&lt;p>If after you choose to remove the decorator from a function you will need to be rollback all the above changes.&lt;/p>
+&lt;p>If after you choose to remove the decorator from a function, you will need to be rollback all the above changes.&lt;/p>
 &lt;ul>
 &lt;li>You will increase the cognitive load in all members of the team who doesn&amp;rsquo;t care about what your decorator needs to do.&lt;/li>
 &lt;li>If you propose this a solution is better just to create another function and face the consequences of this increase in complexity in the original codebase.&lt;/li>
@@ -270,6 +270,12 @@ The code object is just a way to encapsulate the bytecodes extracted from the AS
 Our solution will involve the manipulation of the AST and after that generating a new code object with the related manipulated AST!
 &lt;/div>
 &lt;/div>
+&lt;blockquote>
+&lt;p>A funny history from Luciano Ramalho:
+&lt;blockquote class="twitter-tweet">&lt;p lang="en" dir="ltr">In 2018 I told a CBP officer I was entering the US to speak at PyCon. He asked: &amp;quot;Is Python interpreted or compiled?&amp;quot; After a 2 second pause I said &amp;quot;Interpreted&amp;quot;. I didn&amp;#39;t give the correct answer because I didn&amp;#39;t want to extend the &amp;quot;pleasant&amp;quot; conversation. He let me in.&lt;/p>&amp;mdash; Luciano Ramalho ☔ 🐍 ⚗ ▶️😷💉💉💉 (@ramalhoorg) &lt;a href="https://twitter.com/ramalhoorg/status/1474044907585167362?ref_src=twsrc%5Etfw">December 23, 2021&lt;/a>&lt;/blockquote>
+&lt;script async src="https://platform.twitter.com/widgets.js" charset="utf-8">&lt;/script>
+&lt;/p>
+&lt;/blockquote>
 &lt;h2 id="extracting-asts-and-interpreting-them">Extracting ASTs and interpreting them&lt;/h2>
 &lt;p>Let&amp;rsquo;s see a simple example of a function and the extracted AST.&lt;/p>
 &lt;pre>&lt;code class="language-python">import inspect
@@ -280,6 +286,7 @@ s = a+b
 return s
 tree = ast.parse(inspect.getsource(example))
 print(astor.dump(tree))
+astor.to_source(tree)
 &lt;/code>&lt;/pre>
 &lt;pre>&lt;code>Module(
 body=[

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>decorators | Bruno Messias</title><link>/pt-br/tag/decorators/</link><atom:link href="/pt-br/tag/decorators/index.xml" rel="self" type="application/rss+xml"/><description>decorators</description><generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>pt-br</language><copyright>Bruno Messias</copyright><lastBuildDate>Fri, 08 Apr 2022 00:00:00 +0000</lastBuildDate><image><url>/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_2.png</url><title>decorators</title><link>/pt-br/tag/decorators/</link></image><item><title>Going meta with python: manipulating ASTs to create an introspective decorator at runtime</title><link>/pt-br/post/python_ast_and_decorators_with_locals/</link><pubDate>Fri, 08 Apr 2022 00:00:00 +0000</pubDate><guid>/pt-br/post/python_ast_and_decorators_with_locals/</guid><description>&lt;details
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>decorators | Bruno Messias</title><link>/pt-br/tag/decorators/</link><atom:link href="/pt-br/tag/decorators/index.xml" rel="self" type="application/rss+xml"/><description>decorators</description><generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>pt-br</language><copyright>Bruno Messias</copyright><lastBuildDate>Fri, 08 Apr 2022 00:00:00 +0000</lastBuildDate><image><url>/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_2.png</url><title>decorators</title><link>/pt-br/tag/decorators/</link></image><item><title>Going meta with python: manipulating ASTs to create an introspective decorator at runtime [draft]</title><link>/pt-br/post/python_ast_and_decorators_with_locals/</link><pubDate>Fri, 08 Apr 2022 00:00:00 +0000</pubDate><guid>/pt-br/post/python_ast_and_decorators_with_locals/</guid><description>&lt;details
 class="toc-inpage d-print-none d-none d-sm-block d-md-none " open>
 &lt;summary class="font-weight-bold">Lista de Conteúdos&lt;/summary>
 &lt;nav id="TableOfContents">
@@ -156,7 +156,7 @@ if in any part of the codebase &lt;code>func&lt;/code> has been called you will 
 &lt;pre>&lt;code class="language-python">result = func(x, y) # to
 result = func(x, y)[0]
 &lt;/code>&lt;/pre>
-&lt;p>If after you choose to remove the decorator from a function you will need to be rollback all the above changes.&lt;/p>
+&lt;p>If after you choose to remove the decorator from a function, you will need to be rollback all the above changes.&lt;/p>
 &lt;ul>
 &lt;li>You will increase the cognitive load in all members of the team who doesn&amp;rsquo;t care about what your decorator needs to do.&lt;/li>
 &lt;li>If you propose this a solution is better just to create another function and face the consequences of this increase in complexity in the original codebase.&lt;/li>
@@ -270,6 +270,12 @@ The code object is just a way to encapsulate the bytecodes extracted from the AS
 Our solution will involve the manipulation of the AST and after that generating a new code object with the related manipulated AST!
 &lt;/div>
 &lt;/div>
+&lt;blockquote>
+&lt;p>A funny history from Luciano Ramalho:
+&lt;blockquote class="twitter-tweet">&lt;p lang="en" dir="ltr">In 2018 I told a CBP officer I was entering the US to speak at PyCon. He asked: &amp;quot;Is Python interpreted or compiled?&amp;quot; After a 2 second pause I said &amp;quot;Interpreted&amp;quot;. I didn&amp;#39;t give the correct answer because I didn&amp;#39;t want to extend the &amp;quot;pleasant&amp;quot; conversation. He let me in.&lt;/p>&amp;mdash; Luciano Ramalho ☔ 🐍 ⚗ ▶️😷💉💉💉 (@ramalhoorg) &lt;a href="https://twitter.com/ramalhoorg/status/1474044907585167362?ref_src=twsrc%5Etfw">December 23, 2021&lt;/a>&lt;/blockquote>
+&lt;script async src="https://platform.twitter.com/widgets.js" charset="utf-8">&lt;/script>
+&lt;/p>
+&lt;/blockquote>
 &lt;h2 id="extracting-asts-and-interpreting-them">Extracting ASTs and interpreting them&lt;/h2>
 &lt;p>Let&amp;rsquo;s see a simple example of a function and the extracted AST.&lt;/p>
 &lt;pre>&lt;code class="language-python">import inspect
@@ -280,6 +286,7 @@ s = a+b
 return s
 tree = ast.parse(inspect.getsource(example))
 print(astor.dump(tree))
+astor.to_source(tree)
 &lt;/code>&lt;/pre>
 &lt;pre>&lt;code>Module(
 body=[
@@ -710,6 +717,14 @@ class="toc-inpage d-print-none d-none d-sm-block d-md-none " open>
 &lt;/details>
 &lt;p>
 &lt;a href="https://www.amazon.com.br/Fluent-Python-Luciano-Ramalho/dp/1491946008" target="_blank" rel="noopener">Fluent Python&lt;/a> is the best resource to learn to use and love python. Some days ago I was reading a section of the chapter 7: &lt;em>&amp;ldquo;Function Decorators and Closures&lt;/em>&amp;rdquo;. This chapter has a lot of interesting and cool examples. Here I&amp;rsquo;ll discuss one of them and how I tried to put more shiny stuff in it.&lt;/p>
+&lt;figure id="figure-a-book-that-every-python-programmer-should-read">
+&lt;a data-fancybox="" href="/pt-br/post/python_decorator_that_exposes_locals/fluent_python_huae514437a1dc47e163345635da95e061_41082_0x200_resize_lanczos_2.png" data-caption="A book that every python programmer should read.">
+&lt;img src="/pt-br/post/python_decorator_that_exposes_locals/fluent_python_huae514437a1dc47e163345635da95e061_41082_0x200_resize_lanczos_2.png" alt="" height="200px">
+&lt;/a>
+&lt;figcaption>
+A book that every python programmer should read.
+&lt;/figcaption>
+&lt;/figure>
 &lt;h2 id="gaining-a-deeper-understanding-about-the-execution-context-of-a-function">Gaining a deeper understanding about the execution context of a function&lt;/h2>
 &lt;h3 id="the-fluent-python-book-example">The Fluent Python Book example&lt;/h3>
 &lt;p>Ramalho’s book presents us with a &lt;code>@clock&lt;/code> decorator that can be used to decorate a method, measure the time it takes to execute, and print in a human-readable format the arguments and name of the method. The example is shown below:&lt;/p>
@@ -751,7 +766,7 @@ snooze(.123)
 &lt;/li>
 &lt;li>&lt;code>log_string = fmt.format(**locals())&lt;/code>: instead of creating a repetitive code like &lt;code>fmt.format(**{&amp;quot;result&amp;quot;:result, &amp;quot;args&amp;quot;:args, ...})&lt;/code> we can just use the &lt;code>locals()&lt;/code> which is a dictionary that contains all the local variables of the current scope.&lt;/li>
 &lt;/ul>
-&lt;p>When I study something I always like to create a fresh problem with the stuff that I&amp;rsquo;ve learned and try to solve it. Sometimes there is no solution. But even if there is no solution, we still learn a lot trying to solve the problem.&lt;/p>
+&lt;p>When I study something I always like to create a fresh problem with the stuff that I&amp;rsquo;ve learned and try to solve it. Sometimes there is no solution. But even if there is no solution, we still learn other stuff.&lt;/p>
 &lt;p>I&amp;rsquo;ve started by creating the following example:&lt;/p>
 &lt;pre>&lt;code class="language-python">import numpy as np
 @clock('[{elapsed:0.8f}s] {name}({args})')
@@ -803,7 +818,7 @@ you go directly to the section &lt;a href="#lets_solve_our_problem">Let&amp;rsqu
 &lt;p>The
 &lt;a href="https://docs.python.org/3/library/inspect.html" target="_blank" rel="noopener">inspect&lt;/a> module is a Python standard library that provides several tools to help you to introspect and consequently learn about live objects like functions, modules, classes, instances, frame objects (I&amp;rsquo;ll talk about frames later in this post), etc. Well, what can you do with this? Really, a lot of things. You can use it to automatically create documentation, parse the docstrings, manipulate the AST, etc.&lt;/p>
 &lt;h3 id="a-decorator-that-validates-arguments-using-mathematical-notation">A decorator that validates arguments using mathematical notation&lt;/h3>
-&lt;p>In the last years, we have seen the development of the &lt;code>typing&lt;/code> module and the &lt;code>mypy&lt;/code> static analysis tool for python. This module and tool can be very useful sometimes. However, it is still doesn&amp;rsquo;t provide some features that are essential for proper validation. But at least in my experience creating code for my Ph.D., I usually don&amp;rsquo;t need so much sophisticated type theory and validation to be able to write a good code for a mathematical modeling tool. Most of the mathematical validation that I need is just checking if an argument still satisfies some constraints or lives in a proper subspace. If not, I need to raise an exception or perform some kind of regularization.&lt;/p>
+&lt;p>In the last years, we have seen the development of the &lt;code>typing&lt;/code> module and the &lt;code>mypy&lt;/code> static analysis tool for python. This module and tool can be very useful sometimes. However, it doesn&amp;rsquo;t provide some features that are essential for proper validation. But at least in my experience creating code for my Ph.D., I usually don&amp;rsquo;t need so much sophisticated type theory and validation to be able to write a good code for a mathematical modeling tool. Most of the mathematical validation that I need is just checking if an argument still satisfies some constraints or lives in a proper subspace. If not, I need to raise an exception or perform some kind of regularization.&lt;/p>
 &lt;p>Let&amp;rsquo;s create a decorator that will validate arguments using simple mathematical notation.&lt;/p>
 &lt;p>We will create a dictionary that will contain the annotation as a key and the value will be a human-readable
 description of the annotation and a method responsible for check if everything is right.&lt;/p>
@@ -937,7 +952,7 @@ named_args[k] = repr(_args[i])
 else:
 named_args[k] = repr(v.default)
 &lt;/code>&lt;/pre>
-&lt;p>We are iterating over the signature parameters and checking if it have passed the value to &lt;code>func&lt;/code>. If not, we extract the default value from the signature.&lt;/p>
+&lt;p>We are iterating over the signature parameters and checking if it passed the value to &lt;code>func&lt;/code>. If not, we extract the default value from the signature.&lt;/p>
 &lt;p>Using the &lt;code>@report&lt;/code> decorator in the &lt;code>feed_monkeys&lt;/code> we have this output:&lt;/p>
 &lt;pre>&lt;code class="language-python">NUM_MONKEYS = 20
 @report('The zookeeper feeds the monkeys with {n_bananas} bananas and {n_apples} apples. Time to feed: {elapsed:0.4f}s')
@@ -976,12 +991,12 @@ The zookeeper feeds the monkeys with 51 bananas and 10 apples. Time to feed: 0.0
 &lt;li>After the execution of the decorated method, all the information about the local variables is lost. Fortunately, we don&amp;rsquo;t want irrelevant information occupying our system memory.&lt;/li>
 &lt;li>The decorator will call the decorated method and will receive the return value. Thus, &lt;strong>there is no way to extract the local variables because now there are no more local variables!&lt;/strong>&lt;/li>
 &lt;/ul>
-&lt;p>How to solve it? Well, think first about where the local variables are been stored before being erased.&lt;/p>
+&lt;p>How to solve it? Well, think first about where the local variables have been stored before being erased.&lt;/p>
 &lt;h3 id="call-stack-and-frames-in-python">Call stack and frames in python&lt;/h3>
 &lt;p>If you came from a non-CS background, maybe you don&amp;rsquo;t know about an important concept called the
 &lt;a href="https://en.wikipedia.org/wiki/Call_stack" target="_blank" rel="noopener">&lt;strong>call stack&lt;/strong>&lt;/a>. A call stack is a data structure that stores information related to living things in our program.&lt;/p>
 &lt;p>If you call a function in python, a new block of information (&lt;strong>frame&lt;/strong>) is pushed to the top of the call stack. After the function returns the value, this block of information is popped off the call stack. This comprehension can give insights into how to do things in python and how to create good or strange behaviors.&lt;/p>
-&lt;p>Well, you can think. If the elements of the call stack are always added on the top if a function (inner) is called by another function (outer) &lt;strong>can I access the values of the local variables from the outer function inside of the inner? Yes, you can!&lt;/strong> Obviously, this is not always a good idea but it&amp;rsquo;s good to understand this concept. Because this approach can be useful to deal with rigid frameworks like Django.&lt;/p>
+&lt;p>Well, you can think. If the elements of the call stack are always added on the top if a function (inner) is called by another function (outer) &lt;strong>can I access the values of the local variables from the outer function inside of the inner? Yes, you can!&lt;/strong> Obviously, this is not always a good idea, but it&amp;rsquo;s good to understand this concept. Because this approach can be useful to deal with rigid frameworks like Django.&lt;/p>
 &lt;pre>&lt;code class="language-python">%%writefile test_stack.py
 import inspect
 N_BANANAS = 12
