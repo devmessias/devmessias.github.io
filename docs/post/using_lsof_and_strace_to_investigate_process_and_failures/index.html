@@ -1,32 +1,1007 @@
-<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=generator content="Source Themes Academic 4.8.0"><meta name=author content="Bruno Messias"><meta name=description content="In DevOps or MlOps discovering what a process is doing now can save your system from a catastrophe. Save your job using strace and lsof."><link rel=alternate hreflang=pt-br href=/pt-br/post/investigando_processos_e_bugs_strace_lsof_no_linux/><link rel=alternate hreflang=en href=/post/using_lsof_and_strace_to_investigate_process_and_failures/><meta name=theme-color content="#2962ff"><script src=/js/mathjax-config.js></script><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/academicons/1.8.6/css/academicons.min.css integrity="sha256-uFVgMKfistnJAfoCUQigIl+JfUaP47GrRKjf6CTPVmw=" crossorigin=anonymous><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.0-1/css/all.min.css integrity="sha256-4w9DunooKSr3MFXHXWyFER38WmPdm361bQS/2KUWZbU=" crossorigin=anonymous><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css integrity="sha256-Vzbj7sDDS/woiFS3uNKo8eIuni59rjyNGtXfstRzStA=" crossorigin=anonymous><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/github.min.css crossorigin=anonymous title=hl-light><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/dracula.min.css crossorigin=anonymous title=hl-dark disabled><script src=https://cdnjs.cloudflare.com/ajax/libs/lazysizes/5.1.2/lazysizes.min.js integrity="sha256-Md1qLToewPeKjfAHU1zyPwOutccPAm5tahnaw7Osw0A=" crossorigin=anonymous async></script><script src=https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js integrity crossorigin=anonymous async></script><link rel=stylesheet href="https://fonts.googleapis.com/css?family=Montserrat:400,700%7CRoboto:400,400italic,700%7CRoboto+Mono&display=swap"><link rel=stylesheet href=/css/academic.css><script async src="https://www.googletagmanager.com/gtag/js?id=UA-178064356-1"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
-function trackOutboundLink(url,target){gtag('event','click',{'event_category':'outbound','event_label':url,'transport_type':'beacon','event_callback':function(){if(target!=='_blank'){document.location=url;}}});console.debug("Outbound link clicked: "+url);}
-function onClickCallback(event){if((event.target.tagName!=='A')||(event.target.host===window.location.host)){return;}
-trackOutboundLink(event.target,event.target.getAttribute('target'));}
-gtag('js',new Date());gtag('config','UA-178064356-1',{});document.addEventListener('click',onClickCallback,false);</script><link rel=manifest href=/index.webmanifest><link rel=icon type=image/png href=/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_32x32_fill_lanczos_center_2.png><link rel=apple-touch-icon type=image/png href=/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_192x192_fill_lanczos_center_2.png><link rel=canonical href=/post/using_lsof_and_strace_to_investigate_process_and_failures/><meta property="twitter:card" content="summary"><meta property="twitter:site" content="@devmessias"><meta property="twitter:creator" content="@devmessias"><meta property="twitter:image" content="https://devmessias.github.io/img/strace_lsof_twitter.png"><meta property="og:site_name" content="Bruno Messias"><meta property="og:url" content="/post/using_lsof_and_strace_to_investigate_process_and_failures/"><meta property="og:title" content="Dissecting processes and failures in Linux with lsof and strace: cases for MlOps and DevOps | Bruno Messias"><meta property="og:description" content="In DevOps or MlOps discovering what a process is doing now can save your system from a catastrophe. Save your job using strace and lsof."><meta property="og:image" content="/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_2.png"><meta property="og:locale" content="en"><meta property="article:published_time" content="2022-02-04T08:31:00-03:00"><meta property="article:modified_time" content="2022-02-04T08:31:00-03:00"><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"/post/using_lsof_and_strace_to_investigate_process_and_failures/"},"headline":"Dissecting processes and failures in Linux with lsof and strace: cases for MlOps and DevOps","datePublished":"2022-02-04T08:31:00-03:00","dateModified":"2022-02-04T08:31:00-03:00","author":{"@type":"Person","name":"Bruno Messias"},"publisher":{"@type":"Organization","name":"Bruno Messias","logo":{"@type":"ImageObject","url":"/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_192x192_fill_lanczos_center_2.png"}},"description":"In DevOps or MlOps discovering what a process is doing now can save your system from a catastrophe. Save your job using strace and lsof."}</script><title>Dissecting processes and failures in Linux with lsof and strace: cases for MlOps and DevOps | Bruno Messias</title></head><body id=top class=page-wrapper data-spy=scroll data-offset=70 data-target=#TableOfContents><aside class=search-results id=search><div class=container><section class=search-header><div class="row no-gutters justify-content-between mb-3"><div class=col-6><h1>Search</h1></div><div class="col-6 col-search-close"><a class=js-search href=#><i class="fas fa-times-circle text-muted" aria-hidden=true></i></a></div></div><div id=search-box><input name=q id=search-query placeholder=Search... autocapitalize=off autocomplete=off autocorrect=off spellcheck=false type=search></div></section><section class=section-search-results><div id=search-hits></div></section></div></aside><div class=page-header><nav class="navbar navbar-expand-lg navbar-light compensate-for-scrollbar" id=navbar-main><div class=container><div class="d-none d-lg-inline-flex"><a class=navbar-brand href=/>Bruno Messias</a></div><button type=button class=navbar-toggler data-toggle=collapse data-target=#navbar-content aria-controls=navbar aria-expanded=false aria-label="Toggle navigation">
-<span><i class="fas fa-bars"></i></span></button><div class="navbar-brand-mobile-wrapper d-inline-flex d-lg-none"><a class=navbar-brand href=/>Bruno Messias</a></div><div class="navbar-collapse main-menu-item collapse justify-content-start" id=navbar-content><ul class="navbar-nav d-md-inline-flex"><li class=nav-item><a class=nav-link href=/#about><span>About</span></a></li><li class=nav-item><a class=nav-link href=/#posts><span>Recent Posts</span></a></li><li class=nav-item><a class=nav-link href=/#projects><span>Projects</span></a></li><li class=nav-item><a class=nav-link href=/#featured><span>Publications</span></a></li><li class=nav-item><a class="nav-link active" href=/post/><span>Posts</span></a></li></ul></div><ul class="nav-icons navbar-nav flex-row ml-auto d-flex pl-md-2"><li class=nav-item><a class="nav-link js-search" href=# aria-label=Search><i class="fas fa-search" aria-hidden=true></i></a></li><li class="nav-item dropdown i18n-dropdown"><a href=# class="nav-link dropdown-toggle" data-toggle=dropdown aria-haspopup=true><i class="fas fa-globe mr-1" aria-hidden=true></i><span class="d-none d-lg-inline">English</span></a><div class=dropdown-menu><div class="dropdown-item dropdown-item-active"><span>English</span></div><a class=dropdown-item href=/pt-br/post/investigando_processos_e_bugs_strace_lsof_no_linux/><span>Português (Brasil)</span></a></div></li></ul></div></nav></div><div id=macaquinho123 class=page-body><div class="container-fluid docs"><div class="row flex-xl-nowrap"><div class="col-12 col-md-10 offset-md-2"><div class=bg-overlay-img style="--bg-url: url(/images/linux_hu7f37b9b85f2fdb2ab0f665ebe28d41b5_165737_0x200_resize_lanczos_2.png)"><h1 class=text-left>Dissecting processes and failures in Linux with lsof and strace: cases for MlOps and DevOps</h1><p class="page-subtitle text-left">Don&rsquo;t be afraid! In Linux we always can find an answer.</p><div class=article-metadata><span class=article-date>Feb 4, 2022</span>
-<span class=middot-divider></span><a href=/post/using_lsof_and_strace_to_investigate_process_and_failures/#disqus_thread></a><span class=middot-divider></span><span class=article-categories><i class="fas fa-folder mr-1"></i><a href=/category/linux/>Linux</a>, <a href=/category/devops/>DevOps</a>, <a href=/category/mlops/>MlOps</a>, <a href=/category/databases/>Databases</a></span></div></div></div></div><div class="row flex-xl-nowrap"><div class="d-none d-md-block col-md-3 docs-toc sidebar-toc"><ul class="nav toc-top"><li><a href=# id=back_to_top class=docs-toc-title>Contents</a></li></ul><nav id=TableOfContents><ul><li><a href=#concepts>Concepts</a><ul><li><a href=#everything-is-a-file---the-unix-mantra><em>“Everything is a file.”</em> - The UNIX mantra.</a><ul><li><a href=#lsof>LSOF</a></li></ul></li><li><a href=#system-calls-and-strace>System Calls and strace</a></li></ul></li><li><a href=#a-deep-dive-into-failures>A deep dive into failures</a><ul><li><a href=#network-issues>Network issues</a><ul><li><a href=#is-my-server-alive>Is my server alive?</a></li><li><a href=#is-my-process-stuck-waiting-for-someone-what-is-causing-the-process-hanging>Is my process stuck waiting for someone? What is causing the process hanging?</a></li></ul></li><li><a href=#problems-with-regular-files>Problems with regular files</a><ul><li><a href=#which-processes-is-this-file-attached-to>Which processes is this file attached to?</a></li><li><a href=#i-made-a-mistake-deleted-an-important-file-how-can-i-recover-it>I made a mistake! Deleted an important file! How can I recover it?</a></li><li><a href=#silent-errors-associated-with-files-and-permissions>Silent errors associated with files and permissions</a></li><li><a href=#is-this-process-using-a-cache-where-can-i-find-this-cache-which-configs-files-does-this-process-use>Is this process using a cache? Where can I find this cache? Which configs files does this process use?</a></li></ul></li><li><a href=#dissecting-your-database-system>Dissecting your database system</a><ul><li><a href=#is-this-process--well-behaved-how-many-connections-does-it-have>Is this process well behaved? How many connections does it have?</a></li><li><a href=#everything-is-working-proprely>Everything is working proprely?</a></li></ul></li><li><a href=#extras-related-to-files-proc-and-strace>Extras related to files (<code>/proc/</code>) and <code>strace</code></a><ul><li><a href=#creating-a-sys-call-summary-what-does-my-program-do>Creating a SYS CALL summary: what does my program do?</a></li><li><a href=#did-this-process-start-with-the-correct-environment-variables>Did this process start with the correct environment variables?</a></li><li><a href=#i-forgot-to-redirect-the-outputs-what-can-i-do-now>I forgot to redirect the outputs! What can I do now?</a></li><li><a href=#how-this-program-has-been-called-what-is-the-working-dir-of-the-process>How this program has been called? What is the working dir of the process?</a></li></ul></li><li><a href=#conclusion--suggestions>Conclusion & Suggestions</a></li></ul></li></ul></nav></div><main class="col-12 col-md-9 py-md-3 pl-md-5 docs-content" role=main><article class=article><div class=article-container><div class=article-style><p>In DevOps or MlOps discovering what a process is doing now can save your system from a catastrophe. But sometimes we are already in a failure. When those failures happen, the following questions appear:</p><ul><li><p><em>The process it’s hanging and I don’t know why!</em></p></li><li><p><em>What is the cause of the problem?</em></p></li><li><p><em>Is it a network issue?</em></p></li><li><p>…and so on and so forth.</p></li></ul><p>Being able to answer these questions faster and with a precise answer can save you or give you a promotion. I’ll show you some simple examples of how those questions can be answered.</p><figure id=figure-the-strace-logo-is-an-ostrich><a data-fancybox href=/post/using_lsof_and_strace_to_investigate_process_and_failures/strace_lsof_twitter_hu8f2dca20993b287d55ca9195e297c994_439856_2000x2000_fit_lanczos_2.png data-caption="The strace logo is an ostrich."><img src=/post/using_lsof_and_strace_to_investigate_process_and_failures/strace_lsof_twitter_hu8f2dca20993b287d55ca9195e297c994_439856_2000x2000_fit_lanczos_2.png alt></a><figcaption>The strace logo is an ostrich.</figcaption></figure><details class="toc-inpage d-print-none d-none d-sm-block d-md-none" open><summary class=font-weight-bold>Table of Contents</summary><nav id=TableOfContents><ul><li><a href=#concepts>Concepts</a><ul><li><a href=#everything-is-a-file---the-unix-mantra><em>“Everything is a file.”</em> - The UNIX mantra.</a><ul><li><a href=#lsof>LSOF</a></li></ul></li><li><a href=#system-calls-and-strace>System Calls and strace</a></li></ul></li><li><a href=#a-deep-dive-into-failures>A deep dive into failures</a><ul><li><a href=#network-issues>Network issues</a><ul><li><a href=#is-my-server-alive>Is my server alive?</a></li><li><a href=#is-my-process-stuck-waiting-for-someone-what-is-causing-the-process-hanging>Is my process stuck waiting for someone? What is causing the process hanging?</a></li></ul></li><li><a href=#problems-with-regular-files>Problems with regular files</a><ul><li><a href=#which-processes-is-this-file-attached-to>Which processes is this file attached to?</a></li><li><a href=#i-made-a-mistake-deleted-an-important-file-how-can-i-recover-it>I made a mistake! Deleted an important file! How can I recover it?</a></li><li><a href=#silent-errors-associated-with-files-and-permissions>Silent errors associated with files and permissions</a></li><li><a href=#is-this-process-using-a-cache-where-can-i-find-this-cache-which-configs-files-does-this-process-use>Is this process using a cache? Where can I find this cache? Which configs files does this process use?</a></li></ul></li><li><a href=#dissecting-your-database-system>Dissecting your database system</a><ul><li><a href=#is-this-process--well-behaved-how-many-connections-does-it-have>Is this process well behaved? How many connections does it have?</a></li><li><a href=#everything-is-working-proprely>Everything is working proprely?</a></li></ul></li><li><a href=#extras-related-to-files-proc-and-strace>Extras related to files (<code>/proc/</code>) and <code>strace</code></a><ul><li><a href=#creating-a-sys-call-summary-what-does-my-program-do>Creating a SYS CALL summary: what does my program do?</a></li><li><a href=#did-this-process-start-with-the-correct-environment-variables>Did this process start with the correct environment variables?</a></li><li><a href=#i-forgot-to-redirect-the-outputs-what-can-i-do-now>I forgot to redirect the outputs! What can I do now?</a></li><li><a href=#how-this-program-has-been-called-what-is-the-working-dir-of-the-process>How this program has been called? What is the working dir of the process?</a></li></ul></li><li><a href=#conclusion--suggestions>Conclusion & Suggestions</a></li></ul></li></ul></nav></details><p><strong>Introduction</strong></p><p>Linux is a very transparent operating system. Transparency means that is easy to dig in the system&rsquo;s behavior to understand how it works. Also, Linux is easy to control even in the low-level behaviors. But how can this help to understand a process and consequently a failure?</p><p>The first step to understanding a process is to analyze the output. But sometimes the output doesn’t give us enough information to use. Here I’ll talk about how we can extract useful information using the <code>strace</code> and <code>lsof</code> commands. To use these commands it is good to know two concepts: the <em>“Everything is a file ”</em> mantra and the <strong>system call</strong> mechanism.</p><h1 id=concepts>Concepts</h1><h2 id=everything-is-a-file---the-unix-mantra><em>“Everything is a file.”</em> - The UNIX mantra.</h2><p><img src=everthing_is_a_file.png alt=everything_is_a_file></p><p>What comes to your mind when someone talks about files? Maybe a jpeg or a CSV if you work as a data scientist. But in UNIX approach to do stuff everything can be a file, even network connections. When a thing is not a file it has at least a file descriptor associated with it. Maybe you’re thinking that I’m wandering from the post. <em>“How can this stuff help to improve our comprehension about a process or failure?”</em> The answer is straightforward: if everything is a file, we can use the same set of tools to list, read and interact (API) with files to analyze a generic process. Here is where <code>lsof</code> appears.</p><h3 id=lsof>LSOF</h3><p>lsof is an acronym for <strong>l</strong>ist of <strong>o</strong>pen <strong>f</strong>iles. In simple terms, Lsof is a command-line tool that can list open file descriptors in your machine. Besides that, Lsof allows using a set of different filters to give you a filtered list of opened files. Thus, we can list the open file descriptors of a user or a process.</p><p>To put all the open files in your machine use the following command:</p><pre><code class=language-bash>username:/$ lsof &gt; lsof_everything.txt
-</code></pre><p>The file <code>lsof_everything.txt</code> is huge and will look similar to this</p><pre><code>COMMAND     PID   TID TASKCMD               USER   FD      TYPE             DEVICE  SIZE/OFF       NODE NAME
+<!DOCTYPE html><html lang="en" >
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="generator" content="Source Themes Academic 4.8.0">
+
+  
+
+  
+  
+  
+  
+  
+    
+    
+    
+  
+  
+
+  <meta name="author" content="Bruno Messias">
+
+  
+  
+  
+    
+  
+  <meta name="description" content="In DevOps or MlOps discovering what a process is doing now can save your system from a catastrophe. Save your job using strace and lsof.">
+
+  
+  <link rel="alternate" hreflang="pt-br" href="/pt-br/post/investigando_processos_e_bugs_strace_lsof_no_linux/">
+  
+  <link rel="alternate" hreflang="en" href="/post/using_lsof_and_strace_to_investigate_process_and_failures/">
+
+  
+
+
+  
+  
+  
+  <meta name="theme-color" content="#2962ff">
+  
+
+  
+  
+  
+  <script src="/js/mathjax-config.js"></script>
+  
+
+  
+  
+  
+  
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/academicons/1.8.6/css/academicons.min.css" integrity="sha256-uFVgMKfistnJAfoCUQigIl+JfUaP47GrRKjf6CTPVmw=" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.0-1/css/all.min.css" integrity="sha256-4w9DunooKSr3MFXHXWyFER38WmPdm361bQS/2KUWZbU=" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" integrity="sha256-Vzbj7sDDS/woiFS3uNKo8eIuni59rjyNGtXfstRzStA=" crossorigin="anonymous">
+
+    
+    
+    
+      
+    
+    
+      
+      
+        
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/github.min.css" crossorigin="anonymous" title="hl-light">
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/dracula.min.css" crossorigin="anonymous" title="hl-dark" disabled>
+        
+      
+    
+
+    
+
+    
+
+    
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/lazysizes/5.1.2/lazysizes.min.js" integrity="sha256-Md1qLToewPeKjfAHU1zyPwOutccPAm5tahnaw7Osw0A=" crossorigin="anonymous" async></script>
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" integrity="" crossorigin="anonymous" async></script>
+      
+    
+      
+
+      
+      
+
+      
+    
+
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,700%7CRoboto:400,400italic,700%7CRoboto+Mono&display=swap">
+  
+
+  
+  
+  
+  
+  <link rel="stylesheet" href="/css/academic.css">
+
+  
+
+
+
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-178064356-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+
+  function gtag() {
+      dataLayer.push(arguments);
+  }
+
+  function trackOutboundLink(url, target) {
+    gtag('event', 'click', {
+         'event_category': 'outbound',
+         'event_label': url,
+         'transport_type': 'beacon',
+         'event_callback': function () {
+           if (target !== '_blank') {
+             document.location = url;
+           }
+         }
+    });
+    console.debug("Outbound link clicked: " + url);
+  }
+
+  function onClickCallback(event) {
+    if ((event.target.tagName !== 'A') || (event.target.host === window.location.host)) {
+      return;
+    }
+    trackOutboundLink(event.target, event.target.getAttribute('target'));  
+  }
+
+  gtag('js', new Date());
+  gtag('config', 'UA-178064356-1', {});
+
+  
+  document.addEventListener('click', onClickCallback, false);
+</script>
+
+
+  
+
+
+  
+  
+
+  
+
+  <link rel="manifest" href="/index.webmanifest">
+  <link rel="icon" type="image/png" href="/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_32x32_fill_lanczos_center_2.png">
+  <link rel="apple-touch-icon" type="image/png" href="/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_192x192_fill_lanczos_center_2.png">
+
+  <link rel="canonical" href="/post/using_lsof_and_strace_to_investigate_process_and_failures/">
+
+  
+  
+  
+  
+  
+  
+  
+    
+    
+  
+  
+  <meta property="twitter:card" content="summary">
+  
+  <meta property="twitter:site" content="@devmessias">
+  <meta property="twitter:creator" content="@devmessias">
+  
+  
+  
+  <meta property="twitter:image" content="https://devmessias.github.io/img/strace_lsof_twitter.png">
+  <meta property="og:site_name" content="Bruno Messias">
+  <meta property="og:url" content="/post/using_lsof_and_strace_to_investigate_process_and_failures/">
+  <meta property="og:title" content="Dissecting processes and failures in Linux with lsof and strace: cases for MlOps and DevOps | Bruno Messias">
+  <meta property="og:description" content="In DevOps or MlOps discovering what a process is doing now can save your system from a catastrophe. Save your job using strace and lsof."><meta property="og:image" content="/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_2.png"><meta property="og:locale" content="en">
+  
+    
+      <meta property="article:published_time" content="2022-02-04T08:31:00-03:00">
+    
+    <meta property="article:modified_time" content="2022-02-04T08:31:00-03:00">
+  
+
+  
+
+
+    
+
+
+
+
+
+
+  
+
+
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "/post/using_lsof_and_strace_to_investigate_process_and_failures/"
+  },
+  "headline": "Dissecting processes and failures in Linux with lsof and strace: cases for MlOps and DevOps",
+  
+  "datePublished": "2022-02-04T08:31:00-03:00",
+  "dateModified": "2022-02-04T08:31:00-03:00",
+  
+  "author": {
+    "@type": "Person",
+    "name": "Bruno Messias"
+  },
+  
+  "publisher": {
+    "@type": "Organization",
+    "name": "Bruno Messias",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_192x192_fill_lanczos_center_2.png"
+    }
+  },
+  "description": "In DevOps or MlOps discovering what a process is doing now can save your system from a catastrophe. Save your job using strace and lsof."
+}
+</script>
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+
+  <title>Dissecting processes and failures in Linux with lsof and strace: cases for MlOps and DevOps | Bruno Messias</title>
+
+</head>
+
+<body id="top" class='page-wrapper' data-spy="scroll" data-offset="70" data-target="#TableOfContents" >
+
+
+  <aside class="search-results" id="search">
+  <div class="container">
+    <section class="search-header">
+
+      <div class="row no-gutters justify-content-between mb-3">
+        <div class="col-6">
+          <h1>Search</h1>
+        </div>
+        <div class="col-6 col-search-close">
+          <a class="js-search" href="#"><i class="fas fa-times-circle text-muted" aria-hidden="true"></i></a>
+        </div>
+      </div>
+
+      <div id="search-box">
+        
+        <input name="q" id="search-query" placeholder="Search..." autocapitalize="off"
+        autocomplete="off" autocorrect="off" spellcheck="false" type="search">
+        
+      </div>
+
+    </section>
+    <section class="section-search-results">
+
+      <div id="search-hits">
+        
+      </div>
+
+    </section>
+  </div>
+</aside>
+
+
+  
+
+
+
+
+
+
+
+<div class='page-header'>
+<nav class="navbar navbar-expand-lg navbar-light compensate-for-scrollbar" id="navbar-main">
+  <div class="container">
+
+    
+    <div class="d-none d-lg-inline-flex">
+      <a class="navbar-brand" href="/">Bruno Messias</a>
+    </div>
+    
+
+    
+    <button type="button" class="navbar-toggler" data-toggle="collapse"
+            data-target="#navbar-content" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+    <span><i class="fas fa-bars"></i></span>
+    </button>
+    
+
+    
+    <div class="navbar-brand-mobile-wrapper d-inline-flex d-lg-none">
+      <a class="navbar-brand" href="/">Bruno Messias</a>
+    </div>
+    
+
+    
+    
+    <div class="navbar-collapse main-menu-item collapse justify-content-start" id="navbar-content">
+
+      
+      <ul class="navbar-nav d-md-inline-flex">
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        
+        
+        
+        
+        
+        
+          
+          
+          
+            
+          
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link " href="/#about"><span>About</span></a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        
+        
+        
+        
+        
+        
+          
+          
+          
+            
+          
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link " href="/#posts"><span>Recent Posts</span></a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        
+        
+        
+        
+        
+        
+          
+          
+          
+            
+          
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link " href="/#projects"><span>Projects</span></a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        
+        
+        
+        
+        
+        
+          
+          
+          
+            
+          
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link " href="/#featured"><span>Publications</span></a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        
+        
+        
+        
+        
+        
+
+        <li class="nav-item">
+          <a class="nav-link  active" href="/post/"><span>Posts</span></a>
+        </li>
+
+        
+        
+
+      
+
+        
+      </ul>
+    </div>
+
+    <ul class="nav-icons navbar-nav flex-row ml-auto d-flex pl-md-2">
+      
+      <li class="nav-item">
+        <a class="nav-link js-search" href="#" aria-label="Search"><i class="fas fa-search" aria-hidden="true"></i></a>
+      </li>
+      
+
+      
+
+      
+      <li class="nav-item dropdown i18n-dropdown">
+        <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true">
+          <i class="fas fa-globe mr-1" aria-hidden="true"></i><span class="d-none d-lg-inline">English</span>
+        </a>
+        <div class="dropdown-menu">
+          <div class="dropdown-item dropdown-item-active">
+            <span>English</span>
+          </div>
+          
+          <a class="dropdown-item" href="/pt-br/post/investigando_processos_e_bugs_strace_lsof_no_linux/">
+            <span>Português (Brasil)</span>
+          </a>
+          
+        </div>
+      </li>
+      
+
+    </ul>
+
+  </div>
+</nav>
+</div>
+
+
+  <div id='macaquinho123' class='page-body'>
+  
+<div class="container-fluid docs">
+
+  
+  <div class="row flex-xl-nowrap">
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+    <div class="col-12 col-md-10 offset-md-2">
+      
+      
+      <div class='bg-overlay-img' style='--bg-url: url(/images/linux_hu7f37b9b85f2fdb2ab0f665ebe28d41b5_165737_0x200_resize_lanczos_2.png);'>
+      
+        <h1 class="text-left">Dissecting processes and failures in Linux with lsof and strace: cases for MlOps and DevOps</h1>
+  
+      
+      <p class="page-subtitle text-left">Don&rsquo;t be afraid! In Linux we always can find an answer.</p>
+      
+
+      
+      
+
+
+<div class="article-metadata">
+
+  
+  
+
+  
+  <span class="article-date">
+    
+    
+      
+    
+    Feb 4, 2022
+  </span>
+  
+
+  
+
+  
+
+  
+  
+  
+  <span class="middot-divider"></span>
+  <a href="/post/using_lsof_and_strace_to_investigate_process_and_failures/#disqus_thread"></a>
+  
+
+  
+  
+  <span class="middot-divider"></span>
+  <span class="article-categories">
+    <i class="fas fa-folder mr-1"></i><a href="/category/linux/">Linux</a>, <a href="/category/devops/">DevOps</a>, <a href="/category/mlops/">MlOps</a>, <a href="/category/databases/">Databases</a></span>
+  
+
+</div>
+
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+      </div>
+    </div>
+    
+    
+    
+  </div>
+
+    
+  <div class="row flex-xl-nowrap">
+    
+    
+    <div class="d-none d-md-block col-md-3 docs-toc sidebar-toc">
+      <ul class="nav toc-top ">
+        <li><a href="#" id="back_to_top" class="docs-toc-title">Contents</a></li>
+      </ul>
+      <nav id="TableOfContents">
+  <ul>
+    <li><a href="#concepts">Concepts</a>
+      <ul>
+        <li><a href="#everything-is-a-file---the-unix-mantra"><em>“Everything is a file.”</em> - The UNIX mantra.</a>
+          <ul>
+            <li><a href="#lsof">LSOF</a></li>
+          </ul>
+        </li>
+        <li><a href="#system-calls-and-strace">System Calls and strace</a></li>
+      </ul>
+    </li>
+    <li><a href="#a-deep-dive-into-failures">A deep dive into failures</a>
+      <ul>
+        <li><a href="#network-issues">Network issues</a>
+          <ul>
+            <li><a href="#is-my-server-alive">Is my server alive?</a></li>
+            <li><a href="#is-my-process-stuck-waiting-for-someone-what-is-causing-the-process-hanging">Is my process stuck waiting for someone? What is causing the process hanging?</a></li>
+          </ul>
+        </li>
+        <li><a href="#problems-with-regular-files">Problems with regular files</a>
+          <ul>
+            <li><a href="#which-processes-is-this-file-attached-to">Which processes is this file attached to?</a></li>
+            <li><a href="#i-made-a-mistake-deleted-an-important-file-how-can-i-recover-it">I made a mistake! Deleted an important file! How can I recover it?</a></li>
+            <li><a href="#silent-errors-associated-with-files-and-permissions">Silent errors associated with files and permissions</a></li>
+            <li><a href="#is-this-process-using-a-cache-where-can-i-find-this-cache-which-configs-files-does-this-process-use">Is this process using a cache? Where can I find this cache? Which configs files does this process use?</a></li>
+          </ul>
+        </li>
+        <li><a href="#dissecting-your-database-system">Dissecting your database system</a>
+          <ul>
+            <li><a href="#is-this-process--well-behaved-how-many-connections-does-it-have">Is this process  well behaved? How many connections does it have?</a></li>
+            <li><a href="#everything-is-working-proprely">Everything is working proprely?</a></li>
+          </ul>
+        </li>
+        <li><a href="#extras-related-to-files-proc-and-strace">Extras related to files (<code>/proc/</code>) and <code>strace</code></a>
+          <ul>
+            <li><a href="#creating-a-sys-call-summary-what-does-my-program-do">Creating a SYS CALL summary: what does my program do?</a></li>
+            <li><a href="#did-this-process-start-with-the-correct-environment-variables">Did this process start with the correct environment variables?</a></li>
+            <li><a href="#i-forgot-to-redirect-the-outputs-what-can-i-do-now">I forgot to redirect the outputs! What can I do now?</a></li>
+            <li><a href="#how-this-program-has-been-called-what-is-the-working-dir-of-the-process">How this program has been called? What is the working dir of the process?</a></li>
+          </ul>
+        </li>
+        <li><a href="#conclusion--suggestions">Conclusion &amp; Suggestions</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+      
+    </div>
+    
+    
+    <main class="col-12 col-md-9 py-md-3 pl-md-5 docs-content" role="main">
+
+<article class="article">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+  
+  
+
+
+
+
+
+  <div class="article-container">
+
+    <div class="article-style">
+      <p>In DevOps or MlOps discovering what a process is doing now can save your system from a catastrophe. But sometimes we are already in a failure. When those failures happen, the following questions appear:</p>
+<ul>
+<li>
+<p><em>The process it’s hanging and  I don’t know why!</em></p>
+</li>
+<li>
+<p><em>What is the cause of the problem?</em></p>
+</li>
+<li>
+<p><em>Is it a network issue?</em></p>
+</li>
+<li>
+<p>…and so on and so forth.</p>
+</li>
+</ul>
+<p>Being able to answer these questions faster and with a precise answer can save you or give you a promotion.  I’ll show you some simple examples of how those questions can be answered.</p>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+<figure id="figure-the-strace-logo-is-an-ostrich">
+
+
+  <a data-fancybox="" href="/post/using_lsof_and_strace_to_investigate_process_and_failures/strace_lsof_twitter_hu8f2dca20993b287d55ca9195e297c994_439856_2000x2000_fit_lanczos_2.png" data-caption="The strace logo is an ostrich.">
+
+
+  <img src="/post/using_lsof_and_strace_to_investigate_process_and_failures/strace_lsof_twitter_hu8f2dca20993b287d55ca9195e297c994_439856_2000x2000_fit_lanczos_2.png" alt=""  >
+</a>
+
+
+  
+  
+  <figcaption>
+    The strace logo is an ostrich.
+  </figcaption>
+
+
+</figure>
+
+<details 
+class="toc-inpage d-print-none d-none d-sm-block d-md-none  " open>
+  <summary class="font-weight-bold">Table of Contents</summary>
+  <nav id="TableOfContents">
+  <ul>
+    <li><a href="#concepts">Concepts</a>
+      <ul>
+        <li><a href="#everything-is-a-file---the-unix-mantra"><em>“Everything is a file.”</em> - The UNIX mantra.</a>
+          <ul>
+            <li><a href="#lsof">LSOF</a></li>
+          </ul>
+        </li>
+        <li><a href="#system-calls-and-strace">System Calls and strace</a></li>
+      </ul>
+    </li>
+    <li><a href="#a-deep-dive-into-failures">A deep dive into failures</a>
+      <ul>
+        <li><a href="#network-issues">Network issues</a>
+          <ul>
+            <li><a href="#is-my-server-alive">Is my server alive?</a></li>
+            <li><a href="#is-my-process-stuck-waiting-for-someone-what-is-causing-the-process-hanging">Is my process stuck waiting for someone? What is causing the process hanging?</a></li>
+          </ul>
+        </li>
+        <li><a href="#problems-with-regular-files">Problems with regular files</a>
+          <ul>
+            <li><a href="#which-processes-is-this-file-attached-to">Which processes is this file attached to?</a></li>
+            <li><a href="#i-made-a-mistake-deleted-an-important-file-how-can-i-recover-it">I made a mistake! Deleted an important file! How can I recover it?</a></li>
+            <li><a href="#silent-errors-associated-with-files-and-permissions">Silent errors associated with files and permissions</a></li>
+            <li><a href="#is-this-process-using-a-cache-where-can-i-find-this-cache-which-configs-files-does-this-process-use">Is this process using a cache? Where can I find this cache? Which configs files does this process use?</a></li>
+          </ul>
+        </li>
+        <li><a href="#dissecting-your-database-system">Dissecting your database system</a>
+          <ul>
+            <li><a href="#is-this-process--well-behaved-how-many-connections-does-it-have">Is this process  well behaved? How many connections does it have?</a></li>
+            <li><a href="#everything-is-working-proprely">Everything is working proprely?</a></li>
+          </ul>
+        </li>
+        <li><a href="#extras-related-to-files-proc-and-strace">Extras related to files (<code>/proc/</code>) and <code>strace</code></a>
+          <ul>
+            <li><a href="#creating-a-sys-call-summary-what-does-my-program-do">Creating a SYS CALL summary: what does my program do?</a></li>
+            <li><a href="#did-this-process-start-with-the-correct-environment-variables">Did this process start with the correct environment variables?</a></li>
+            <li><a href="#i-forgot-to-redirect-the-outputs-what-can-i-do-now">I forgot to redirect the outputs! What can I do now?</a></li>
+            <li><a href="#how-this-program-has-been-called-what-is-the-working-dir-of-the-process">How this program has been called? What is the working dir of the process?</a></li>
+          </ul>
+        </li>
+        <li><a href="#conclusion--suggestions">Conclusion &amp; Suggestions</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+</details>
+<p><strong>Introduction</strong></p>
+<p>Linux is a very transparent operating system. Transparency means  that is easy to dig in the system&rsquo;s behavior to understand how it works. Also, Linux is easy to control even in the low-level behaviors.  But how  can this help to understand a process and consequently a failure?</p>
+<p>The first step to understanding a process is to analyze the output. But sometimes the output doesn’t give us enough information to use. Here I’ll talk about how we can extract useful information using the <code>strace</code> and <code>lsof</code> commands. To use these commands it is good to know two concepts: the <em>“Everything is a file ”</em> mantra and the <strong>system call</strong> mechanism.</p>
+<h1 id="concepts">Concepts</h1>
+<h2 id="everything-is-a-file---the-unix-mantra"><em>“Everything is a file.”</em> - The UNIX mantra.</h2>
+<p><img src="everthing_is_a_file.png" alt="everything_is_a_file"></p>
+<p>What  comes to your mind when someone talks about files? Maybe a jpeg or a CSV if you work as a data scientist. But in UNIX approach to do stuff everything can be a file, even network connections. When a thing is not a file it has at least a file descriptor associated with it. Maybe you’re thinking that I’m wandering from the post. <em>“How can this stuff help to improve our comprehension about a process or failure?”</em> The answer is straightforward: if everything is a file, we can use the same set of tools to list, read and interact (API) with files to analyze a generic process. Here is where <code>lsof</code> appears.</p>
+<h3 id="lsof">LSOF</h3>
+<p>lsof is an acronym for <strong>l</strong>ist of <strong>o</strong>pen <strong>f</strong>iles. In simple terms, Lsof is a command-line tool that can list open file descriptors in your machine. Besides that, Lsof allows using a set of different filters to give you a filtered list of opened files. Thus, we can list the open file descriptors of a user or a process.</p>
+<p>To put all the open files in your machine use the following command:</p>
+<pre><code class="language-bash">username:/$ lsof &gt; lsof_everything.txt
+</code></pre>
+<p>The file <code>lsof_everything.txt</code> is huge and  will look similar to this</p>
+<pre><code>COMMAND     PID   TID TASKCMD               USER   FD      TYPE             DEVICE  SIZE/OFF       NODE NAME
 systemd       1                             root  cwd   unknown                                         /proc/1/cwd (readlink: Permission denied)
 systemd       1                             root  rtd   unknown                                         /proc/1/root (readlink: Permission denied)
 systemd       1                             root  txt   unknown                                         /proc/1/exe (readlink: Permission denied)
-</code></pre><p>Take some time to analyze the output. The output relates to the first lines to the <code>root</code> user and you don’t have permission to gain information about these files, which is good. Let’s remove this wasteful information filtering the SYS CALLs related to just your user.</p><pre><code class=language-bash>username:/$ lsof -u username &gt; lsof_my.txt
-</code></pre><p>The <code>txt</code> file is still big. Try to look into this file to see if you can find anything interesting, like a webpage address.</p><p>We have a lot of different columns in the file. But don’t be worried, I’ll show you the columns that I believe are the most important ones.</p><ul><li>COMMAND<ul><li>The command name used to initiate the process</li></ul></li><li>PID<ul><li>This is an integer number that identifies a process, <strong>P</strong>rocess <strong>ID</strong>entification number.</li></ul></li><li>USER<ul><li>The user to whom the process belongs.</li></ul></li><li>TYPE<ul><li>This may be one of the most important columns. It has more than 60 possible values. Such column says the type of the node associated with the file. If the file is related with connections and sockets you will see things like that: <strong>IPV4, IPV6,</strong> <strong>unix</strong>, <strong>INET</strong>, etc. If it’s an regular file (csv, jpeg, txt, etc.) you will see the <strong>REG</strong> value.</li></ul></li><li>NODE<ul><li>This helps us to identify the node associated with the file descriptor. It can be a number, a string, etc. In the case of internet protocols this column will have values like <strong>TCP, UDP</strong>.</li></ul></li><li>NAME<ul><li>The values here will change a lot. For example, sometimes it can be a web server address or just a cryptic string. Regardless of the difficulty of interpreting the values in this column you should look carrefully here.</li></ul></li></ul><p>If you want a more deep understanding of the columns just uses <code>man lsof</code> .</p><h2 id=system-calls-and-strace>System Calls and strace</h2><p>The SYSTEM_CALL is a mechanism that allows a program to ask the kernel for some resources, like the access of data stored in the disk. Therefore, if we have a tool to intercept those calls, we can have a deep comprehension of what a program is doing or what it want’s to do in your system. A celebrated tool to intercept the system calls is the <code>strace</code>.</p><p>If the strace command is not available in your system, install it. In apt-based distros just calling the following command should be enough.</p><pre><code class=language-bash>$ apt install strace
-</code></pre><div class="alert alert-note"><div>In older Debian distros (&lt;=10) you can get the last deb package from here: <a href=http://ftp.de.debian.org/debian/pool/main/s/strace/strace_5.10-1_amd64.deb>strace_5.10-1_amd64.deb</a>. The new version of strace has some cool features that can facilitate our job.</div></div><p>You can use <code>strace</code> in two different ways. The first one is to call strace followed by the strace arguments and the command to be intercepted:</p><pre><code class=language-bash>$ strace ARGS command
-</code></pre><p>In the second way we will replace the command by the <code>-p</code> argument followed by the process identification number (<strong>PID</strong>) of the process to be intercepted:</p><pre><code class=language-bash>$ strace ARGS -p PID
-</code></pre><p>To discover the PID of a process, you can use the command <code>ps aux | grep -i ‘[p]rocess_name’</code>.</p><p>Let’s see an example. We will ask <code>strace</code> to intercept any system call performed by the <code>ls</code> command and we want to record the time that the system call was performed using the <code>-t</code> argument.</p><pre><code class=language-bash>$ strace -t ls
-</code></pre><p>The output will be something similar to this:</p><pre><code>18:02:23 execve(&quot;/usr/bin/ls&quot;, [&quot;ls&quot;], 0x7fffa727a418 /* 54 vars */) = 0
+</code></pre>
+<p>Take some time to analyze the output. The output relates to the first lines to the <code>root</code> user and you don’t have permission to gain information about these files, which is good. Let’s remove this wasteful information filtering the SYS CALLs related to just your user.</p>
+<pre><code class="language-bash">username:/$ lsof -u username &gt; lsof_my.txt
+</code></pre>
+<p>The <code>txt</code> file is still big. Try to look into this file to see if you can find anything interesting, like a webpage address.</p>
+<p>We have a lot of different columns in the file. But don’t be worried, I’ll show you the columns that I believe are the most important ones.</p>
+<ul>
+<li>COMMAND
+<ul>
+<li>The command name used to initiate the process</li>
+</ul>
+</li>
+<li>PID
+<ul>
+<li>This is an integer number that identifies a process,  <strong>P</strong>rocess <strong>ID</strong>entification number.</li>
+</ul>
+</li>
+<li>USER
+<ul>
+<li>The user to whom the process belongs.</li>
+</ul>
+</li>
+<li>TYPE
+<ul>
+<li>This may be one of the most important columns. It has more than 60 possible values. Such column says the type of the node associated with the file. If the file is related with connections and sockets you will see things like that:  <strong>IPV4, IPV6,</strong> <strong>unix</strong>, <strong>INET</strong>, etc. If it’s an regular file (csv, jpeg, txt, etc.) you will see the <strong>REG</strong> value.</li>
+</ul>
+</li>
+<li>NODE
+<ul>
+<li>This helps us to identify the node associated with the file descriptor. It can be a number, a string, etc. In the case of internet protocols this column will have values like <strong>TCP, UDP</strong>.</li>
+</ul>
+</li>
+<li>NAME
+<ul>
+<li>The values here will change a lot.  For example, sometimes it can be a web server address or just a cryptic string. Regardless of the difficulty of interpreting the values in this column you should look carrefully here.</li>
+</ul>
+</li>
+</ul>
+<p>If you want a more deep understanding of the columns just uses <code>man lsof</code> .</p>
+<h2 id="system-calls-and-strace">System Calls and strace</h2>
+<p>The SYSTEM_CALL is a mechanism that allows a program to ask the kernel for some resources, like the access of data stored in the disk. Therefore, if we have a tool to intercept those calls, we can have a deep comprehension of what a program is doing or what it want’s to do in your system. A celebrated tool to intercept the system calls is the <code>strace</code>.</p>
+<p>If the strace command is not available in your system, install it. In apt-based distros just calling the following command should be enough.</p>
+<pre><code class="language-bash">$ apt install strace
+</code></pre>
+<div class="alert alert-note">
+  <div>
+    In older Debian distros (&lt;=10) you can  get the last deb package from here: <a href="http://ftp.de.debian.org/debian/pool/main/s/strace/strace_5.10-1_amd64.deb">strace_5.10-1_amd64.deb</a>. The new version of strace has some cool features that can facilitate our job.
+  </div>
+</div>
+<p>You can use <code>strace</code> in two different ways. The first one is to call strace followed by the strace arguments and the command to be intercepted:</p>
+<pre><code class="language-bash">$ strace ARGS command
+</code></pre>
+<p>In the second way we will replace the command by the <code>-p</code> argument followed by the process identification number (<strong>PID</strong>) of the process to be intercepted:</p>
+<pre><code class="language-bash">$ strace ARGS -p PID
+</code></pre>
+<p>To discover the PID of a process, you can use the command <code>ps aux | grep -i ‘[p]rocess_name’</code>.</p>
+<p>Let’s see an example. We will ask  <code>strace</code> to intercept any system call performed by the <code>ls</code> command and we want to record the time that the system call was performed using the <code>-t</code> argument.</p>
+<pre><code class="language-bash">$ strace -t ls
+</code></pre>
+<p>The output will be something similar to this:</p>
+<pre><code>18:02:23 execve(&quot;/usr/bin/ls&quot;, [&quot;ls&quot;], 0x7fffa727a418 /* 54 vars */) = 0
 18:02:23 brk(NULL)                      = 0x55ebef60c000
 18:02:23 access(&quot;/etc/ld.so.preload&quot;, R_OK) = -1 ENOENT (No such file or directory)
 18:02:23 openat(AT_FDCWD, &quot;/etc/ld.so.cache&quot;, O_RDONLY|O_CLOEXEC) = 3
 ...
-</code></pre><pre><code>18:02:23 execve(&quot;/usr/bin/ls&quot;, [&quot;ls&quot;], 0x7fffa727a418 /* 54 vars */) = 0
+</code></pre>
+<pre><code>18:02:23 execve(&quot;/usr/bin/ls&quot;, [&quot;ls&quot;], 0x7fffa727a418 /* 54 vars */) = 0
 18:02:23 brk(NULL)                      = 0x55ebef60c000
 18:02:23 access(&quot;/etc/ld.so.preload&quot;, R_OK) = -1 ENOENT (No such file or directory)
 18:02:23 openat(AT_FDCWD, &quot;/etc/ld.so.cache&quot;, O_RDONLY|O_CLOEXEC) = 3
 ...
-</code></pre><p>Each line of the <code>strace</code> output represents a single SYSTEM CALL. It’s easy to see the following pattern:</p><p><strong>Name of the SYS CALL(Arguments to be used in the system call) = Result of the SYS CALL</strong></p><p>Yes, it’s hard to understand the output or impossible without using a manual. For each SYS CALL you can use the <code>man</code> command to get more information about what each line represents. For example, to see what <code>openat</code> does and the meaning of each argument, use the following command:</p><pre><code class=language-bash>$ man 2 openat
-</code></pre><p><code>openat</code> is a sys call responsible for requesting a file to be opened. The result of the last line in the output of ls commands, <code>3</code>, means a successfully SYS CALL.</p><h1 id=a-deep-dive-into-failures>A deep dive into failures</h1><p>We will see here failures and issues related to files, connections, etc. But don’t be afraid to explore other problems, we are just scratching the surface of <code>strace</code> and <code>lsof</code>.</p><h2 id=network-issues>Network issues</h2><p>First, install the following packages:</p><pre><code class=language-bash>$ python -m pip install requests flask
-</code></pre><p>Create a script <code>server_mlops.py</code> which we will use to simulate a server with network issues</p><pre><code class=language-python># server_mlops.py
+</code></pre>
+<p>Each line of the <code>strace</code> output represents a single SYSTEM CALL. It’s easy to see the following pattern:</p>
+<p><strong>Name of the SYS CALL(Arguments to be used in the system call) = Result of the SYS CALL</strong></p>
+<p>Yes, it’s hard to understand the output or impossible without using a manual. For each SYS CALL you can use the <code>man </code> command to get more information about what each line represents. For example, to see what  <code>openat</code> does and the meaning of each argument, use the following command:</p>
+<pre><code class="language-bash">$ man 2 openat
+</code></pre>
+<p><code>openat</code> is a sys call responsible for requesting a file to be opened. The result of the last line in the output of ls commands, <code> 3</code>, means a successfully SYS CALL.</p>
+<h1 id="a-deep-dive-into-failures">A deep dive into failures</h1>
+<p>We will see here failures and issues related to files, connections, etc. But don’t be afraid to explore other problems, we are just scratching the surface of <code>strace</code> and <code>lsof</code>.</p>
+<h2 id="network-issues">Network issues</h2>
+<p>First, install the following packages:</p>
+<pre><code class="language-bash">$ python -m pip install requests flask
+</code></pre>
+<p>Create a script <code>server_mlops.py</code> which we will use to simulate a server with network issues</p>
+<pre><code class="language-python"># server_mlops.py
 import time
 import flask
 
@@ -41,11 +1016,54 @@ def hello_world():
 
 if __name__ == '__main__':
     app.run()
-</code></pre><p>Starts the server:</p><pre><code class=language-bash>$ python server_mlops.py
-</code></pre><p>GET The PID of the process:</p><pre><code class=language-bash>$ ps aux | grep -i '[s]erver_mlops.py'
-</code></pre><p>You will see a output similar to this:</p><pre><code class=language-bash>devmess+ 19321 18.0  0.3  29716 24792 pts/5    S+   14:27   0:00 python server_mlops.py
-</code></pre><p>The number in front of the username (<code>19321</code>) is the <code>PID</code> of the process.</p><h3 id=is-my-server-alive>Is my server alive?</h3><p>We have to use a unique set of filters to answer this question using the <code>lsof</code>. Therefore, we need to use the argument <code>-a</code> , which represents an <code>AND</code> operator. The <code>-i</code> argument asks to show just the files associated with connections and finally the argument <code>-p INT</code> makes the <code>losf</code> list just the files opened by the process with the PID <code>INT</code>.</p><pre><code class=language-bash>$ lsof -a -i -p 19321
-</code></pre><p>You will have a output similar to this</p><table><thead><tr><th>COMMAND</th><th>PID</th><th>USER</th><th>FD</th><th>TYPE</th><th>DEVICE</th><th>SIZE/OFF</th><th>NODE</th><th>NAME</th></tr></thead><tbody><tr><td>python</td><td>19321</td><td>devmessias</td><td>4u</td><td>IPv4</td><td>16108218</td><td>0t0</td><td>TCP</td><td>localhost:5000 (LISTEN)</td></tr></tbody></table><p>The output shows that at least our server is listening in the <code>5000</code> port. Try to remove the <code>-a</code> argument and see what happens.</p><h3 id=is-my-process-stuck-waiting-for-someone-what-is-causing-the-process-hanging>Is my process stuck waiting for someone? What is causing the process hanging?</h3><p>This can happen in a myriad of cases. For example, in the dependency management systems like pip/conda. Thus, it is superb to know if you can answer fast if you have a problem on your side or not. Let’s create a simple simulation of this issue. To do so, create the <code>client_mlops.py</code> using the following code:</p><pre><code class=language-python>#!/usr/bin/env python
+</code></pre>
+<p>Starts the server:</p>
+<pre><code class="language-bash">$ python server_mlops.py
+</code></pre>
+<p>GET The PID of the process:</p>
+<pre><code class="language-bash">$ ps aux | grep -i '[s]erver_mlops.py'
+</code></pre>
+<p>You will see a output similar to this:</p>
+<pre><code class="language-bash">devmess+ 19321 18.0  0.3  29716 24792 pts/5    S+   14:27   0:00 python server_mlops.py
+</code></pre>
+<p>The number in front of the username (<code>19321</code>) is the  <code>PID</code> of the process.</p>
+<h3 id="is-my-server-alive">Is my server alive?</h3>
+<p>We have to use a unique set of filters to answer this question using the <code>lsof</code>. Therefore, we need to use the argument <code>-a</code> , which represents an <code>AND</code> operator. The  <code>-i</code> argument asks to show just the files associated with connections and finally the argument <code>-p INT</code> makes the <code>losf</code> list just the files opened by the process with the PID <code>INT</code>.</p>
+<pre><code class="language-bash">$ lsof -a -i -p 19321
+</code></pre>
+<p>You will have a output similar to this</p>
+<table>
+<thead>
+<tr>
+<th>COMMAND</th>
+<th>PID</th>
+<th>USER</th>
+<th>FD</th>
+<th>TYPE</th>
+<th>DEVICE</th>
+<th>SIZE/OFF</th>
+<th>NODE</th>
+<th>NAME</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>python</td>
+<td>19321</td>
+<td>devmessias</td>
+<td>4u</td>
+<td>IPv4</td>
+<td>16108218</td>
+<td>0t0</td>
+<td>TCP</td>
+<td>localhost:5000 (LISTEN)</td>
+</tr>
+</tbody>
+</table>
+<p>The output shows that at least our server is listening in the <code>5000</code> port. Try to remove the <code>-a</code> argument and see what happens.</p>
+<h3 id="is-my-process-stuck-waiting-for-someone-what-is-causing-the-process-hanging">Is my process stuck waiting for someone? What is causing the process hanging?</h3>
+<p>This can happen in a myriad of cases. For example, in the dependency management systems like pip/conda. Thus, it is superb to know if you can answer fast if you have a problem on your side or not. Let’s create a simple simulation of this issue. To do so, create the <code>client_mlops.py</code> using the following code:</p>
+<pre><code class="language-python">#!/usr/bin/env python
 #client_mlops.py
 
 import requests
@@ -59,34 +1077,108 @@ args = parser.parse_args()
 print('Ask for localhost:5000 to sleep for {} seconds'.format(args.sleep))
 r = requests.get('http://localhost:5000', params={'sleep': int(args.sleep)})
 print(r.text)
-</code></pre><p>In the above code, we have the sleep argument. This argument will ask <code>server_mlops</code> to wait for a couple of seconds before sending the answer. Let’s see how these situations appear to us at the system call level.</p><p>Start the <code>client_mlops.py</code> with the <code>strace:</code></p><pre><code class=language-bash>$ strace -e poll,select,connect,recvfrom,sendto python client_mlops.py --sleep=20
-</code></pre><p>The <code>-e</code> argument followed by <code>poll,select,connect,recvfrom,sendto</code> asks to filter just the sys calls related with connections issues. The output of this fake failure will be something like this</p><pre><code>connect(4, {sa_family=AF_INET, sin_port=htons(5000), sin_addr=inet_addr(&quot;127.0.0.1&quot;)}, 16) = 0
+</code></pre>
+<p>In the above code, we have the sleep argument. This argument will ask  <code>server_mlops</code> to wait for a couple of seconds before sending the answer. Let’s see how these situations appear to us at the system call level.</p>
+<p>Start the <code>client_mlops.py</code>  with the  <code>strace:</code></p>
+<pre><code class="language-bash">$ strace -e poll,select,connect,recvfrom,sendto python client_mlops.py --sleep=20
+</code></pre>
+<p>The  <code>-e</code> argument followed by <code>poll,select,connect,recvfrom,sendto</code> asks to filter just the sys calls related with connections issues.  The output of this fake failure will be something like this</p>
+<pre><code>connect(4, {sa_family=AF_INET, sin_port=htons(5000), sin_addr=inet_addr(&quot;127.0.0.1&quot;)}, 16) = 0
 connect(4, {sa_family=AF_INET6, sin6_port=htons(5000), inet_pton(AF_INET6, &quot;::1&quot;, &amp;sin6_addr), sin6_flowinfo=htonl(0), sin6_scope_id=0}, 28) = 0
 connect(4, {sa_family=AF_INET6, sin6_port=htons(5000), inet_pton(AF_INET6, &quot;::1&quot;, &amp;sin6_addr), sin6_flowinfo=htonl(0), sin6_scope_id=0}, 28) = -1 ECONNREFUSED (Connection refused)
 connect(4, {sa_family=AF_INET, sin_port=htons(5000), sin_addr=inet_addr(&quot;127.0.0.1&quot;)}, 16) = 0
 sendto(4, &quot;GET /?sleep=10 HTTP/1.1\r\nHost: l&quot;..., 154, 0, NULL, 0) = 154
 recvfrom(4, 
-</code></pre><p>In the last line we see an unfinished <code>recvfrom</code> <strong>SYS_CALL</strong> . Do you want to know more about <code>recvfrom</code>? Execute <code>man 2 recvfrom</code> in a terminal session. But what matters here? The point is that: <code>strace</code> is telling us there is no problem with our client program, something is problematic on the server side.</p><p>You can also use the <code>lsof</code> to investigate this problem. Let’s simulate this scenario.</p><p>Starts the client again:</p><pre><code class=language-bash>$ python client_mlops.py --sleep=100
-</code></pre><p>Now, get the PID using <code>ps aux | grep -i '[c]lient_mlops.py'</code> and execute the <code>lsof</code> with the obtained PID</p><pre><code class=language-bash>lsof -a -i -p 19321
-</code></pre><p>the output will be something like this</p><table><thead><tr><th>COMMAND</th><th>PID</th><th>USER</th><th>FD</th><th>TYPE</th><th>DEVICE</th><th>SIZE/OFF</th><th>NODE</th><th>NAME</th></tr></thead><tbody><tr><td>python</td><td>31551</td><td>devmessias</td><td>4u</td><td>IPv4</td><td>16622065</td><td>0t0</td><td>TCP</td><td>localhost:57314->localhost:5000 (ESTABLISHED)</td></tr></tbody></table><p>What <code>lsof</code> is telling us is that: ‘’<em>You client seems fine. At least it is connected with the server</em>“”. What does this mean? This means the answer was not of great help.</p><h2 id=problems-with-regular-files>Problems with regular files</h2><p>Sometimes you can have a problem with regular files and you don’t know. Nothing was printed in the output. For example, a wrong cache being used, a program that tries to access a file that doesn’t have permission, a malicious or a bad writing process accessing/creating files in your system, etc.</p><p>Here we will simulate simple examples related to regular files. To do so, first, copy any file to the <code>tmp</code> folder or just call the following command:</p><pre><code class=language-bash>$ man strace &gt; /tmp/dummy_file.txt 
-</code></pre><h3 id=which-processes-is-this-file-attached-to>Which processes is this file attached to?</h3><p>Being able to answer this question can be quite useful. For example, suppose that there is a huge file in your disk being created, almost filling up your system and you want to discover which process is doing this.</p><p>First, create the following script.</p><pre><code class=language-python>#!/usr/bin/env python
+</code></pre>
+<p>In the last line we see an unfinished <code>recvfrom</code>  <strong>SYS_CALL</strong> . Do you want to know more about <code>recvfrom</code>? Execute <code>man 2 recvfrom</code> in a terminal session.  But what matters here? The point is that: <code>strace</code> is telling us  there is no problem with our client program, something is problematic on the server side.</p>
+<p>You can also use the <code>lsof</code> to investigate this problem. Let’s simulate this scenario.</p>
+<p>Starts the client again:</p>
+<pre><code class="language-bash">$ python client_mlops.py --sleep=100
+</code></pre>
+<p>Now, get the PID using <code>ps aux | grep -i '[c]lient_mlops.py'</code> and execute the <code>lsof</code> with the obtained PID</p>
+<pre><code class="language-bash">lsof -a -i -p 19321
+</code></pre>
+<p>the output will be something like this</p>
+<table>
+<thead>
+<tr>
+<th>COMMAND</th>
+<th>PID</th>
+<th>USER</th>
+<th>FD</th>
+<th>TYPE</th>
+<th>DEVICE</th>
+<th>SIZE/OFF</th>
+<th>NODE</th>
+<th>NAME</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>python</td>
+<td>31551</td>
+<td>devmessias</td>
+<td>4u</td>
+<td>IPv4</td>
+<td>16622065</td>
+<td>0t0</td>
+<td>TCP</td>
+<td>localhost:57314-&gt;localhost:5000 (ESTABLISHED)</td>
+</tr>
+</tbody>
+</table>
+<p>What <code>lsof</code> is telling us is that: ‘’<em>You client seems fine. At least it is connected with the server</em>“”. What does this mean? This means the  answer was not of great help.</p>
+<h2 id="problems-with-regular-files">Problems with regular files</h2>
+<p>Sometimes you can have a problem with regular files and you don’t know. Nothing was printed in the output. For example, a  wrong cache being used, a program that tries to access a file that doesn’t have permission, a malicious or a bad writing process accessing/creating files in your system,  etc.</p>
+<p>Here we will simulate simple examples related to regular files. To do so, first, copy any  file to the <code>tmp</code> folder  or just call the following command:</p>
+<pre><code class="language-bash">$ man strace &gt; /tmp/dummy_file.txt 
+</code></pre>
+<h3 id="which-processes-is-this-file-attached-to">Which processes is this file attached to?</h3>
+<p>Being able to answer this question can be quite useful. For example, suppose that  there is a huge file in your disk being created, almost filling up your system and you want to discover which process is doing this.</p>
+<p>First, create the following script.</p>
+<pre><code class="language-python">#!/usr/bin/env python
 # file_open.py
 import time
 
 f = open('/tmp/dummy_file.txt', 'r')
 input('Press Enter to continue...')
-</code></pre><p>Now open two different terminal sessions and perform the following command <code>python file_open.py </code>. in each one.</p><p>To find all the processes which are attached to <code>dummy_file.txt</code> you just need to call <code>lsof</code> like this:</p><pre><code class=language-bash>$ lsof /tmp/dummy_file.txt
-</code></pre><p>The output should be something similar to this:</p><pre><code>COMMAND   PID       USER   FD   TYPE DEVICE SIZE/OFF    NODE NAME
+</code></pre>
+<p>Now open two different terminal sessions and perform the following command <code>python file_open.py </code>. in each one.</p>
+<p>To find all the processes which are attached to <code>dummy_file.txt</code> you just need to call <code>lsof</code> like this:</p>
+<pre><code class="language-bash">$ lsof /tmp/dummy_file.txt
+</code></pre>
+<p>The output should be something similar to this:</p>
+<pre><code>COMMAND   PID       USER   FD   TYPE DEVICE SIZE/OFF    NODE NAME
 python  15411 devmessias    3r   REG    8,2        0 2911031 /tmp/dummy_file.txt
 python  20777 devmessias    3r   REG    8,2        0 2911031 /tmp/dummy_file.txt
-</code></pre><p>We have two distinct processes, two different PIDs, using the same file.</p><h3 id=i-made-a-mistake-deleted-an-important-file-how-can-i-recover-it>I made a mistake! Deleted an important file! How can I recover it?</h3><p>Here the simulation will be more than one more process attached to a file and you accidentally perform some action that deletes the file.</p><p>Create a file <code>accident.txt</code>. Open a terminal session and perform the following command. <strong>Don’t close the session!</strong></p><pre><code class=language-bash>$ python -c 'f=open(&quot;accident.txt&quot;, &quot;r&quot;);input(&quot;...&quot;)'
-</code></pre><p>In another session, perform the following commands:</p><pre><code class=language-bash>$ rm accident.txt
+</code></pre>
+<p>We have two distinct processes, two different PIDs, using the same file.</p>
+<h3 id="i-made-a-mistake-deleted-an-important-file-how-can-i-recover-it">I made a mistake! Deleted an important file! How can I recover it?</h3>
+<p>Here the simulation will be more than one more process attached to a file and you accidentally perform some action that deletes the file.</p>
+<p>Create a file  <code>accident.txt</code>. Open a terminal session and perform the following command.  <strong>Don’t close the session!</strong></p>
+<pre><code class="language-bash">$ python -c 'f=open(&quot;accident.txt&quot;, &quot;r&quot;);input(&quot;...&quot;)'
+</code></pre>
+<p>In another session, perform the following commands:</p>
+<pre><code class="language-bash">$ rm accident.txt
 $ ls accident.txt
-</code></pre><p>And it’s gone :(</p><pre><code>ls: cannot access 'acidente.txt': No such file or directory
-</code></pre><p>Don’t worry! Linux has a lot of cool aspects and one of them will help us to recover our file.</p><p>In Linux any process has a directory associated with it, this directory will be inside of the <code>/proc</code> folder. And what do these directories store? A lot of things! I assure you that you can be surprised. For example, these folders also store the file descriptors associated with any process using <code>accident.txt</code>. Let’s see if there are any processes using this file.</p><pre><code class=language-bash>$ lsof -u your_username | grep 'accident.txt'
-</code></pre><p>In my case, I’ve obtained the following output:</p><pre><code>python    22465 devmessias    3r      REG                8,2     37599   14288174 path/accident.txt (deleted)
-</code></pre><p>This is great news! We have a process PID <code>22465</code> that still has a file descriptor associated with <code>accident.txt</code>. Now we can use a simple <code>cp</code> command to recover the data. To do so, we need to use the file descriptor number. In my case is <code>3</code> which is the number in front of the <code>r</code> character in the output above.</p><pre><code class=language-bash>$ cp /proc/22465/fd/3 recovered.txt
-</code></pre><p>Now just call <code>nano recovered.txt</code> and testify the result . It’s not magic! It’s just how the <strong>process pseudo-filesystem</strong> works!</p><h3 id=silent-errors-associated-with-files-and-permissions>Silent errors associated with files and permissions</h3><p>Let’s create a simple example of an undue access to a file using the following script</p><pre><code class=language-python>#!/usr/bin/env python
+</code></pre>
+<p>And it’s gone :(</p>
+<pre><code>ls: cannot access 'acidente.txt': No such file or directory
+</code></pre>
+<p>Don’t worry! Linux has a lot of cool aspects and one of them will help us to recover our file.</p>
+<p>In Linux any process has a directory associated with it, this directory will be inside of the <code>/proc</code> folder. And what do these directories store?  A lot of things! I assure you that you can be surprised. For example, these folders also store the file descriptors associated with any process using <code>accident.txt</code>. Let’s see if there are any processes using this file.</p>
+<pre><code class="language-bash">$ lsof -u your_username | grep 'accident.txt'
+</code></pre>
+<p>In my case, I’ve obtained the following output:</p>
+<pre><code>python    22465 devmessias    3r      REG                8,2     37599   14288174 path/accident.txt (deleted)
+</code></pre>
+<p>This is great news! We have a process PID <code>22465</code> that still has a file descriptor associated with <code>accident.txt</code>. Now we can use a simple <code>cp</code> command to recover the data. To do so, we need to use the file descriptor number. In my case is  <code>3</code> which is the number in front of the  <code>r</code> character in the output above.</p>
+<pre><code class="language-bash">$ cp /proc/22465/fd/3 recovered.txt
+</code></pre>
+<p>Now just call <code>nano recovered.txt</code> and testify the result . It’s not magic! It’s just how the  <strong>process pseudo-filesystem</strong> works!</p>
+<h3 id="silent-errors-associated-with-files-and-permissions">Silent errors associated with files and permissions</h3>
+<p>Let’s create a simple example of an undue access to a file using the following script</p>
+<pre><code class="language-python">#!/usr/bin/env python
 # file_404.py
 import time
 
@@ -102,67 +1194,132 @@ except PermissionError:
     pass
 
 input('Press Enter to continue...')
-</code></pre><p>Call <code>python file_404.py</code>, nothing will appears.</p><p>To trace any SYS CALL related to regular files made by <code>python file_404.py</code> you just need to use the <code>-e trace=file</code> arg, like this:</p><pre><code class=language-bash>$ strace -f -e trace=file python file_404.py
-</code></pre><p>The argument <code>-f</code> says to <code>strace</code> to monitor any children&rsquo;s process. You probably will use <code>-f</code> every time when you’re dealing with strace in real case scenarios.</p><p>The output of the previous command should be like this</p><pre><code>lstat(&quot;something/file_404.py&quot;, {st_mode=S_IFREG|0644, st_size=242, ...}) = 0
+</code></pre>
+<p>Call <code>python file_404.py</code>, nothing will appears.</p>
+<p>To trace any SYS CALL related to regular files made by  <code>python file_404.py </code>  you just need to use the <code>-e trace=file</code> arg, like this:</p>
+<pre><code class="language-bash">$ strace -f -e trace=file python file_404.py
+</code></pre>
+<p>The argument  <code>-f</code> says to  <code>strace</code> to monitor any children&rsquo;s process. You probably will use  <code>-f</code> every time when you’re dealing with strace in real case scenarios.</p>
+<p>The output of the previous command should be like this</p>
+<pre><code>lstat(&quot;something/file_404.py&quot;, {st_mode=S_IFREG|0644, st_size=242, ...}) = 0
 openat(AT_FDCWD, &quot;file_404.py&quot;, O_RDONLY) = 3
 openat(AT_FDCWD, &quot;/tmp/file_that_dosent_exist.csv&quot;, O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
 openat(AT_FDCWD, &quot;/tmp/file_wrong_permission.csv&quot;, O_RDONLY|O_CLOEXEC) = -1 EACCES (Permission denied)
-</code></pre><p>Cool! With the <code>strace</code> we are able to identify errors even when the programmer used a dangerous practice in the code.</p><p>Ok, but let’s improve our output. We can filter the strace output redirecting into it the <code>awk</code> (or <code>grep</code>) and performing a conditional check that each line should start with the <code>open</code> string and have the pattern <code>= -1</code> in the line. The <code>-1</code> means that the <code>openat</code> SYS CALL had returned an error.</p><pre><code class=language-bash>$ strace -f -e trace=file python file_404.py 2&gt;&amp;1 | awk '/^open/ &amp;&amp; /= -1/ {print}'
-</code></pre><p>The output now will be simpler and easier to analyze:</p><pre><code>openat(AT_FDCWD, &quot;/home/devmessias/anaconda3/pyvenv.cfg&quot;, O_RDONLY) = -1 ENOENT (No such file or directory)
+</code></pre>
+<p>Cool! With the  <code>strace</code>  we are able to identify errors even when the programmer used a dangerous practice in the code.</p>
+<p>Ok, but let’s improve our output. We can filter the strace output redirecting into it the <code>awk</code> (or <code>grep</code>) and performing a conditional check that each line should start with the <code>open</code> string and have the pattern <code>= -1</code> in the line. The <code>-1</code> means that the <code>openat</code> SYS CALL had returned an error.</p>
+<pre><code class="language-bash">$ strace -f -e trace=file python file_404.py 2&gt;&amp;1 | awk '/^open/ &amp;&amp; /= -1/ {print}'
+</code></pre>
+<p>The output now will be simpler and easier to analyze:</p>
+<pre><code>openat(AT_FDCWD, &quot;/home/devmessias/anaconda3/pyvenv.cfg&quot;, O_RDONLY) = -1 ENOENT (No such file or directory)
 openat(AT_FDCWD, &quot;/tmp/arquivo_404.csv&quot;, O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
 openat(AT_FDCWD, &quot;/tmp/arquivo_permission.csv&quot;, O_RDONLY|O_CLOEXEC) = -1 EACCES (Permission denied)
-</code></pre><p>If you are using the last versions of <code>strace</code> (5.2>=) you can use a more simple command like this:</p><pre><code class=language-bash>$ strace -f -e trace=openat -e status=failed python file_404.py
-</code></pre><h3 id=is-this-process-using-a-cache-where-can-i-find-this-cache-which-configs-files-does-this-process-use>Is this process using a cache? Where can I find this cache? Which configs files does this process use?</h3><p>It is a tedious task to search for cache or configs files used by a process and sometimes we need to delete these cache files. Another task that appears very often is to discover which files a process is using or if it is doing anything strange in your system. Maybe you want to discover if your python script is using the correct libs and files. For all these situations, you can use the following command:</p><pre><code class=language-bash>$ strace -f -e trace=file command
-</code></pre><p>If you want to get just the SYS CALLs that was perfomed succesfully do the next:</p><pre><code class=language-bash>$ strace -f -e trace=file comando 2&gt;&amp;1 | awk '/^open/ &amp;&amp; !/= -1/ {print}'
-</code></pre><p>In the above command the <code>!</code> is as a negation parameter for the <code>awk</code> search.</p><p>Again, the new versions of strace allows the status flag:</p><pre><code>$ strace -f -e trace=openat -e status=successful python file_404.py
-</code></pre><h2 id=dissecting-your-database-system>Dissecting your database system</h2><p>The <code>strace</code> and <code>lsof</code> are powerful tools to discover and solve bugs. You don’t need to believe me. Just check the number of bugs in MySQL that <code>strace</code> was used to tackle
-<a href=http://mysqlentomologist.blogspot.com/2017/12/using-strace-for-mysql-troubleshooting.html target=_blank rel=noopener>“using strace for mysql troubleshooting</a>. Thus, it’s not a surprise that we can use <code>strace</code> in our daily life dealing with databases.</p><h3 id=is-this-process--well-behaved-how-many-connections-does-it-have>Is this process well behaved? How many connections does it have?</h3><p>In MlOps or DevOps we always need to deal with database connections. Sometimes we must check if a process is closing these connections or is creating more than necessary. If these connections are made using the <strong>TCP</strong> protocol you can list all established connections using the following command:</p><pre><code class=language-bash>$ lsof -iTCP -sTCP:ESTABLISHED 
-</code></pre><p>As expected, we get a lot of unwanted information like website addresses and other application communications. If we want to list just the <strong>TCP</strong> connection in a process, we must pass the <strong>PID</strong> like this:</p><pre><code class=language-bash>$ lsof -iTCP -sTCP:ESTABLISHED -p 22157
+</code></pre>
+<p>If you are using the last versions of <code>strace</code> (5.2&gt;=) you can use a more simple command like this:</p>
+<pre><code class="language-bash">$ strace -f -e trace=openat -e status=failed python file_404.py
+</code></pre>
+<h3 id="is-this-process-using-a-cache-where-can-i-find-this-cache-which-configs-files-does-this-process-use">Is this process using a cache? Where can I find this cache? Which configs files does this process use?</h3>
+<p>It is a tedious task to search for cache or configs files used by a process and sometimes we need to delete these cache files. Another task that appears very often is to discover which files a process is using or if it is doing anything strange in your system. Maybe you want to discover if your python script is using the correct libs and files. For all these situations, you can use the following command:</p>
+<pre><code class="language-bash">$ strace -f -e trace=file command
+</code></pre>
+<p>If you want to get just the SYS CALLs that was perfomed succesfully do the next:</p>
+<pre><code class="language-bash">$ strace -f -e trace=file comando 2&gt;&amp;1 | awk '/^open/ &amp;&amp; !/= -1/ {print}'
+</code></pre>
+<p>In the above command the <code>!</code>  is as a negation parameter for the <code>awk</code> search.</p>
+<p>Again, the new versions of strace allows the status flag:</p>
+<pre><code>$ strace -f -e trace=openat -e status=successful python file_404.py
+</code></pre>
+<h2 id="dissecting-your-database-system">Dissecting your database system</h2>
+<p>The <code>strace</code> and <code>lsof</code> are powerful tools to discover and solve bugs. You don’t need to believe me. Just check the number of bugs in MySQL that <code>strace</code> was used to tackle 
+<a href="http://mysqlentomologist.blogspot.com/2017/12/using-strace-for-mysql-troubleshooting.html" target="_blank" rel="noopener">“using strace for mysql troubleshooting</a>. Thus, it’s not a surprise that we can use <code>strace</code> in our daily life dealing with databases.</p>
+<h3 id="is-this-process--well-behaved-how-many-connections-does-it-have">Is this process  well behaved? How many connections does it have?</h3>
+<p>In MlOps or DevOps we always need to deal with database connections. Sometimes we must check if a process is closing these connections or is creating more than necessary. If these connections are made using the <strong>TCP</strong> protocol you can list all established connections using the following command:</p>
+<pre><code class="language-bash">$ lsof -iTCP -sTCP:ESTABLISHED 
+</code></pre>
+<p>As expected, we get a lot of unwanted information like website addresses and other application communications. If we want to list just the <strong>TCP</strong> connection in a process, we must pass the <strong>PID</strong> like this:</p>
+<pre><code class="language-bash">$ lsof -iTCP -sTCP:ESTABLISHED -p 22157
 
 COMMAND   PID       USER   FD   TYPE  DEVICE SIZE/OFF NODE NAME
 python  22157 devmessias    4u  IPv4 9474517      0t0  TCP localhost:35932-&gt;localhost:mysql (ESTABLISHED)
 python  22157 devmessias    5u  IPv4 9474518      0t0  TCP localhost:35934-&gt;localhost:mysql (ESTABLISHED)
 python  22157 devmessias    6u  IPv4 9475529      0t0  TCP localhost:37048-&gt;localhost:5000 (ESTABLISHED)
-</code></pre><p>As can you see we also have some connections in our server that are not related to the <code>mysql</code>. If we want to investigate just the <code>mysql</code> connections between all the processes in our system just do:</p><pre><code class=language-bash>$ lsof -iTCP:mysql -sTCP:ESTABLISHED 
+</code></pre>
+<p>As can you see we also have some connections in our server that are not related to the <code>mysql</code>. If we want to investigate just the <code>mysql</code> connections between all the processes in our system just do:</p>
+<pre><code class="language-bash">$ lsof -iTCP:mysql -sTCP:ESTABLISHED 
 python  22157 devmessias    4u  IPv4 9474517      0t0  TCP localhost:35932-&gt;localhost:mysql (ESTABLISHED)
 python  22157 devmessias    5u  IPv4 9474518      0t0  TCP localhost:35934-&gt;localhost:mysql (ESTABLISHED)
-</code></pre><p>The process identified by <em>22157</em> PID has two connections with our mysql server.</p><p>Notice we have used a pattern in the <code>-i</code> argument. This pattern follows this structure:</p><pre><code class=language-bash>lsof -i[protocol][@hostname|hostaddr][:service|port]
-</code></pre><h3 id=everything-is-working-proprely>Everything is working proprely?</h3><p>Let’s give you a taste of what we can extract from the mysql service using <code>strace</code> in order to get a comprehension about the processes.</p><p>Get the PID of <code>mysqld</code></p><pre><code class=language-bash>$ps aux | grep -i '[m]ysqld'
+</code></pre>
+<p>The process identified by <em>22157</em> PID has two connections with our mysql server.</p>
+<p>Notice we have used a pattern in the <code>-i</code> argument. This pattern follows this structure:</p>
+<pre><code class="language-bash">lsof -i[protocol][@hostname|hostaddr][:service|port]
+</code></pre>
+<h3 id="everything-is-working-proprely">Everything is working proprely?</h3>
+<p>Let’s give you a taste of what we can extract from the mysql service using <code>strace</code> in order to get a comprehension about the processes.</p>
+<p>Get the PID of <code>mysqld</code></p>
+<pre><code class="language-bash">$ps aux | grep -i '[m]ysqld'
 mysql    14001     1  0 13:41 ?        00:00:18 /usr/sbin/mysqld
-</code></pre><p>We will ask the <code>strace</code> to increase the size of the strings up to 50 characters (<code>-s 50</code>) and we will omit any SYS CALL of the type <code>io_getevents</code> , <code>nanosleep</code> and <code>futex</code>.</p><pre><code class=language-bash>$ sudo strace -s 50 -f -e trace=!io_getevents,nanosleep,futex -p 10767
-</code></pre><p>Chose one of your databases and tables to do the following examples. Here, I’ve perfomed this SQL query:</p><pre><code class=language-sql>SELECT * FROM  product WHERE product_id = 1;
-</code></pre><p>My output prompted some stuff like this</p><pre><code class=language-bash>[pid 14334] recvfrom(52, &quot;,\0\0\0&quot;, 4, MSG_DONTWAIT, NULL, NULL) = 4
+</code></pre>
+<p>We will ask the <code>strace</code> to increase the size of the strings up to 50 characters (<code>-s 50</code>) and we will omit any SYS CALL of the type <code>io_getevents</code> , <code>nanosleep</code> and <code>futex</code>.</p>
+<pre><code class="language-bash">$ sudo strace -s 50 -f -e trace=!io_getevents,nanosleep,futex -p 10767
+</code></pre>
+<p>Chose one of your databases and tables to do the following examples. Here, I’ve perfomed this SQL query:</p>
+<pre><code class="language-sql">SELECT * FROM  product WHERE product_id = 1;
+</code></pre>
+<p>My output prompted some stuff like this</p>
+<pre><code class="language-bash">[pid 14334] recvfrom(52, &quot;,\0\0\0&quot;, 4, MSG_DONTWAIT, NULL, NULL) = 4
 [pid 14334] recvfrom(52, &quot;\3SELECT * FROM  product WHERE product_id = 1&quot;, 44, MSG_DONTWAIT, NULL, NULL) = 44
 [pid 14334] sendto(52, &quot;\1\0\0\1\5F\0\0\2\3def\16farmers_market\7product\7product\nprodu&quot;..., 477, MSG_DONTWAIT, NULL, 0 &lt;unfinished ...&gt;
 [pid 14207] sched_yield( &lt;unfinished ...&gt;
 [pid 14334] &lt;... sendto resumed&gt;)       = 477
 [pid 14207] &lt;... sched_yield resumed&gt;)  = 0
 ...
-</code></pre><p>We can see the SQL query above. This also shows how <code>strace</code> can help us to gain a deep understanding about our system. We can see how the sql queries are comunicating using de <code>recvfrom</code> and <code>sendfrom</code> calls. The <code>man 2 recvfrom</code> says the first number, 52, represents the file descriptor associated with a unix socket.</p><p>We can use this approach to investigate $IO$ problems (
-<a href=https://newbiedba.wordpress.com/2017/01/04/using-strace-in-linux-to-troubleshoot-database-performance-issues/ target=_blank rel=noopener>using-strace-in-linux-to-troubleshoot-database-performance-issues</a>) as well many others. But let’s simulate a lock condition and see what happens.</p><p>Start a session and initiate any transaction. Don’t finish with a <strong>COMMIT;</strong> command!</p><pre><code># first session
+</code></pre>
+<p>We can see the SQL query above. This also shows how <code>strace</code> can help us to gain a deep understanding about our system. We can see how the sql queries are  comunicating using de <code>recvfrom</code> and <code>sendfrom</code> calls.     The <code>man 2 recvfrom</code> says the first number, 52, represents the file descriptor associated with a unix socket.</p>
+<p>We can use this approach to investigate $IO$ problems (
+<a href="https://newbiedba.wordpress.com/2017/01/04/using-strace-in-linux-to-troubleshoot-database-performance-issues/" target="_blank" rel="noopener">using-strace-in-linux-to-troubleshoot-database-performance-issues</a>) as well many others. But let’s simulate a lock condition and see what happens.</p>
+<p>Start a session and initiate any transaction. Don’t finish with a <strong>COMMIT;</strong> command!</p>
+<pre><code># first session
 MariaDB [you_db]&gt; BEGIN;
 Query OK, 0 rows affected (0.001 sec)
 MariaDB [your_db]&gt; UPDATE customer SET customer_first_name = 'something' WHERE customer_id=1;
 Query OK, 0 rows affected (0.001 sec)
 Rows matched: 1  Changed: 0  Warnings: 0
 MariaDB [you_db]&gt;
-</code></pre><p>Looks in the <code>strace</code> output, something like this should appear</p><pre><code>[pid 14334] recvfrom(52, &quot;I\0\0\0&quot;, 4, MSG_DONTWAIT, NULL, NULL) = 4
+</code></pre>
+<p>Looks in the <code>strace</code> output, something like this should appear</p>
+<pre><code>[pid 14334] recvfrom(52, &quot;I\0\0\0&quot;, 4, MSG_DONTWAIT, NULL, NULL) = 4
 [pid 14334] recvfrom(52, &quot;\3UPDATE customer SET customer_first_name = 'Brun&quot;..., 73, MSG_DONTWAIT, NULL, NULL) = 73
 [pid 14334] sendto(52, &quot;0\0\0\1\0\0\0\3\0\0\0(Rows matched: 1  Changed: 0  Warnings:&quot;..., 52, MSG_DONTWAIT, NULL, 0) = 52
 [pid 14334] recvfrom(52, 0x7fd354007348, 4, MSG_DONTWAIT, NULL, NULL) = -1 EAGAIN 
 [pid 14334] poll([{fd=52, events=POLLIN|POLLPRI}], 1, 28800000
 
-</code></pre><p>The <code>poll</code> is a system call that will wait for any change in the file descriptor 52. The process is waiting for the <code>COMMIT;</code> clause in our first mysql session. Note the absence of the enclosing <code>)</code> in the last line.</p><p>Open another mysql session, try to execute the same SQL query (whitouth the BEGIN)</p><pre><code># second session
+</code></pre>
+<p>The <code>poll</code>  is a system call that will wait for any change in the file descriptor 52.  The process is waiting for the <code>COMMIT;</code> clause in our first mysql session. Note the absence of the enclosing <code>)</code> in the last line.</p>
+<p>Open another mysql session, try to execute the same SQL query (whitouth the BEGIN)</p>
+<pre><code># second session
 MariaDB [your_db]&gt; UPDATE customer SET customer_first_name = 'something' WHERE customer_id=1;
-</code></pre><p>The db row it’s in a lock state. If we look in the <code>strace</code> output just some new lines will be printed, like this</p><pre><code> &lt;unfinished ...&gt;
+</code></pre>
+<p>The db row it’s in a lock state. If we look in the <code>strace</code> output just some new lines will be printed, like this</p>
+<pre><code> &lt;unfinished ...&gt;
 [pid 29884] recvfrom(83, &quot;I\0\0\0&quot;, 4, MSG_DONTWAIT, NULL, NULL) = 4
 [pid 29884] recvfrom(83, &quot;\3UPDATE customer   SET customer_first_name = 'someth&quot;..., 73, MSG_DONTWAIT, NULL, NULL) = 73
-</code></pre><p>Our second transction is waiting for the first to be commited in our db. If you perform a commit in the first session this will hapen in the <code>strace</code> output:</p><pre><code>[pid 14334] &lt;... poll resumed&gt;)         = 1 ([{fd=52, revents=POLLIN}])
+</code></pre>
+<p>Our second transction is waiting for the first to be commited in our db. If you perform a commit in the first session this will hapen in the <code>strace</code> output:</p>
+<pre><code>[pid 14334] &lt;... poll resumed&gt;)         = 1 ([{fd=52, revents=POLLIN}])
 [pid 14334] recvfrom(52, &quot;\7\0\0\0&quot;, 4, MSG_DONTWAIT, NULL, NULL) = 4
 [pid 14334] recvfrom(52, &quot;\3COMMIT&quot;, 7, MSG_DONTWAIT, NULL, NULL) = 7
 ...
-</code></pre><p>Your first transaction was performed and the lock was released allowing the second transaction to be executed.</p><h2 id=extras-related-to-files-proc-and-strace>Extras related to files (<code>/proc/</code>) and <code>strace</code></h2><p>I gave you some examples about connection issues, regular files accidents and database management. Here I’ll give more examples that I believe are not so useful although they are very interesting.</p><h3 id=creating-a-sys-call-summary-what-does-my-program-do>Creating a SYS CALL summary: what does my program do?</h3><p>An overview of what your program does can help you to perform some optimizations or discover something strange. We can use the <code>strace -c</code> to get an overview of the system calls. For example, the following command gave me a summary of system calls of a <code>make sync-env</code> that I’m using in one of my projects:</p><pre><code class=language-bash>$ strace -c -e trace=!\wait4 make sync-env
-</code></pre><p>The exclamation mark, <code>-e trace=!\wait4</code>, in the above command tells <code>strace</code> to ignore any <code>wait4</code> system call.</p><p>What I’ve obtained was this</p><pre><code>% time     seconds  usecs/call     calls    errors syscall
+</code></pre>
+<p>Your first transaction was performed and the lock was released allowing the second transaction to be executed.</p>
+<h2 id="extras-related-to-files-proc-and-strace">Extras related to files (<code>/proc/</code>) and <code>strace</code></h2>
+<p>I gave you some examples about connection issues, regular files accidents and database management. Here I’ll give  more examples that I believe are not so useful although they are very interesting.</p>
+<h3 id="creating-a-sys-call-summary-what-does-my-program-do">Creating a SYS CALL summary: what does my program do?</h3>
+<p>An overview of what your program does  can help you to perform some optimizations or  discover something strange. We can use the <code>strace -c</code> to get an overview of the system calls. For example, the following command gave me a summary of system calls of a <code>make sync-env</code>  that I’m using in one of my projects:</p>
+<pre><code class="language-bash">$ strace -c -e trace=!\wait4 make sync-env
+</code></pre>
+<p>The exclamation mark, <code>-e trace=!\wait4</code>, in the above command tells  <code>strace</code>  to ignore any <code>wait4</code> system call.</p>
+<p>What I’ve obtained was this</p>
+<pre><code>% time     seconds  usecs/call     calls    errors syscall
 ------ ----------- ----------- --------- --------- ----------------
  14,54    0,000209           6        33        13 openat
  13,01    0,000187          17        11           vfork
@@ -191,28 +1348,54 @@ MariaDB [your_db]&gt; UPDATE customer SET customer_first_name = 'something' WHER
   0,21    0,000003           3         1           arch_prctl
 ------ ----------- ----------- --------- --------- ----------------
 100.00    0,001437                   241        25 total
-</code></pre><p>What can we extract from the above output? A lot of things. For example <code>make sync-env</code> spent 14% of the time doing system calls of the type <code>opennat</code> and 20 of these 33 <code>openat</code> calls had some problem.</p><h3 id=did-this-process-start-with-the-correct-environment-variables>Did this process start with the correct environment variables?</h3><p>We have several reasons to use environment variables. These variables are easy to configure, improve security, and prevent errors. So they are used everywhere to store a secret, point to a lib and much more. However, sometimes we are not so sure whether a process is using the correct environment variables or not.</p><p>Let’s try something simple</p><pre><code class=language-bash>$ ANSWER=42 python script.py
-</code></pre><p>As I said previously the <code>/proc</code> is responsible for storing the state of any process running in your machine. So, it’s not a surprise that we can extract the environment variables from that.</p><p>To print the environment variables of the process with a PID <code>4301</code> just call this <code>cat /proc/4031/environ</code> and get an ugly output. To improve the output we can use the <code>tr</code> and replace the null characters <code>\0</code> by break lines <code>\n</code>. Like this:</p><pre><code class=language-bash>$ tr '\0' '\n' &lt; /proc/4031/environ
-</code></pre><p>You will have a output similar to this</p><pre><code>ANSWER=42
+</code></pre>
+<p>What  can we extract from the above output? A lot of things. For example  <code>make sync-env</code> spent 14% of the time doing system calls of the type <code>opennat</code> and 20 of these 33  <code>openat</code> calls  had some problem.</p>
+<h3 id="did-this-process-start-with-the-correct-environment-variables">Did this process start with the correct environment variables?</h3>
+<p>We have several reasons to use environment variables. These variables are easy to configure, improve security, and prevent errors. So they are used everywhere to store a secret, point to a lib and much more. However, sometimes we are not so sure whether a process is using the correct environment variables or not.</p>
+<p>Let’s try something simple</p>
+<pre><code class="language-bash">$ ANSWER=42 python script.py
+</code></pre>
+<p>As I said previously the <code>/proc</code> is responsible for storing the state of any process running in your machine.  So, it’s not a surprise that we can extract the environment variables from that.</p>
+<p>To print the environment variables of the process with a PID <code>4301</code> just call this <code>cat /proc/4031/environ</code> and get an ugly output. To improve the output we can use the <code>tr</code> and replace the null characters  <code>\0</code> by break lines <code>\n</code>. Like this:</p>
+<pre><code class="language-bash">$ tr '\0' '\n' &lt; /proc/4031/environ
+</code></pre>
+<p>You will have a output similar to this</p>
+<pre><code>ANSWER=42
 SHELL=/bin/bash
 LANGUAGE=en_US
 JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/bin/java
 ...more stuff
-</code></pre><p>If you want to look just at the environment variables with a given string pattern you can use <code>awk</code> , <code>grep</code>, or anything that you feel more comfortable. For example, doing this</p><pre><code class=language-bash>$ tr '\0' '\n' &lt; /proc/4031/environ 2&gt;&amp;1 | awk '/^CONDA/ {print}'
-</code></pre><p>I’ve obtained this</p><pre><code>CONDA_EXE=/home/devmessias/anaconda3/bin/conda
+</code></pre>
+<p>If you want to look just at the environment variables with a given string pattern you can use <code>awk</code> , <code>grep</code>, or anything that you feel more comfortable.  For example, doing this</p>
+<pre><code class="language-bash">$ tr '\0' '\n' &lt; /proc/4031/environ 2&gt;&amp;1 | awk '/^CONDA/ {print}'
+</code></pre>
+<p>I’ve obtained this</p>
+<pre><code>CONDA_EXE=/home/devmessias/anaconda3/bin/conda
 CONDA_PREFIX=/home/devmessias/anaconda3
 CONDA_PROMPT_MODIFIER=(base) 
 CONDA_SHLVL=1
 CONDA_PYTHON_EXE=/home/devmessias/anaconda3/bin/python
 CONDA_DEFAULT_ENV=base
-</code></pre><h3 id=i-forgot-to-redirect-the-outputs-what-can-i-do-now>I forgot to redirect the outputs! What can I do now?</h3><p>Suppose you started a process without redirecting the output to a file. Maybe you forgot or you are too optimistic about the problems and now you want to persist the errors. If restart the process it’s out of question you can use the <code>strace</code> to solve your headache. Let’s see how we can solve that.</p><p>The system calls responsible to request the kernel to write in the <strong>stdin, stdout</strong> and <strong>stderr</strong> is the <code>write</code> . If you want to know more you should read the manual</p><pre><code class=language-bash>$ man 2 write
-</code></pre><p>But the most important part of the <code>write</code> manual is on the top and is this:</p><pre><code>NAME
+</code></pre>
+<h3 id="i-forgot-to-redirect-the-outputs-what-can-i-do-now">I forgot to redirect the outputs! What can I do now?</h3>
+<p>Suppose  you  started a process without redirecting the output to a file. Maybe you forgot or you are too optimistic about the problems and now you want to persist the errors.  If restart the process it’s out of question you can use the <code>strace</code> to solve your headache. Let’s see how we can solve that.</p>
+<p>The system calls responsible to request the kernel to write in the <strong>stdin, stdout</strong> and <strong>stderr</strong> is the <code>write</code> . If you want to know more  you should read the manual</p>
+<pre><code class="language-bash">$ man 2 write
+</code></pre>
+<p>But the most important part of the <code>write</code> manual  is on the top and is this:</p>
+<pre><code>NAME
        write - write to a file descriptor
 SYNOPSIS
        #include &lt;unistd.h&gt;
        ssize_t write(int fd, const void *buf, size_t count);
-</code></pre><p>As you can see the first argument is an integer that represents the file descriptor. If <strong>fd=1</strong> this means a writing in the <strong>stdout</strong> and if <strong>fd=2</strong> the writing will be in the <strong>stderr</strong>. So, it’s an easy piece here. We just need to monitor any sys call <code>write</code> with the <code>fd</code> equals to $1$ or $2$ and save the values in a file.</p><p>When I need to do this (two or three times in my life time) I use the following pattern</p><pre><code class=language-bash>$ strace -f -t -etrace=write -s 1000 -p 4320 2&gt;&amp;1 | grep --line-buffered -e 'write(2, ' -e 'write(1, ' &gt; out.txt
-</code></pre><p>I’m asking <code>strace</code> to monitor any SYS CALL <code>write</code> from the process with the PID <code>4320</code> or children created by them (<code>-f</code>) . And saving the output in the <code>out.txt</code> file.</p><p>The following code changes the <code>server_mlops.py</code> to help you to explore more this scenario.</p><pre><code class=language-python># server_mlops.py
+</code></pre>
+<p>As you can see the first argument is an integer that represents the file descriptor. If <strong>fd=1</strong> this means a writing in the <strong>stdout</strong> and if <strong>fd=2</strong> the writing will be in the <strong>stderr</strong>. So, it’s an easy piece here. We just need to monitor any sys call <code>write</code> with the <code>fd</code> equals to $1$ or $2$ and save the values in a file.</p>
+<p>When I need to do this (two or three times in my  life time) I use the following pattern</p>
+<pre><code class="language-bash">$ strace -f -t -etrace=write -s 1000 -p 4320 2&gt;&amp;1 | grep --line-buffered -e 'write(2, ' -e 'write(1, ' &gt; out.txt
+</code></pre>
+<p>I’m asking  <code>strace</code> to monitor any SYS CALL <code>write</code> from the process  with the PID <code>4320</code> or  children created by them (<code>-f</code>) . And  saving the output in the <code>out.txt</code> file.</p>
+<p>The following code changes the <code>server_mlops.py</code>  to help you to explore more this scenario.</p>
+<pre><code class="language-python"># server_mlops.py
 import time
 import flask
 import sys
@@ -231,21 +1414,385 @@ def hello_world():
 
 if __name__ == '__main__':
     app.run()
-</code></pre><h3 id=how-this-program-has-been-called-what-is-the-working-dir-of-the-process>How this program has been called? What is the working dir of the process?</h3><p>Ok, you can answer these questions using <code>htop</code>. However we can get the same information without installing anything, just looking in a file inside of the <code>/proc/</code> folder, like this</p><pre><code class=language-bash>$ tr '\0' '\t' &lt; /proc/A_PID_NUMBER/cmdline
-</code></pre><p>In my case I’ve obtined this</p><pre><code>python client.py --sleep 1000
-</code></pre><p>To discover the working directory do this</p><pre><code class=language-bash>$ readlink /proc/A_PID_NUMBER/cwd
-</code></pre><h2 id=conclusion--suggestions>Conclusion & Suggestions</h2><p>I hope that after reading this post you can be more prepared to face problems in your daily tasks. But if you have any suggestion you can send me an email
-<a href=devmessias@gmail.com>devmessias@gmail.com</a>. Thanks!</p><p>If you want to know more about <code>strace</code> and linux in general I strongly recommend spent some hours navigating and reading Julia Evans’ blog
-<a href=https://jvns.ca/ target=_blank rel=noopener>https://jvns.ca/</a>.</p></div><div class=article-tags><a class="badge badge-light" href=/tag/linux/>linux</a>
-<a class="badge badge-light" href=/tag/strace/>strace</a>
-<a class="badge badge-light" href=/tag/lsof/>lsof</a>
-<a class="badge badge-light" href=/tag/system-calls/>system calls</a>
-<a class="badge badge-light" href=/tag/python/>python</a>
-<a class="badge badge-light" href=/tag/debugging/>debugging</a>
-<a class="badge badge-light" href=/tag/devops/>devops</a>
-<a class="badge badge-light" href=/tag/mlops/>mlops</a>
-<a class="badge badge-light" href=/tag/databases/>databases</a></div><div class=share-box aria-hidden=true><h5 class=text-center>Share this page if you like it</h5><ul class=share><li><a href="https://twitter.com/intent/tweet?url=/post/using_lsof_and_strace_to_investigate_process_and_failures/&text=Dissecting%20processes%20and%20failures%20in%20Linux%20with%20lsof%20and%20strace:%20cases%20for%20MlOps%20and%20DevOps" target=_blank rel=noopener class=share-btn-twitter><i class="fab fa-twitter"></i></a></li><li><a href="https://www.facebook.com/sharer.php?u=/post/using_lsof_and_strace_to_investigate_process_and_failures/&t=Dissecting%20processes%20and%20failures%20in%20Linux%20with%20lsof%20and%20strace:%20cases%20for%20MlOps%20and%20DevOps" target=_blank rel=noopener class=share-btn-facebook><i class="fab fa-facebook"></i></a></li><li><a href="mailto:?subject=Dissecting%20processes%20and%20failures%20in%20Linux%20with%20lsof%20and%20strace:%20cases%20for%20MlOps%20and%20DevOps&body=/post/using_lsof_and_strace_to_investigate_process_and_failures/" target=_blank rel=noopener class=share-btn-email><i class="fas fa-envelope"></i></a></li><li><a href="https://www.linkedin.com/shareArticle?url=/post/using_lsof_and_strace_to_investigate_process_and_failures/&title=Dissecting%20processes%20and%20failures%20in%20Linux%20with%20lsof%20and%20strace:%20cases%20for%20MlOps%20and%20DevOps" target=_blank rel=noopener class=share-btn-linkedin><i class="fab fa-linkedin-in"></i></a></li><li><a href="whatsapp://send?text=Dissecting%20processes%20and%20failures%20in%20Linux%20with%20lsof%20and%20strace:%20cases%20for%20MlOps%20and%20DevOps%20/post/using_lsof_and_strace_to_investigate_process_and_failures/" target=_blank rel=noopener class=share-btn-whatsapp><i class="fab fa-whatsapp"></i></a></li><li><a href="https://service.weibo.com/share/share.php?url=/post/using_lsof_and_strace_to_investigate_process_and_failures/&title=Dissecting%20processes%20and%20failures%20in%20Linux%20with%20lsof%20and%20strace:%20cases%20for%20MlOps%20and%20DevOps" target=_blank rel=noopener class=share-btn-weibo><i class="fab fa-weibo"></i></a></li></ul></div><div class="media author-card content-widget-hr"><img class="avatar mr-3 avatar-circle" src=/author/bruno-messias/avatar_hu8c5dc81c7296f83357bec0b4ab814f69_6046_270x270_fill_lanczos_center_2.png alt="Bruno Messias"><div class=media-body><h5 class=card-title><a href=/>Bruno Messias</a></h5><h6 class=card-subtitle>Ph.D Candidate/Software Developer</h6><p class=card-text>Free-software enthusiast, researcher, and software developer. Currently, working in the field of Graphs, Complex Systems and Machine Learning.</p><ul class=network-icon aria-hidden=true><li><a href=mailto:devmessias@gmail.com><i class="fas fa-envelope"></i></a></li><li><a href=https://twitter.com/devmessias target=_blank rel=noopener><i class="fab fa-twitter"></i></a></li><li><a href=https://github.com/devmessias target=_blank rel=noopener><i class="fab fa-github"></i></a></li><li><a href=https://www.linkedin.com/in/bruno-messias-510553193/ target=_blank rel=noopener><i class="fab fa-linkedin"></i></a></li></ul></div></div><section id=comments><div id=disqus_thread></div><script>let disqus_config=function(){};(function(){if(["localhost","127.0.0.1"].indexOf(window.location.hostname)!=-1){document.getElementById('disqus_thread').innerHTML='Disqus comments not available by default when the website is previewed locally.';return;}
-var d=document,s=d.createElement('script');s.async=true;s.src='https://'+"devmessias"+'.disqus.com/embed.js';s.setAttribute('data-timestamp',+new Date());(d.head||d.body).appendChild(s);})();</script><noscript>Please enable JavaScript to view the <a href=https://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript><a href=https://disqus.com class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a></section><div class="article-widget content-widget-hr"><h3>Related</h3><ul><li><a href=/post/python_ast_and_decorators_with_locals/>Going meta with python: manipulating ASTs to create an introspective decorator at runtime [draft]</a></li><li><a href=/post/python_decorator_that_exposes_locals/>An introspective python decorator using stack frames and the inspect module</a></li><li><a href=/post/edge_graph_filtering/>Grafos e filtragem de arestas: conceitos e confusões. Parte I</a></li><li><a href=/post/random_matrix_portfolio/>Variações do teorema central do limite para matrizes aleatórias.</a></li><li><a href=/project/helios/>Helios: graph layout viz and streaming</a></li></ul></div></div></article></main></div></div></div><script src=https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/4.1.4/imagesloaded.pkgd.min.js integrity="sha256-lqvxZrPLtfffUl2G/e7szqSvPBILGbwmsGE1MKlOi0Q=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/jquery.isotope/3.0.6/isotope.pkgd.min.js integrity="sha256-CBrpuqrMhXwcLLUd5tvQ4euBHCdh7wGlDfNz8vbu/iI=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js integrity="sha256-yt2kYMy0w8AbtF89WXb2P1rfjcP/HTHLT7097U8Y5b8=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/highlight.min.js integrity="sha256-eOgo0OtLL4cdq7RdwRUiGKLX9XsIJ7nGhWEKbohmVAQ=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/languages/r.min.js></script><script>const code_highlighting=true;</script><script>const isSiteThemeDark=false;</script><script>const search_config={"indexURI":"/index.json","minLength":1,"threshold":0.3};const i18n={"no_results":"No results found","placeholder":"Search...","results":"results found"};const content_type={'post':"Posts",'project':"Projects",'publication':"Publications",'talk':"Talks",'slides':"Slides"};</script><script id=search-hit-fuse-template type=text/x-template>
+</code></pre>
+<h3 id="how-this-program-has-been-called-what-is-the-working-dir-of-the-process">How this program has been called? What is the working dir of the process?</h3>
+<p>Ok, you can answer these  questions  using <code>htop</code>. However we can get the same information without installing anything, just looking in a file inside of the <code>/proc/</code> folder, like this</p>
+<pre><code class="language-bash">$ tr '\0' '\t' &lt; /proc/A_PID_NUMBER/cmdline
+</code></pre>
+<p>In my case I’ve obtined this</p>
+<pre><code>python client.py --sleep 1000
+</code></pre>
+<p>To discover the working directory do this</p>
+<pre><code class="language-bash">$ readlink /proc/A_PID_NUMBER/cwd
+</code></pre>
+<h2 id="conclusion--suggestions">Conclusion &amp; Suggestions</h2>
+<p>I hope that after reading this post you can be more prepared to face problems in your daily tasks. But if you have any suggestion you can send me an email 
+<a href="devmessias@gmail.com">devmessias@gmail.com</a>. Thanks!</p>
+<p>If you want to know more about <code>strace </code>  and linux in general I strongly recommend spent some hours navigating and reading  Julia Evans’ blog 
+<a href="https://jvns.ca/" target="_blank" rel="noopener">https://jvns.ca/</a>.</p>
+
+    </div>
+
+    
+
+
+
+
+
+
+<div class="article-tags">
+  
+  <a class="badge badge-light" href="/tag/linux/">linux</a>
+  
+  <a class="badge badge-light" href="/tag/strace/">strace</a>
+  
+  <a class="badge badge-light" href="/tag/lsof/">lsof</a>
+  
+  <a class="badge badge-light" href="/tag/system-calls/">system calls</a>
+  
+  <a class="badge badge-light" href="/tag/python/">python</a>
+  
+  <a class="badge badge-light" href="/tag/debugging/">debugging</a>
+  
+  <a class="badge badge-light" href="/tag/devops/">devops</a>
+  
+  <a class="badge badge-light" href="/tag/mlops/">mlops</a>
+  
+  <a class="badge badge-light" href="/tag/databases/">databases</a>
+  
+</div>
+
+
+
+<div class="share-box" aria-hidden="true">
+  <h5 class='text-center'>Share this page if you like it</h5>
+  <ul class="share">
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="https://twitter.com/intent/tweet?url=/post/using_lsof_and_strace_to_investigate_process_and_failures/&amp;text=Dissecting%20processes%20and%20failures%20in%20Linux%20with%20lsof%20and%20strace:%20cases%20for%20MlOps%20and%20DevOps" target="_blank" rel="noopener" class="share-btn-twitter">
+          <i class="fab fa-twitter"></i>
+        </a>
+      </li>
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="https://www.facebook.com/sharer.php?u=/post/using_lsof_and_strace_to_investigate_process_and_failures/&amp;t=Dissecting%20processes%20and%20failures%20in%20Linux%20with%20lsof%20and%20strace:%20cases%20for%20MlOps%20and%20DevOps" target="_blank" rel="noopener" class="share-btn-facebook">
+          <i class="fab fa-facebook"></i>
+        </a>
+      </li>
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="mailto:?subject=Dissecting%20processes%20and%20failures%20in%20Linux%20with%20lsof%20and%20strace:%20cases%20for%20MlOps%20and%20DevOps&amp;body=/post/using_lsof_and_strace_to_investigate_process_and_failures/" target="_blank" rel="noopener" class="share-btn-email">
+          <i class="fas fa-envelope"></i>
+        </a>
+      </li>
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="https://www.linkedin.com/shareArticle?url=/post/using_lsof_and_strace_to_investigate_process_and_failures/&amp;title=Dissecting%20processes%20and%20failures%20in%20Linux%20with%20lsof%20and%20strace:%20cases%20for%20MlOps%20and%20DevOps" target="_blank" rel="noopener" class="share-btn-linkedin">
+          <i class="fab fa-linkedin-in"></i>
+        </a>
+      </li>
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="whatsapp://send?text=Dissecting%20processes%20and%20failures%20in%20Linux%20with%20lsof%20and%20strace:%20cases%20for%20MlOps%20and%20DevOps%20/post/using_lsof_and_strace_to_investigate_process_and_failures/" target="_blank" rel="noopener" class="share-btn-whatsapp">
+          <i class="fab fa-whatsapp"></i>
+        </a>
+      </li>
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="https://service.weibo.com/share/share.php?url=/post/using_lsof_and_strace_to_investigate_process_and_failures/&amp;title=Dissecting%20processes%20and%20failures%20in%20Linux%20with%20lsof%20and%20strace:%20cases%20for%20MlOps%20and%20DevOps" target="_blank" rel="noopener" class="share-btn-weibo">
+          <i class="fab fa-weibo"></i>
+        </a>
+      </li>
+    
+  </ul>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+  
+    
+    
+    
+      
+    
+    
+    
+    <div class="media author-card content-widget-hr">
+      
+        
+        <img class="avatar mr-3 avatar-circle" src="/author/bruno-messias/avatar_hu8c5dc81c7296f83357bec0b4ab814f69_6046_270x270_fill_lanczos_center_2.png" alt="Bruno Messias">
+      
+
+      <div class="media-body">
+        <h5 class="card-title"><a href="/">Bruno Messias</a></h5>
+        <h6 class="card-subtitle">Ph.D Candidate/Software Developer</h6>
+        <p class="card-text">Free-software enthusiast, researcher, and software developer. Currently, working in the field of Graphs, Complex Systems and Machine Learning.</p>
+        <ul class="network-icon" aria-hidden="true">
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+    <li>
+      <a href="mailto:devmessias@gmail.com" >
+        <i class="fas fa-envelope"></i>
+      </a>
+    </li>
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+      
+    
+    <li>
+      <a href="https://twitter.com/devmessias" target="_blank" rel="noopener">
+        <i class="fab fa-twitter"></i>
+      </a>
+    </li>
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+      
+    
+    <li>
+      <a href="https://github.com/devmessias" target="_blank" rel="noopener">
+        <i class="fab fa-github"></i>
+      </a>
+    </li>
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+      
+    
+    <li>
+      <a href="https://www.linkedin.com/in/bruno-messias-510553193/" target="_blank" rel="noopener">
+        <i class="fab fa-linkedin"></i>
+      </a>
+    </li>
+  
+</ul>
+
+      </div>
+    </div>
+  
+
+
+
+
+
+
+
+<section id="comments">
+  
+    
+<div id="disqus_thread"></div>
+<script>
+  let disqus_config = function () {
+    
+    
+    
+  };
+  (function() {
+    if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+      document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+      return;
+    }
+    var d = document, s = d.createElement('script'); s.async = true;
+    s.src = 'https://' + "devmessias" + '.disqus.com/embed.js';
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+  
+</section>
+
+
+
+
+
+
+
+
+  
+  
+  <div class="article-widget content-widget-hr">
+    <h3>Related</h3>
+    <ul>
+      
+      <li><a href="/post/python_ast_and_decorators_with_locals/">Going meta with python: manipulating ASTs to create an introspective decorator at runtime [draft]</a></li>
+      
+      <li><a href="/post/python_decorator_that_exposes_locals/">An introspective python decorator using  stack frames and the inspect module</a></li>
+      
+      <li><a href="/post/edge_graph_filtering/">Grafos e filtragem de arestas: conceitos e confusões. Parte I</a></li>
+      
+      <li><a href="/post/random_matrix_portfolio/">Variações do teorema central do limite para matrizes aleatórias.</a></li>
+      
+      <li><a href="/project/helios/">Helios: graph layout viz and streaming</a></li>
+      
+    </ul>
+  </div>
+  
+
+
+
+
+
+  </div>
+</article>
+
+      </main>
+    </div>
+  </div>
+      
+</div>
+
+      
+
+    
+    
+    
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/4.1.4/imagesloaded.pkgd.min.js" integrity="sha256-lqvxZrPLtfffUl2G/e7szqSvPBILGbwmsGE1MKlOi0Q=" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.isotope/3.0.6/isotope.pkgd.min.js" integrity="sha256-CBrpuqrMhXwcLLUd5tvQ4euBHCdh7wGlDfNz8vbu/iI=" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" integrity="sha256-yt2kYMy0w8AbtF89WXb2P1rfjcP/HTHLT7097U8Y5b8=" crossorigin="anonymous"></script>
+
+      
+
+      
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/highlight.min.js" integrity="sha256-eOgo0OtLL4cdq7RdwRUiGKLX9XsIJ7nGhWEKbohmVAQ=" crossorigin="anonymous"></script>
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/languages/r.min.js"></script>
+        
+      
+
+    
+
+    
+    
+
+    
+    
+    <script>const code_highlighting = true;</script>
+    
+
+    
+    
+    <script>const isSiteThemeDark = false;</script>
+    
+
+    
+    
+    
+    
+    
+    
+    <script>
+      const search_config = {"indexURI":"/index.json","minLength":1,"threshold":0.3};
+      const i18n = {"no_results":"No results found","placeholder":"Search...","results":"results found"};
+      const content_type = {
+        'post': "Posts",
+        'project': "Projects",
+        'publication' : "Publications",
+        'talk' : "Talks",
+        'slides' : "Slides"
+        };
+    </script>
+    
+
+    
+    
+
+    
+    
+    <script id="search-hit-fuse-template" type="text/x-template">
       <div class="search-hit" id="summary-{{key}}">
       <div class="search-hit-content">
         <div class="search-hit-name">
@@ -255,11 +1802,124 @@ var d=document,s=d.createElement('script');s.async=true;s.src='https://'+"devmes
         </div>
       </div>
       </div>
-    </script><script src=https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.2.1/fuse.min.js integrity="sha256-VzgmKYmhsGNNN4Ph1kMW+BjoYJM2jV5i4IlFoeZA9XI=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin=anonymous></script><script id=dsq-count-scr src=https://devmessias.disqus.com/count.js async></script><script src=/js/academic.min.37431be2d92d7fb0160054761ab79602.js></script><div class=page-footer><div class=container><footer class=site-footer><p class=powered-by><a href=/privacy/>Privacy Policy</a>
-&#183;
-<a href=/terms/>Terms</a></p><p class=powered-by>Bruno Messias</p><p class=powered-by>Powered by the
-<a href=https://sourcethemes.com/academic/ target=_blank rel=noopener>Academic theme</a> for
-<a href=https://gohugo.io target=_blank rel=noopener>Hugo</a>.
-<span class=float-right aria-hidden=true><a href=# class=back-to-top><span class=button_icon><i class="fas fa-chevron-up fa-2x"></i></span></a></span></p></footer></div></div><div id=modal class="modal fade" role=dialog><div class=modal-dialog><div class=modal-content><div class=modal-header><h5 class=modal-title>Cite</h5><button type=button class=close data-dismiss=modal aria-label=Close>
-<span aria-hidden=true>&#215;</span></button></div><div class=modal-body><pre><code class="tex hljs"></code></pre></div><div class=modal-footer><a class="btn btn-outline-primary my-1 js-copy-cite" href=# target=_blank><i class="fas fa-copy"></i>Copy</a>
-<a class="btn btn-outline-primary my-1 js-download-cite" href=# target=_blank><i class="fas fa-download"></i>Download</a><div id=modal-error></div></div></div></div></div></body></html>
+    </script>
+    
+
+    
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.2.1/fuse.min.js" integrity="sha256-VzgmKYmhsGNNN4Ph1kMW+BjoYJM2jV5i4IlFoeZA9XI=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script>
+    
+
+    
+    
+
+    
+    
+
+    
+    
+    <script id="dsq-count-scr" src="https://devmessias.disqus.com/count.js" async></script>
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+      
+    
+    
+    
+    
+    <script src="/js/academic.min.37431be2d92d7fb0160054761ab79602.js"></script>
+
+    
+
+
+
+
+
+
+  
+  
+  <div class="page-footer">
+  <div class="container">
+    <footer class="site-footer">
+  
+  <p class="powered-by">
+    
+      <a href="/privacy/">Privacy Policy</a>
+    
+    
+       &middot; 
+      <a href="/terms/">Terms</a>
+    
+  </p>
+  
+
+  <p class="powered-by">
+    Bruno Messias
+  </p>
+
+  
+  
+
+
+
+
+
+
+  <p class="powered-by">
+    Powered by the
+    <a href="https://sourcethemes.com/academic/" target="_blank" rel="noopener">Academic theme</a> for
+    <a href="https://gohugo.io" target="_blank" rel="noopener">Hugo</a>.
+
+    
+    <span class="float-right" aria-hidden="true">
+      <a href="#" class="back-to-top">
+        <span class="button_icon">
+          <i class="fas fa-chevron-up fa-2x"></i>
+        </span>
+      </a>
+    </span>
+    
+  </p>
+</footer>
+
+  </div>
+  </div>
+  
+
+  
+<div id="modal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Cite</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <pre><code class="tex hljs"></code></pre>
+      </div>
+      <div class="modal-footer">
+        <a class="btn btn-outline-primary my-1 js-copy-cite" href="#" target="_blank">
+          <i class="fas fa-copy"></i> Copy
+        </a>
+        <a class="btn btn-outline-primary my-1 js-download-cite" href="#" target="_blank">
+          <i class="fas fa-download"></i> Download
+        </a>
+        <div id="modal-error"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

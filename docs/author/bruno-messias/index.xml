@@ -1,1 +1,16 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bruno Messias</title><link>/author/bruno-messias/</link><atom:link href="/author/bruno-messias/index.xml" rel="self" type="application/rss+xml"/><description>Bruno Messias</description><generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>en</language><copyright>Bruno Messias</copyright><image><url>/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_2.png</url><title>Bruno Messias</title><link>/author/bruno-messias/</link></image></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Bruno Messias</title>
+    <link>/author/bruno-messias/</link>
+      <atom:link href="/author/bruno-messias/index.xml" rel="self" type="application/rss+xml" />
+    <description>Bruno Messias</description>
+    <generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>en</language><copyright>Bruno Messias</copyright>
+    <image>
+      <url>/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_2.png</url>
+      <title>Bruno Messias</title>
+      <link>/author/bruno-messias/</link>
+    </image>
+    
+  </channel>
+</rss>

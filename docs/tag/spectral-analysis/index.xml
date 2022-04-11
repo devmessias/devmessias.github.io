@@ -1,89 +1,130 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>spectral analysis | Bruno Messias</title><link>/tag/spectral-analysis/</link><atom:link href="/tag/spectral-analysis/index.xml" rel="self" type="application/rss+xml"/><description>spectral analysis</description><generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>en</language><copyright>Bruno Messias</copyright><image><url>/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_2.png</url><title>spectral analysis</title><link>/tag/spectral-analysis/</link></image><item><title>eMaTe</title><link>/project/emate/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>/project/emate/</guid><description>&lt;p>eMaTe it is a python package which the main goal is to provide methods capable of estimating the spectral densities and trace
-functions of large sparse matrices. eMaTe can run in both CPU and GPU and can estimate the spectral density and related trace functions, such as entropy and Estrada index, even in directed or undirected networks with million of nodes.&lt;/p>
-&lt;h2 id="install">Install&lt;/h2>
-&lt;pre>&lt;code>pip install emate
-&lt;/code>&lt;/pre>
-&lt;p>If you a have a GPU you should also install cupy.&lt;/p>
-&lt;h2 id="kernel-polynomial-method-kpm">Kernel Polynomial Method (KPM)&lt;/h2>
-&lt;p>The Kernel Polynomial Method can estimate the spectral density of large sparse Hermitan matrices with a computational cost almost linear. This method combines three key ingredients: the Chebyshev expansion + the stochastic trace estimator + kernel smoothing.&lt;/p>
-&lt;h3 id="example">Example&lt;/h3>
-&lt;pre>&lt;code class="language-python">import networkx as nx
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>spectral analysis | Bruno Messias</title>
+    <link>/tag/spectral-analysis/</link>
+      <atom:link href="/tag/spectral-analysis/index.xml" rel="self" type="application/rss+xml" />
+    <description>spectral analysis</description>
+    <generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>en</language><copyright>Bruno Messias</copyright>
+    <image>
+      <url>/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_2.png</url>
+      <title>spectral analysis</title>
+      <link>/tag/spectral-analysis/</link>
+    </image>
+    
+    <item>
+      <title>eMaTe</title>
+      <link>/project/emate/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>/project/emate/</guid>
+      <description>&lt;p&gt;eMaTe it is a python package which the main goal is to provide  methods capable of estimating the spectral densities and trace
+functions of large sparse matrices. eMaTe can run in both CPU and GPU and can estimate the spectral density and related trace functions, such as entropy and Estrada index, even in directed or undirected networks with million of nodes.&lt;/p&gt;
+&lt;h2 id=&#34;install&#34;&gt;Install&lt;/h2&gt;
+&lt;pre&gt;&lt;code&gt;pip install emate
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;If you a have a GPU you should also install cupy.&lt;/p&gt;
+&lt;h2 id=&#34;kernel-polynomial-method-kpm&#34;&gt;Kernel Polynomial Method (KPM)&lt;/h2&gt;
+&lt;p&gt;The Kernel Polynomial Method can estimate the spectral density of large sparse Hermitan matrices with a computational cost almost linear. This method combines three key ingredients: the Chebyshev expansion + the stochastic trace estimator + kernel smoothing.&lt;/p&gt;
+&lt;h3 id=&#34;example&#34;&gt;Example&lt;/h3&gt;
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;import networkx as nx
 import numpy as np
+
 n = 3000
 g = nx.erdos_renyi_graph(n , 3/n)
 W = nx.adjacency_matrix(g)
-vals = np.linalg.eigvals(W.todense()).real
-&lt;/code>&lt;/pre>
-&lt;pre>&lt;code class="language-python">from emate.hermitian import tfkpm
+
+vals  = np.linalg.eigvals(W.todense()).real
+&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;from emate.hermitian import tfkpm
+
+
 num_moments = 40
 num_vecs = 40
 extra_points = 10
 ek, rho = tfkpm(W, num_moments, num_vecs, extra_points)
-&lt;/code>&lt;/pre>
-&lt;pre>&lt;code class="language-python">import matplotlib.pyplot as plt
+&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;import matplotlib.pyplot as plt
 plt.hist(vals, density=True, bins=100, alpha=.9, color=&amp;quot;steelblue&amp;quot;)
 plt.scatter(ek, rho, c=&amp;quot;tomato&amp;quot;, zorder=999, alpha=0.9, marker=&amp;quot;d&amp;quot;)
-&lt;/code>&lt;/pre>
-&lt;p>If the CUPY package it is available in your machine, you can also use the cupy implementation. When compared to tf-kpm, the
-Cupy-kpm is slower for median matrices (100k) and faster for larger matrices (&amp;gt; 10^6). The main reason it&amp;rsquo;s because the tf-kpm was implemented in order to calc all te moments in a single step.&lt;/p>
-&lt;pre>&lt;code class="language-python">import matplotlib.pyplot as plt
+
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;If the CUPY package it is available in your machine, you can also use the cupy implementation. When compared to tf-kpm, the
+Cupy-kpm is slower for median matrices (100k) and faster for larger matrices (&amp;gt; 10^6). The main reason it&amp;rsquo;s because the tf-kpm was implemented in order to calc all te moments in a single step.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;import matplotlib.pyplot as plt
 from emate.hermitian import cupykpm
+
 num_moments = 40
 num_vecs = 40
 extra_points = 10
 ek, rho = cupykpm(W.tocsr(), num_moments, num_vecs, extra_points)
 plt.hist(vals, density=True, bins=100, alpha=.9, color=&amp;quot;steelblue&amp;quot;)
 plt.scatter(ek.get(), rho.get(), c=&amp;quot;tomato&amp;quot;, zorder=999, alpha=0.9, marker=&amp;quot;d&amp;quot;)
-&lt;/code>&lt;/pre>
-&lt;p>&lt;img src="docs/source/imgs/kpm.png" alt="">&lt;/p>
-&lt;h2 id="stochastic-lanczos-quadrature-slq">Stochastic Lanczos Quadrature (SLQ)&lt;/h2>
-&lt;blockquote>
-&lt;p>The problem of estimating the trace of matrix functions appears in applications ranging from machine learning and scientific computing, to computational biology.[2]&lt;/p>
-&lt;/blockquote>
-&lt;h3 id="example-1">Example&lt;/h3>
-&lt;h4 id="computing-the-estrada-index">Computing the Estrada index&lt;/h4>
-&lt;pre>&lt;code class="language-python">from emate.symmetric.slq import pyslq
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;docs/source/imgs/kpm.png&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
+&lt;h2 id=&#34;stochastic-lanczos-quadrature-slq&#34;&gt;Stochastic Lanczos Quadrature (SLQ)&lt;/h2&gt;
+&lt;blockquote&gt;
+&lt;p&gt;The problem of estimating the trace of matrix functions appears in applications ranging from machine learning and scientific computing, to computational biology.[2]&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h3 id=&#34;example-1&#34;&gt;Example&lt;/h3&gt;
+&lt;h4 id=&#34;computing-the-estrada-index&#34;&gt;Computing the Estrada index&lt;/h4&gt;
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;from emate.symmetric.slq import pyslq
 import tensorflow as tf
+
 def trace_function(eig_vals):
-return tf.exp(eig_vals)
+    return tf.exp(eig_vals)
+
 num_vecs = 100
 num_steps = 50
-approximated_estrada_index, _ = pyslq(L_sparse, num_vecs, num_steps, trace_function)
-exact_estrada_index = np.sum(np.exp(vals_laplacian))
+approximated_estrada_index, _ = pyslq(L_sparse, num_vecs, num_steps,  trace_function)
+exact_estrada_index =  np.sum(np.exp(vals_laplacian))
 approximated_estrada_index, exact_estrada_index
-&lt;/code>&lt;/pre>
-&lt;p>The above code returns&lt;/p>
-&lt;pre>&lt;code>(3058.012, 3063.16457163222)
-&lt;/code>&lt;/pre>
-&lt;h4 id="entropy">Entropy&lt;/h4>
-&lt;pre>&lt;code class="language-python">import scipy
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The above code returns&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;(3058.012, 3063.16457163222)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h4 id=&#34;entropy&#34;&gt;Entropy&lt;/h4&gt;
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;import scipy
 import scipy.sparse
+
 def entropy(eig_vals):
-s = 0.
-for val in eig_vals:
-if val &amp;gt; 0:
-s += -val*np.log(val)
-return s
+  s = 0.
+  for val in eig_vals:
+    if val &amp;gt; 0:
+      s += -val*np.log(val)
+  return s
+
 L = np.array(G.laplacian(normalized=True), dtype=np.float64)
 vals_laplacian = np.linalg.eigvalsh(L).real
-exact_entropy = entropy(vals_laplacian)
+
+exact_entropy =  entropy(vals_laplacian)
+
+
 def trace_function(eig_vals):
-def entropy(val):
-return tf.cond(val&amp;gt;0, lambda:-val*tf.log(val), lambda: 0.)
-return tf.map_fn(entropy, eig_vals)
+  def entropy(val):
+    return tf.cond(val&amp;gt;0, lambda:-val*tf.log(val), lambda: 0.)
+  
+  return tf.map_fn(entropy, eig_vals)
+ 
 L_sparse = scipy.sparse.coo_matrix(L)
+    
 num_vecs = 100
 num_steps = 50
-approximated_entropy, _ = pyslq(L_sparse, num_vecs, num_steps, trace_function)
+approximated_entropy, _ = pyslq(L_sparse, num_vecs, num_steps,  trace_function)
+
 approximated_entropy, exact_entropy
-&lt;/code>&lt;/pre>
-&lt;pre>&lt;code>(-509.46283, -512.5283224633046)
-&lt;/code>&lt;/pre>
-&lt;p>
-&lt;a href="https://www.tandfonline.com/doi/abs/10.1080/03610919008812866" target="_blank" rel="noopener">[1] Hutchinson, M. F. (1990). A stochastic estimator of the trace of the influence matrix for laplacian smoothing splines. Communications in Statistics-Simulation and Computation, 19(2), 433-450.&lt;/a>&lt;/p>
-&lt;p>
-&lt;a href="https://epubs.siam.org/doi/abs/10.1137/16M1104974" target="_blank" rel="noopener">[2] Ubaru, S., Chen, J., &amp;amp; Saad, Y. (2017). Fast Estimation of tr(f(A)) via Stochastic Lanczos Quadrature. SIAM Journal on Matrix Analysis and Applications, 38(4), 1075-1099.&lt;/a>&lt;/p>
-&lt;p>
-&lt;a href="">[3] The Kernel Polynomial Method applied to
+&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;(-509.46283, -512.5283224633046)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;
+&lt;a href=&#34;https://www.tandfonline.com/doi/abs/10.1080/03610919008812866&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;[1] Hutchinson, M. F. (1990). A stochastic estimator of the trace of the influence matrix for laplacian smoothing splines. Communications in Statistics-Simulation and Computation, 19(2), 433-450.&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;
+&lt;a href=&#34;https://epubs.siam.org/doi/abs/10.1137/16M1104974&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;[2] Ubaru, S., Chen, J., &amp;amp; Saad, Y. (2017). Fast Estimation of tr(f(A)) via Stochastic Lanczos Quadrature. SIAM Journal on Matrix Analysis and Applications, 38(4), 1075-1099.&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;
+&lt;a href=&#34;&#34;&gt;[3] The Kernel Polynomial Method applied to
 tight binding systems with
-time-dependence&lt;/a>&lt;/p></description></item></channel></rss>
+time-dependence&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

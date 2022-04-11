@@ -1,563 +1,638 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>otmização | Bruno Messias</title><link>/pt-br/tag/otmizacao/</link><atom:link href="/pt-br/tag/otmizacao/index.xml" rel="self" type="application/rss+xml"/><description>otmização</description><generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>pt-br</language><copyright>Bruno Messias</copyright><lastBuildDate>Mon, 06 Dec 2021 00:00:00 +0000</lastBuildDate><image><url>/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_2.png</url><title>otmização</title><link>/pt-br/tag/otmizacao/</link></image><item><title>Variações do teorema central do limite para matrizes aleatórias.</title><link>/pt-br/post/random_matrix_portfolio/</link><pubDate>Mon, 06 Dec 2021 00:00:00 +0000</pubDate><guid>/pt-br/post/random_matrix_portfolio/</guid><description>&lt;blockquote>
-&lt;p>Disponível em
-&lt;a href="https://opencodecom.net/post/2021-12-14-variacoes-do-teorema-central-do-limite-para-matrizes-aleatorias-de-nucleos-atomicos-a-filtragem-de-matrizes-de-correlaca/" target="_blank" rel="noopener">https://opencodecom.net/&lt;/a>&lt;/p>
-&lt;/blockquote>
-&lt;p>No célebre trabalho “&lt;em>Can One Hear the Shape of a Drum?&lt;/em>”[1] Kack questiona se conhecendo o espectro (&lt;em>som&lt;/em>) de um certo operador que define as oscilações de uma membrana (&lt;em>tambor&lt;/em>) seria possível identificar o formato de tal membrana de maneira unívoca. Discutiremos aqui como é possível ouvir matrizes de correlação usando seu espectro e como podemos remover o ruído desse som usando resultados da teoria de matrizes aleatórias. Veremos como essa filtragem pode aprimorar algoritmos de construção de carteiras de investimentos.&lt;/p>
-&lt;blockquote>
-&lt;p>Minhas motivações para escrever esse texto foram o movimento
-&lt;a href="https://twitter.com/sseraphini/status/1458169250326142978" target="_blank" rel="noopener">Learn In Public-Sibelius Seraphini&lt;/a> e o Nobel de Física de 2021. Um dos temas de Giorgio Parisi é o estudo de matrizes aleatórias
-&lt;a href="https://www.nobelprize.org/uploads/2021/10/sciback_fy_en_21.pdf" target="_blank" rel="noopener">www.nobelprize.org 2021&lt;/a>.&lt;/p>
-&lt;/blockquote>
-&lt;p>..&lt;/p>
-&lt;blockquote>
-&lt;p>Jupyter notebook disponível
-&lt;a href="https://github.com/devmessias/devmessias.github.io/blob/master/content/post/random_matrix_portfolio/index.ipynb" target="_blank" rel="noopener">aqui&lt;/a>&lt;/p>
-&lt;/blockquote>
-&lt;h1 id="1-introdução-teorema-central-do-limite">1-Introdução: teorema central do limite&lt;/h1>
-&lt;p>O teorema central do limite está no coração da análise estatística. Em poucas palavras o mesmo estabelece o seguinte.&lt;/p>
-&lt;blockquote>
-&lt;p>Suponha uma amostra $A = (x_1, x_2, \dots, x_n)$ de uma variável aleatória com média $\mu$ e variância $\sigma^2$ finita. Se a amostragem é $i.i.d.$ o teorema central do limite estabelece que a
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>otmização | Bruno Messias</title>
+    <link>/pt-br/tag/otmizacao/</link>
+      <atom:link href="/pt-br/tag/otmizacao/index.xml" rel="self" type="application/rss+xml" />
+    <description>otmização</description>
+    <generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>pt-br</language><copyright>Bruno Messias</copyright><lastBuildDate>Mon, 06 Dec 2021 00:00:00 +0000</lastBuildDate>
+    <image>
+      <url>/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_2.png</url>
+      <title>otmização</title>
+      <link>/pt-br/tag/otmizacao/</link>
+    </image>
+    
+    <item>
+      <title>Variações do teorema central do limite para matrizes aleatórias.</title>
+      <link>/pt-br/post/random_matrix_portfolio/</link>
+      <pubDate>Mon, 06 Dec 2021 00:00:00 +0000</pubDate>
+      <guid>/pt-br/post/random_matrix_portfolio/</guid>
+      <description>&lt;blockquote&gt;
+&lt;p&gt;Disponível em 
+&lt;a href=&#34;https://opencodecom.net/post/2021-12-14-variacoes-do-teorema-central-do-limite-para-matrizes-aleatorias-de-nucleos-atomicos-a-filtragem-de-matrizes-de-correlaca/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;https://opencodecom.net/&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;No célebre trabalho “&lt;em&gt;Can One Hear the Shape of a Drum?&lt;/em&gt;”[1] Kack questiona se conhecendo o espectro (&lt;em&gt;som&lt;/em&gt;) de um certo operador que define as oscilações de uma membrana (&lt;em&gt;tambor&lt;/em&gt;) seria possível identificar o formato de tal membrana de maneira unívoca. Discutiremos aqui como é possível ouvir matrizes de correlação usando seu espectro e como podemos remover o ruído desse som usando resultados da teoria de matrizes aleatórias. Veremos como essa filtragem pode aprimorar algoritmos de construção de carteiras de investimentos.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Minhas motivações para escrever esse texto foram o movimento 
+&lt;a href=&#34;https://twitter.com/sseraphini/status/1458169250326142978&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Learn In Public-Sibelius Seraphini&lt;/a&gt; e o Nobel de Física de 2021. Um dos temas de Giorgio Parisi  é o estudo de matrizes aleatórias 
+&lt;a href=&#34;https://www.nobelprize.org/uploads/2021/10/sciback_fy_en_21.pdf&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;www.nobelprize.org 2021&lt;/a&gt;.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;..&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Jupyter notebook disponível 
+&lt;a href=&#34;https://github.com/devmessias/devmessias.github.io/blob/master/content/post/random_matrix_portfolio/index.ipynb&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;aqui&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h1 id=&#34;1-introdução-teorema-central-do-limite&#34;&gt;1-Introdução: teorema central do limite&lt;/h1&gt;
+&lt;p&gt;O teorema central do limite está no coração da análise estatística. Em poucas palavras o mesmo estabelece o seguinte.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Suponha uma amostra $A = (x_1, x_2, \dots, x_n)$ de uma variável aleatória com média $\mu$ e variância $\sigma^2$ finita. Se a amostragem é $i.i.d.$ o teorema central do limite estabelece que a
 distribuição de probababilidade da média amostral converge
-para uma distribuição normal com variância $\sigma^2/n$ e média $\mu$ a medida que $n$ aumenta.&lt;/p>
-&lt;/blockquote>
-&lt;p>Note que eu não disse nada a respeito de como tal amostra foi gerada; em nenhum momento citei distribuição de Bernoulli, Gauss, Poisson, etc. Desta maneira podemos dizer que tal convergência é uma propriedade &lt;strong>universal&lt;/strong> de amostras aleatórias $i.i.d.$. Essa universalidade é poderosa, pois garante que é possível estimar a média e variância de uma população através de um conjunto de amostragens.&lt;/p>
-&lt;p>Não é difícil fazer um experimento computacional onde a implicação desse teorema apareça&lt;/p>
-&lt;pre>&lt;code class="language-python">import numpy as np
+para uma distribuição normal com variância $\sigma^2/n$ e média $\mu$ a medida que $n$ aumenta.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;Note que eu não disse nada a respeito de como tal amostra foi gerada; em nenhum momento citei distribuição de Bernoulli, Gauss, Poisson, etc. Desta maneira podemos dizer que tal convergência é uma propriedade &lt;strong&gt;universal&lt;/strong&gt; de amostras aleatórias $i.i.d.$. Essa universalidade é poderosa, pois  garante que é possível estimar a média e variância de uma população  através de um conjunto de amostragens.&lt;/p&gt;
+&lt;p&gt;Não é difícil fazer um experimento computacional onde a implicação desse teorema apareça&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 import warnings
 from matplotlib import style
-warnings.filterwarnings('ignore')
-style.use('seaborn-white')
+
+warnings.filterwarnings(&#39;ignore&#39;)
+style.use(&#39;seaborn-white&#39;)
+
 np.random.seed(22)
-&lt;/code>&lt;/pre>
-&lt;p>Usaremos uma amostragem de uma distribuição exponencial com média $\mu = 4$. Tal distribuição tem uma variância dada por $1/\mu^2$. Faremos $10000$ experimentos com amostras de tamanho $500$. Posteriormente calcularemos a media de cada experimento, &lt;code>mean_by_exp&lt;/code>&lt;/p>
-&lt;pre>&lt;code class="language-python">rate = 0.25
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Usaremos uma amostragem de uma distribuição exponencial com média $\mu = 4$. Tal distribuição tem uma variância dada por $1/\mu^2$. Faremos $10000$ experimentos com amostras de tamanho $500$. Posteriormente calcularemos a media de cada experimento, &lt;code&gt;mean_by_exp&lt;/code&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;rate = 0.25
+
 mu = 1/rate
+
 sample_size=500
 exponential_sample = np.random.exponential(mu, size=(sample_size, 30000))
 mean_by_exp = exponential_sample.mean(axis=0)
-&lt;/code>&lt;/pre>
-&lt;p>Agora basta plotar o histograma em comparação com a distribuição normal dada pelo teorema central do limite&lt;/p>
-&lt;pre>&lt;code class="language-python">sns.distplot(mean_by_exp, norm_hist=True, label='sample')
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Agora basta plotar o histograma em comparação com a distribuição normal dada pelo teorema central do limite&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;sns.distplot(mean_by_exp, norm_hist=True, label=&#39;sample&#39;)
 x = np.linspace(2.5, 5.5, 100)
 var = mu**2/(sample_size)
 y = np.exp(-(x-mu)**2/(2*var))/np.sqrt(2*np.pi*var)
-plt.plot(x, y, label=r'$N(\mu, \sigma)$', c='tomato')
+plt.plot(x, y, label=r&#39;$N(\mu, \sigma)$&#39;, c=&#39;tomato&#39;)
 plt.legend()
 plt.xlim(3., 5)
-plt.savefig('exponential_distribution.png', facecolor='w')
+plt.savefig(&#39;exponential_distribution.png&#39;, facecolor=&#39;w&#39;)
 plt.close()
-&lt;/code>&lt;/pre>
-&lt;p>&lt;img src="exponential_distribution.png" alt="&amp;ldquo;exponential_distribution.png&amp;rdquo;">&lt;/p>
-&lt;p>Note na figura acima que o plot para a função $\frac{e^{-\frac{(x-\mu)^2}{2\sigma^2}}}{\sqrt(2\pi\sigma^2)}$ e o histograma coincidem. Você pode testar essa coincidência com outras distribuições, o mesmo comportamento se repetira. É isso que quero dizer com &lt;strong>universalidade&lt;/strong>.&lt;/p>
-&lt;p>Um questionamento válido é que estamos tratando apenas de uma variável aleatória e sua amostragem. Mas no mundo real existem outras estruturas mais intricadas. Por exemplo
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;exponential_distribution.png&#34; alt=&#34;&amp;ldquo;exponential_distribution.png&amp;rdquo;&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Note  na figura acima que o plot para a função $\frac{e^{-\frac{(x-\mu)^2}{2\sigma^2}}}{\sqrt(2\pi\sigma^2)}$ e o histograma coincidem.  Você pode testar essa coincidência com outras distribuições, o mesmo comportamento se repetira. É isso que quero dizer com &lt;strong&gt;universalidade&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;Um questionamento válido é que estamos tratando apenas de uma variável aleatória e sua amostragem. Mas no mundo real existem outras estruturas mais intricadas. Por exemplo
 pegue um conjunto de variáveis aleatórias
-$\mathcal C=(X_{1 1}, X_{1 2}, \cdots, X_{N N})$, suponha que exista uma certa **simetria** nesse conjunto, uma possibilidade é $X_{i j} = X_{j i}$.
-Não é difícil imaginar situações onde tal conjunto apareça.&lt;/p>
-&lt;p>Podemos armazenar uma realização de $\mathcal C$ em uma matriz que nada mais é que um grafo completo com pesos. Ao estudar essas matrizes oriundas desse tipo de amostragem entramos em um novo campo da matemática, o campo das matrizes aleatórias.
-Nesse campo de estudos uma amostragem não retorna um número, mas sim uma matriz.&lt;/p>
-&lt;p>A função &lt;code>normalRMT&lt;/code> apresentada abaixo é um gerador de matrizes aleatórias conhecidas como Gaussianas ortogonais.&lt;/p>
-&lt;pre>&lt;code class="language-python">def normalRMT(n=100):
-&amp;quot;&amp;quot;&amp;quot;Generate a random matrix with normal distribution entries
-Args:
-n : (int) number of rows and columns
-Returns:
-m : (numpy.ndarray) random matrix
-&amp;quot;&amp;quot;&amp;quot;
-std = 1/np.sqrt(2)
-m = np.random.normal(size=(n,n), scale=std)
-m = (m+m.T)
-m /= np.sqrt(n)
-return m
+$\mathcal C=(X_{1 1}, X_{1 2}, \cdots, X_{N N})$,  suponha que exista uma certa **simetria** nesse conjunto, uma possibilidade é $X_{i j} = X_{j i}$.
+Não é difícil imaginar situações onde tal conjunto apareça.&lt;/p&gt;
+&lt;p&gt;Podemos armazenar uma realização de $\mathcal C$ em uma matriz que nada mais é que um grafo completo com pesos. Ao estudar essas matrizes oriundas desse tipo de amostragem entramos em um novo campo da matemática, o campo das matrizes aleatórias.
+Nesse campo de estudos uma amostragem não retorna um número, mas sim uma matriz.&lt;/p&gt;
+&lt;p&gt;A função &lt;code&gt;normalRMT&lt;/code&gt; apresentada abaixo é um gerador de matrizes aleatórias conhecidas como Gaussianas ortogonais.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;def normalRMT(n=100):
+    &amp;quot;&amp;quot;&amp;quot;Generate a random matrix with normal distribution entries
+    Args:
+        n : (int) number of rows and columns
+    Returns:
+        m : (numpy.ndarray) random matrix
+
+    &amp;quot;&amp;quot;&amp;quot;
+    std = 1/np.sqrt(2)
+    m = np.random.normal(size=(n,n), scale=std)
+    m = (m+m.T)
+    m /= np.sqrt(n)
+    return m
 np.set_printoptions(precision=3)
-print(f'{normalRMT(3)},\n\n{normalRMT(3)}')
-&lt;/code>&lt;/pre>
-&lt;pre>&lt;code>[[-1.441e+00 -2.585e-01 -1.349e-01]
-[-2.585e-01 -2.304e-01 1.166e-03]
-[-1.349e-01 1.166e-03 -1.272e+00]],
-[[-0.742 0.607 -0.34 ]
-[ 0.607 0.678 0.277]
-[-0.34 0.277 -0.127]]
-&lt;/code>&lt;/pre>
-&lt;p>Sabemos que quando estamos trantando de variáveis aleatórias o teorema central do limite é importantíssimo. O que você pode se perguntar agora é: &lt;strong>Existe um análogo para o teorema central do limite para matrizes aleatórias?&lt;/strong>&lt;/p>
-&lt;h1 id="2-núcleos-atômicos-gás-de-números-primos-e-universalidade">2-Núcleos atômicos, gás de números primos e universalidade&lt;/h1>
-&lt;p>Para o bem e para o mal o conhecimento da física atômica foi um dos temas mais importantes desenvolvidos pela humanidade. Portanto, não é de se estranhar que após o ano de 1930 iniciou-se uma grande corrida para compreender núcleos atômicos pesados e a física de nêutrons [13].&lt;/p>
-&lt;p>Para compreender essa nova física de nêutrons era necessário conhecer a organização do espectro de ressonância dos núcleos pesados (esse espectro nada mais é que os autovalores de um operador muito especial). Uma maneira de se fazer isso é do jeito que muitas das coisas são estudadas na física: pegando se uma coisa e jogando na direção da coisa a ser estudada. Essa metodologia experimental torna possível amostrar alguns valores possíveis para o espectro. Contudo, acredito que não preciso argumentar que fazer isso naquela época era extremamente difícil e caro. Poucos centros conseguiam realizar alguns experimentos e ainda com uma resolução muito baixa para obter resultados suficientes para uma compreensão adequada dos núcleos. Era preciso uma saída mais barata e ela foi encontrada. Tal saída dependeu apenas de física-matemática e maços de papel.&lt;/p>
-&lt;p>&lt;img src="frog.png" alt="">&lt;/p>
-&lt;p>Dentre os pioneiros que decidiram atacar o problema de núcleos pesados usando matemática temos Eugene Paul Wigner (Nobel de 1963). A grande sacada de Wigner foi perceber que o fato das interações nucleares serem tão complicadas e a infinitude de graus de liberdade seria possível tentar compreender essas interações como uma amostragem sujeita a certas condições de simetria.[10 , 11]&lt;/p>
-&lt;p>&lt;img src="wigner.png" alt="wigner.png">&lt;/p>
-&lt;p>Aqui com simetria queremos dizer que as matrizes envolvidas possuem certas restrições tais como&lt;/p>
-&lt;pre>&lt;code class="language-python">np.assert_equal(A, A.T)
-&lt;/code>&lt;/pre>
-&lt;p>Na próxima seção veremos qual o impacto dessas restrições na distribuição de autovalores das matrizes envolvidas.&lt;/p>
-&lt;h2 id="2-a-universalidade-e-lei-do---semicírculo">2-a) Universalidade e lei do semicírculo&lt;/h2>
-&lt;p>A função &lt;code>normalRMT&lt;/code> gera uma matriz simétrica onde as entradas são extraídas de uma distribuição normal. A função &lt;code>laplaceRMT&lt;/code> gera também uma matriz simétrica, contudo as entradas são amostras de uma distribuição de Laplace.&lt;/p>
-&lt;pre>&lt;code class="language-python">
+print(f&#39;{normalRMT(3)},\n\n{normalRMT(3)}&#39;)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;[[-1.441e+00 -2.585e-01 -1.349e-01]
+ [-2.585e-01 -2.304e-01  1.166e-03]
+ [-1.349e-01  1.166e-03 -1.272e+00]],
+
+[[-0.742  0.607 -0.34 ]
+ [ 0.607  0.678  0.277]
+ [-0.34   0.277 -0.127]]
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Sabemos que quando estamos trantando de variáveis aleatórias  o teorema central do limite é importantíssimo. O que você pode se perguntar agora é: &lt;strong&gt;Existe um análogo para o teorema central do limite para matrizes aleatórias?&lt;/strong&gt;&lt;/p&gt;
+&lt;h1 id=&#34;2-núcleos-atômicos-gás-de-números-primos-e-universalidade&#34;&gt;2-Núcleos atômicos, gás de números primos e universalidade&lt;/h1&gt;
+&lt;p&gt;Para o bem e para o mal o conhecimento da física atômica foi um dos temas mais importantes desenvolvidos pela humanidade. Portanto, não é de se estranhar que após o ano de 1930 iniciou-se uma grande corrida para compreender núcleos atômicos pesados e a física de nêutrons [13].&lt;/p&gt;
+&lt;p&gt;Para compreender essa nova física de nêutrons era necessário conhecer a organização do  espectro de ressonância dos núcleos pesados (esse espectro nada mais é que os autovalores de um operador muito especial). Uma maneira de se fazer isso é do jeito que muitas das coisas são estudadas na física: pegando se uma coisa  e jogando na direção da coisa a ser estudada. Essa metodologia experimental torna possível amostrar alguns valores possíveis para o espectro. Contudo, acredito que não preciso argumentar que fazer isso naquela época era extremamente difícil e caro. Poucos centros conseguiam realizar alguns experimentos e ainda com uma resolução muito baixa para obter resultados suficientes para uma compreensão adequada dos núcleos. Era preciso uma saída mais barata e ela foi encontrada. Tal saída dependeu apenas de física-matemática e maços de papel.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;frog.png&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Dentre os pioneiros que decidiram atacar o problema de núcleos pesados usando matemática temos Eugene Paul Wigner (Nobel de 1963).  A grande sacada de Wigner foi perceber que o fato das interações nucleares serem tão complicadas e a infinitude de graus de liberdade seria possível tentar compreender essas interações como uma amostragem sujeita a certas condições de simetria.[10 , 11]&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;wigner.png&#34; alt=&#34;wigner.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Aqui com simetria queremos dizer que as matrizes envolvidas possuem certas restrições tais como&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;np.assert_equal(A, A.T)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Na próxima seção veremos qual o impacto dessas restrições na distribuição de autovalores das matrizes envolvidas.&lt;/p&gt;
+&lt;h2 id=&#34;2-a-universalidade-e-lei-do---semicírculo&#34;&gt;2-a) Universalidade e lei do   semicírculo&lt;/h2&gt;
+&lt;p&gt;A função &lt;code&gt;normalRMT&lt;/code&gt; gera uma matriz simétrica onde as entradas são extraídas de uma distribuição normal. A função &lt;code&gt;laplaceRMT&lt;/code&gt; gera também uma matriz simétrica, contudo as entradas são amostras de uma distribuição de Laplace.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;
 def laplaceRMT(n=100):
-&amp;quot;&amp;quot;&amp;quot;Generate a random matrix with Laplace distribution
-Args:
-n : (int) size of the matrix
-Returns:
-m : (numpy.ndarray) random matrix with Laplace distribution
-&amp;quot;&amp;quot;&amp;quot;
-# we know that the variance of the laplace distribution is 2*scale**2
-scale = 1/np.sqrt(2)
-m = np.zeros((n,n))
-values = np.random.laplace(size=n*(n-1)//2, scale=scale)
-m[np.triu_indices_from(m, k=1)] = values
-# copy the upper diagonal to the lower diagonal
-m[np.tril_indices_from(m, k=-1)] = values
-np.fill_diagonal(m, np.random.laplace(size=n, scale=scale))
-m = m/np.sqrt(n)
-return m
-&lt;/code>&lt;/pre>
-&lt;p>As propriedades &lt;strong>universais&lt;/strong> que iremos explorar aqui estão ligadas aos autovalores das matrizes que foram amostradas. Como nossas matrizes são simétricas esses autovalores são todos reais.&lt;/p>
-&lt;p>Como cada matriz é diferente os autovalores também serão, eles também são variáveis aleatórias.&lt;/p>
-&lt;pre>&lt;code class="language-python">vals_laplace = np.array([
-np.linalg.eigh(laplaceRMT(n=100))[0]
-for i in range(100)
+    &amp;quot;&amp;quot;&amp;quot;Generate a random matrix with Laplace distribution
+    Args:
+        n : (int) size of the matrix
+    Returns:
+        m : (numpy.ndarray) random matrix with Laplace distribution
+
+    &amp;quot;&amp;quot;&amp;quot;
+    # we know that the variance of the laplace distribution is 2*scale**2
+    scale = 1/np.sqrt(2)
+    m = np.zeros((n,n))
+
+    values = np.random.laplace(size=n*(n-1)//2, scale=scale)
+    m[np.triu_indices_from(m, k=1)] = values
+    # copy the upper diagonal to the lower diagonal
+    m[np.tril_indices_from(m, k=-1)] = values 
+    np.fill_diagonal(m, np.random.laplace(size=n, scale=scale))
+    m = m/np.sqrt(n)
+    return m
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;As propriedades &lt;strong&gt;universais&lt;/strong&gt; que iremos explorar aqui estão ligadas aos autovalores das matrizes que foram amostradas. Como nossas matrizes são simétricas  esses autovalores são todos reais.&lt;/p&gt;
+&lt;p&gt;Como cada matriz é diferente os autovalores também serão, eles também são variáveis aleatórias.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;vals_laplace = np.array([
+    np.linalg.eigh(laplaceRMT(n=100))[0]
+    for i in range(100)
 ])
 vals_normal = np.array([
-np.linalg.eigh(normalRMT(n=100))[0]
-for i in range(100)
+    np.linalg.eigh(normalRMT(n=100))[0]
+    for i in range(100)
 ])
-&lt;/code>&lt;/pre>
-&lt;p>Na decáda de 50 não havia poder computacional
-suficiente para realizar investigações númericas, mas você pode facilmente investigar como os autovalores se distribuem usando seu computador e gerando os histogramas&lt;/p>
-&lt;pre>&lt;code class="language-python">t = 1
-x = np.linspace(-2*t, 2*t, 100)
-y = np.zeros_like(x)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Na decáda de 50 não havia poder computacional
+suficiente para realizar investigações númericas, mas você pode facilmente investigar como os  autovalores se distribuem usando seu computador e gerando os histogramas&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;t = 1
+x  =   np.linspace(-2*t, 2*t, 100)
+y =  np.zeros_like(x)
 x0 = x[4*t-x*2&amp;gt;0]
 y[4*t-x*2&amp;gt;0] = np.sqrt(4*t-x0**2)/(2*np.pi*t)
-plt.figure(facecolor='white')
-plt.hist(vals_laplace.flatten(), bins=50,
-hatch ='|',
-density=True, label='laplace', alpha=.2)
+
+plt.figure(facecolor=&#39;white&#39;)
+plt.hist(vals_laplace.flatten(), bins=50, 
+hatch =&#39;|&#39;,
+density=True, label=&#39;laplace&#39;, alpha=.2)
 plt.hist(vals_normal.flatten(), bins=50,
-hatch ='o',
-density=True, label='normal', alpha=.2)
-#sns.distplot(vals_laplace, norm_hist=True, label='Laplace')
-#sns.distplot(vals_normal, norm_hist=True, label='Normal')
-#sns.distplot(vals2, norm_hist=True, label='sample2')
-plt.plot(x, y, label='analytical')
-plt.xlabel(r'$\lambda$')
-plt.ylabel(r'$\rho(\lambda)$')
+hatch =&#39;o&#39;, 
+density=True, label=&#39;normal&#39;, alpha=.2)
+#sns.distplot(vals_laplace, norm_hist=True, label=&#39;Laplace&#39;)
+#sns.distplot(vals_normal, norm_hist=True, label=&#39;Normal&#39;)
+#sns.distplot(vals2, norm_hist=True, label=&#39;sample2&#39;)
+plt.plot(x, y, label=&#39;analytical&#39;)
+plt.xlabel(r&#39;$\lambda$&#39;)
+plt.ylabel(r&#39;$\rho(\lambda)$&#39;)
 plt.legend()
-plt.savefig('RMT_distribution.png', facecolor='w')
+plt.savefig(&#39;RMT_distribution.png&#39;, facecolor=&#39;w&#39;)
 plt.close()
-&lt;/code>&lt;/pre>
-&lt;p>&lt;img src="RMT_distribution.png" alt="">&lt;/p>
-&lt;p>Veja na figura acima que a distribuição de autovalores de matrizes simétricas relacionadas com a distribuição normal e de Laplace coincidem. O que estamos vendo aqui é uma propriedade &lt;strong>universal&lt;/strong>! Espero que você acredite em mim, mas dado que você tenha uma matriz aleatória simétrica, quadrada e se as entradas são $i.i.d.$ a distribuição de autovalores seguem o que é conhecido como lei de semicírculo de Wigner. Se a média e variância das entradas da matriz são $0$ e $1$ respectivamente, então tal lei tem a seguinte expressão para a distribuição de probabilidade dos autovalores
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;RMT_distribution.png&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Veja na figura acima que a distribuição de autovalores de matrizes simétricas  relacionadas com a distribuição normal e de Laplace coincidem. O que estamos vendo aqui é uma propriedade &lt;strong&gt;universal&lt;/strong&gt;! Espero que você acredite em mim, mas dado que você tenha uma matriz aleatória simétrica, quadrada e se as entradas são $i.i.d.$  a distribuição de autovalores seguem o que é conhecido como lei de   semicírculo de Wigner. Se a média e variância das entradas da matriz são  $0$ e $1$  respectivamente, então tal lei tem a seguinte expressão para a distribuição de probabilidade dos autovalores
 $$
 \rho(\lambda) = \begin{cases}
-\frac{\sqrt{4-\lambda^2}}{(2\pi)} \textrm{ se } 4-\lambda^2 \leq 0\newline
-0 \textrm{ caso contrário.}
+\frac{\sqrt{4-\lambda^2}}{(2\pi)}  \textrm{ se } 4-\lambda^2 \leq 0\newline
+0  \textrm{ caso contrário.}
 \end{cases}
-$$&lt;/p>
-&lt;p>Se trocarmos as simetrias, restrições ou formato (&lt;code>array.shape[0]!=array.shape[1]&lt;/code>) das matrizes podemos encontrar variações da distribuição apresentada acima. Exemplo se a matriz é complexa mas Hermitiana, ou se é &amp;ldquo;retangular&amp;rdquo; e real tal como algums matrizes que são usadas para otimizar carteiras de investimento. A próxima seção mostrará um caso com outro formato para universalidade.&lt;/p>
-&lt;h2 id="2-b-repulsão-entre-números-primos">2-b) Repulsão entre números primos&lt;/h2>
-&lt;p>Inciamos nosso texto falando sobre como a teoria de matrizes aleatórias floreceu com os estudos estatísticos de núcleos atômicos pesados, especificamente nos trabalhos de Wigner. Embora tenha essa origem, muitas vezes ferramentas matemáticas desenvolvidas apenas por motivações práticas alcançam outros ramos da matemática. Brevemente discutirei aqui alguns pontos e relações com uma das conjecturas mais famosas da matemática: a hipótese de Riemann.&lt;/p>
-&lt;p>Qualquer pessoa com alguma curiosidade sobre matemática já ouviu falar sobre a hipótese de Riemann. Essa hipótese estabele uma relação entre os zeros da função zeta de Riemann e a distribuição de números primos. Dada sua importância os maiores ciêntistas do século XX se debruçaram sobre ela almejando a imortalidade. Um desses ciêntistas foi Hugh Montgomery[4].&lt;/p>
-&lt;p>Por volta de 1970 Montgomery notou que os zeros da função zeta tinham uma certa propriedade cuirosa, pareciam repelir uns aos outros. Uma expressão foi obtidada, que é a seguinte&lt;/p>
-&lt;p>$$
+$$&lt;/p&gt;
+&lt;p&gt;Se trocarmos as simetrias, restrições ou formato (&lt;code&gt;array.shape[0]!=array.shape[1]&lt;/code&gt;) das matrizes podemos encontrar variações  da distribuição apresentada acima. Exemplo se a matriz é complexa mas Hermitiana, ou  se é &amp;ldquo;retangular&amp;rdquo; e real tal como algums matrizes que são usadas para otimizar carteiras de investimento. A próxima seção mostrará um caso com outro formato para universalidade.&lt;/p&gt;
+&lt;h2 id=&#34;2-b-repulsão-entre-números-primos&#34;&gt;2-b) Repulsão entre números primos&lt;/h2&gt;
+&lt;p&gt;Inciamos nosso texto falando sobre como a teoria de matrizes aleatórias floreceu com os estudos estatísticos de núcleos atômicos pesados, especificamente nos trabalhos de Wigner. Embora tenha essa origem, muitas vezes ferramentas matemáticas desenvolvidas apenas por motivações práticas alcançam outros ramos da matemática. Brevemente discutirei aqui alguns pontos e relações com uma das conjecturas mais famosas da matemática: a hipótese de Riemann.&lt;/p&gt;
+&lt;p&gt;Qualquer pessoa com alguma curiosidade sobre matemática já ouviu falar sobre a hipótese de Riemann. Essa hipótese estabele uma relação entre os zeros da função zeta de Riemann e a distribuição de números primos.  Dada sua importância os maiores ciêntistas do século XX se debruçaram sobre ela almejando a imortalidade. Um desses ciêntistas foi  Hugh Montgomery[4].&lt;/p&gt;
+&lt;p&gt;Por volta de 1970 Montgomery notou que os zeros da função zeta tinham uma certa propriedade cuirosa, pareciam repelir uns aos outros. Uma expressão foi obtidada,  que é a seguinte&lt;/p&gt;
+&lt;p&gt;$$
 1 - \left( \frac{\sin (\pi u)}{\pi u}\right)^2 + \delta(u)
-$$&lt;/p>
-&lt;p>Não se preocupe em entender a expressão acima, ela está aqui apenas for motivos estéticos.
-O que importa é que ela é simples, tão simples que quando Freeman Dyson - um dos gigantes da física-matemática - colocou os olhos sobre tal equação ele notou imediatamente que tal equação era idêntica a obtida no contexto de matrizes aleatórias Hermitianas (uma matriz é hermitiana se ela é igual a sua transporta conjugada) utilizadas para compreender o comportamento de núcleos de átomos pesados, tais como urânio. A imagem abaixo é uma carta escrita por Dyson.&lt;/p>
-&lt;p>&lt;img src="carta.png" alt="">&lt;/p>
-&lt;p>As conexão entre um ferramental desenvolvido para estudar núcleos atômicos e números primos era realmente inesperada e talvez seja um dos caminhos para a prova da hipotese de Riemann[5, 2]. Contudo deixemos a história de lado, e voltemos ao ponto principal que é te dar outro exemplo de universalidade.&lt;/p>
-&lt;p>Lembra que Montgomery disse que parecia haver uma repulsão entre os zeros da função Zeta? O que seria esse conceito de repulsão em matrizes aleatórias? Vamos checar numericamente&lt;/p>
-&lt;p>Voltaremos a usar nossas matrizes aleatórias geradas por distribuições Gaussianas e Laplacianas. Usando o mesmo conjunto de autovalores que obtivemos anteriormente iremos calular o espaçamento entre cada par de autovalores para cada realização de uma matriz aleatória. É bem fácil, basta chamar a função &lt;code>diff&lt;/code> do numpy&lt;/p>
-&lt;pre>&lt;code class="language-python">diff_laplace = np.diff(vals_laplace, axis=1)
+$$&lt;/p&gt;
+&lt;p&gt;Não se preocupe em entender a expressão acima, ela está aqui apenas for motivos estéticos.
+O que importa é que ela é simples, tão simples que quando Freeman Dyson  - um dos gigantes da física-matemática - colocou os olhos sobre tal equação ele notou imediatamente que tal equação era idêntica a obtida no contexto de matrizes aleatórias Hermitianas (uma matriz é hermitiana se ela é igual a sua transporta conjugada) utilizadas para compreender o comportamento de núcleos de átomos pesados, tais como urânio. A imagem abaixo é uma carta  escrita por Dyson.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;carta.png&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
+&lt;p&gt;As conexão entre um ferramental desenvolvido para estudar núcleos atômicos e números primos era realmente inesperada e talvez seja um dos caminhos para a prova da hipotese de Riemann[5, 2]. Contudo deixemos a história de lado, e voltemos ao ponto principal que é te dar outro exemplo de universalidade.&lt;/p&gt;
+&lt;p&gt;Lembra que Montgomery disse que parecia haver uma repulsão entre os zeros da função Zeta? O que seria esse conceito de repulsão em matrizes aleatórias? Vamos checar numericamente&lt;/p&gt;
+&lt;p&gt;Voltaremos a usar nossas matrizes aleatórias geradas por distribuições Gaussianas e Laplacianas. Usando o mesmo conjunto de autovalores que obtivemos anteriormente iremos calular o espaçamento entre cada par de autovalores para cada realização de uma matriz aleatória. É bem fácil, basta chamar a função &lt;code&gt;diff&lt;/code&gt; do numpy&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;diff_laplace = np.diff(vals_laplace, axis=1)
 diff_normal = np.diff(vals_normal, axis=1)
-&lt;/code>&lt;/pre>
-&lt;p>Agora o que faremos é estimar a densidade de probabilidade usnado KDE. Mas antes disso aqui vai uma dica:&lt;/p>
-&lt;blockquote>
-&lt;p>&lt;strong>Evite o KDE do sklearn no seu dia a dia, a implementação é lenta e não flexivél. Difícilmente você conseguirá bons resultados com milhões de pontos. Aqui vou usar uma implementação de KDE mais eficiente você pode instalar ela execuntando o comando abaixo&lt;/strong>&lt;/p>
-&lt;/blockquote>
-&lt;pre>&lt;code class="language-python">!pip install KDEpy
-&lt;/code>&lt;/pre>
-&lt;pre>&lt;code class="language-python">from KDEpy import FFTKDE
-estimator_normal = FFTKDE( bw='silverman').fit(diff_normal.flatten())
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Agora o que faremos é estimar a densidade de probabilidade usnado KDE. Mas antes disso aqui vai uma dica:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;Evite o KDE do sklearn no seu dia a dia, a implementação é lenta e não flexivél. Difícilmente você conseguirá bons resultados com milhões de pontos. Aqui vou usar uma implementação de KDE mais eficiente você pode instalar ela execuntando o comando abaixo&lt;/strong&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;!pip install KDEpy
+&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;from KDEpy import FFTKDE
+
+estimator_normal = FFTKDE( bw=&#39;silverman&#39;).fit(diff_normal.flatten())
 x_normal, probs_normal = estimator_normal.evaluate(100)
 mu_normal = np.mean(diff_normal, axis=1).mean()
-estimator_laplace = FFTKDE( bw='silverman').fit(diff_laplace.flatten())
+
+estimator_laplace = FFTKDE( bw=&#39;silverman&#39;).fit(diff_laplace.flatten())
 x_laplace, probs_laplace = estimator_laplace.evaluate(100)
 mu_laplace = np.mean(diff_laplace, axis=1).mean()
-&lt;/code>&lt;/pre>
-&lt;pre>&lt;code class="language-python">goe_law = lambda x: np.pi*x*np.exp(-np.pi*x**2/4)/2
+&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;goe_law = lambda x: np.pi*x*np.exp(-np.pi*x**2/4)/2
 spacings = np.linspace(0, 4, 100)
 p_s = goe_law(spacings)
-plt.plot(spacings, p_s, label=r'GOE analítico', c='orange', linestyle='--')
+
+plt.plot(spacings, p_s, label=r&#39;GOE analítico&#39;, c=&#39;orange&#39;, linestyle=&#39;--&#39;)
 plt.plot(
-x_normal/mu_normal,
-probs_normal*mu_normal,
-linestyle=':',
-linewidth=2,
-zorder=1,
-label='normal', c='black')
+    x_normal/mu_normal, 
+    probs_normal*mu_normal, 
+    linestyle=&#39;:&#39;,
+    linewidth=2,
+    zorder=1,
+    label=&#39;normal&#39;, c=&#39;black&#39;)
 plt.plot(x_laplace/mu_laplace, probs_laplace*mu_laplace, zorder=2,
-linestyle='--', label='laplace', c='tomato')
+linestyle=&#39;--&#39;, label=&#39;laplace&#39;, c=&#39;tomato&#39;)
 plt.legend()
-plt.savefig('RMT_diff_distribution.png', facecolor='w')
+plt.savefig(&#39;RMT_diff_distribution.png&#39;, facecolor=&#39;w&#39;)
 plt.close()
-&lt;/code>&lt;/pre>
-&lt;p>&lt;img src="RMT_diff_distribution.png" alt="">&lt;/p>
-&lt;p>O que as distribuições acima dizem é que dado sua matriz ser $i.i.d.$ quadrada e simétrica então a probabilidade que você encontre dois autovalores iguais é $0$ (zero). Além do mais, existe um ponto de máximo global em relação a distribuição de espaçamentos. Esse comportamento que balanceia repulsão e atração dos autovalores lembra o comportamento de partículas em um fluído. Não é de espantar que o método matemático desenvolvido por Wigner para compreender tais matrizes foi denominado Gás de Coloumb[2].&lt;/p>
-&lt;p>Agora que você tem pelo menos uma ideia do que seria essa repulsão para o caso que já abordamos (matrizes simétricas quadradas) voltemos ao problema dos números primos.&lt;/p>
-&lt;p>O comando a seguir baixa os primeiros 100k zeros da função zeta&lt;/p>
-&lt;pre>&lt;code class="language-python">!wget http://www.dtc.umn.edu/~odlyzko/zeta_tables/zeros1
-&lt;/code>&lt;/pre>
-&lt;p>Um pequeno preprocessamento dos dados:&lt;/p>
-&lt;pre>&lt;code class="language-python">zeros = []
-with open('zeros1', 'r') as f:
-for line in f.readlines():
-# remove all spaces in the line and convert it to a float
-zeros.append(float(line.replace(' ', '')))
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;RMT_diff_distribution.png&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
+&lt;p&gt;O que as distribuições acima dizem é que dado sua matriz ser $i.i.d.$ quadrada e simétrica então a probabilidade que você encontre dois autovalores iguais é $0$ (zero). Além do mais, existe um ponto de máximo global em relação a distribuição de espaçamentos. Esse comportamento que balanceia repulsão e atração dos autovalores lembra o comportamento de partículas em um fluído. Não é de espantar que o método matemático desenvolvido por Wigner para compreender tais matrizes foi denominado Gás de Coloumb[2].&lt;/p&gt;
+&lt;p&gt;Agora que você tem pelo menos uma ideia do que seria essa repulsão para o caso que já abordamos (matrizes simétricas quadradas) voltemos ao problema dos números primos.&lt;/p&gt;
+&lt;p&gt;O comando a seguir baixa os primeiros 100k zeros da função zeta&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;!wget http://www.dtc.umn.edu/~odlyzko/zeta_tables/zeros1
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Um pequeno preprocessamento dos dados:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;zeros = []
+with open(&#39;zeros1&#39;, &#39;r&#39;) as f:
+    for line in f.readlines():
+        # remove all spaces in the line and convert it to a float
+        zeros.append(float(line.replace(&#39; &#39;, &#39;&#39;)))
 zeta_zeros = np.array(zeros)
-&lt;/code>&lt;/pre>
-&lt;p>Iremos calcular os espaçamentos entre os zeros, a média de tais espaçamento e executar um KDE&lt;/p>
-&lt;pre>&lt;code class="language-python">from KDEpy import FFTKDE
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Iremos calcular os espaçamentos entre os zeros, a  média de tais espaçamento e executar um KDE&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;from KDEpy import FFTKDE
+
 diff_zeta = np.diff(zeta_zeros[10000:])
 m = np.mean(diff_zeta)
-estimator = FFTKDE( bw='silverman').fit(diff_zeta)
-&lt;/code>&lt;/pre>
-&lt;pre>&lt;code class="language-python">x, probs = estimator.evaluate(100)
+estimator = FFTKDE( bw=&#39;silverman&#39;).fit(diff_zeta)
+
+&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;x, probs = estimator.evaluate(100)
 p = np.pi
 goe_law = lambda x: p*x*np.exp(-p*x**2/4)/2
 def gue(xs):
-arg = -4/np.pi*np.power(xs,2)
-vals = 32/np.pi**2*xs**2*np.exp(arg)
-return vals
+    arg = -4/np.pi*np.power(xs,2)
+    vals = 32/np.pi**2*xs**2*np.exp(arg)
+    return vals
 spacings = np.linspace(0, 4, 100)
 p_s = gue(spacings)
 p_s2 = goe_law(spacings)
-plt.plot(x/m, probs*m, label='zeros zeta', linestyle='--')
-plt.plot(spacings, p_s, label=r'GUE analítico', c='blue', linestyle='-.')
-plt.plot(spacings, p_s2, label=r'GOE analitico', c='orange', linestyle='-.')
+plt.plot(x/m, probs*m, label=&#39;zeros zeta&#39;, linestyle=&#39;--&#39;)
+plt.plot(spacings, p_s, label=r&#39;GUE analítico&#39;, c=&#39;blue&#39;, linestyle=&#39;-.&#39;)
+plt.plot(spacings, p_s2, label=r&#39;GOE analitico&#39;, c=&#39;orange&#39;, linestyle=&#39;-.&#39;)
 plt.xlim(-0.1, 4)
 plt.legend()
-plt.savefig('zeta.png', facecolor='w')
+plt.savefig(&#39;zeta.png&#39;, facecolor=&#39;w&#39;)
 plt.close()
-&lt;/code>&lt;/pre>
-&lt;p>&lt;img src="zeta.png" alt="">&lt;/p>
-&lt;p>Veja que a propriedade de repulsão apareceu novamente. Note que dentro do plot eu coloquei uma outra curva &lt;code>GOE analítico&lt;/code>, essa curva é aquela que melhor descreve a distribuição de espaçamentos quando suas matrizes aleatórias são simétricas. Isso é uma lição importante aqui e resalta o que eu já disse anteriormente. Não temos apenas &lt;em>&amp;ldquo;um limite central para matrizes aleatórias&lt;/em>&amp;rdquo;, mas todo um &lt;strong>zoológico que mudará dependendo do tipo do seu problema.&lt;/strong>.&lt;/p>
-&lt;h1 id="3-usando-rmt-para-encontrar-e-filtrar-ruídos-em-matrizes">3-Usando &lt;em>RMT&lt;/em> para encontrar e filtrar ruídos em matrizes&lt;/h1>
-&lt;p>Na seção 1 relembramos o resultado do teorema central do limite. Na seção 2 foi mostrado que devemos ter em mente as simetrias e restrições do nosso problema para analisar qual regra de universalidade é respeitada. Isto é: a depender da simetria e restrições das nossas matrizes temos um outro &amp;ldquo;&lt;em>timbre de universalidade&lt;/em>&amp;rdquo;.&lt;/p>
-&lt;p>Um exemplo de outro timbre surge no espectro de matrizes de correlação; matrizes que são comumente utilizadas para análise de carteiras de investimento. Tais matrizes tem &lt;strong>pelo menos a seguinte estrutura&lt;/strong>:&lt;/p>
-&lt;p>$$
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;zeta.png&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Veja que a propriedade de repulsão apareceu novamente. Note que dentro do plot eu coloquei uma outra curva &lt;code&gt;GOE analítico&lt;/code&gt;, essa curva é aquela que melhor descreve a distribuição de espaçamentos quando suas matrizes aleatórias são simétricas. Isso é uma lição importante aqui e resalta o que eu já disse anteriormente. Não temos apenas &lt;em&gt;&amp;ldquo;um limite central para matrizes aleatórias&lt;/em&gt;&amp;rdquo;, mas todo um &lt;strong&gt;zoológico que mudará dependendo do tipo do seu problema.&lt;/strong&gt;.&lt;/p&gt;
+&lt;h1 id=&#34;3-usando-rmt-para-encontrar-e-filtrar-ruídos-em-matrizes&#34;&gt;3-Usando &lt;em&gt;RMT&lt;/em&gt; para encontrar e filtrar ruídos em matrizes&lt;/h1&gt;
+&lt;p&gt;Na seção 1 relembramos o resultado do teorema central do limite. Na seção 2 foi mostrado que devemos ter em mente as simetrias e restrições do nosso problema para analisar qual regra de universalidade é respeitada. Isto é: a depender da simetria e restrições das nossas matrizes temos um outro &amp;ldquo;&lt;em&gt;timbre de universalidade&lt;/em&gt;&amp;rdquo;.&lt;/p&gt;
+&lt;p&gt;Um exemplo de outro timbre surge no espectro de matrizes de correlação; matrizes que são comumente utilizadas para análise de carteiras de investimento. Tais matrizes tem &lt;strong&gt;pelo menos a seguinte estrutura&lt;/strong&gt;:&lt;/p&gt;
+&lt;p&gt;$$
 \mathbf C = \mathbf X \mathbf X^T
 $$
-onde $\mathbf X$ é uma matriz real $N\times M$ e $M&amp;gt;N$.&lt;/p>
-&lt;p>O código abaixo permite explorar em um exemplo o espectro de matrizes aleatórias $N\neq M$ com entradas dadas pela distribuição normal.&lt;/p>
-&lt;pre>&lt;code class="language-python">def get_marchenko_bounds(Q, sigma=1):
-&amp;quot;&amp;quot;&amp;quot;Computes the Marchenko bounds for a given Q and sigma.
-Args:
-Q : (float) The Q-value.
-sigma : (float) The std value.
-Returns:
-(float, float): The lower and upper bounds for the eigenvalues.
-&amp;quot;&amp;quot;&amp;quot;
-QiSqrt = np.sqrt(1/Q)
-lp = np.power(sigma*(1 + QiSqrt),2)
-lm = np.power(sigma*(1 - QiSqrt),2)
-return lp, lm
+onde $\mathbf X$ é uma matriz real $N\times M$ e $M&amp;gt;N$.&lt;/p&gt;
+&lt;p&gt;O código abaixo permite explorar em um exemplo o espectro de matrizes aleatórias  $N\neq M$ com entradas dadas pela distribuição normal.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;def get_marchenko_bounds(Q, sigma=1):
+    &amp;quot;&amp;quot;&amp;quot;Computes the Marchenko bounds for a given Q and sigma.
+
+    Args:
+        Q : (float) The Q-value.
+        sigma : (float) The std value. 
+    Returns:
+        (float, float): The lower and upper bounds for the eigenvalues.
+
+    &amp;quot;&amp;quot;&amp;quot;
+    QiSqrt = np.sqrt(1/Q)
+    lp = np.power(sigma*(1 + QiSqrt),2) 
+    lm = np.power(sigma*(1 - QiSqrt),2) 
+    return lp, lm
+
 def marchenko_pastur(l, Q, sigma=1):
-&amp;quot;&amp;quot;&amp;quot;Return the probability of a Marchenko-Pastur distribution for
-a given Q , sigma and eigenvalue.
-Args:
-l : (float) The eigenvalue.
-Q : (float) The Q-value.
-sigma : (float) The std value.
-Returns:
-(float): The probability
-&amp;quot;&amp;quot;&amp;quot;
-lp, lm = get_marchenko_bounds(Q, sigma)
-# outside the interval [lm, lp]
-if l &amp;gt; lp or l &amp;lt; lm:
-return 0
-return (Q/(2*np.pi*sigma*sigma*l))*np.sqrt((lp-l)*(l-lm))
+    &amp;quot;&amp;quot;&amp;quot;Return the probability of a Marchenko-Pastur distribution for 
+    a given Q , sigma and eigenvalue.
+
+    Args:
+        l : (float) The eigenvalue.
+        Q : (float) The Q-value.
+        sigma : (float) The std value.
+    Returns:
+        (float): The probability
+    &amp;quot;&amp;quot;&amp;quot;
+    lp, lm = get_marchenko_bounds(Q, sigma)
+    # outside the interval [lm, lp]
+    if l &amp;gt; lp or l &amp;lt; lm:
+        return 0
+    return (Q/(2*np.pi*sigma*sigma*l))*np.sqrt((lp-l)*(l-lm))
+
 def plot_marchenko_pastur(ax, eigen_values, Q, sigma=1, bins=100, just_the_bulk=False):
-&amp;quot;&amp;quot;&amp;quot;Plots the Marchenko-Pastur distribution for a given Q and sigma
-Args:
-ax : (matplotlib.axes) The axes to plot on.
-eigen_values : (np.array) The eigenvalues.
-Q : (float) : The Q-value.
-sigma : (float) std
-bins : (int) The number of bins to use.
-just_the_bulk : (bool) If True, only the eigenvalues inside of
-the Marchenko-Pastur bounds are plotted.
-&amp;quot;&amp;quot;&amp;quot;
-l_max, l_min = get_marchenko_bounds(Q, sigma)
-eigenvalues_points = np.linspace(l_min, l_max, 100)
-pdf = np.vectorize(lambda x : marchenko_pastur(x, Q, sigma))(eigenvalues_points)
-if just_the_bulk:
-eigen_values = eigen_values[ (eigen_values &amp;lt; l_max)]
-ax.plot(eigenvalues_points, pdf, color = 'r', label='Marchenko-Pastur')
-ax.hist(eigen_values, label='sample', bins=bins , density=True)
-ax.set_xlabel(r&amp;quot;$\lambda$&amp;quot;)
-ax.set_ylabel(r&amp;quot;$\rho$&amp;quot;)
-ax.legend()
+    &amp;quot;&amp;quot;&amp;quot;Plots the Marchenko-Pastur distribution for a given Q and sigma 
+    
+    Args:
+        ax  : (matplotlib.axes) The axes to plot on.
+        eigen_values : (np.array) The eigenvalues.
+        Q  : (float) : The Q-value.
+        sigma : (float) std
+        bins : (int) The number of bins to use.
+        just_the_bulk : (bool) If True, only the eigenvalues inside of 
+            the Marchenko-Pastur bounds are plotted.
+
+    &amp;quot;&amp;quot;&amp;quot;
+    l_max, l_min = get_marchenko_bounds(Q, sigma)
+    eigenvalues_points = np.linspace(l_min, l_max, 100)
+    pdf = np.vectorize(lambda x : marchenko_pastur(x, Q, sigma))(eigenvalues_points)
+    if just_the_bulk:
+        eigen_values = eigen_values[ (eigen_values &amp;lt; l_max)]
+    ax.plot(eigenvalues_points, pdf, color = &#39;r&#39;, label=&#39;Marchenko-Pastur&#39;)
+    ax.hist(eigen_values,  label=&#39;sample&#39;, bins=bins , density=True)
+    ax.set_xlabel(r&amp;quot;$\lambda$&amp;quot;)
+    ax.set_ylabel(r&amp;quot;$\rho$&amp;quot;)
+    ax.legend()
+
 N = 1000
 T = 4000
 Q = T/N
+
 X = np.random.normal(0,1,size=(N,T))
 cor = np.corrcoef(X)
 vals = np.linalg.eigh(cor)[0]
+
 fig, ax = plt.subplots(1,1)
 plot_marchenko_pastur(ax, vals, Q, sigma=1, bins=100)
+
 plt.legend()
-plt.savefig('Marchenko_Pastur.png', facecolor='w')
+plt.savefig(&#39;Marchenko_Pastur.png&#39;, facecolor=&#39;w&#39;)
 plt.close()
-&lt;/code>&lt;/pre>
-&lt;p>&lt;img src="Marchenko_Pastur.png" alt="">&lt;/p>
-&lt;p>A função em vermelho na figura acima é a &lt;strong>universalidade&lt;/strong> que aparece em matrizes com a restrição $N\times M$ e entradas $i.i.d.$ e média $0$. Tal &lt;strong>universalidade&lt;/strong> tem como formato a distribuição de Marchenko-Pastur que é dada por&lt;/p>
-&lt;p>$$
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;Marchenko_Pastur.png&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
+&lt;p&gt;A função em vermelho na figura acima é a &lt;strong&gt;universalidade&lt;/strong&gt; que aparece em matrizes com a restrição $N\times M$ e entradas $i.i.d.$ e média $0$. Tal &lt;strong&gt;universalidade&lt;/strong&gt; tem como formato a distribuição de Marchenko-Pastur que é dada por&lt;/p&gt;
+&lt;p&gt;$$
 \rho (\lambda) = \frac{Q}{2\pi \sigma^2}\frac{\sqrt{(\lambda_{\max} - \lambda)(\lambda - \lambda_{\min})}}{\lambda}
 $$
 onde
 $$
 \lambda_{\max,\min} = \sigma^2(1 \pm \sqrt{\frac{1}{Q}})^2.
-$$&lt;/p>
-&lt;p>Note os parâmetros como $Q$ e $\sigma$. Tais parâmetros precisam ser ajustados para obter um melhor fit com dados reais.&lt;/p>
-&lt;p>Agora iremos para um caso real. Vamos usar dados obtidos via Yahoo Finance com a biblioteca &lt;code>yfinance&lt;/code> para consturir uma matriz de correlação com dados de ativos financeiros&lt;/p>
-&lt;pre>&lt;code class="language-python"># você precisa desse pacote para baixar os dados
+$$&lt;/p&gt;
+&lt;p&gt;Note os parâmetros como $Q$ e $\sigma$. Tais  parâmetros precisam ser ajustados para obter um melhor fit com dados reais.&lt;/p&gt;
+&lt;p&gt;Agora iremos para um caso real. Vamos usar dados obtidos via Yahoo Finance com a biblioteca &lt;code&gt;yfinance&lt;/code&gt; para consturir uma matriz de correlação com dados de ativos financeiros&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;# você precisa desse pacote para baixar os dados
 !pip install yfinance
-&lt;/code>&lt;/pre>
-&lt;p>Isso aqui é um post bem informal, então peguei peguei uma lista aleatória com alguns tickers que encontrei na internet&lt;/p>
-&lt;pre>&lt;code class="language-python">
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Isso aqui é um post bem informal, então  peguei peguei uma lista aleatória com alguns tickers que encontrei na internet&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;
 !wget https://raw.githubusercontent.com/shilewenuw/get_all_tickers/master/get_all_tickers/tickers.csv
-&lt;/code>&lt;/pre>
-&lt;p>selecionei apenas 500 para evitar que o processo de download seja muito demorado&lt;/p>
-&lt;pre>&lt;code class="language-python">tickers = np.loadtxt('tickers.csv', dtype=str, delimiter=',').tolist()
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;selecionei apenas 500 para evitar que o processo de download seja muito demorado&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;tickers = np.loadtxt(&#39;tickers.csv&#39;, dtype=str, delimiter=&#39;,&#39;).tolist()
 tickers = np.random.choice(tickers, size=500, replace=False).tolist()
-&lt;/code>&lt;/pre>
-&lt;p>vamos baixar agora os dados em um periódo específico&lt;/p>
-&lt;pre>&lt;code class="language-python">
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;vamos baixar agora os dados em um periódo específico&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;
 import yfinance as yf
-df = yf.download (tickers,
-start=&amp;quot;2017-01-01&amp;quot;, end=&amp;quot;2019-10-01&amp;quot;,
-interval = &amp;quot;1d&amp;quot;,
-group_by = 'ticker',
-progress = True)
-&lt;/code>&lt;/pre>
-&lt;p>o &lt;code>yfinance&lt;/code> vai gerar um dataframe com multiindex, então precisamos separar da
-forma que queremos&lt;/p>
-&lt;pre>&lt;code class="language-python">
+
+df  = yf.download (tickers, 
+                   start=&amp;quot;2017-01-01&amp;quot;, end=&amp;quot;2019-10-01&amp;quot;,
+                   interval = &amp;quot;1d&amp;quot;,
+                   group_by = &#39;ticker&#39;,
+                   progress = True)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;o  &lt;code&gt;yfinance&lt;/code&gt; vai gerar um dataframe com multiindex, então precisamos separar da
+forma que queremos&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;
 tickers_available = list(set([ ticket for ticket, _ in df.columns.T.to_numpy()]))
 prices = pd.DataFrame()
 for ticker in tickers_available:
-try:
-prices[ticker] = df[(ticker, 'Adj Close')]
-except KeyError:
-pass
-&lt;/code>&lt;/pre>
-&lt;p>Agora iremos calcular o retorno. Aqui entra um ponto delicado. Você poderá achar alguns posts na internet ou mesmo artigos argumentando que é necessário calcular o retorno como
-$\log (r+1)$ pois assim as entradas da sua matriz seguirá uma distribuição normal o que permitirá a aplicação de RMT. Já vimos no presente texto que não precisamos que as entradas da matrizes venham de uma distribuição normal para que a &lt;strong>universalidade&lt;/strong> apareça. A escolha ou não de usar $\log$ nos retornos merece mais atenção, inclusive com críticas em relação ao uso[6, 7, 8]. Mas esse post não pretende te vender nada, por isso vou ficar com o mais simples.&lt;/p>
-&lt;pre>&lt;code class="language-python"># calculamos os retornos
+    try:
+        prices[ticker] = df[(ticker, &#39;Adj Close&#39;)]
+    except KeyError:
+        pass
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Agora iremos calcular o retorno. Aqui entra um ponto delicado. Você poderá achar alguns posts na internet ou mesmo artigos argumentando que é necessário calcular o retorno como
+$\log (r+1)$ pois assim as entradas da sua matriz seguirá uma distribuição normal o que permitirá a aplicação de RMT. Já vimos no presente texto que não precisamos que as entradas da matrizes venham de uma distribuição normal para que a &lt;strong&gt;universalidade&lt;/strong&gt; apareça. A  escolha ou não de usar $\log$ nos retornos merece mais atenção, inclusive com críticas em relação ao uso[6, 7, 8]. Mas esse  post não pretende te vender nada, por isso vou ficar com o mais simples.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;# calculamos os retornos
 returns_all = prices.pct_change()
+
 # a primeira linha não faz sentido, não existe retorno no primeiro dia
 returns_all = returns_all.iloc[1:, :]
+
 # vamos limpar todas as linhas se mnegociação e dropar qualquer coluna com muitos NaN
 returns_all.dropna(axis = 1, thresh=len(returns_all.index)/2, inplace=True)
 returns_all.dropna(axis = 0, inplace=True)
-# seleciona apenas 150 colunas
+# seleciona apenas 150 colunas 
 returns_all = returns_all[np.random.choice(returns_all.columns, size=120, replace=False)]
 #returns_all = returns_all.iloc[150:]
-&lt;/code>&lt;/pre>
-&lt;p>Com o &lt;code>df&lt;/code> pronto calcularemos a matriz de correlação e seus autovalores&lt;/p>
-&lt;pre>&lt;code class="language-python">correlation_matrix = returns_all.interpolate().corr()
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Com o &lt;code&gt;df&lt;/code&gt; pronto calcularemos a matriz de correlação e seus autovalores&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;correlation_matrix = returns_all.interpolate().corr()
 vals = np.linalg.eigh(correlation_matrix.values)[0]
-&lt;/code>&lt;/pre>
-&lt;p>Vamos usar os parâmetros padrões para $Q$ e $\sigma$ e torcer para que funcione&lt;/p>
-&lt;pre>&lt;code class="language-python">
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Vamos usar os parâmetros padrões para $Q$ e $\sigma$ e torcer para que funcione&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;
 T, N = returns_all.shape
 Q=T/N
 sigma= 1
+
 fig, ax = plt.subplots(1,1)
 plot_marchenko_pastur(ax, vals, Q, sigma=1, bins=200, just_the_bulk=False)
+
 plt.legend()
-plt.savefig('Marchenko_Pastur_all.png', facecolor='w')
+plt.savefig(&#39;Marchenko_Pastur_all.png&#39;, facecolor=&#39;w&#39;)
 plt.close()
-&lt;/code>&lt;/pre>
-&lt;p>&lt;img src="Marchenko_Pastur_all.png" alt="">&lt;/p>
-&lt;p>Usando todo o intervalo de tempo do nosso &lt;code>df&lt;/code> obtivemos o que parece um ajuste razoável. É claro que você poderia (deveria) rodar algum teste estatistico para verificar tal ajuste.
-Existem alguns trabalhos que fizeram essa análise de forma rigorosa, comparando mercados e periódos específicos em relação a distribuição de Marchenko-Pastur[9].&lt;/p>
-&lt;p>Se você for uma pessoa atenta notará que na imagem acima existem alguns autovalores fora do suporte da Marchenko-Pastur. A ideia de filtragem via RMT é como dito em [9] testar seus dados em relação a &amp;ldquo;&lt;em>hipótese nula&lt;/em>&amp;rdquo; da RMT. No caso se seus autovalores estão dentro do &lt;em>bulk&lt;/em> da distribuição que descreve um modelo de entradas &lt;em>i.i.d.&lt;/em>.&lt;/p>
-&lt;p>Como isso foi aplicado em alguns trabalhos? Vamos ver na prática.&lt;/p>
-&lt;p>Usaremos $70$% da série histórica para calcular uma nova matriz de correlação. Com a matriz de correlação em mãos vamos computar os autovalores e autovetores.&lt;/p>
-&lt;pre>&lt;code class="language-python"># iremos usar 70% da serie para realizar a filtragem
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;Marchenko_Pastur_all.png&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Usando todo o intervalo de tempo do nosso &lt;code&gt;df&lt;/code&gt; obtivemos o que parece um ajuste razoável. É claro que você poderia (deveria) rodar algum teste estatistico para verificar tal ajuste.
+Existem alguns trabalhos que fizeram essa análise de forma rigorosa, comparando mercados e periódos específicos em relação a distribuição de Marchenko-Pastur[9].&lt;/p&gt;
+&lt;p&gt;Se você for uma pessoa atenta notará que na imagem acima existem alguns autovalores fora do suporte da Marchenko-Pastur.  A ideia de filtragem via RMT é como dito em [9] testar seus dados em relação a &amp;ldquo;&lt;em&gt;hipótese nula&lt;/em&gt;&amp;rdquo; da RMT. No caso se seus autovalores estão dentro do &lt;em&gt;bulk&lt;/em&gt; da distribuição que descreve um modelo de entradas &lt;em&gt;i.i.d.&lt;/em&gt;.&lt;/p&gt;
+&lt;p&gt;Como isso foi aplicado em alguns trabalhos? Vamos ver na prática.&lt;/p&gt;
+&lt;p&gt;Usaremos $70$% da série histórica para calcular uma nova matriz de correlação. Com a matriz de correlação em mãos vamos computar os autovalores e autovetores.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;# iremos usar 70% da serie para realizar a filtragem
 returns_all.shape[0]*0.70
 n_days = returns_all.shape[0]
 n_days_in = int(n_days*(1-0.70))
+
+
 returns = returns_all.copy()
 sample = returns.iloc[:(returns.shape[0]-n_days_in), :].copy()
+
 correlation_matrix = sample.interpolate().corr()
 vals, vecs = np.linalg.eigh(correlation_matrix.values)
-&lt;/code>&lt;/pre>
-&lt;p>Os autovalores e autovetores podem ser compreendidos como a decomposição de uma dada matriz.
-Portanto, o seguinte teste precisa passar&lt;/p>
-&lt;pre>&lt;code class="language-python"> assert np.abs(
-np.dot(vecs, np.dot(np.diag(vals), np.transpose(vecs))).flatten()
-- correlation_matrix.values.flatten()
-).max() &amp;lt; 1e-10
-&lt;/code>&lt;/pre>
-&lt;p>A distribuição de Marchenko-Pastur serve como um indicativo para nossa filtragem. O que faremos é jogar fora todos os autovalores
-que estão dentro da distribuição de Marchenko-Pastur, posteriormente reconstruiremos a matriz de correlação.&lt;/p>
-&lt;pre>&lt;code class="language-python">T, N = returns.shape
+
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Os autovalores e autovetores podem ser compreendidos como a decomposição de uma dada matriz.
+Portanto, o seguinte teste precisa passar&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt; assert np.abs(
+    np.dot(vecs, np.dot(np.diag(vals), np.transpose(vecs))).flatten()
+    - correlation_matrix.values.flatten()
+ ).max() &amp;lt; 1e-10
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;A distribuição de Marchenko-Pastur serve como um indicativo para nossa filtragem. O que faremos é jogar fora todos os autovalores
+que estão dentro da distribuição de Marchenko-Pastur, posteriormente reconstruiremos a matriz de correlação.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;T, N = returns.shape
 Q=T/N
 sigma = 1
 lp, lm = get_marchenko_bounds(Q, sigma)
+
 # Filter the eigenvalues out
 vals[vals &amp;lt;= lp ] = 0
 # Reconstruct the matrix
-filtered_matrix = np.dot(vecs, np.dot(np.diag(vals), np.transpose(vecs)))
+filtered_matrix =  np.dot(vecs, np.dot(np.diag(vals), np.transpose(vecs)))
 np.fill_diagonal(filtered_matrix, 1)
-&lt;/code>&lt;/pre>
-&lt;p>Com a matriz de correlação filtrada você pode fazer o que bem entender com ela - existem outras maneiras de se realizar uma filtragem - uma das possíveis aplicações que precisa ser utilizada com cuidado é usar tal matriz filtrada como input para algoritmos de otimização de carteira. Talvez faça um outro post descrevendo essa otimização de forma mais clara, mas esse não é meu enfoque nesse post e nem minha especialidade. Portanto, se você quiser dar uma lida recomendo os seguintes posts: [17, 18]&lt;/p>
-&lt;p>O que você precisa saber é que uma matriz de covariância, $\mathbf C_\sigma$, adimite uma decomposição em relação a matriz de correlação atráves da seguinte forma&lt;/p>
-&lt;p>$$
+
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Com a matriz de correlação filtrada  você pode fazer o que bem entender com ela - existem outras maneiras de se realizar uma filtragem  - uma das possíveis aplicações que precisa ser utilizada com cuidado é usar tal matriz filtrada como input para algoritmos de otimização de carteira. Talvez faça um outro post descrevendo essa otimização de forma mais clara, mas esse não é meu enfoque nesse post e nem minha especialidade. Portanto, se você quiser dar uma lida recomendo os seguintes posts: [17, 18]&lt;/p&gt;
+&lt;p&gt;O que você precisa saber é que uma matriz de covariância, $\mathbf C_\sigma$, adimite uma decomposição em relação a matriz de correlação atráves da seguinte forma&lt;/p&gt;
+&lt;p&gt;$$
 \mathbf C_\sigma = \mathbf D^{-1/2} \mathbf C \mathbf D^{-1/2}
 $$
-onde $\mathbf D^{-1/2}$ é uma matriz diagonal com as entradas sendo os desvios padrão para cada serie de dados, isto é&lt;br>
+onde $\mathbf D^{-1/2}$ é uma matriz diagonal com as entradas sendo os desvios padrão para cada serie de dados, isto é&lt;br&gt;
 $$
 \begin{bmatrix}
-\sigma_{1} &amp;amp;0 &amp;amp;\cdots &amp;amp;0 \&lt;br>
-0 &amp;amp;\sigma_{2} &amp;amp;\cdots &amp;amp;0 \&lt;br>
-\vdots &amp;amp;\vdots &amp;amp;\ddots &amp;amp;\vdots \&lt;br>
+\sigma_{1} &amp;amp;0 &amp;amp;\cdots &amp;amp;0 \&lt;br&gt;
+0 &amp;amp;\sigma_{2} &amp;amp;\cdots &amp;amp;0 \&lt;br&gt;
+\vdots &amp;amp;\vdots &amp;amp;\ddots &amp;amp;\vdots \&lt;br&gt;
 0 &amp;amp;0 &amp;amp;\cdots &amp;amp;\sigma_{M} \end{bmatrix}
-$$&lt;/p>
-&lt;p>Discutimos uma maneira de obter uma matriz de correlação filtrada, $\mathbf{\tilde C}$, através de RMT,
-a ideia é plugar essa nova matriz na equação anterior e obter uma nova matriz de covariância onde as informações menos relevantes foram eliminadas.&lt;/p>
-&lt;p>$$
-\mathbf{\tilde C_\sigma} = \mathbf D^{-1/2} \mathbf{\tilde C} \mathbf D^{-1/2}.
-$$&lt;/p>
-&lt;p>Tendo essa nova matriz de covâriancia filtrada agora basta você ingerir ela em algum método preferido para otimização e comparar com o resultado obtido usando a matriz original. Aqui usaremos o clássico Markowitz&lt;/p>
-&lt;pre>&lt;code class="language-python"># Reconstruct the filtered covariance matrix
+$$&lt;/p&gt;
+&lt;p&gt;Discutimos uma maneira de obter uma matriz de correlação filtrada, $\mathbf{\tilde C}$,  através de RMT,
+a ideia  é plugar essa nova matriz na equação anterior e obter uma nova matriz de covariância onde as informações menos relevantes foram eliminadas.&lt;/p&gt;
+&lt;p&gt;$$
+\mathbf{\tilde  C_\sigma} = \mathbf D^{-1/2} \mathbf{\tilde C} \mathbf D^{-1/2}.
+$$&lt;/p&gt;
+&lt;p&gt;Tendo essa nova matriz de covâriancia filtrada agora basta você ingerir ela em algum método preferido para otimização e comparar com o resultado obtido usando a matriz original.  Aqui usaremos o clássico Markowitz&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;# Reconstruct the filtered covariance matrix
 covariance_matrix = sample.cov()
 inv_cov_mat = np.linalg.pinv(covariance_matrix)
+
 # Construct minimum variance weights
 ones = np.ones(len(inv_cov_mat))
 inv_dot_ones = np.dot(inv_cov_mat, ones)
 min_var_weights = inv_dot_ones/ np.dot( inv_dot_ones , ones)
+
+
+
 variances = np.diag(sample.cov().values)
-standard_deviations = np.sqrt(variances)
+standard_deviations = np.sqrt(variances) 
+
 D = np.diag(standard_deviations)
 filtered_cov = np.dot(D ,np.dot(filtered_matrix,D))
 filtered_cov = filtered_matrix
-filtered_cov = (np.dot(np.diag(standard_deviations),
-np.dot(filtered_matrix,np.diag(standard_deviations))))
+
+filtered_cov = (np.dot(np.diag(standard_deviations), 
+            np.dot(filtered_matrix,np.diag(standard_deviations))))
+
 filt_inv_cov = np.linalg.pinv(filtered_cov)
+
 # Construct minimum variance weights
 ones = np.ones(len(filt_inv_cov))
 inv_dot_ones = np.dot(filt_inv_cov, ones)
 filt_min_var_weights = inv_dot_ones/ np.dot( inv_dot_ones , ones)
 def get_cumulative_returns_over_time(sample, weights):
-weights[weights &amp;lt;= 0 ] = 0
-weights = weights / weights.sum()
-return (((1+sample).cumprod(axis=0))-1).dot(weights)
+    weights[weights &amp;lt;= 0 ] = 0 
+    weights = weights / weights.sum()
+    return (((1+sample).cumprod(axis=0))-1).dot(weights)
+    
 cumulative_returns = get_cumulative_returns_over_time(returns, min_var_weights).values
 cumulative_returns_filt = get_cumulative_returns_over_time(returns, filt_min_var_weights).values
-&lt;/code>&lt;/pre>
-&lt;pre>&lt;code class="language-python">
+
+
+
+&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;
 in_sample_ind = np.arange(0, (returns.shape[0]-n_days_in+1))
 out_sample_ind = np.arange((returns.shape[0]-n_days_in), returns.shape[0])
 f = plt.figure()
+
 ax = plt.subplot(111)
 points = np.arange(0, len(cumulative_returns))[out_sample_ind]
-ax.plot(points, cumulative_returns[out_sample_ind], 'orange', linestyle='--', label='original')
-ax.plot(points, cumulative_returns_filt[out_sample_ind], 'b', linestyle='-.', label='filtrado')
+ax.plot(points, cumulative_returns[out_sample_ind], &#39;orange&#39;, linestyle=&#39;--&#39;, label=&#39;original&#39;)
+
+ax.plot(points, cumulative_returns_filt[out_sample_ind], &#39;b&#39;, linestyle=&#39;-.&#39;, label=&#39;filtrado&#39;)
 ymax = max(cumulative_returns[out_sample_ind].max(), cumulative_returns_filt[out_sample_ind].max())
 ymin = min(cumulative_returns[out_sample_ind].min(), cumulative_returns_filt[out_sample_ind].min())
 plt.legend()
-plt.savefig('comp.png', facecolor='w')
+plt.savefig(&#39;comp.png&#39;, facecolor=&#39;w&#39;)
 plt.close()
-&lt;/code>&lt;/pre>
-&lt;p>&lt;img src="comp.png" alt="">&lt;/p>
-&lt;p>Obtivemos uma melhora, mas novamente ressaltamos que uma analise mais criteriosa deveria ter sido feita. Vamos listar alguns pontos&lt;/p>
-&lt;ol>
-&lt;li>Em relação a questão da escolha do intervalo de tempo. Isto é, se o tamanho foi pequeno de mais para capturar a correlação ou se foi grande de mais tal que as correlações entre ativos não são estacionárias.&lt;/li>
-&lt;li>O (não) uso do $\log$-retorno e seu impacto&lt;/li>
-&lt;li>Uma escolha não aleatória do que seria analisado&lt;/li>
-&lt;li>Métodos de unfolding dos autovalores (tema para outro post)&lt;/li>
-&lt;/ol>
-&lt;h1 id="5---vantagens-críticas-e-sugestões">5 - Vantagens, críticas e sugestões&lt;/h1>
-&lt;p>Você poderá encontrar alguns trabalhos e posts descrevendo o uso de matrizes aleatórias para filtragem de matrizes de correlação sem uma boa crítica ou explicitação das limitações vou linkar aqui alguns pontos positivos e negativos e limitações&lt;/p>
-&lt;h2 id="onde-realmente-rmt-se-mostrou-útil">Onde realmente RMT se mostrou útil&lt;/h2>
-&lt;ul>
-&lt;li>Obviamente a RMT é indiscutivelmente bem sucedida na matemática e física permitindo compreender sistemas apenas analisando a estatística dos &lt;em>gases matriciais&lt;/em>.&lt;/li>
-&lt;li>Em machine learning a RMT também está provando ser uma ferramenta útil para compreender e melhorar o processo de aprendizado [15].&lt;/li>
-&lt;li>Entender comportamentos de sistemas sociais, biológicos e econômicos. Aqui com entender o comportamento digo apenas saber se um dado segue uma característica dada por alguma lei específica como a lei de semicírculo. Isto é, não existe discussão em você pegar um dado sistema que é representado por uma matriz, estudar o comportamento do seu espectro de autovalores e autovetores e verificar que seguem algumas lei de universalidade. &lt;strong>Isso é bem diferente de dizer que se você filtrar uma matriz de correlação via RMT você irá obter sempre resultados melhores.&lt;/strong>&lt;/li>
-&lt;/ul>
-&lt;h2 id="limitações">Limitações&lt;/h2>
-&lt;ul>
-&lt;li>Note que não realizamos nenhum tipo de teste para decidir se realmente a distribuição de autovalores era a distribuição desejada. Baseamos isso só no olhometro, obviamente não é uma boa ideia.&lt;/li>
-&lt;li>A filtragem apenas removendo os autovalores apesar de simples é limitada e pode ser contra produtiva, outros métodos de filtragem podem ser inclusive melhores[14]. Inclusive não é uma das únicas aplicações de RMT para tratamento desse tipo de dado [16]&lt;/li>
-&lt;/ul>
-&lt;h2 id="para-conhecer-mais">Para conhecer mais&lt;/h2>
-&lt;h3 id="ciêntistas">Ciêntistas&lt;/h3>
-&lt;ul>
-&lt;li>Alguns grandes nomes de RMT: Madan Lal Mehta, Freeman Dyson e Terrence Tao&lt;/li>
-&lt;li>Alguns brasileiros: Marcel Novaes autor do livro
-&lt;a href="https://link.springer.com/book/10.1007/978-3-319-70885-0" target="_blank" rel="noopener">Introduction to Random Matrices - Theory and Practice&lt;/a>-
-&lt;a href="https://arxiv.org/abs/1712.07903" target="_blank" rel="noopener">arxiv&lt;/a>; Fernando Lucas Metz trabalhou com o Nobel Giorgio Parisi.&lt;/li>
-&lt;/ul>
-&lt;h3 id="encontrou-um-erro-ou-quer-melhorar-esse-texto">Encontrou um erro ou quer melhorar esse texto?&lt;/h3>
-&lt;ul>
-&lt;li>Faça sua contribuição criando uma
-&lt;a href="https://github.com/devmessias/devmessias.github.io/issues/new" target="_blank" rel="noopener">issue&lt;/a> ou um PR editando esse arquivo aqui
-&lt;a href="https://github.com/devmessias/devmessias.github.io/blob/master/content/post/random_matrix_theory/index.md" target="_blank" rel="noopener">random_matrix_theory/index.md&lt;/a>.&lt;/li>
-&lt;/ul>
-&lt;h1 id="6-referências">6-Referências&lt;/h1>
-&lt;ul>
-&lt;li>
-&lt;p>[1] M. Kac, “Can One Hear the Shape of a Drum?,” The American Mathematical Monthly, vol. 73, no. 4, p. 1, Apr. 1966, doi: 10.2307/2313748.&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>[2] Wigner, E.P., 1957. Statistical properties of real symmetric matrices with many dimensions (pp. 174-184). Princeton University.&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>[4] “From Prime Numbers to Nuclear Physics and Beyond,” Institute for Advanced Study. &lt;a href="https://www.ias.edu/ideas/2013/primes-random-matrices">https://www.ias.edu/ideas/2013/primes-random-matrices&lt;/a> (accessed Sep. 30, 2020).&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>[5] “GUE hypothesis,” What’s new. &lt;a href="https://terrytao.wordpress.com/tag/gue-hypothesis/">https://terrytao.wordpress.com/tag/gue-hypothesis/&lt;/a> (accessed Nov. 22, 2021).&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>[6] R. Hudson and A. Gregoriou, “Calculating and Comparing Security Returns is Harder than you Think: A Comparison between Logarithmic and Simple Returns,” Social Science Research Network, Rochester, NY, SSRN Scholarly Paper ID 1549328, Feb. 2010. doi: 10.2139/ssrn.1549328.&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>[7] A. Meucci, “Quant Nugget 2: Linear vs. Compounded Returns – Common Pitfalls in Portfolio Management,” Social Science Research Network, Rochester, NY, SSRN Scholarly Paper ID 1586656, May 2010. Accessed: Dec. 01, 2021. [Online]. Available: &lt;a href="https://papers.ssrn.com/abstract=1586656">https://papers.ssrn.com/abstract=1586656&lt;/a>&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>[8] Lidian, “Analysis on Stocks: Log(1+return) or Simple Return?,” Medium, Sep. 18, 2020. &lt;a href="https://medium.com/@huangchingchiu/analysis-on-stocks-log-1-return-or-simple-return-371c3f60fab2">https://medium.com/@huangchingchiu/analysis-on-stocks-log-1-return-or-simple-return-371c3f60fab2&lt;/a> (accessed Nov. 25, 2021).&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>[9] N. A. Eterovic and D. S. Eterovic, “Separating the Wheat from the Chaff: Understanding Portfolio Returns in an Emerging Market,” Social Science Research Network, Rochester, NY, SSRN Scholarly Paper ID 2161646, Oct. 2012. doi: 10.2139/ssrn.2161646.&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>[10] E. P. Wigner, “Characteristic Vectors of Bordered Matrices With Infinite Dimensions,” Annals of Mathematics, vol. 62, no. 3, pp. 548–564, 1955, doi: 10.2307/1970079.&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>[11] E. P. Wigner, “On the statistical distribution of the widths and spacings of nuclear resonance levels,” Mathematical Proceedings of the Cambridge Philosophical Society, vol. 47, no. 4, pp. 790–798, Oct. 1951, doi: 10.1017/S0305004100027237.&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>[13] F. W. K. Firk and S. J. Miller, “Nuclei, Primes and the Random Matrix Connection,” Symmetry, vol. 1, no. 1, pp. 64–105, Sep. 2009, doi: 10.3390/sym1010064.&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>[14] L. Sandoval, A. B. Bortoluzzo, and M. K. Venezuela, “Not all that glitters is RMT in the forecasting of risk of portfolios in the Brazilian stock market,” Physica A: Statistical Mechanics and its Applications, vol. 410, pp. 94–109, Sep. 2014, doi: 10.1016/j.physa.2014.05.006.&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>[15] M. E. A. Seddik, C. Louart, M. Tamaazousti, and R. Couillet, “Random Matrix Theory Proves that Deep Learning Representations of GAN-data Behave as Gaussian Mixtures,” arXiv:2001.08370 [cs, stat], Jan. 2020, Accessed: Dec. 05, 2021. [Online]. Available: &lt;a href="http://arxiv.org/abs/2001.08370">http://arxiv.org/abs/2001.08370&lt;/a>&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>[16] D. B. Aires, “Análise de crises financeiras brasileiras usando teoria das matrizes aleatórias,” Universidade Estadual Paulista (Unesp), 2021. Accessed: Dec. 05, 2021. [Online]. Available: &lt;a href="https://repositorio.unesp.br/handle/11449/204550">https://repositorio.unesp.br/handle/11449/204550&lt;/a>&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>[17] S. Rome, “Eigen-vesting II. Optimize Your Portfolio With Optimization,” Scott Rome, Mar. 22, 2016. &lt;a href="http://srome.github.io//Eigenvesting-II-Optimize-Your-Portfolio-With-Optimization/">http://srome.github.io//Eigenvesting-II-Optimize-Your-Portfolio-With-Optimization/&lt;/a> (accessed Dec. 05, 2021).&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>[18] “11.1 Portfolio Optimization — MOSEK Fusion API for Python 9.3.10.” &lt;a href="https://docs.mosek.com/latest/pythonfusion/case-studies-portfolio.html">https://docs.mosek.com/latest/pythonfusion/case-studies-portfolio.html&lt;/a> (accessed Dec. 05, 2021).&lt;/p>
-&lt;/li>
-&lt;/ul></description></item></channel></rss>
+
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;comp.png&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Obtivemos uma melhora, mas novamente ressaltamos que uma analise mais criteriosa deveria ter sido feita. Vamos listar alguns pontos&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Em relação a questão da escolha do intervalo de tempo. Isto é, se o tamanho foi pequeno de mais para capturar a correlação ou se foi grande de mais tal que as correlações entre ativos não são estacionárias.&lt;/li&gt;
+&lt;li&gt;O (não) uso do  $\log$-retorno e seu impacto&lt;/li&gt;
+&lt;li&gt;Uma escolha não aleatória do que seria analisado&lt;/li&gt;
+&lt;li&gt;Métodos de unfolding dos autovalores (tema para outro post)&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h1 id=&#34;5---vantagens-críticas-e-sugestões&#34;&gt;5 - Vantagens, críticas e sugestões&lt;/h1&gt;
+&lt;p&gt;Você poderá encontrar alguns trabalhos e posts descrevendo o uso de matrizes aleatórias para filtragem de matrizes de correlação sem uma boa crítica ou explicitação das limitações vou linkar aqui alguns pontos positivos e negativos e limitações&lt;/p&gt;
+&lt;h2 id=&#34;onde-realmente-rmt-se-mostrou-útil&#34;&gt;Onde realmente RMT se mostrou útil&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Obviamente a RMT é indiscutivelmente bem sucedida na matemática e física permitindo compreender sistemas apenas analisando a estatística dos &lt;em&gt;gases matriciais&lt;/em&gt;.&lt;/li&gt;
+&lt;li&gt;Em machine learning a RMT também está provando ser uma ferramenta útil para compreender e melhorar o processo de aprendizado [15].&lt;/li&gt;
+&lt;li&gt;Entender comportamentos de sistemas sociais, biológicos e econômicos. Aqui com entender o comportamento digo apenas saber se um dado segue uma característica dada por alguma lei específica como a lei de semicírculo. Isto é, não existe discussão em você pegar um dado sistema que é representado por uma matriz, estudar o comportamento do seu espectro de autovalores e autovetores e verificar que seguem algumas lei de universalidade. &lt;strong&gt;Isso é bem diferente de dizer que se você filtrar uma matriz de correlação via RMT você irá obter sempre resultados melhores.&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;limitações&#34;&gt;Limitações&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Note que não realizamos nenhum tipo de teste para decidir se realmente a distribuição de autovalores era a distribuição desejada. Baseamos isso só no olhometro, obviamente não é uma boa ideia.&lt;/li&gt;
+&lt;li&gt;A filtragem apenas removendo os autovalores apesar de simples é limitada e pode ser contra produtiva, outros métodos de filtragem podem ser inclusive melhores[14]. Inclusive não é uma das únicas aplicações de RMT para tratamento desse tipo de dado [16]&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;para-conhecer-mais&#34;&gt;Para conhecer mais&lt;/h2&gt;
+&lt;h3 id=&#34;ciêntistas&#34;&gt;Ciêntistas&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Alguns grandes nomes de RMT: Madan Lal Mehta, Freeman Dyson e Terrence Tao&lt;/li&gt;
+&lt;li&gt;Alguns brasileiros: Marcel Novaes autor do livro 
+&lt;a href=&#34;https://link.springer.com/book/10.1007/978-3-319-70885-0&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Introduction to Random Matrices - Theory and Practice&lt;/a&gt;-
+&lt;a href=&#34;https://arxiv.org/abs/1712.07903&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;arxiv&lt;/a&gt;; Fernando Lucas Metz trabalhou com o Nobel Giorgio Parisi.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;encontrou-um-erro-ou-quer-melhorar-esse-texto&#34;&gt;Encontrou um erro ou quer melhorar esse texto?&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Faça sua contribuição   criando uma 
+&lt;a href=&#34;https://github.com/devmessias/devmessias.github.io/issues/new&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;issue&lt;/a&gt; ou um PR editando esse arquivo aqui 
+&lt;a href=&#34;https://github.com/devmessias/devmessias.github.io/blob/master/content/post/random_matrix_theory/index.md&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;random_matrix_theory/index.md&lt;/a&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id=&#34;6-referências&#34;&gt;6-Referências&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;[1] M. Kac, “Can One Hear the Shape of a Drum?,” The American Mathematical Monthly, vol. 73, no. 4, p. 1, Apr. 1966, doi: 10.2307/2313748.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;[2] Wigner, E.P., 1957. Statistical properties of real symmetric matrices with many dimensions (pp. 174-184). Princeton University.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;[4] “From Prime Numbers to Nuclear Physics and Beyond,” Institute for Advanced Study. &lt;a href=&#34;https://www.ias.edu/ideas/2013/primes-random-matrices&#34;&gt;https://www.ias.edu/ideas/2013/primes-random-matrices&lt;/a&gt; (accessed Sep. 30, 2020).&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;[5] “GUE hypothesis,” What’s new. &lt;a href=&#34;https://terrytao.wordpress.com/tag/gue-hypothesis/&#34;&gt;https://terrytao.wordpress.com/tag/gue-hypothesis/&lt;/a&gt; (accessed Nov. 22, 2021).&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;[6] R. Hudson and A. Gregoriou, “Calculating and Comparing Security Returns is Harder than you Think: A Comparison between Logarithmic and Simple Returns,” Social Science Research Network, Rochester, NY, SSRN Scholarly Paper ID 1549328, Feb. 2010. doi: 10.2139/ssrn.1549328.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;[7] A. Meucci, “Quant Nugget 2: Linear vs. Compounded Returns – Common Pitfalls in Portfolio Management,” Social Science Research Network, Rochester, NY, SSRN Scholarly Paper ID 1586656, May 2010. Accessed: Dec. 01, 2021. [Online]. Available: &lt;a href=&#34;https://papers.ssrn.com/abstract=1586656&#34;&gt;https://papers.ssrn.com/abstract=1586656&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;[8] Lidian, “Analysis on Stocks: Log(1+return) or Simple Return?,” Medium, Sep. 18, 2020. &lt;a href=&#34;https://medium.com/@huangchingchiu/analysis-on-stocks-log-1-return-or-simple-return-371c3f60fab2&#34;&gt;https://medium.com/@huangchingchiu/analysis-on-stocks-log-1-return-or-simple-return-371c3f60fab2&lt;/a&gt; (accessed Nov. 25, 2021).&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;[9] N. A. Eterovic and D. S. Eterovic, “Separating the Wheat from the Chaff: Understanding Portfolio Returns in an Emerging Market,” Social Science Research Network, Rochester, NY, SSRN Scholarly Paper ID 2161646, Oct. 2012. doi: 10.2139/ssrn.2161646.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;[10] E. P. Wigner, “Characteristic Vectors of Bordered Matrices With Infinite Dimensions,” Annals of Mathematics, vol. 62, no. 3, pp. 548–564, 1955, doi: 10.2307/1970079.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;[11] E. P. Wigner, “On the statistical distribution of the widths and spacings of nuclear resonance levels,” Mathematical Proceedings of the Cambridge Philosophical Society, vol. 47, no. 4, pp. 790–798, Oct. 1951, doi: 10.1017/S0305004100027237.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;[13] F. W. K. Firk and S. J. Miller, “Nuclei, Primes and the Random Matrix Connection,” Symmetry, vol. 1, no. 1, pp. 64–105, Sep. 2009, doi: 10.3390/sym1010064.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;[14] L. Sandoval, A. B. Bortoluzzo, and M. K. Venezuela, “Not all that glitters is RMT in the forecasting of risk of portfolios in the Brazilian stock market,” Physica A: Statistical Mechanics and its Applications, vol. 410, pp. 94–109, Sep. 2014, doi: 10.1016/j.physa.2014.05.006.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;[15] M. E. A. Seddik, C. Louart, M. Tamaazousti, and R. Couillet, “Random Matrix Theory Proves that Deep Learning Representations of GAN-data Behave as Gaussian Mixtures,” arXiv:2001.08370 [cs, stat], Jan. 2020, Accessed: Dec. 05, 2021. [Online]. Available: &lt;a href=&#34;http://arxiv.org/abs/2001.08370&#34;&gt;http://arxiv.org/abs/2001.08370&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;[16] D. B. Aires, “Análise de crises financeiras brasileiras usando teoria das matrizes aleatórias,” Universidade Estadual Paulista (Unesp), 2021. Accessed: Dec. 05, 2021. [Online]. Available: &lt;a href=&#34;https://repositorio.unesp.br/handle/11449/204550&#34;&gt;https://repositorio.unesp.br/handle/11449/204550&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;[17] S. Rome, “Eigen-vesting II. Optimize Your Portfolio With Optimization,” Scott Rome, Mar. 22, 2016. &lt;a href=&#34;http://srome.github.io//Eigenvesting-II-Optimize-Your-Portfolio-With-Optimization/&#34;&gt;http://srome.github.io//Eigenvesting-II-Optimize-Your-Portfolio-With-Optimization/&lt;/a&gt; (accessed Dec. 05, 2021).&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;[18] “11.1 Portfolio Optimization — MOSEK Fusion API for Python 9.3.10.” &lt;a href=&#34;https://docs.mosek.com/latest/pythonfusion/case-studies-portfolio.html&#34;&gt;https://docs.mosek.com/latest/pythonfusion/case-studies-portfolio.html&lt;/a&gt; (accessed Dec. 05, 2021).&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

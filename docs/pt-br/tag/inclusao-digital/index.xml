@@ -1,12 +1,36 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>inclusão digital | Bruno Messias</title><link>/pt-br/tag/inclusao-digital/</link><atom:link href="/pt-br/tag/inclusao-digital/index.xml" rel="self" type="application/rss+xml"/><description>inclusão digital</description><generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>pt-br</language><copyright>Bruno Messias</copyright><lastBuildDate>Tue, 31 May 2016 10:45:56 +0000</lastBuildDate><image><url>/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_2.png</url><title>inclusão digital</title><link>/pt-br/tag/inclusao-digital/</link></image><item><title>ReciclaAqui</title><link>/pt-br/project/reciclaaqui/</link><pubDate>Tue, 31 May 2016 10:45:56 +0000</pubDate><guid>/pt-br/project/reciclaaqui/</guid><description>&lt;p>O Recicla Aqui é um projeto que desenvolvo em parceria com um amigo(Régis Maicon). Tal projeto visa inserir
-tecnologia no processo da coleta seletiva e aumentar a qualidade de vida dos catadores de material reciclável.&lt;/p>
-&lt;p>Temos três eixos norteadores:&lt;/p>
-&lt;h4 id="fornecer-tecnologias-de--gerenciamento-e-formação-técnica--para-as-cooperativas">Fornecer tecnologias de Gerenciamento e Formação técnica para as Cooperativas&lt;/h4>
-&lt;h4 id="criação-de-um-aplicativo-que-permita-conectar-cidadães-e-coletores">Criação de um aplicativo que permita conectar Cidadães e Coletores&lt;/h4>
-&lt;h4 id="revitalização-da-imagem-dos-coletores">&amp;ldquo;Revitalização&amp;rdquo; da imagem dos coletores&lt;/h4>
-&lt;h4 id="alfabetização-tecnológica">&amp;ldquo;Alfabetização Tecnológica&amp;rdquo;&lt;/h4>
-&lt;p>O aplicativo você encontra na Goolge Play (futuramente na Apple Store)&lt;/p>
-&lt;p>Objetivamos utilizar as redes sociais para conscientizar a população da importância dos catadores&lt;/p>
-&lt;p>&lt;img src="/img/reciclaAqui/2.jpeg" alt="Alt text" title="Optional title">
-&lt;img src="/img/reciclaAqui/reciclaaqui3.png" alt="Alt text" title="Optional title">
-&lt;img src="/img/reciclaAqui/reciclaaqui4.png" alt="Alt text" title="Optional title">&lt;/p></description></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>inclusão digital | Bruno Messias</title>
+    <link>/pt-br/tag/inclusao-digital/</link>
+      <atom:link href="/pt-br/tag/inclusao-digital/index.xml" rel="self" type="application/rss+xml" />
+    <description>inclusão digital</description>
+    <generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>pt-br</language><copyright>Bruno Messias</copyright><lastBuildDate>Tue, 31 May 2016 10:45:56 +0000</lastBuildDate>
+    <image>
+      <url>/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_2.png</url>
+      <title>inclusão digital</title>
+      <link>/pt-br/tag/inclusao-digital/</link>
+    </image>
+    
+    <item>
+      <title>ReciclaAqui</title>
+      <link>/pt-br/project/reciclaaqui/</link>
+      <pubDate>Tue, 31 May 2016 10:45:56 +0000</pubDate>
+      <guid>/pt-br/project/reciclaaqui/</guid>
+      <description>&lt;p&gt;O Recicla Aqui é um projeto que desenvolvo em parceria com um amigo(Régis Maicon). Tal projeto visa inserir
+tecnologia no processo da coleta seletiva e aumentar a qualidade de vida dos catadores de material reciclável.&lt;/p&gt;
+&lt;p&gt;Temos três eixos norteadores:&lt;/p&gt;
+&lt;h4 id=&#34;fornecer-tecnologias-de--gerenciamento-e-formação-técnica--para-as-cooperativas&#34;&gt;Fornecer tecnologias de  Gerenciamento e Formação técnica  para as Cooperativas&lt;/h4&gt;
+&lt;h4 id=&#34;criação-de-um-aplicativo-que-permita-conectar-cidadães-e-coletores&#34;&gt;Criação de um aplicativo que permita conectar Cidadães e Coletores&lt;/h4&gt;
+&lt;h4 id=&#34;revitalização-da-imagem-dos-coletores&#34;&gt;&amp;ldquo;Revitalização&amp;rdquo; da imagem dos coletores&lt;/h4&gt;
+&lt;h4 id=&#34;alfabetização-tecnológica&#34;&gt;&amp;ldquo;Alfabetização Tecnológica&amp;rdquo;&lt;/h4&gt;
+&lt;p&gt;O aplicativo você encontra na Goolge Play (futuramente na Apple Store)&lt;/p&gt;
+&lt;p&gt;Objetivamos utilizar as redes sociais para conscientizar a população da importância dos catadores&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/img/reciclaAqui/2.jpeg&#34; alt=&#34;Alt text&#34; title=&#34;Optional title&#34;&gt;
+&lt;img src=&#34;/img/reciclaAqui/reciclaaqui3.png&#34; alt=&#34;Alt text&#34; title=&#34;Optional title&#34;&gt;
+&lt;img src=&#34;/img/reciclaAqui/reciclaaqui4.png&#34; alt=&#34;Alt text&#34; title=&#34;Optional title&#34;&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
