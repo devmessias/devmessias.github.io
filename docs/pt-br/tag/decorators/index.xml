@@ -638,13 +638,7 @@ print(&amp;quot;r:&amp;quot;, r)
 &lt;pre>&lt;code> dummy_example(a=2, b=3, c=1); sum_ab 5, diff_ab -1; r=4
 r: 4
 &lt;/code>&lt;/pre>
-&lt;p>Eu sei que esse post pode ter sido difícil, se tiver dúvida você pode entrar em contato comigo pelos comentários abaixo, twitter ou linkedin. Compartilhe se você gostou.&lt;/p></description></item><item><title>Grafos e filtragem de arestas II: MST e mercado de ações</title><link>/pt-br/post/mst_graphs_data_analysis/</link><pubDate>Fri, 08 Apr 2022 00:00:00 +0000</pubDate><guid>/pt-br/post/mst_graphs_data_analysis/</guid><description>&lt;details
-class="toc-inpage d-print-none d-none d-sm-block d-md-none " open>
-&lt;summary class="font-weight-bold">Lista de Conteúdos&lt;/summary>
-&lt;nav id="TableOfContents">&lt;/nav>
-&lt;/details>
-&lt;p>Esse post é da série sobre filtragem em grafos (esparsificação) o anterior pode ser acessado em:
-&lt;a href="/pt-br/post/edge_graph_filtering/" title="Grafos e filtragem de arestas: conceitos e confusões. I">Grafos e filtragem de arestas: conceitos e confusões.&lt;/a>.&lt;/p></description></item><item><title>An introspective python decorator using stack frames and the inspect module</title><link>/pt-br/post/python_decorator_that_exposes_locals/</link><pubDate>Mon, 04 Apr 2022 00:00:00 +0000</pubDate><guid>/pt-br/post/python_decorator_that_exposes_locals/</guid><description>&lt;details
+&lt;p>Eu sei que esse post pode ter sido difícil, se tiver dúvida você pode entrar em contato comigo pelos comentários abaixo, twitter ou linkedin. Compartilhe se você gostou.&lt;/p></description></item><item><title>An introspective python decorator using stack frames and the inspect module</title><link>/pt-br/post/python_decorator_that_exposes_locals/</link><pubDate>Mon, 04 Apr 2022 00:00:00 +0000</pubDate><guid>/pt-br/post/python_decorator_that_exposes_locals/</guid><description>&lt;details
 class="toc-inpage d-print-none d-none d-sm-block d-md-none " open>
 &lt;summary class="font-weight-bold">Lista de Conteúdos&lt;/summary>
 &lt;nav id="TableOfContents">
