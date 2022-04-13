@@ -170,9 +170,9 @@ result = func(x, y)[0]
 &lt;p>Se você está ok com fazer mudanças em outros lugares do seu código por que não criar novas funções ao invés de decoradores que funcionam mais ou menos?&lt;/p>
 &lt;/li>
 &lt;/ul>
-&lt;p>Ok, você pode estar pensando: &amp;ldquo;Tá , faz sentido não fazer isso que sugeri, mas do que adianta evitar sujar sua codebase se você tá criando problemas de desempenho e debug? Não parece uma boa solução na maioria dos casos. Eu tenho que concordar com você!&amp;rdquo;&lt;/p>
+&lt;p>Ok, você pode estar pensando: &amp;ldquo;Tá , faz sentido não fazer isso que sugeri, mas do que adianta evitar sujar sua codebase se você tá criando problemas de desempenho e debug? Não parece uma boa solução na maioria dos casos.&amp;rdquo; Eu tenho que concordar com você!&lt;/p>
 &lt;p>Bom, então o que podemos fazer?? O problema que encontramos é que em python não temos context managers que podem lidar com namespaces
-&lt;a href="https://mail.python.org/archives/list/python-ideas@python.org/thread/TAVHEKDZVYKJUGZKWSVZVAOGBPLZVKQG/" target="_blank" rel="noopener">https://mail.python.org/archives/list/python-ideas@python.org/&lt;/a>. Mas se desanime com essa limitação, a questão agora é:&lt;/p>
+&lt;a href="https://mail.python.org/archives/list/python-ideas@python.org/thread/TAVHEKDZVYKJUGZKWSVZVAOGBPLZVKQG/" target="_blank" rel="noopener">https://mail.python.org/archives/list/python-ideas@python.org/&lt;/a>. Mas não se desanime com essa limitação, a questão agora é:&lt;/p>
 &lt;div class="alert alert-note">
 &lt;div>
 &lt;strong>Se uma linguagem não tem uma feature que eu preciso o que eu posso fazer?&lt;/strong>
