@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>python | Bruno Messias</title><link>/tag/python/</link><atom:link href="/tag/python/index.xml" rel="self" type="application/rss+xml"/><description>python</description><generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>en</language><copyright>Bruno Messias</copyright><lastBuildDate>Fri, 08 Apr 2022 00:00:00 +0000</lastBuildDate><image><url>/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_2.png</url><title>python</title><link>/tag/python/</link></image><item><title>Going meta with python: manipulating ASTs to create an introspective decorator at runtime [draft]</title><link>/post/python_ast_metaprogramming_with_introspection_and_decorators/</link><pubDate>Fri, 08 Apr 2022 00:00:00 +0000</pubDate><guid>/post/python_ast_metaprogramming_with_introspection_and_decorators/</guid><description>&lt;details
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>python | Bruno Messias</title><link>/tag/python/</link><atom:link href="/tag/python/index.xml" rel="self" type="application/rss+xml"/><description>python</description><generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>en</language><copyright>Bruno Messias</copyright><lastBuildDate>Fri, 08 Apr 2022 00:00:00 +0000</lastBuildDate><image><url>/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_2.png</url><title>python</title><link>/tag/python/</link></image><item><title>Going meta with python: manipulating ASTs to create an introspective decorator at runtime</title><link>/post/python_ast_metaprogramming_with_introspection_and_decorators/</link><pubDate>Fri, 08 Apr 2022 00:00:00 +0000</pubDate><guid>/post/python_ast_metaprogramming_with_introspection_and_decorators/</guid><description>&lt;details
 class="toc-inpage d-print-none d-none d-sm-block d-md-none " open>
 &lt;summary class="font-weight-bold">Table of Contents&lt;/summary>
 &lt;nav id="TableOfContents">
@@ -47,7 +47,7 @@ simple_method(1, 0)
 16 print(f&amp;quot;{func.__name__}({_args}) -&amp;gt; {result}&amp;quot;)
 ValueError: y doesn't belong to the space of real numbers greater than zero
 &lt;/code>&lt;/pre>
-&lt;p>And after that, I combined the &lt;code>inspect.singature&lt;/code>+&lt;code>sys.trace&lt;/code>+&lt;code>locals&lt;/code> to construct a decorator that exposes the local variables of a decorated function. All this stuff allows us to do cool things like creating a generic report decorator that has access to the local variables of the decorated method&lt;/p>
+&lt;p>And after that, I combined the &lt;code>inspect.singature&lt;/code>+&lt;code>sys.trace&lt;/code> to construct a decorator that exposes the local variables of a decorated function. All this stuff allows us to do cool things like creating a generic report decorator that has access to the local variables of the decorated method&lt;/p>
 &lt;pre>&lt;code class="language-python">@report('{arg.n_bananas} Monkey {gluttonous_monkey} ate too much bananas. Num monkeys {num_monkeys}')
 def feed_monkeys(n_bananas):
 num_monkeys = 3
@@ -134,23 +134,23 @@ return decorate
 &lt;p>What are the problems with this solution?&lt;/p>
 &lt;ul>
 &lt;li>A tracing always creates a cost. Thus, it is expected that we will reduce the performance of our system. If you use this just for debugging purposes, it&amp;rsquo;s ok.&lt;/li>
-&lt;li>It can create conflicts with other tools and libs.&lt;/li>
-&lt;li>It seems dirty!&lt;/li>
+&lt;li>It can create conflicts with other tools and libs that are also trying to use the trace tool&lt;/li>
+&lt;li>Seems dirty!&lt;/li>
 &lt;/ul>
 &lt;p>Ok, maybe you&amp;rsquo;re asking yourself &lt;em>&amp;ldquo;This guy is overthinking. Why didn&amp;rsquo;t he just do this?&amp;quot;&lt;/em>&lt;/p>
 &lt;pre>&lt;code class="language-python">@report('stuff goes here')
 def func(x, y):
 random_var = np.random.uniform()
 ... #more local vars
-_result
 result = (x+y)**random_var
 return result, locals
 &lt;/code>&lt;/pre>
-&lt;pre>&lt;code>The reason is:
-- The main point of using this decorator is to avoid any change in other parts of the codebase. For example,
-if in any part of the codebase `func` has been called you will have to change to
-```python
-result = func(x, y) # to
+&lt;p>The reason is:&lt;/p>
+&lt;ul>
+&lt;li>The main point of using this decorator is to avoid any change in other parts of the codebase. For example,
+if in any part of the codebase &lt;code>func&lt;/code> has been called you will have to change to&lt;/li>
+&lt;/ul>
+&lt;pre>&lt;code class="language-python">result = func(x, y) # to
 result = func(x, y)[0]
 &lt;/code>&lt;/pre>
 &lt;p>If after you choose to remove the decorator from a function, you will need to roll back all the above changes.&lt;/p>
@@ -158,15 +158,15 @@ result = func(x, y)[0]
 &lt;li>You will increase the cognitive load in all members of the team who don&amp;rsquo;t care about what your decorator needs to do.&lt;/li>
 &lt;li>If you propose this a solution you&amp;rsquo;d better just create another function and face the consequences of this increase in complexity in the original codebase.&lt;/li>
 &lt;/ul>
-&lt;p>Ok, maybe you&amp;rsquo;re now thinking: &amp;ldquo;&lt;em>Right, this makes sense, but you&amp;rsquo;re avoiding these issues creating antoher issues in performance and debugging. It doesn&amp;rsquo;t sound good except for some special cases&lt;/em>&amp;rdquo;. And I need to agree with you, &lt;strong>it&amp;rsquo;s not a good solution for most of the cases!&lt;/strong>&lt;/p>
-&lt;p>Well, what can I do? The problem we&amp;rsquo;re facing is that python doesn&amp;rsquo;t have context managers that can deal with namespaces, although there is an active discussion about this
+&lt;p>Ok, maybe you&amp;rsquo;re now thinking: &amp;ldquo;&lt;em>Right, this makes sense, but you&amp;rsquo;re avoiding these issues creating other issues in performance and debugging. It doesn&amp;rsquo;t sound good except for some special cases&lt;/em>&amp;rdquo;. And I need to agree with you, &lt;strong>it&amp;rsquo;s not a good solution for most of the cases!&lt;/strong>&lt;/p>
+&lt;p>The problem we&amp;rsquo;re facing is that python doesn&amp;rsquo;t have context managers that can deal with namespaces, although there is an active discussion about this
 &lt;a href="https://mail.python.org/archives/list/python-ideas@python.org/thread/TAVHEKDZVYKJUGZKWSVZVAOGBPLZVKQG/" target="_blank" rel="noopener">https://mail.python.org/archives/list/python-ideas@python.org/&lt;/a>. But don&amp;rsquo;t worry about this big name. The important point here is that:&lt;/p>
 &lt;div class="alert alert-note">
 &lt;div>
 &lt;strong>If a language doesn&amp;rsquo;t have a feature that I need, what can I do?&lt;/strong>
 &lt;/div>
 &lt;/div>
-&lt;p>In python we are fine with this because it&amp;rsquo;s a language that turns to be easy to manipulate what is called &lt;strong>A&lt;/strong>bstract &lt;strong>S&lt;/strong>yntax &lt;strong>T&lt;/strong>ree and recompile a function with the manipulated syntax tree. &lt;strong>Doing that way we&amp;rsquo;re in the realm of metaprogramming. Writing code which writes code.&lt;/strong> If t&amp;rsquo;s not clear I&amp;rsquo;ll try to be more clear now.&lt;/p>
+&lt;p>In python we are fine with this because it&amp;rsquo;s a language that turns to be easy to manipulate the &lt;strong>A&lt;/strong>bstract &lt;strong>S&lt;/strong>yntax &lt;strong>T&lt;/strong>ree and recompile a function with the manipulated tree. &lt;strong>Doing that way we&amp;rsquo;re in the realm of metaprogramming. Writing code which writes code.&lt;/strong> If t&amp;rsquo;s not clear I&amp;rsquo;ll try to be more clear now.&lt;/p>
 &lt;h2 id="asts-what-are-they">ASTs: What are they?&lt;/h2>
 &lt;p>A programming language obviously is at least a language. OK, &lt;strong>but what is a language?
 Do all the human languages share the same building blocks? How can we compare different sentences?&lt;/strong>
@@ -189,20 +189,20 @@ A &lt;strong>S&lt;/strong>yntax &lt;strong>T&lt;/strong>ree for the sentence: &l
 &lt;/figcaption>
 &lt;/figure>
 &lt;p>What is the advantage of using ASTs? Notice that we don&amp;rsquo;t need to talk about how many spaces you&amp;rsquo;re using, we didn&amp;rsquo;t talk about your calligraphy and besides that, &lt;strong>we have a hierarchy structure that allows us to analyze the validity of the sentence per level! If we want to change any element of the sentence we can directly manipulate the node which represents that element for a safe guarantee that the manipulated sentence is still grammatically correct!&lt;/strong>&lt;/p>
-&lt;p>It&amp;rsquo;s not a surprise that ASTs are also a common tool used in computer science to analyze the correctness of a piece of code and as a common part of the process of compiling/interpreting a code. Here we will extend the behavior of a python decorator manipulating the AST. But before that, I would like to ask you a question:&lt;/p>
+&lt;p>It&amp;rsquo;s not a surprise that ASTs are also a common tool used in computer science to analyze the correctness of a piece of code and as a common part of the process of compiling/interpreting a code. Here we will extend the behavior of a Python decorator manipulating the AST. But before that, I would like to ask you a question:&lt;/p>
 &lt;h2 id="python-interpreted-or-compiled">Python: interpreted or compiled?&lt;/h2>
-&lt;p>Usually, when I meet a python hater (or even an enthusiast) they say statements like that&lt;/p>
+&lt;p>Usually, when I meet a Python hater (or even an enthusiast) they say statements like that&lt;/p>
 &lt;ul>
 &lt;li>&lt;em>&amp;ldquo;Python is slow because it&amp;rsquo;s an interpreted language!&amp;quot;&lt;/em>&lt;/li>
 &lt;li>&lt;em>&amp;ldquo;Python sucks because it doesn&amp;rsquo;t have a compiler!&amp;quot;&lt;/em>&lt;/li>
 &lt;/ul>
-&lt;p>Well, these assertions are not true. The important point is that: &lt;em>when people refer to python commonly they are actually talking about the language python and the CPython virtual machine&lt;/em>. Let&amp;rsquo;s talk more about these misconceptions.&lt;/p>
+&lt;p>Well, these assertions are not true. The important point is that: &lt;em>when people refer to Python commonly they are actually talking about the language Python and the CPython virtual machine&lt;/em>. Let&amp;rsquo;s talk more about these misconceptions.&lt;/p>
 &lt;p>First, the distinction between interpreted and compiled languages is very blurry today.
-Second, let&amp;rsquo;s see a nasty thing&lt;/p>
+Second, let&amp;rsquo;s see something&lt;/p>
 &lt;pre>&lt;code class="language-python">hello_world = &amp;quot;print('Hello, world!')&amp;quot;
 hello_world_obj = compile(hello_world, '&amp;lt;string&amp;gt;', 'single')
 &lt;/code>&lt;/pre>
-&lt;p>Yeah, if you&amp;rsquo;re trying to defend that python is interpreted the things are harder for you. &lt;strong>Why is there a &lt;strong>compile&lt;/strong> available?&lt;/strong>&lt;/p>
+&lt;p>Yeah, if you&amp;rsquo;re trying to defend that Python is interpreted the things start to get harder for you. &lt;strong>Why is there a &lt;strong>compile&lt;/strong> available?&lt;/strong>&lt;/p>
 &lt;pre>&lt;code class="language-python">exec(hello_world_obj)
 &lt;/code>&lt;/pre>
 &lt;pre>&lt;code>Hello, world!
@@ -216,7 +216,7 @@ Type: &amp;lt;class 'bytes'&amp;gt;
 &lt;/code>&lt;/pre>
 &lt;p>But what is this stuff?&lt;/p>
 &lt;p>It is important to understand what happens behind the scenes.&lt;/p>
-&lt;p>After you write a python code and call the python command, python starts a compiling phase creating the ASTs; generating the bytecotes that will be attached to &lt;strong>code objects&lt;/strong>, and then, these code objects will be interpreted by the CPython virtual machine. The diagram below is a simple representation of this process with some details hidden&lt;/p>
+&lt;p>After you write a code and call the python command, Python starts a compiling phase creating the ASTs; generating the bytecotes that will be attached to &lt;strong>code objects&lt;/strong>, and then, these code objects will be interpreted by the CPython virtual machine. The diagram below is a simple representation of this process with some details hidden&lt;/p>
 &lt;div class="mermaid mermaidContainer">
 graph LR;
 A[Source Code]-->|parsing|B[Parse Tree];
@@ -287,12 +287,12 @@ type_ignores=[])
 &lt;img src="/post/python_ast_metaprogramming_with_introspection_and_decorators/simple_ast_hudca446749283cbe6d28b67a245474890_120568_0x1000_resize_lanczos_2.png" alt="" height="400px">
 &lt;/a>
 &lt;/figure>
-&lt;p>Each element in the above output with an upper case letter is a &lt;strong>node&lt;/strong> (Name, BinOp, FunctionDef, etc) from the base class &lt;code>ast.Node&lt;/code>. One of the most important node types are the &lt;code>ast.Name&lt;/code>.
+&lt;p>Each element in the above output with an upper case letter is a &lt;strong>node&lt;/strong> (Name, BinOp, FunctionDef, etc) from the base class &lt;code>ast.Node&lt;/code>. One of the most important node types is the &lt;code>ast.Name&lt;/code>.
 For example,&lt;/p>
 &lt;pre>&lt;code>value=BinOp(left=Name(id='a'), op=Add, right=Name(id='b')),
 &lt;/code>&lt;/pre>
-&lt;p>the &lt;code>ast.Name&lt;/code> is used to refer a variable by the name, &lt;code>id&lt;/code>.&lt;/p>
-&lt;p>Now let&amp;rsquo;s come back to our problem. Remember that one bad solution it was rewriting every function&lt;/p>
+&lt;p>the &lt;code>ast.Name&lt;/code> is used to refer to variable by the name, &lt;code>id&lt;/code>.&lt;/p>
+&lt;p>Now let&amp;rsquo;s come back to our problem. Remember that one bad solution was rewriting every function&lt;/p>
 &lt;pre>&lt;code class="language-python">def func(x, y):
 random_var = np.random.uniform()
 ... #more local vars
@@ -317,10 +317,10 @@ return result, locals
 &lt;li>Extract the AST from the example and the transformed function&lt;/li>
 &lt;li>Compare the ASTs. What is the difference? Annotate this difference somewhere
 &lt;ul>
-&lt;li>You can use the &lt;code>difflib&lt;/code> module that comes with python to diff strings&lt;/li>
+&lt;li>You can use the &lt;code>difflib&lt;/code> module that comes with Python to diff strings&lt;/li>
 &lt;/ul>
 &lt;/li>
-&lt;li>Creates a new and more complex example function and repeats the process until you get a good idea of what you need to do.&lt;/li>
+&lt;li>Create a new and more complex example function and repeat the process until you get a good idea of what you need to do.&lt;/li>
 &lt;/ol>
 &lt;p>After you have a good idea of what you need to do, you can start writing your metaprogramming function.&lt;/p>
 &lt;h2 id="creating-our-metaprogramming-function">Creating our metaprogramming function&lt;/h2>
@@ -369,7 +369,7 @@ difflib.unified_diff(example_1_ast_str.splitlines(), example_1_expected_str.spli
 &lt;/code>&lt;/pre>
 &lt;p>How we can do this? With the help of &lt;code>NodeTransformer&lt;/code> class&lt;/p>
 &lt;h3 id="the-nodetransformer-class">The NodeTransformer class&lt;/h3>
-&lt;p>The &lt;code>ast.NodeTransformer&lt;/code> allows us to create objects with a walker-like interface. The walker will visit each node in the AST and during each visit, the walker can remove, replace, modify or add nodes, and after that, he can continue to walk to the childreens of the node or stop there.&lt;/p>
+&lt;p>The &lt;code>ast.NodeTransformer&lt;/code> allows us to create objects with a walker-like interface. The walker will visit each node in the AST and during each visit, the walker can remove, replace, modify or add nodes, and after that, he can continue to walk to the children of the node or stop there.&lt;/p>
 &lt;p>How can we use this?
 First, we start by creating a new class derived from &lt;code>ast.NodeTransformer&lt;/code>&lt;/p>
 &lt;pre>&lt;code class="language-python">class ASTTransformer(ast.NodeTransformer):
@@ -379,7 +379,7 @@ def visit_Return(self, node):
 &lt;pre>&lt;code class="language-python">class ASTTransformer(ast.NodeTransformer):
 ...
 &lt;/code>&lt;/pre>
-&lt;p>Let&amp;rsquo;s start the modifications. We need to create a new node responsible to call the &lt;code>locals&lt;/code>&lt;/p>
+&lt;p>Let&amp;rsquo;s start the modifications. We need to create a new node responsible for calling the &lt;code>locals&lt;/code>&lt;/p>
 &lt;pre>&lt;code class="language-python">class ASTTransformer(ast.NodeTransformer):
 def visit_Return(self, node):
 node_locals = ast.Call(
@@ -406,7 +406,7 @@ ctx=ast.Load()
 self.generic_visit(new_node)
 return new_node
 &lt;/code>&lt;/pre>
-&lt;p>A new thing appeared. The &lt;code>elts&lt;/code> argument. But don&amp;rsquo;t worry, this is just an argument which tells what is the list of other nodes &lt;code>Tuple&lt;/code> has. Whenever you have some doubt about AST stuff, you can check the &lt;code>ast&lt;/code> documentation
+&lt;p>A new thing appeared. The &lt;code>elts&lt;/code> argument. But don&amp;rsquo;t worry, this is just an argument which tells us what the list of other nodes &lt;code>Tuple&lt;/code> has. Whenever you have some doubt about AST stuff, you can check the &lt;code>ast&lt;/code> documentation
 &lt;a href="https://docs.python.org/3/library/ast.html" target="_blank" rel="noopener">here&lt;/a>. The documentation is simple to understand because python is simple!&lt;/p>
 &lt;p>Everything is almost done. The last thing is to fix our AST. Because when we change the Node we need to fill missing information like the line_number and column_offset. Thanks to python we just need to call &lt;code>fix_missing_locations&lt;/code> to fill this for us.&lt;/p>
 &lt;pre>&lt;code class="language-python">
@@ -429,7 +429,7 @@ ast.fix_missing_locations(new_node)
 self.generic_visit(new_node)
 return new_node
 &lt;/code>&lt;/pre>
-&lt;p>Ok, let&amp;rsquo;s see if is working. We must instantiate our transformer and call the &lt;code>visit&lt;/code> method that tells the walker to walk in the AST and do all the modification we&amp;rsquo;re asking&lt;/p>
+&lt;p>Ok, let&amp;rsquo;s see if it is working. We must instantiate our transformer and call the &lt;code>visit&lt;/code> method that tells the walker to walk in the AST and do all the modification we&amp;rsquo;re asking&lt;/p>
 &lt;pre>&lt;code class="language-python">tree_meta = ast.parse(inspect.getsource(example_1))
 transformer = ASTTransformer()
 transformer.visit(tree_meta)
@@ -495,7 +495,7 @@ difflib.unified_diff(example_2_ast_str.splitlines(), example_2_expected_str.spli
 &amp;quot;+ Call(func=Name(id='locals'), args=[], &amp;quot;
 'keywords=[])]))],']
 &lt;/code>&lt;/pre>
-&lt;p>Now, it&amp;rsquo;s time to cross the fingers and see if we need working more&lt;/p>
+&lt;p>Now, it&amp;rsquo;s time to cross the fingers and see if we need to work more&lt;/p>
 &lt;pre>&lt;code class="language-python">tree_meta = ast.parse(inspect.getsource(example_2))
 transformer = ASTTransformer()
 transformer.visit(tree_meta)
@@ -570,7 +570,7 @@ difflib.unified_diff(example_2_meta_ast_str.splitlines(), example_2_expected_str
 &lt;/code>&lt;/pre>
 &lt;p>Our new &lt;code>ASTTransformer&lt;/code> was able to deal with our new complicated example!&lt;/p>
 &lt;h3 id="creating-a-new-function-at-runtime">Creating a new function at runtime&lt;/h3>
-&lt;p>We have a &lt;code>ASTTransformer&lt;/code> , now we must compile the transformed &lt;code>AST&lt;/code> into a new function. In python, we can create a new function using the &lt;code>FunctionType&lt;/code>, see below&lt;/p>
+&lt;p>We have an &lt;code>ASTTransformer&lt;/code> , now we must compile the transformed &lt;code>AST&lt;/code> into a new function. In python, we can create a new function using the &lt;code>FunctionType&lt;/code>, see below&lt;/p>
 &lt;pre>&lt;code class="language-python">from types import FunctionType, CodeType
 def transform_and_compile(func: FunctionType)-&amp;gt;FunctionType:
 source = inspect.getsource(func)
@@ -588,7 +588,7 @@ return transformed_func
 &lt;pre>&lt;code class="language-python">test_meta_example_1(transform_and_compile(example_1), 4, 2)
 test_meta_example_2(transform_and_compile(example_2), 1, 2)
 &lt;/code>&lt;/pre>
-&lt;p>The &lt;code>transform_and_compile&lt;/code> was able to create new functions that passed in all the tests! We can now move further to the final and easy step which is just to integrate this function with our decorator!&lt;/p>
+&lt;p>The &lt;code>transform_and_compile&lt;/code> was able to create new functions that passed all the tests! We can now move further to the final and easy step which is just to integrate this function with our decorator!&lt;/p>
 &lt;h2 id="integrating-the-ast-manipulation-with-a-decorator">Integrating the AST manipulation with a decorator&lt;/h2>
 &lt;p>We will call the &lt;code>transform_and_compile&lt;/code> right after the &lt;code>def decorate&lt;/code> to avoid unnecessary compilations every time that the decorated function is called.&lt;/p>
 &lt;pre>&lt;code class="language-python">def report(fmt):
@@ -647,7 +647,7 @@ print(&amp;quot;r:&amp;quot;, r)
 &lt;pre>&lt;code>dummy_example(a=2, b=3, c=1); sum_ab 5, diff_ab -1; r=4
 r: 4
 &lt;/code>&lt;/pre>
-&lt;p>I know this post is quite hard to read, but I think it&amp;rsquo;s worth to share it. I hope you enjoyed it!&lt;/p></description></item><item><title>An introspective python decorator using stack frames and the inspect module</title><link>/post/python_decorator_that_exposes_locals/</link><pubDate>Mon, 04 Apr 2022 00:00:00 +0000</pubDate><guid>/post/python_decorator_that_exposes_locals/</guid><description>&lt;details
+&lt;p>I know this post is quite hard to read, but I think it&amp;rsquo;s worth sharing it. I hope you enjoyed it!&lt;/p></description></item><item><title>An introspective python decorator using stack frames and the inspect module</title><link>/post/python_decorator_that_exposes_locals/</link><pubDate>Mon, 04 Apr 2022 00:00:00 +0000</pubDate><guid>/post/python_decorator_that_exposes_locals/</guid><description>&lt;details
 class="toc-inpage d-print-none d-none d-sm-block d-md-none " open>
 &lt;summary class="font-weight-bold">Table of Contents&lt;/summary>
 &lt;nav id="TableOfContents">

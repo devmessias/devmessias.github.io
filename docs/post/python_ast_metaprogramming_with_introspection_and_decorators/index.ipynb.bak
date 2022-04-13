@@ -1,0 +1,1121 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "---\n",
+    "title: \"Going meta with python: manipulating ASTs to create an introspective decorator at runtime [draft]\"\n",
+    "subtitle: \"Is python interpreted or compiled? Knowing the nuances of the answer will help us build meta code using AST manipulation at runtime.\"\n",
+    "summary: \"Is python interpreted or compiled? Knowing the nuances of the answer will help us build meta code using AST manipulation at runtime. I'll show you how to construct a decorator that can introspect in the local variables without tracing tricks!\"\n",
+    "overlay:\n",
+    "     img: ast_english_sentence.png\n",
+    "     # img: ast_english_sentence.png\n",
+    "twitter:\n",
+    "  image: \"ast_english_sentence.png\"\n",
+    "diagram: true\n",
+    "tags: [\"python\", \"ast\", \"compilers\", \"decorators\", \"debugging\", \"hacks\"]\n",
+    "categories: [Python]\n",
+    "date: \"2022-04-08T00:00:00Z\"\n",
+    "reading_time: false\n",
+    "diagram: true\n",
+    "featured: true\n",
+    "draft: false\n",
+    "toc: true\n",
+    "\n",
+    "# Featured image\n",
+    "# To use, add an image named `featured.jpg/png` to your page's folder.\n",
+    "# Focal points: Smart, Center, TopLeft, Top, TopRight, Left, Right, BottomLeft, Bottom,\n",
+    "\n",
+    "# Projects (optional).\n",
+    "#   Associate this post with one or more of your projects.\n",
+    "#   Simply enter your project's folder or file name without extension.\n",
+    "#   E.g. `projects = [\"internal-project\"]` references `content/project/deep-learning/index.md`.\n",
+    "#   Otherwise, set `projects = []`.\n",
+    "projects: []\n",
+    "---\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "{{% toc %}}\n",
+    "\n",
+    "## Intro: our previous problem\n",
+    "Don't be afraid by the names on the title. Although they can seem scary or strange probably you already have been in touch with tools that work with this kind of stuff. For example, pytest and numba.\n",
+    "\n",
+    "In the previous post, I talked about python frames and inspection module. I've started showing how we can use the `inspect.signature` to construct a decorator that validates arguments:\n",
+    "\n",
+    "```python\n",
+    "@math_validator()\n",
+    "def simple_method(x: \"\\in R\", y: \"\\in R_+\", z: float = 2) -> float:\n",
+    "    ...\n",
+    "simple_method(1, 0)\n",
+    "```\n",
+    "```\n",
+    "simple_method((1, 2)) -> 1.5\n",
+    "---> 19 simple_method(1, 0)\n",
+    "...\n",
+    "<locals>.decorate.<locals>.decorated(*_args)\n",
+    "     11         continue\n",
+    "     13     if not MATH_SPACES[annotation][\"validator\"](_args[i]):\n",
+    "---> 14         raise ValueError(f\"{k} doesn't belong to the {MATH_SPACES[annotation]['name']}\")\n",
+    "     15 result = func(*_args)\n",
+    "     16 print(f\"{func.__name__}({_args}) -> {result}\")\n",
+    "\n",
+    "ValueError: y doesn't belong to the space of real numbers greater than zero\n",
+    "```\n",
+    "And after that, I've combined the `inspect.singature`+`sys.trace`+`locals` to construct a decorator that exposes the local variables of a decorated function. All this stuff allows us to do cool things like creating a generic report decorator that have access to the local variables of the decorated method\n",
+    "```python\n",
+    "@report('{arg.n_bananas} Monkey {gluttonous_monkey} ate too much bananas.  Num monkeys {num_monkeys}')\n",
+    "def feed_monkeys(n_bananas): \n",
+    "    num_monkeys = 3\n",
+    "    monkeys = {\n",
+    "        f\"monkey_{i}\": {\"bananas\": 0}\n",
+    "        for i in range(num_monkeys)\n",
+    "    }\n",
+    "    while n_bananas > 0:\n",
+    "        if np.random.uniform() < 0.4:\n",
+    "            continue\n",
+    "        monkey = monkeys[np.random.choice(list(monkeys.keys()))]\n",
+    "        if n_bananas > 0:\n",
+    "            monkey[\"bananas\"] += 1\n",
+    "            n_bananas -= 1\n",
+    "    gluttonous_monkey = max(monkeys, key=lambda k: monkeys[k][\"bananas\"]) \n",
+    "```\n",
+    "\n",
+    "These two examples can be found in real application scenarios. But at the end of my previous post I've told you some issues regarding the use of `sys.trace`. I'll put the code here of the previous solution:\n",
+    "{{< spoiler text=\"Click here to see the solution\" >}}\n",
+    "```python\n",
+    "import sys\n",
+    "import inspect\n",
+    "from types import SimpleNamespace\n",
+    "\n",
+    "\n",
+    "def call_and_extract_frame(func, *args, **kwargs):\n",
+    "    frame_var = None\n",
+    "    trace = sys.gettrace()\n",
+    "    def update_frame_var(stack_frame, event_name, arg_frame):\n",
+    "        \"\"\"\n",
+    "        Args:\n",
+    "            stack_frame: (frame)\n",
+    "                The current stack frame.\n",
+    "            event_name: (str)\n",
+    "                The name of the event that triggered the call. \n",
+    "                Can be 'call', 'line', 'return' and 'exception'.\n",
+    "            arg_frame: \n",
+    "                Depends on the event. Can be a None type\n",
+    "        \"\"\"\n",
+    "        nonlocal frame_var # nonlocal is a keyword which allows us to modify the outisde scope variable\n",
+    "        if event_name != 'call':\n",
+    "            return trace\n",
+    "        frame_var = stack_frame\n",
+    "        sys.settrace(trace)\n",
+    "        return trace\n",
+    "    sys.settrace(update_frame_var)\n",
+    "    try:\n",
+    "        func_result = func(*args, **kwargs)\n",
+    "    finally:\n",
+    "        sys.settrace(trace)\n",
+    "    return frame_var, func_result\n",
+    "def report(formater):\n",
+    "    def decorate(func):\n",
+    "        def decorated(*_args):\n",
+    "            sig = inspect.signature(func)\n",
+    "            named_args = {}\n",
+    "            num_args = len(_args)\n",
+    "            for i, (k, v) in enumerate(sig.parameters.items()):\n",
+    "                if i < num_args:\n",
+    "                    named_args[k] = repr(_args[i])\n",
+    "                else:\n",
+    "                    named_args[k] = repr(v.default)\n",
+    "            frame_func, _result = call_and_extract_frame(func, *_args)\n",
+    "            name = func.__name__\n",
+    "            result = repr(_result)\n",
+    "            \n",
+    "            args_dict = {\n",
+    "                \"args\": SimpleNamespace(**named_args), \n",
+    "                \"args_repr\": repr(SimpleNamespace(**named_args)),\n",
+    "                **locals(),\n",
+    "                **frame_func.f_locals,\n",
+    "            }\n",
+    "            print(formater.format(**args_dict))\n",
+    "            # do other stuff here\n",
+    "            return _result \n",
+    "        return decorated\n",
+    "    return decorate\n",
+    "```\n",
+    " {{< /spoiler >}}\n",
+    "\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "What are the problems with this solution?\n",
+    "\n",
+    "-  A tracing always creates a cost. Thus, is expected that we will reduce the performance of our system. If you use this just for debugging purposes, it's ok. \n",
+    "-  This can create conflicts with other tools and libs that also trying to use the trace tool\n",
+    "-  it seems dirty!\n",
+    "  \n",
+    "Ok, maybe you're asking yourself *\"This guy is overthinking. Why he didn't just do this?\"*\n",
+    "```python\n",
+    "@report('stuff goes here')\n",
+    "def func(x, y):\n",
+    "    random_var = np.random.uniform()\n",
+    "    ... #more local vars\n",
+    "    result = (x+y)**random_var\n",
+    "    return result, locals \n",
+    "```"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "*\"...and then, inside of decorator change to this:\"*\n",
+    "```python\n",
+    "_result, local_vars = func(x, y)\n",
+    "```\n",
+    "The reason is:\n",
+    "-    The main point of using this decorator is to avoid any change in other parts of the codebase. For example,\n",
+    "if in any part of the codebase `func` has been called you will have to change to\n",
+    "```python\n",
+    "result = func(x, y) # to \n",
+    "result = func(x, y)[0]\n",
+    "```\n",
+    "If after you choose to remove the decorator from a function, you will need to be rollback all the above changes.\n",
+    "\n",
+    "-  You will increase the cognitive load in all members of the team who doesn't care about what your decorator needs to do. \n",
+    "-  If you propose this a solution is better just to create another function and face the consequences of this increase in complexity in the original codebase.\n",
+    "\n",
+    "Ok, maybe you're now thinking: \"*Right, this makes sense, but you're avoiding theses issues creating issues in performance and debugging. Don't sound good besides for just some special cases*\". And I need to agree with you, **it's not a good solution for most of the cases!**\n",
+    "\n",
+    "Well, what can I do? The problem we're facing is that python doesn't have context managers that can deal with namespaces. Although there is an active discussion about this [https://mail.python.org/archives/list/python-ideas@python.org/](https://mail.python.org/archives/list/python-ideas@python.org/thread/TAVHEKDZVYKJUGZKWSVZVAOGBPLZVKQG/). But don't worry about this big name. The important point here is that: \n",
+    "{{% alert note %}}\n",
+    "**If a language doesn't have a feature that I need what can I do?** \n",
+    "{{% /alert %}}\n",
+    "In python we are fine with this because it's a language that turns to be easy to manipulate what is called **A**bstract **S**yntax **T**ree and recompile a function with the manipulated syntax tree. **Doing that way we're in the realm of metaprogramming. Writing code which writes code.** If t's not clear I'll try to be more clear now."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "\n",
+    "\n",
+    "## ASTs: What they are?\n",
+    "\n",
+    "A programming language obviously is at least a language. OK, **but what is a language? \n",
+    "Do all the human languages share the same building blocks? How can we compare different sentences?**\n",
+    "These questions seem more proper to be answered by philosophers. Well, maybe this is true, but these questions can also be answered by mathematicians and computer scientists. Although, mathematicians and CS people usually prefer to talk using mathematical formalism rather than long debates about the meaning of the stuff. In essence, an **AST** is a mathematical formalism that allows us to represent a sentence using a well-defined set of rules and structures represented by a tree.\n",
+    "\n",
+    "\n",
+    "\n",
+    "<h3>How do you know that a sentence is grammatically correct?</h3> \n",
+    "\n",
+    "Intuitively, probably you remember  a set of rules that you learned during your life about how to organize and compose verbs, nouns, adjectives, adverbs, etc. This set of rules and guidelines is the *Syntax* of a language. A **S**yntax **T**ree is a structure that helps us to understand a sentence. \n",
+    "{{% alert note %}}\n",
+    "After constructing the syntax tree we can look in the guidelines book of our language and check if this tree has a valid structure.\n",
+    "{{% /alert %}}\n",
+    "\n",
+    "Take for example \n",
+    "the sentence: *\"I drive a car to my college\"*, the syntax tree is the following:\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "\n",
+    "{{< figure \n",
+    "fit=true\n",
+    "height=\"400px\"\n",
+    "resize=\"x400\"\n",
+    "src=\"ast_english_sentence.png\" \n",
+    "caption=\"A **S**yntax **T**ree for the sentence: *I drive a car to my college*. **Source**:[ Geeks for Geeks:Syntax Tree – Natural Language Processing.](https://www.geeksforgeeks.org/syntax-tree-natural-language-processing/)\"\n",
+    ">}}"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "\n",
+    "What is the advantage of using ASTs? Notice that we don't need to talk about how many spaces you're using, we didn't talk about your calligraphy and besides that, **we have a hierarchy structure that allows us to analyze the validity of the sentence per level! If we want to change any element of the sentence we can directly manipulate the node which represents that element for a safe guarantee that the manipulated sentence is still grammatically correct!**\n",
+    "\n",
+    "It's not a surprise that ASTs are also a common tool used in computer science to analyze the correctness of a piece of code and as a common part of the process of compiling/interpreting a code. Here we will extend the behavior of a python decorator manipulating the AST. But before that, I would like to ask you a question:\n",
+    "<h5 class=\"text-center\">Is Python an interpreted language?</h5>"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Python: interpreted or compiled?\n",
+    "\n",
+    "Usually, when I meet a python hater (or even an enthusiast) they say phrases like that\n",
+    "- *\"Python is slow because it's an interpreted language!\"*\n",
+    "- *\"Python sucks because doesn't have a compiler!\"*\n",
+    "\n",
+    "Well, these assertions are not true. The important point is that: *when people refer to python commonly they are actually talking about the language python and the CPython virtual machine*. Let's talk more about these misconceptions.\n",
+    "\n",
+    "First, the distinction between interpreted and compiled languages is very blurry today.\n",
+    "Second, let's see a nasty thing"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 71,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "hello_world = \"print('Hello, world!')\"\n",
+    "hello_world_obj = compile(hello_world, '<string>', 'single')"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Yeah, if you're trying to defend that python is interpreted the things start to get more hard for you. **Why is there a **compile**  available?** "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 55,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Hello, world!\n"
+     ]
+    }
+   ],
+   "source": [
+    "exec(hello_world_obj)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "I'm executing a thing that has been compiled??? What is this hello_world_obj?"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 38,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Bad news for you:\n",
+      "\tContent: b'e\\x00d\\x00\\x83\\x01F\\x00d\\x01S\\x00'\n",
+      "\tType: <class 'bytes'>\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(f\"Bad news for you:\\n\\tContent: {hello_world_obj.co_code}\\n\\tType: {type(hello_world_obj.co_code)}\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "But what is this stuff? \n",
+    "\n",
+    "Is important to understand what happens behind the scenes. \n",
+    "\n",
+    "After you write a python code and call the python command, python starts a compiling phase creating the ASTs; generating the bytecotes that will be attached to **code objects**, and then, these code objects will be interpreted by the CPython virtual machine. The diagram below is a simple representation of this process with some details hidden"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "\n",
+    "<div class=\"mermaid mermaidContainer\">\n",
+    "graph LR;\n",
+    "A[Source Code]-->|parsing|B[Parse Tree];\n",
+    "B-->C[AST];\n",
+    "C-->E[Bytecode];\n",
+    "E-->F[Code Object];\n",
+    "F-->|execution by|G[CPython Virtual Machine];\n",
+    "</div>\n",
+    "\n",
+    "The compilation phase are the firts steps of the above diagram\n",
+    "\n",
+    "<div class=\"mermaid mermaidContainer\">\n",
+    "graph LR;\n",
+    "A[Source Code]-->|parsing|B[Parse Tree];\n",
+    "B-->C[AST];\n",
+    "C-->E[Bytecode];\n",
+    "E-->F[Code Object];\n",
+    "</div>\n",
+    "\n",
+    "But don't worry about most of the big names above. The only concepts that will matter to us are the AST, bytecodes, and Code object.\n",
+    "**Bytecodes are just a compact way to tell the interpreter what we want to do. \n",
+    "The code object is just a way to encapsulate the bytecodes extracted from the AST.**\n",
+    "\n",
+    "But how does this help us?\n",
+    "{{% alert note %}}\n",
+    "Our solution will involve the manipulation of the AST and after that generating a new code object with the related manipulated AST!\n",
+    "{{% /alert %}}\n",
+    "\n",
+    "> A funny history from Luciano Ramalho:\n",
+    ">{{<tweet 1474044907585167362>}}"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Extracting ASTs and interpreting them\n",
+    "\n",
+    "Let's see a simple example of a function and the extracted AST."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import inspect\n",
+    "import ast\n",
+    "import astor # install this for pretty printing\n",
+    "def example(a: float, b:float = 2) -> float:\n",
+    "    s = a+b\n",
+    "    return s\n",
+    "\n",
+    "tree = ast.parse(inspect.getsource(example))\n",
+    "print(astor.dump(tree))\n",
+    "astor.to_source(tree)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "```\n",
+    "Module(\n",
+    "    body=[\n",
+    "        FunctionDef(name='example',\n",
+    "            args=arguments(posonlyargs=[],\n",
+    "                args=[arg(arg='a', annotation=Name(id='float'), type_comment=None),\n",
+    "                    arg(arg='b', annotation=Name(id='float'), type_comment=None)],\n",
+    "                vararg=None,\n",
+    "                kwonlyargs=[],\n",
+    "                kw_defaults=[],\n",
+    "                kwarg=None,\n",
+    "                defaults=[Constant(value=2, kind=None)]),\n",
+    "            body=[\n",
+    "                Assign(targets=[Name(id='s')],\n",
+    "                    value=BinOp(left=Name(id='a'), op=Add, right=Name(id='b')),\n",
+    "                    type_comment=None),\n",
+    "                Return(value=Name(id='s'))],\n",
+    "            decorator_list=[],\n",
+    "            returns=Name(id='float'),\n",
+    "            type_comment=None)],\n",
+    "    type_ignores=[])\n",
+    "```"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "The above output is our AST, take some time looking into it to see how all our code stuff is organized.\n",
+    "The image below shows the graph representation of the above output"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "{{< figure \n",
+    "fit=true\n",
+    "height=\"400px\"\n",
+    "resize=\"x1000\"\n",
+    "src=\"simple_ast.png\" >}}"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Each element in the above output with an upper case letter is a **node** (Name, BinOp, FunctionDef, etc)  from the base class `ast.Node`. One of the most important node types are the `ast.Name`.\n",
+    "For example, \n",
+    "```\n",
+    "value=BinOp(left=Name(id='a'), op=Add, right=Name(id='b')),\n",
+    "```\n",
+    "the `ast.Name` is used to refer a variable by the name, `id`. \n",
+    "\n",
+    "\n",
+    "Now let's come back to our problem. Remember that one bad solution it was rewriting every function\n",
+    "```python\n",
+    "def func(x, y):\n",
+    "    random_var = np.random.uniform()\n",
+    "    ... #more local vars\n",
+    "    result = (x+y)**random_var\n",
+    "    return result\n",
+    "```\n",
+    "as\n",
+    "```python\n",
+    "def func_transformed(x, y):\n",
+    "    random_var = np.random.uniform()\n",
+    "    ... #more local vars\n",
+    "    result = (x+y)**random_var\n",
+    "    return result, locals \n",
+    "```\n",
+    "\n",
+    "The big stuff that we will do is to **write a function that codes new functions for us! This is metaprogramming!** And at same time we will write a decorator that will avoid any change in our codebase!"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## How can I be efficient in metaprogramming?\n",
+    "\n",
+    "We must create a function that generates a new one similar to `func_transformed`. How to get an idea of what we need to do? \n",
+    "\n",
+    "### The 6 simple steps\n",
+    "\n",
+    "1. Create an example function\n",
+    "2. Code the transformed function from the example function\n",
+    "3. Code a simple test to check if the transformed function is correct\n",
+    "4. Extract the AST from the example and the transformed function\n",
+    "5. Compare the ASTs. What is the difference? Annotate this difference somewhere\n",
+    "   - You can use the `difflib` module that comes with python to diff strings \n",
+    "6. Creates a new and more complex example function and repeats the process until you get a good  idea of what you need to do.\n",
+    "\n",
+    "After you have a good idea of what you need to do, you can start writing your metaprogramming function."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Creating our metaprogramming function\n",
+    "\n",
+    "### First six-steps interaction\n",
+    "\n",
+    "Let's start our first interaction writing one function, the expected transformed function and the test to check if it is correct."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def example_1(x, y):\n",
+    "    internal_var  =  222\n",
+    "    result = (x+y)**internal_var\n",
+    "    return result\n",
+    "def example_1_expected(x, y):\n",
+    "    internal_var = 222\n",
+    "    result = (x+y)**internal_var\n",
+    "    return result, locals()\n",
+    "\n",
+    "def test_meta_example_1(meta_func, x, y):\n",
+    "    expected_result, expected_locals = example_1_expected(x, y)\n",
+    "    result, locals_dict = meta_func(x, y)\n",
+    "    assert result == expected_result\n",
+    "    assert expected_locals == locals_dict"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Everything looks fine. Now we will use the `difflib` to see the differences between the two ASTs."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "['--- \\n',\n",
+      " '+++ \\n',\n",
+      " '@@ -3 +3 @@\\n',\n",
+      " \"-        FunctionDef(name='example_1',\",\n",
+      " \"+        FunctionDef(name='example_1_expected',\",\n",
+      " '@@ -19 +19 @@\\n',\n",
+      " \"-                Return(value=Name(id='result'))],\",\n",
+      " \"+                Return(value=Tuple(elts=[Name(id='result'), \"\n",
+      " \"Call(func=Name(id='locals'), args=[], keywords=[])]))],\"]\n"
+     ]
+    }
+   ],
+   "source": [
+    "import difflib\n",
+    "from pprint import pprint\n",
+    "\n",
+    "example_1_ast_str = astor.dump_tree(ast.parse(inspect.getsource(example_1)))\n",
+    "example_1_expected_str = astor.dump_tree(ast.parse(inspect.getsource(example_1_expected)))\n",
+    "\n",
+    "\n",
+    "pprint(\n",
+    "    list(\n",
+    "        difflib.unified_diff(example_1_ast_str.splitlines(), example_1_expected_str.splitlines(), n=0)\n",
+    "    )\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Now we know that we must change this Node in the AST\n",
+    "```\n",
+    "Return(value=Name(id='result'))],\n",
+    "```\n",
+    "To this\n",
+    "```\n",
+    "Return(value=Tuple(elts=[Name(id='result'), Call(func=Name(id='locals'), args=[], keywords=[])]))],\n",
+    "```\n",
+    "How we can do this? With the help of `NodeTransformer` class"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### The NodeTransformer class\n",
+    "\n",
+    "The `ast.NodeTransformer` allows us to create objects with a walker-like interface. The walker will visit each node in the AST and during each visit, the walker can remove, replace, modify or add nodes, and after that, he can continue to walk to the childreens of the node or stop there."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "How can we use this?\n",
+    "First, we start by creating a new class derived from `ast.NodeTransformer`\n",
+    "```python\n",
+    "class ASTTransformer(ast.NodeTransformer):\n",
+    "    def visit_Return(self, node):\n",
+    "```\n",
+    "If you want to interact/change/delete a node of type `Something` you must override the `visit_Something` method. Thus, because we need to change the `Return` node we override the `visit_Return`. If we do just the following, our walker will not change our AST,\n",
+    "```python\n",
+    "class ASTTransformer(ast.NodeTransformer):\n",
+    "    ...\n",
+    "```\n",
+    "Let's start the modifications. We need to create a new node responsible to call the `locals`\n",
+    "```python\n",
+    "class ASTTransformer(ast.NodeTransformer):\n",
+    "    def visit_Return(self, node):\n",
+    "        node_locals = ast.Call(\n",
+    "            func=ast.Name(id='locals', ctx=ast.Load()),\n",
+    "            args=[], keywords=[]\n",
+    "        )\n",
+    "        self.generic_visit(node)\n",
+    "        return node\n",
+    "```\n",
+    "We used a `Name` node to identify the `locals` function. Now, according to the diff result our `Return` node must be transformed into a `Return` of a Tuple node\n",
+    "\n",
+    "\n",
+    "```python\n",
+    "class ASTTransformer(ast.NodeTransformer):\n",
+    "    def visit_Return(self, node):\n",
+    "        node_locals = ast.Call(\n",
+    "            func=ast.Name(id='locals', ctx=ast.Load()),\n",
+    "            args=[], keywords=[]\n",
+    "        )\n",
+    "        new_node.value = ast.Tuple(\n",
+    "            elts=[\n",
+    "                node.value,\n",
+    "                node_locals\n",
+    "            ],\n",
+    "            ctx=ast.Load()\n",
+    "        )\n",
+    "        self.generic_visit(new_node)\n",
+    "        return new_node\n",
+    "```\n",
+    "A new thing appeared. The `elts` argument. But don't worry, this is just an argument which tells what is the list of other nodes `Tuple` has. Whenever you have some doubt about AST stuff, you can check the `ast` documentation [here](https://docs.python.org/3/library/ast.html). The documentation is simple to understand because python is simple!\n",
+    "\n",
+    "Everything is almost done. The last thing is to fix our AST. Because when we change the Node we need to fill missing information like the line_number and column_offset. Thanks to python we just need to call `fix_missing_locations`  to fill this for us."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "\n",
+    "class ASTTransformer(ast.NodeTransformer):\n",
+    "    def visit_Return(self, node):\n",
+    "        new_node = node\n",
+    "        node_locals = ast.Call(\n",
+    "            func=ast.Name(id='locals', ctx=ast.Load()),\n",
+    "            args=[], keywords=[]\n",
+    "        )\n",
+    "        new_node.value = ast.Tuple(\n",
+    "            elts=[\n",
+    "                node.value,\n",
+    "                node_locals\n",
+    "            ],\n",
+    "            ctx=ast.Load()\n",
+    "        )\n",
+    "        ast.copy_location(new_node, node)\n",
+    "        ast.fix_missing_locations(new_node)\n",
+    "        self.generic_visit(new_node)\n",
+    "        return new_node"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Ok, let's see if is working. We must instantiate our transformer and call the `visit` method that tells the walker to walk in the AST and do all the modification we're asking"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "['--- \\n',\n",
+      " '+++ \\n',\n",
+      " '@@ -3 +3 @@\\n',\n",
+      " \"-        FunctionDef(name='example_1',\",\n",
+      " \"+        FunctionDef(name='example_1_expected',\"]\n"
+     ]
+    }
+   ],
+   "source": [
+    "tree_meta = ast.parse(inspect.getsource(example_1))\n",
+    "transformer = ASTTransformer()\n",
+    "transformer.visit(tree_meta)\n",
+    "example_1_meta_ast_str = astor.dump_tree(tree_meta)\n",
+    "example_1_expected_str = astor.dump_tree(ast.parse(inspect.getsource(example_1_expected)))\n",
+    "\n",
+    "\n",
+    "pprint(\n",
+    "    list(\n",
+    "        difflib.unified_diff(example_1_meta_ast_str.splitlines(), example_1_expected_str.splitlines(), n=0)\n",
+    "    )\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Our first iteration was successful! Let's try a more complex example."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### The second six-steps interaction\n",
+    "\n",
+    "We'll just add more complexity without any particular meaning, we can be creative!"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def example_2(x, y):\n",
+    "    internal_var  =  222\n",
+    "    def sub(x, y):\n",
+    "        ommit_this_var = 1\n",
+    "        return x - y\n",
+    "    result = sub(x,y)**internal_var\n",
+    "    return (result, False)\n",
+    "def example_2_expected(x, y):\n",
+    "    internal_var  =  222\n",
+    "    def sub(x, y):\n",
+    "        ommit_this_var = 1\n",
+    "        return x - y\n",
+    "    result = sub(x,y)**internal_var\n",
+    "    return ((result, False), locals())\n",
+    "def test_meta_example_2(meta_func, x, y):\n",
+    "    expected_result, expected_locals = example_2_expected(x, y)\n",
+    "    result, locals_dict = meta_func(x, y)\n",
+    "    del locals_dict[\"sub\"]\n",
+    "    del expected_locals[\"sub\"]\n",
+    "    assert result == expected_result\n",
+    "    assert expected_locals == locals_dict"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "['--- \\n',\n",
+      " '+++ \\n',\n",
+      " '@@ -3 +3 @@\\n',\n",
+      " \"-        FunctionDef(name='example_2',\",\n",
+      " \"+        FunctionDef(name='example_2_expected',\",\n",
+      " '@@ -37 +37,4 @@\\n',\n",
+      " \"-                Return(value=Tuple(elts=[Name(id='result'), \"\n",
+      " 'Constant(value=False, kind=None)]))],',\n",
+      " '+                Return(',\n",
+      " '+                    value=Tuple(',\n",
+      " \"+                        elts=[Tuple(elts=[Name(id='result'), \"\n",
+      " 'Constant(value=False, kind=None)]),',\n",
+      " \"+                            Call(func=Name(id='locals'), args=[], \"\n",
+      " 'keywords=[])]))],']\n"
+     ]
+    }
+   ],
+   "source": [
+    "example_2_ast_str = astor.dump_tree(ast.parse(inspect.getsource(example_2)))\n",
+    "example_2_expected_str = astor.dump_tree(ast.parse(inspect.getsource(example_2_expected)))\n",
+    "\n",
+    "\n",
+    "pprint(\n",
+    "    list(\n",
+    "        difflib.unified_diff(example_2_ast_str.splitlines(), example_2_expected_str.splitlines(), n=0)\n",
+    "    )\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Now, it's time to cross the fingers and see if we need working more"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "['--- \\n',\n",
+      " '+++ \\n',\n",
+      " '@@ -3 +3 @@\\n',\n",
+      " \"-        FunctionDef(name='example_2',\",\n",
+      " \"+        FunctionDef(name='example_2_expected',\",\n",
+      " '@@ -27,4 +27 @@\\n',\n",
+      " '-                        Return(',\n",
+      " '-                            value=Tuple(',\n",
+      " \"-                                elts=[BinOp(left=Name(id='x'), op=Sub, \"\n",
+      " \"right=Name(id='y')),\",\n",
+      " \"-                                    Call(func=Name(id='locals'), args=[], \"\n",
+      " 'keywords=[])]))],',\n",
+      " \"+                        Return(value=BinOp(left=Name(id='x'), op=Sub, \"\n",
+      " \"right=Name(id='y')))],\"]\n"
+     ]
+    }
+   ],
+   "source": [
+    "tree_meta = ast.parse(inspect.getsource(example_2))\n",
+    "transformer = ASTTransformer()\n",
+    "transformer.visit(tree_meta)\n",
+    "example_2_meta_ast_str = astor.dump_tree(tree_meta)\n",
+    "example_2_expected_str = astor.dump_tree(ast.parse(inspect.getsource(example_2_expected)))\n",
+    "\n",
+    "\n",
+    "pprint(\n",
+    "    list(\n",
+    "        difflib.unified_diff(example_2_meta_ast_str.splitlines(), example_2_expected_str.splitlines(), n=0)\n",
+    "    )\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Unfortunately, our `ASTTransformer` was not able to deal with this crazy guy. What is the problem? If you check carefully you will notice that the inner function `def sub` is the problem. We don't want to change any \"sub\" function, so we need to tell our walker to avoid changing this kind of stuff. To do so, we will create a flag to tell if the walker is in a sub-function, and we will just override the `visit_FunctionDef` method to check this flag "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "class ASTTransformer(ast.NodeTransformer):\n",
+    "    def visit_FunctionDef(self, node):\n",
+    "        if self._sub:\n",
+    "            return node\n",
+    "        self._sub = True\n",
+    "        self.generic_visit(node)\n",
+    "        return node\n",
+    "\n",
+    "    def visit_Module(self, node):\n",
+    "        self._sub = 0\n",
+    "        self.generic_visit(node)\n",
+    "\n",
+    "    def visit_Return(self, node):\n",
+    "        new_node = node\n",
+    "        node_locals = ast.Call(\n",
+    "            func=ast.Name(id='locals', ctx=ast.Load()),\n",
+    "            args=[], keywords=[]\n",
+    "        )\n",
+    "        new_node.value = ast.Tuple(\n",
+    "            elts=[\n",
+    "                node.value,\n",
+    "                node_locals\n",
+    "            ],\n",
+    "            ctx=ast.Load()\n",
+    "        )\n",
+    "        ast.copy_location(new_node, node)\n",
+    "        ast.fix_missing_locations(new_node)\n",
+    "        self.generic_visit(new_node)\n",
+    "        return new_node "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "['--- \\n',\n",
+      " '+++ \\n',\n",
+      " '@@ -3 +3 @@\\n',\n",
+      " \"-        FunctionDef(name='example_2',\",\n",
+      " \"+        FunctionDef(name='example_2_expected',\"]\n"
+     ]
+    }
+   ],
+   "source": [
+    "tree_meta = ast.parse(inspect.getsource(example_2))\n",
+    "transformer = ASTTransformer()\n",
+    "transformer.visit(tree_meta)\n",
+    "example_2_meta_ast_str = astor.dump_tree(tree_meta)\n",
+    "example_2_expected_str = astor.dump_tree(ast.parse(inspect.getsource(example_2_expected)))\n",
+    "\n",
+    "\n",
+    "pprint(\n",
+    "    list(\n",
+    "        difflib.unified_diff(example_2_meta_ast_str.splitlines(), example_2_expected_str.splitlines(), n=0)\n",
+    "    )\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Our new `ASTTransformer` was able to deal with our new complicated example!"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Creating a new function at runtime\n",
+    "\n",
+    "We have a `ASTTransformer` , now we must compile the transformed `AST` into a new function. In python, we can create a new function using the `FunctionType`, see below "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from types import FunctionType, CodeType\n",
+    "\n",
+    "def transform_and_compile(func: FunctionType)->FunctionType:\n",
+    "    source = inspect.getsource(func)\n",
+    "    # we put this to remove the line from source code with the decorator\n",
+    "    source = \"\\n\".join([l for l in source.splitlines() if not l.startswith(\"@\")])\n",
+    "    tree = ast.parse(source)\n",
+    "    transformer = ASTTransformer()\n",
+    "    transformer.visit(tree)\n",
+    "    code_obj = compile(tree, func.__code__.co_filename, 'exec')\n",
+    "    function_code = [c for c in code_obj.co_consts if isinstance(c, CodeType)][0]\n",
+    "    # we must to pass the globals context to the function\n",
+    "    transformed_func = FunctionType(function_code, func.__globals__)\n",
+    "    return transformed_func"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "test_meta_example_1(transform_and_compile(example_1), 4, 2)\n",
+    "test_meta_example_2(transform_and_compile(example_2), 1, 2)\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "The `transform_and_compile` was able to create new functions that passed in all the tests! We can now move further to the final and easy step which is just to integrate this function with our decorator!"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Integrating the AST manipulation with a decorator"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "We will call the `transform_and_compile` right after the `def decorate` to avoid unnecessary compilations every time that the decorated function is called.\n",
+    "```python\n",
+    "def report(fmt):\n",
+    "    def decorate(func):\n",
+    "        meta_func = transform_and_compile(func)\n",
+    "        ....\n",
+    "```\n",
+    "Inside `def decorated` we call the `meta_func` and return just the result because we don't want to change our codebase.\n",
+    "```python\n",
+    "def report(fmt):\n",
+    "    def decorate(func):\n",
+    "        meta_func = transform_and_compile(func)\n",
+    "        ...\n",
+    "        def decorated(*_args):\n",
+    "            _result, internal_locals = meta_func(*_args)\n",
+    "            ....\n",
+    "            return _result\n",
+    "```\n",
+    "With all the stuff we learned in the previous post our `report` decorator with the above changes will be"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 15,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "\n",
+    "def report(fmt):\n",
+    "    def decorate(func):\n",
+    "        meta_func = transform_and_compile(func)\n",
+    "        sig = inspect.signature(func)\n",
+    "        def decorated(*_args):\n",
+    "            _result, internal_locals = meta_func(*_args)\n",
+    "            named_args = {}\n",
+    "            num_args = len(_args)\n",
+    "            for i, (k, v) in enumerate(sig.parameters.items()):\n",
+    "                if i < num_args:\n",
+    "                    named_args[k] = repr(_args[i])\n",
+    "                else:\n",
+    "                    named_args[k] = repr(v.default)\n",
+    "            \n",
+    "            name = func.__name__\n",
+    "            result = repr(_result)\n",
+    "            args_dict = {\n",
+    "                **internal_locals,\n",
+    "                **locals(),\n",
+    "                **named_args\n",
+    "            }\n",
+    "            print(fmt.format(**args_dict))\n",
+    "            # store the information in some place\n",
+    "            return result\n",
+    "        return decorated \n",
+    "    return decorate"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Let's see the result with a dummy function"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 16,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "dummy_example(a=2, b=3, c=1); sum_ab 5, diff_ab -1; r=4\n",
+      "r: 4\n"
+     ]
+    }
+   ],
+   "source": [
+    "@report(fmt='{name}(a={a}, b={b}, c={c}); sum_ab {sum_ab}, diff_ab {dif_ab}; r={result}')\n",
+    "def dummy_example(a, b, c=2):\n",
+    "    sum_ab = a + b\n",
+    "    dif_ab = a - b\n",
+    "    r = sum_ab**c + dif_ab**c\n",
+    "    return r\n",
+    "\n",
+    "r = dummy_example(2, 3, 1)\n",
+    "print(\"r:\", r)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "I know this post is quite hard to read, but I think it's worth to share it. I hope you enjoyed it!"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": []
+  }
+ ],
+ "metadata": {
+  "interpreter": {
+   "hash": "d53e8ff2fcdb38699c55ccb1b72cf6d9cb65bc1310b907b32c90df421b47bce4"
+  },
+  "kernelspec": {
+   "display_name": "Python 3.8.0 ('mlops')",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.8.5"
+  },
+  "orig_nbformat": 4
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}
