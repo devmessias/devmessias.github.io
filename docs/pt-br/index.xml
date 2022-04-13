@@ -30,7 +30,9 @@ class="toc-inpage d-print-none d-none d-sm-block d-md-none " open>
 &lt;/details>
 &lt;h2 id="introdução">Introdução&lt;/h2>
 &lt;p>Não se assuste com as palavras no título. Embora possam ser estranhas para você provavelmente em algum momento você utilizou ferramentas que fazem uso de técnicas de metaprogramação ou inspeção de AST. Pytest e Numba são exemplos.&lt;/p>
-&lt;p>No post anterior eu falei sobre python frames e inspection. Mostrei como podemos usar &lt;code>inspect.signautre&lt;/code> para criar um decorador que valide argumentos:&lt;/p>
+&lt;p>
+&lt;a href="/pt-br/post/python_decorator_that_exposes_locals/" title="An introspective python decorator using stack frames and the inspect module">No post anterior eu falei sobre python frames e inspection.&lt;/a>.
+Mostrei como podemos usar &lt;code>inspect.signautre&lt;/code> para criar um decorador que valide argumentos:&lt;/p>
 &lt;pre>&lt;code class="language-python">@math_validator()
 def simple_method(x: &amp;quot;\in R&amp;quot;, y: &amp;quot;\in R_+&amp;quot;, z: float = 2) -&amp;gt; float:
 ...
@@ -67,11 +69,11 @@ gluttonous_monkey = max(monkeys, key=lambda k: monkeys[k][&amp;quot;bananas&amp;
 &lt;p>Contudo, no final do post passado eu disse que essa solução tem alguns problemas&lt;/p>
 &lt;p>&lt;div class="spoiler " >
 &lt;p>
-&lt;a class="btn btn-primary" data-toggle="collapse" href="#spoiler-1" role="button" aria-expanded="false" aria-controls="spoiler-1">
+&lt;a class="btn btn-primary" data-toggle="collapse" href="#spoiler-2" role="button" aria-expanded="false" aria-controls="spoiler-2">
 Click here to see the solution
 &lt;/a>
 &lt;/p>
-&lt;div class="collapse card " id="spoiler-1">
+&lt;div class="collapse card " id="spoiler-2">
 &lt;div class="card-body">
 &lt;pre>&lt;code class="language-python">import sys
 import inspect

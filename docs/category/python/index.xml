@@ -28,9 +28,11 @@ class="toc-inpage d-print-none d-none d-sm-block d-md-none " open>
 &lt;/ul>
 &lt;/nav>
 &lt;/details>
-&lt;h2 id="intro-our-previous-problem">Intro: our previous problem&lt;/h2>
 &lt;p>Don&amp;rsquo;t be afraid of the names on the title. Although they can seem scary or strange probably you already have been in touch with tools that work with this kind of stuff. For example, pytest and numba.&lt;/p>
-&lt;p>In the previous post, I talked about python frames and inspection module. I started showing how we can use the &lt;code>inspect.signature&lt;/code> to construct a decorator that validates arguments:&lt;/p>
+&lt;h2 id="intro-our-previous-problem">Intro: our previous problem&lt;/h2>
+&lt;p>
+&lt;a href="/post/python_decorator_that_exposes_locals/" title="An introspective python decorator using stack frames and the inspect module">In the previous post&lt;/a>,
+I talked about python frames and inspection module. I started showing how we can use the &lt;code>inspect.signature&lt;/code> to construct a decorator that validates arguments:&lt;/p>
 &lt;pre>&lt;code class="language-python">@math_validator()
 def simple_method(x: &amp;quot;\in R&amp;quot;, y: &amp;quot;\in R_+&amp;quot;, z: float = 2) -&amp;gt; float:
 ...
@@ -67,11 +69,11 @@ gluttonous_monkey = max(monkeys, key=lambda k: monkeys[k][&amp;quot;bananas&amp;
 &lt;p>These two examples can be found in real application scenarios. But at the end of my previous post I told you some issues regarding the use of &lt;code>sys.trace&lt;/code>. I&amp;rsquo;ll put the code here of the previous solution:
 &lt;div class="spoiler " >
 &lt;p>
-&lt;a class="btn btn-primary" data-toggle="collapse" href="#spoiler-1" role="button" aria-expanded="false" aria-controls="spoiler-1">
+&lt;a class="btn btn-primary" data-toggle="collapse" href="#spoiler-2" role="button" aria-expanded="false" aria-controls="spoiler-2">
 Click here to see the solution
 &lt;/a>
 &lt;/p>
-&lt;div class="collapse card " id="spoiler-1">
+&lt;div class="collapse card " id="spoiler-2">
 &lt;div class="card-body">
 &lt;pre>&lt;code class="language-python">import sys
 import inspect

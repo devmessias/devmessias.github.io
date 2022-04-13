@@ -1,0 +1,948 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "---\n",
+    "title: \"An introspective python decorator using  stack frames and the inspect module\"\n",
+    "subtitle: \"A decorator that allows you to inspect a method and its final state.\"\n",
+    "summary: \"Here I will discuss how to use the inspect module and the sys.trace to introspect in a python method using a decorator. With that, we can create a lot cool things like mathematical validation for our arguments, a report generator or any other kind of introspection.\"\n",
+    "\n",
+    "diagram: true\n",
+    "tags: [\"python\", \"decorators\", \"inspect\", \"call stack\", \"debugging\", \"SimpleNamespace\"]\n",
+    "categories: [Python]\n",
+    "date: \"2022-04-04T00:00:00Z\"\n",
+    "reading_time: false\n",
+    "featured: true\n",
+    "draft: false\n",
+    "toc: true\n",
+    "overlay:\n",
+    "  img: fluent_python.png\n",
+    "twitter:\n",
+    "  image: \"fluent_python.png\"\n",
+    "\n",
+    "# Featured image\n",
+    "# To use, add an image named `featured.jpg/png` to your page's folder.\n",
+    "# Focal points: Smart, Center, TopLeft, Top, TopRight, Left, Right, BottomLeft, Bottom,\n",
+    "\n",
+    "# Projects (optional).\n",
+    "#   Associate this post with one or more of your projects.\n",
+    "#   Simply enter your project's folder or file name without extension.\n",
+    "#   E.g. `projects = [\"internal-project\"]` references `content/project/deep-learning/index.md`.\n",
+    "#   Otherwise, set `projects = []`.\n",
+    "projects: []\n",
+    "---\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "{{% toc %}}\n",
+    "\n",
+    "[Fluent Python](https://www.amazon.com.br/Fluent-Python-Luciano-Ramalho/dp/1491946008) is the best resource to learn to use and love python. Some days ago I was reading a section of the chapter 7: _\"Function Decorators and Closures_\". This chapter has a lot of interesting and cool examples. Here I'll discuss one of them and how I tried to put more shiny stuff in it.\n",
+    "\n",
+    "{{< figure \n",
+    "fit=true\n",
+    "height=\"200px\"\n",
+    "resize=\"x200\"\n",
+    "src=\"fluent_python.png\" \n",
+    "caption=\"A book that every python programmer should read.\"\n",
+    ">}}\n",
+    "## Gaining a deeper understanding about the execution context of a function\n",
+    "\n",
+    "### The Fluent Python Book example\n",
+    "\n",
+    "Ramalho’s book presents us with a `@clock` decorator that can be used to decorate a method, measure the time it takes to execute, and print in a human-readable format the arguments and name of the method. The example is shown below:\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 42,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "[0.12315798s] snooze(0.123)\n",
+      "[0.12315822s] snooze(0.123)\n",
+      "[0.12317085s] snooze(0.123)\n"
+     ]
+    }
+   ],
+   "source": [
+    "import time\n",
+    "\n",
+    "DEFAULT_FMT = '[{elapsed:0.8f}s] {name}({args}) -> {result}'\n",
+    "\n",
+    "def clock(fmt=DEFAULT_FMT):\n",
+    "    def decorate(func):\n",
+    "        def clocked(*_args):\n",
+    "            t0 = time.time()\n",
+    "            _result = func(*_args)\n",
+    "            elapsed = time.time() - t0\n",
+    "            name = func.__name__\n",
+    "            args = ', '.join(repr(arg) for arg in _args)\n",
+    "            result = repr(_result)\n",
+    "            log_string = fmt.format(**locals())\n",
+    "            # send to somewhere \n",
+    "            # csv, ELK, etc\n",
+    "            print(log_string)\n",
+    "            return result\n",
+    "        return clocked\n",
+    "    return decorate\n",
+    "\n",
+    "@clock('[{elapsed:0.8f}s] {name}({args})')\n",
+    "def snooze(seconds):\n",
+    "    time.sleep(seconds)\n",
+    "    return time.time()\n",
+    "\n",
+    "for _ in range(3):\n",
+    "    snooze(.123)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "If you don't understand something in the above code I recommend that you take some time searching and reading about each aspect. There are many cool things being used there, for example:\n",
+    "\n",
+    "-   `repr` which is a function that returns a string representation of an object.\n",
+    "    -   This is essential because the `DEFAULT_FMT` is a string, not a `f-string`, we can't just put a generic object to be printed in `DEFAULT_FMT`.\n",
+    "-   `log_string = fmt.format(**locals())`: instead of creating a repetitive code like `fmt.format(**{\"result\":result, \"args\":args, ...})` we can just use the `locals()` which is a dictionary that contains all the local variables of the current scope.\n",
+    "\n",
+    "When I study something I always like to create a fresh problem with the stuff that I've learned and try to solve it. Sometimes there is no solution. But even if there is no solution, we still learn other stuff.\n",
+    "\n",
+    "I've started by creating the following example:\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "[0.40229130s] snooze_and_snore(0.4, True, 0.1)\n",
+      "[0.40049720s] snooze_and_snore(0.4, False, 0.1)\n",
+      "[0.40058565s] snooze_and_snore(0.4, True, 0.1)\n",
+      "[0.40013075s] snooze_and_snore(0.4, False, 0.1)\n",
+      "[0.40052223s] snooze_and_snore(0.4, True, 0.1)\n",
+      "[0.40057564s] snooze_and_snore(0.4, False, 0.1)\n"
+     ]
+    }
+   ],
+   "source": [
+    "import numpy as np\n",
+    "\n",
+    "@clock('[{elapsed:0.8f}s] {name}({args})')\n",
+    "def snooze_and_snore(seconds, snore_loud, min_prob_to_snore=0.4):\n",
+    "    time.sleep(seconds)\n",
+    "    to_snore = np.random.uniform() > min_prob_to_snore\n",
+    "    if to_snore:\n",
+    "        if snore_loud:\n",
+    "            pass\n",
+    "            # r.requets(wake_up_everyone)\n",
+    "        pass\n",
+    "    return time.time()\n",
+    "\n",
+    "for _ in range(3):\n",
+    "    snooze_and_snore(.4, True, .1)\n",
+    "    snooze_and_snore(.4, False, .1)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Ok, what are the problems/issues/limitations that the above code showed  me?\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Current issues and limitations\n",
+    "\n",
+    "1.  We don't have information about the names of the arguments passed to the method.\n",
+    "    -   If the list of arguments is long, trying to understand what is happening becomes a hard task. Because we are increasing the amount of stuff that we must  keep in our mind. We are increasing the **cognitive load** in the terms presented in the excelsior book: [A Philosophy of Software Design](https://linghao.io/notes/a-philosophy-of-software-design).\n",
+    "    -   A person who is not familiar with the codebase cannot understand what is happening by analyzing the outputs of the decorator. If these outputs are being stored in the ELK stack, this will be unproductive.\n",
+    "2.  We have the `locals()` information from the decorator which is fed by the result of the decorated method. However, we can't get any information about the `locals()` of the decorated method. Why is this bad?\n",
+    "    -   The final internal state of the method is commonly used to understand the execution of a method.\n",
+    "    -   Sometimes a method depends on random variables defined in the local context. Thus, the same set of arguments can give different executions. Until now, we don't have a way to get the `locals()` of the decorated method. For example, in the `snooze_and_snore` we can't know if the person snored or not.\n",
+    "\n",
+    "We will attack the first issue using the inspect module. As I'll show you, we can do cool things with this module.\n",
+    "\n",
+    "{{% alert note %}}\n",
+    "If you know about `sys.trace`, `call stack` and `inspect.signatures` I recommend\n",
+    "you go directly to the section [Let's solve our problem](#lets_solve_our_problem)\n",
+    "{{% /alert %}}\n",
+    "\n",
+    "## Creating an introspective code with the inspect module\n",
+    "\n",
+    "The [inspect](https://docs.python.org/3/library/inspect.html) module is a Python standard library that provides several tools to help you to introspect and consequently learn about live objects like functions, modules, classes, instances, frame objects (I'll talk about frames later in this post), etc. Well, what can you do with this? Really, a lot of things. You can use it to automatically create documentation, parse the docstrings, manipulate the AST, etc.\n",
+    "\n",
+    "### A decorator that validates arguments using mathematical notation\n",
+    "\n",
+    "In the last years, we have seen the development of the `typing` module and the `mypy` static analysis tool for python. This module and tool can be very useful sometimes. However, it doesn't provide some features that are essential for proper validation. But at least in my experience creating code for my Ph.D., I usually don't need so much sophisticated type theory and validation to be able to write a good code for a mathematical modeling tool. Most of the mathematical validation that I need is just checking if an argument still satisfies some constraints or lives in a proper subspace. If not, I need to raise an exception or perform some kind of regularization.\n",
+    "\n",
+    "Let's create a decorator that will validate arguments using simple mathematical notation.\n",
+    "\n",
+    "We will create a dictionary that will contain the annotation as a key and the value will be a human-readable\n",
+    "description of the annotation and a method responsible for check if everything is right.\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import inspect\n",
+    "\n",
+    "MATH_SPACES = {\n",
+    "    \"\\in R\": {\"name\" : \"real space\", \"validator\": lambda x: isinstance(x, (int, float))},\n",
+    "    \"\\in R_+\": {\"name\": \"space of real numbers greater than zero\", \"validator\": lambda x: isinstance(x, (int, float)) and x > 0},\n",
+    "}"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "We will use the `inspect.signature` to get the annotations of each argument of the decorated method.\n",
+    "For example, if the decorated method is `def foo(a: '\\in R', b)` the `inspect.signature(foo)` will return an object which we can use to extract an ordered dictionary with the arguments and the annotations. Like this\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "a a: '\\\\in R' <class 'str'> <class 'inspect._empty'>\n",
+      "b b <class 'type'> <class 'inspect._empty'>\n",
+      "c c: int <class 'type'> <class 'inspect._empty'>\n",
+      "d d=2 <class 'type'> 2\n"
+     ]
+    }
+   ],
+   "source": [
+    "def foo(a: \"\\in R\", b, c:int, d= 2):\n",
+    "    pass\n",
+    "for k, v in inspect.signature(foo).parameters.items():\n",
+    "    print(k, v, type(v._annotation), v.default)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Let's create our decorator. It should be really simple. Just check if we should verify the argument and if so, check if the value respects the annotated mathematical space.\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def math_validator():\n",
+    "    def decorate(func):\n",
+    "        def decorated(*_args):\n",
+    "            sig = inspect.signature(func)\n",
+    "            # sig parameters is an ordered dict\n",
+    "            for i, (k, v) in enumerate(sig.parameters.items()):\n",
+    "                annotation = v._annotation\n",
+    "                if not isinstance(annotation, str):\n",
+    "                    continue\n",
+    "                if not annotation in MATH_SPACES:\n",
+    "                    print(f\"{annotation} is not implemented in Math Spaces\")\n",
+    "                    continue # skip if we didn't implement this space validation\n",
+    "\n",
+    "                if not MATH_SPACES[annotation][\"validator\"](_args[i]):\n",
+    "                    raise ValueError(f\"{k} doesn't belong to the {MATH_SPACES[annotation]['name']}\")\n",
+    "            result = func(*_args)\n",
+    "            print(f\"{func.__name__}({_args}) -> {result}\")\n",
+    "            return result \n",
+    "        return decorated\n",
+    "    return decorate\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "@math_validator()\n",
+    "def simple_method(x: \"\\in R\", y: \"\\in R_+\", z: float = 2) -> float:\n",
+    "    \"\"\"Simple method to add two numbers together and \n",
+    "    divide by the last number\n",
+    "\n",
+    "    Args:\n",
+    "        x: The first number to add.\n",
+    "        y: The second number to add.\n",
+    "        z: it is a float number that will be the power of the result.\n",
+    "            This will not be checked for math spaces.\n",
+    "    Returns:\n",
+    "        float: result\n",
+    "    \n",
+    "    \"\"\"\n",
+    "    result = (x+y)/y\n",
+    "    return result**z\n",
+    "\n",
+    "simple_method(1, 2)\n",
+    "simple_method(1, 0)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "```\n",
+    "simple_method((1, 2)) -> 1.5\n",
+    "---> 19 simple_method(1, 0)\n",
+    "...\n",
+    "<locals>.decorate.<locals>.decorated(*_args)\n",
+    "     11         continue\n",
+    "     13     if not MATH_SPACES[annotation][\"validator\"](_args[i]):\n",
+    "---> 14         raise ValueError(f\"{k} doesn't belong to the {MATH_SPACES[annotation]['name']}\")\n",
+    "     15 result = func(*_args)\n",
+    "     16 print(f\"{func.__name__}({_args}) -> {result}\")\n",
+    "\n",
+    "ValueError: y doesn't belong to the space of real numbers greater than zero\n",
+    "```\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Our decorator is quite simple but does the job. You can go deeper into this and use a more sophisticated mathematical notation, printing using latex, etc. But now, let's go back to the Python Fluent example because the `inspect.signature` already provides us with a way to solve the first limitation!\n",
+    "\n",
+    "### Going back to the Fluent python example\n",
+    "\n",
+    "Let's remember one thing that I've pointed out:\n",
+    "\n",
+    "> A person who is not familiar with the code base will not be able to understand what is happening just by analyzing the outputs of the decorator. \n",
+    "\n",
+    "\n",
+    "It's obvious that we can overcome this issue by using the `inspect` module. Let's create a more elaborated example using monkeys and a zookeeper that must record and report the information about how the life of the monkeys are going. \n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "NUM_MONKEYS = 20\n",
+    "def feed_monkeys(n_bananas, n_apples=0): \n",
+    "    monkeys = {\n",
+    "        f\"monkey_{i}\": {\"bananas\": 0, \"apples\": 0}\n",
+    "        for i in range(NUM_MONKEYS)\n",
+    "    }\n",
+    "    while n_bananas > 0 and n_apples > 0:\n",
+    "        if np.random.uniform() < 0.4:\n",
+    "            continue\n",
+    "        monkey = monkey[np.random.choice(list(monkeys.keys()))]\n",
+    "        if n_bananas > 0:\n",
+    "            monkey[\"bananas\"] += 1\n",
+    "            n_bananas -= 1\n",
+    "        if n_apples > 0:\n",
+    "            monkey[\"apples\"] += 1\n",
+    "            n_apples -= 1\n",
+    "        if n_apples == 0 and n_bananas == 0:\n",
+    "            break"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "My solution is the `@report` decorator presented below.\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def report(fmt=DEFAULT_FMT):\n",
+    "    def decorate(func):\n",
+    "        def  decorated(*_args):\n",
+    "            sig = inspect.signature(func)\n",
+    "            named_args = {}\n",
+    "            num_args = len(_args)\n",
+    "            for i, (k, v) in enumerate(sig.parameters.items()):\n",
+    "                if i < num_args:\n",
+    "                    named_args[k] = repr(_args[i])\n",
+    "                else:\n",
+    "                    named_args[k] = repr(v.default)\n",
+    "            t0 = time.time()\n",
+    "            _result = func(*_args)\n",
+    "            elapsed = time.time() - t0\n",
+    "            name = func.__name__\n",
+    "            result = repr(_result)\n",
+    "            args_dict = {\n",
+    "            **locals(),\n",
+    "            **named_args}\n",
+    "            del args_dict['_args']\n",
+    "            print(fmt.format(**args_dict))\n",
+    "            # store the information in some place\n",
+    "            return result\n",
+    "        return decorated \n",
+    "    return decorate"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": []
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "What is important here are the following statements:\n",
+    "\n",
+    "```python\n",
+    "sig = inspect.signature(func)\n",
+    "named_args = {}\n",
+    "num_args = len(_args)\n",
+    "for i, (k, v) in enumerate(sig.parameters.items()):\n",
+    "    if i < num_args:\n",
+    "        named_args[k] = repr(_args[i])\n",
+    "    else:\n",
+    "        named_args[k] = repr(v.default)\n",
+    "```\n",
+    "\n",
+    "We are iterating over the signature parameters and checking if it passed the value to `func`. If not, we extract the default value from the signature.\n",
+    "\n",
+    "Using the `@report` decorator in the `feed_monkeys` we have this output:\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "The zookeeper feeds the monkeys with 69 bananas and 0 apples. Time to feed: 0.0000s\n",
+      "The zookeeper feeds the monkeys with 92 bananas and 10 apples. Time to feed: 0.0011s\n",
+      "The zookeeper feeds the monkeys with 58 bananas and 0 apples. Time to feed: 0.0000s\n",
+      "The zookeeper feeds the monkeys with 53 bananas and 10 apples. Time to feed: 0.0048s\n",
+      "The zookeeper feeds the monkeys with 42 bananas and 0 apples. Time to feed: 0.0000s\n",
+      "The zookeeper feeds the monkeys with 51 bananas and 10 apples. Time to feed: 0.0025s\n"
+     ]
+    }
+   ],
+   "source": [
+    "NUM_MONKEYS = 20\n",
+    "@report('The zookeeper feeds the monkeys with {n_bananas} bananas and {n_apples} apples. Time to feed: {elapsed:0.4f}s')\n",
+    "def feed_monkeys(n_bananas, n_apples=0): \n",
+    "    monkeys = {\n",
+    "        f\"monkey_{i}\": {\"bananas\": 0, \"apples\": 0}\n",
+    "        for i in range(NUM_MONKEYS)\n",
+    "    }\n",
+    "    while n_bananas > 0 and n_apples > 0:\n",
+    "        if np.random.uniform() < 0.4:\n",
+    "            continue\n",
+    "        monkey = monkeys[np.random.choice(list(monkeys.keys()))]\n",
+    "\n",
+    "        if n_bananas > 0:\n",
+    "            monkey[\"bananas\"] += 1\n",
+    "            n_bananas -= 1\n",
+    "        if n_apples > 0:\n",
+    "            monkey[\"apples\"] += 1\n",
+    "            n_apples -= 1\n",
+    "        if n_apples == 0 and n_bananas == 0:\n",
+    "            break\n",
+    "\n",
+    "for _ in range(3):\n",
+    "    feed_monkeys(np.random.randint(10, 100))\n",
+    "    feed_monkeys(np.random.randint(10, 100), 10)\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "First issue solved! But our decorator is still not useful to the zookeeper and managers. We can’t know how good any monkey is doing or if there is any monkey that eats too much. You could already know that somehow we must have a way to access the monkeys' dictionary inside our `def decorated` method. Unfortunately, this is not a trivial task in python because it lacks namespaces decorators. But we also can overcome this with a little trick using a trace tool.\n",
+    "\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## How to expose the locals() inside of a decorator?\n",
+    "\n",
+    "Now we just need to access the local variables of the decorated method. Let's think more deeply about this:\n",
+    "\n",
+    "-   After the execution of the decorated method, all the information about the local variables is lost. Fortunately, we don't want irrelevant information occupying our system memory.\n",
+    "-   The decorator will call the decorated method and will receive the return value. Thus, **there is no way to extract the local variables because now there are no more local variables!**\n",
+    "\n",
+    "How to solve it? Well,  think first about where the local variables have been stored before being erased.\n",
+    "\n",
+    "### Call stack and frames in python\n",
+    "\n",
+    "If you came from a non-CS background, maybe you don't know about an important concept called the [**call stack**](https://en.wikipedia.org/wiki/Call_stack). A call stack is a data structure that stores information related to living things in our program.\n",
+    "\n",
+    "If you call a function in python, a new block of information (**frame**) is pushed to the top of the call stack. After the function returns the value, this block of information is popped off the call stack. This comprehension can give insights into how to do things in python and how to create good or strange behaviors. \n",
+    "\n",
+    "Well, you can think. If the elements of the call stack are always added on the top if a function (inner) is called by another function (outer) **can I access the values of the local variables from the outer function inside of the inner? Yes, you can!** Obviously, this is not always a good idea, but it's good to understand this concept. Because this approach can be useful to deal with rigid frameworks like Django.\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 31,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Overwriting test_stack.py\n"
+     ]
+    }
+   ],
+   "source": [
+    "%%writefile test_stack.py\n",
+    "import inspect\n",
+    "\n",
+    "N_BANANAS = 12\n",
+    "\n",
+    "def outer_call(n_bananas):\n",
+    "    var_inside_outer_call = 2\n",
+    "    n_bananas += 1\n",
+    "    inner_call(n_bananas)\n",
+    "\n",
+    "def inner_call(n_bananas):\n",
+    "    var_inside_inner_call = {\"monkey\": 0}\n",
+    "    frame_infos = inspect.stack()\n",
+    "    n_frames = len(frame_infos)\n",
+    "    frames_var_values = {\n",
+    "        f.function: [(k, v) for k, v in f.frame.f_locals.items()] for f in frame_infos\n",
+    "    }\n",
+    "    \n",
+    "    for i, (function, frame_local) in enumerate(frames_var_values.items()):\n",
+    "        print(f'\\n\\t {function} stack position: {n_frames - i}')\n",
+    "        for var_name, value in frame_local:\n",
+    "            print(f'\\t\\t Name: {var_name:25s}Type: {type(value)}')\n",
+    "            if var_name in ('n_bananas', 'N_BANANAS', 'var_inside_outer_call'):\n",
+    "                print(f'\\t\\t\\t Value: {value}')\n",
+    "\n",
+    "print(\"\\n Before outer_call() call\")\n",
+    "outer_call(N_BANANAS)\n",
+    "\n",
+    "print(\"\\n After outer_call() call\")\n",
+    "\n",
+    "frames = [\n",
+    "        [(k, v) for k, v in f.frame.f_locals.items()] \n",
+    "        for f in inspect.stack()\n",
+    "]\n",
+    "for frame_local in frames:\n",
+    "    for var_name, value in frame_local:\n",
+    "        print(f'\\t\\t Name: {var_name:25s}Type: {type(value)}')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "!python test_stack.py"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "```\n",
+    " Before outer_call() call\n",
+    "\n",
+    "\t inner_call stack position: 3\n",
+    "\t\t Name: n_bananas                Type: <class 'int'>\n",
+    "\t\t\t Value: 13\n",
+    "\t\t Name: var_inside_inner_call    Type: <class 'dict'>\n",
+    "\t\t Name: frame_infos              Type: <class 'list'>\n",
+    "\t\t Name: n_frames                 Type: <class 'int'>\n",
+    "\n",
+    "\t outer_call stack position: 2\n",
+    "\t\t Name: n_bananas                Type: <class 'int'>\n",
+    "\t\t\t Value: 13\n",
+    "\t\t Name: var_inside_outer_call    Type: <class 'int'>\n",
+    "\t\t\t Value: 2\n",
+    "\n",
+    "\t <module> stack position: 1\n",
+    "\t\t Name: __name__                 Type: <class 'str'>\n",
+    "\t\t Name: __doc__                  Type: <class 'NoneType'>\n",
+    "\t\t Name: __package__              Type: <class 'NoneType'>\n",
+    "\t\t Name: __loader__               Type: <class '_frozen_importlib_external.SourceFileLoader'>\n",
+    "\t\t Name: __spec__                 Type: <class 'NoneType'>\n",
+    "\t\t Name: __annotations__          Type: <class 'dict'>\n",
+    "\t\t Name: __builtins__             Type: <class 'module'>\n",
+    "\t\t Name: __file__                 Type: <class 'str'>\n",
+    "\t\t Name: __cached__               Type: <class 'NoneType'>\n",
+    "\t\t Name: inspect                  Type: <class 'module'>\n",
+    "\t\t Name: N_BANANAS                Type: <class 'int'>\n",
+    "\t\t\t Value: 12\n",
+    "\t\t Name: outer_call               Type: <class 'function'>\n",
+    "\t\t Name: inner_call               Type: <class 'function'>\n",
+    "\n",
+    " After outer_call() call\n",
+    "\t\t Name: __name__                 Type: <class 'str'>\n",
+    "\t\t Name: __doc__                  Type: <class 'NoneType'>\n",
+    "\t\t Name: __package__              Type: <class 'NoneType'>\n",
+    "\t\t Name: __loader__               Type: <class '_frozen_importlib_external.SourceFileLoader'>\n",
+    "\t\t Name: __spec__                 Type: <class 'NoneType'>\n",
+    "\t\t Name: __annotations__          Type: <class 'dict'>\n",
+    "\t\t Name: __builtins__             Type: <class 'module'>\n",
+    "\t\t Name: __file__                 Type: <class 'str'>\n",
+    "\t\t Name: __cached__               Type: <class 'NoneType'>\n",
+    "\t\t Name: inspect                  Type: <class 'module'>\n",
+    "\t\t Name: N_BANANAS                Type: <class 'int'>\n",
+    "\t\t Name: outer_call               Type: <class 'function'>\n",
+    "\t\t Name: inner_call               Type: <class 'function'>\n",
+    "\n",
+    "```\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "First, draw your attention here\n",
+    "\n",
+    "```\n",
+    "outer_call stack position: 2\n",
+    "\t\t Name: n_bananas                Type: <class 'int'>\n",
+    "\t\t\t Value: 13\n",
+    "\t\t Name: var_inside_outer_call    Type: <class 'int'>\n",
+    "\t\t\t Value: 2\n",
+    "```\n",
+    "\n",
+    "\n",
+    "**Even if we don't pass a  variable as an argument to the `inner_call` function, this variable can be accessed because still lives in the call stack!** As I’ve told you, after the execution of `outer_call` the call stack doesn't have any information about what happened inside our functions. This discussion will help us to understand the limitations of our solution. Because **our solution is just to watch the call stack and keep the frame before being popped off!**\n",
+    "\n",
+    "\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Using sys.trace to track our frames\n",
+    "\n",
+    "Some time ago I've talked about how to dissect a  process using `lsof` and `strace`: [Dissecting processes and failures in Linux with lsof and strace](https://medium.com/@devmessias/dissecting-process-and-failures-in-linux-with-lsof-and-strace-cases-for-mlops-d7755b2ce6ca). The `strace` is a tracing tool that intercepts and records in someplace any system call made by a process. Python has a built-in tool to do this kind of stuff. Thus, let's use it to track our frames.\n",
+    "\n",
+    "### Let's solve our problem\n",
+    "\n",
+    "We will ask our code to monitor any call made with the decorated function. To do so, we will create a new function that will do this and release the trace after the execution of the decorated function.\n",
+    "\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 29,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import sys\n",
+    "\n",
+    "def call_and_extract_frame(func, *args, **kwargs):\n",
+    "    frame_var = None\n",
+    "    trace = sys.gettrace()\n",
+    "    def update_frame_var(stack_frame, event_name, arg_frame):\n",
+    "        \"\"\"\n",
+    "        Args:\n",
+    "            stack_frame: (frame)\n",
+    "                The current stack frame.\n",
+    "            event_name: (str)\n",
+    "                The name of the event that triggered the call. \n",
+    "                Can be 'call', 'line', 'return' and 'exception'.\n",
+    "            arg_frame: \n",
+    "                Depends on the event. Can be a None type\n",
+    "        \"\"\"\n",
+    "        nonlocal frame_var # nonlocal is a keyword which allows us to change the variable in the outer scope\n",
+    "        if event_name != 'call':\n",
+    "            return trace\n",
+    "        frame_var = stack_frame\n",
+    "        sys.settrace(trace)\n",
+    "        return trace\n",
+    "    sys.settrace(update_frame_var)\n",
+    "    try:\n",
+    "        func_result = func(*args, **kwargs)\n",
+    "    finally:\n",
+    "        sys.settrace(trace)\n",
+    "    return frame_var, func_result\n",
+    "\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Now to use this trick, we just need to call the above function in our `@report` decorator. Like this:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 30,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def report(formater):\n",
+    "    def decorate(func):\n",
+    "        def decorated(*_args):\n",
+    "            sig = inspect.signature(func)\n",
+    "            named_args = {}\n",
+    "            num_args = len(_args)\n",
+    "            for i, (k, v) in enumerate(sig.parameters.items()):\n",
+    "                if i < num_args:\n",
+    "                    named_args[k] = repr(_args[i])\n",
+    "                else:\n",
+    "                    named_args[k] = repr(v.default)\n",
+    "            \n",
+    "            ### Our modifications\n",
+    "            frame_func, _result = call_and_extract_frame(func, *_args)\n",
+    "            name = func.__name__\n",
+    "            result = repr(_result)\n",
+    "            args_dict = {\n",
+    "                **named_args, \n",
+    "                **locals(),\n",
+    "                **frame_func.f_locals,\n",
+    "            }\n",
+    "            ###\n",
+    "\n",
+    "            print(formater.format(**args_dict))\n",
+    "            # do other stuff here\n",
+    "            return _result \n",
+    "        return decorated\n",
+    "    return decorate"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Let's see the results:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 32,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      " The monkey monkey_0 eat too much bananas.  Num monkeys 3\n",
+      " The monkey monkey_1 eat too much bananas.  Num monkeys 3\n",
+      " The monkey monkey_2 eat too much bananas.  Num monkeys 3\n"
+     ]
+    }
+   ],
+   "source": [
+    "@report(' Monkey {gluttonous_monkey} ate too much bananas.  Num monkeys {num_monkeys}')\n",
+    "def feed_monkeys(n_bananas): \n",
+    "    num_monkeys = 3\n",
+    "    monkeys = {\n",
+    "        f\"monkey_{i}\": {\"bananas\": 0}\n",
+    "        for i in range(num_monkeys)\n",
+    "    }\n",
+    "    while n_bananas > 0:\n",
+    "        if np.random.uniform() < 0.4:\n",
+    "            continue\n",
+    "        monkey = monkeys[np.random.choice(list(monkeys.keys()))]\n",
+    "        if n_bananas > 0:\n",
+    "            monkey[\"bananas\"] += 1\n",
+    "            n_bananas -= 1\n",
+    "    gluttonous_monkey = max(monkeys, key=lambda k: monkeys[k][\"bananas\"]) \n",
+    "\n",
+    "for _ in range(3):\n",
+    "    feed_monkeys(np.random.randint(10, 100))\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Conclusion and next steps\n",
+    "### \"...it depends\"\n",
+    "Nice! It worked. But should you use it?\n",
+    "\n",
+    "{{< figure \n",
+    "fit=true\n",
+    "height=\"400px\"\n",
+    "resize=\"x400\"\n",
+    "src=\"depends.jpg\" >}}\n",
+    "\n",
+    "-  We have drawbacks in our approach: \n",
+    "   -  a tracing always creates a cost. Thus, is expected that we will reduce the performance of our system. If you use this just for debugging purposes, it's ok. \n",
+    "   -  can have conflicts with other tools and libs that also trying to use the trace tool\n",
+    "   -  it seems dirty!\n",
+    "### The next step: we don't need a trace! We can do better using AST manipulation\n",
+    "   - Using the inspect module to get the argument names it's ok but I've told you the trace tool can be problematic.  But we can replace the trace with another approach. Although, it's more conceptually complex don't require  dirty tricks and I believe it's far more beautiful. **The next post it's about this!**\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### SimpleNamespace for dict.key instead of dict[\"key]\n",
+    "\n",
+    "We have a minor issue and point of improvement. If you're an cautious developer, probably you notice a flaw here\n",
+    "```python\n",
+    "args_dict = {\n",
+    "    **named_args, \n",
+    "    **locals(),\n",
+    "    **frame_func.f_locals,\n",
+    "}\n",
+    "```\n",
+    "if any of the dicts have common keys, one of them will overwrite the other. This is not what we want. You can use a simple solution like this:\n",
+    "```python\n",
+    "args_dict = {\n",
+    "    \"args\": **named_args, \n",
+    "    **locals(),\n",
+    "    \"func_locals\": **frame_func.f_locals,\n",
+    "}\n",
+    "```\n",
+    "But this is still annoying because we can do this with a format string:\n",
+    "```\n",
+    "@report(fmt=\"{args['n_bananas']} ...\")\n",
+    "```\n",
+    "Well, how to solve it? Just use a SimpleNamespace to construct an object!\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 40,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "The zookeeper feeds the monkeys with 15,bananas. We loost 15 bananas. Args namespace(n_bananas='15')\n",
+      "The zookeeper feeds the monkeys with 80,bananas. We loost 77 bananas. Args namespace(n_bananas='80')\n",
+      "The zookeeper feeds the monkeys with 95,bananas. We loost 92 bananas. Args namespace(n_bananas='95')\n"
+     ]
+    }
+   ],
+   "source": [
+    "from types import SimpleNamespace\n",
+    "\n",
+    "\n",
+    "def report(formater):\n",
+    "    def decorate(func):\n",
+    "        def decorated(*_args):\n",
+    "            sig = inspect.signature(func)\n",
+    "            named_args = {}\n",
+    "            num_args = len(_args)\n",
+    "            for i, (k, v) in enumerate(sig.parameters.items()):\n",
+    "                if i < num_args:\n",
+    "                    named_args[k] = repr(_args[i])\n",
+    "                else:\n",
+    "                    named_args[k] = repr(v.default)\n",
+    "            \n",
+    "            ### Our modifications\n",
+    "            frame_func, _result = call_and_extract_frame(func, *_args)\n",
+    "            name = func.__name__\n",
+    "            result = repr(_result)\n",
+    "            args_dict = {\n",
+    "                \"args\": SimpleNamespace(**named_args), \n",
+    "                \"args_repr\": repr(SimpleNamespace(**named_args)),\n",
+    "                **locals(),\n",
+    "                **frame_func.f_locals,\n",
+    "            }\n",
+    "            ###\n",
+    "\n",
+    "            print(formater.format(**args_dict))\n",
+    "            # do other stuff here\n",
+    "            return _result \n",
+    "        return decorated\n",
+    "    return decorate\n",
+    "\n",
+    "\n",
+    "@report(\n",
+    "    \"\".join((\n",
+    "        'The zookeeper feeds the monkeys with {args.n_bananas},', \n",
+    "        'bananas. We loost {n_bananas} bananas. Args {args_repr}'\n",
+    "    ))\n",
+    ")\n",
+    "def feed_monkeys(n_bananas): \n",
+    "    num_monkeys = 3\n",
+    "    monkeys = {\n",
+    "        f\"monkey_{i}\": {\"bananas\": 0}\n",
+    "        for i in range(num_monkeys)\n",
+    "    }\n",
+    "    while n_bananas > 0:\n",
+    "        if np.random.uniform() > .8:\n",
+    "            # \"bananas rotted . Monkeys will not eat any banana any more\")\n",
+    "            break\n",
+    "        if np.random.uniform() < 0.4:\n",
+    "            continue\n",
+    "        monkey = monkeys[np.random.choice(list(monkeys.keys()))]\n",
+    "        if n_bananas > 0:\n",
+    "            monkey[\"bananas\"] += 1\n",
+    "            n_bananas -= 1\n",
+    "    gluttonous_monkey = max(monkeys, key=lambda k: monkeys[k][\"bananas\"]) \n",
+    "\n",
+    "for _ in range(3):\n",
+    "    feed_monkeys(np.random.randint(10, 100))\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Want to know more about call stack , inspect and trace? \n",
+    "- Call stack and frames: [Reza Bagheri](https://www.linkedin.com/in/reza-bagheri-71882a76/) explained [here](https://reza-bagheri79.medium.com/python-stack-frames-and-tail-call-optimization-4d0ea55b0542) how to add a tail-call optimization in python using python stack frames.\n",
+    "- Fluent Python book by Luciano Ramalho\n",
+    "- Python documentation: [tracebak](https://docs.python.org/3/library/traceback.html), [inspect and stack](https://docs.python.org/3/library/inspect.html).\n",
+    "- [Stackoverflow discussion](https://stackoverflow.com/questions/4214936/how-can-i-get-the-values-of-the-locals-of-a-function-after-it-has-been-executed/4249347#4249347)"
+   ]
+  }
+ ],
+ "metadata": {
+  "interpreter": {
+   "hash": "d53e8ff2fcdb38699c55ccb1b72cf6d9cb65bc1310b907b32c90df421b47bce4"
+  },
+  "kernelspec": {
+   "display_name": "Python 3.8.0 ('mlops')",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.8.5"
+  },
+  "orig_nbformat": 4
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}
