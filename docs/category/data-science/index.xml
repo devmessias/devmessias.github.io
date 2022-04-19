@@ -38,7 +38,7 @@ class="toc-inpage d-print-none d-none d-sm-block d-md-none " open>
 &lt;/nav>
 &lt;/details>
 &lt;p>Esse post é da série sobre filtragem em grafos (esparsificação). O post anterior pode ser acessado em:
-&lt;a href="/post/edge_graph_filtering/" title="Grafos e filtragem de arestas I: conceitos e confusões.">Grafos e filtragem de arestas: conceitos e confusões.&lt;/a>.&lt;/p>
+&lt;a href="/post/edge_graph_filtering/" title="Grafos e filtragem de arestas I: conceitos e confusões.">Grafos e filtragem de arestas: conceitos e confusões.&lt;/a>&lt;/p>
 &lt;p>O objetivo é mostrar como usar o modelo de bloco estocástico aninhado (nSBM) para o processo de análise exploratória do mercado de ações. O nSBM e SBM são modelos não-paramétricos estabelecidos numa sólida base estatística. Vou te ensinar na prática como usar eles no python e como analisar os outputs, que a primeira vista podem parecer artísticos ou complexos. Veja só:&lt;/p>
 &lt;figure >
 &lt;a data-fancybox="" href="/post/nsbm_sp500_stock_market_disparity_filter/nsbm_final_2018-01-01_2018-06-01_hudcff6362c16284ef400b42c5fe2e1b69_266080_0x500_resize_lanczos_2.png" >
@@ -78,11 +78,6 @@ class="toc-inpage d-print-none d-none d-sm-block d-md-none " open>
 &lt;p>Contudo, muitas das técnicas exploradas e ensinadas na web se restringem àquelas que podem ser empregadas quando o conjunto de dados vive em algum espaço organizado (como o $\mathbb R^n$) e cujos dados não têm relação entre si. Um conjunto de pontos. Mas e os dados que não se enquadram nisso?&lt;/p>
 &lt;p>Um exemplo de conjunto de dados extremamente complicado são as redes sociais. Redes sociais são conjuntos de pessoas e a existência de pelo menos relações pares a pares (hyper-grafos é um assunto para outro post) podendo ser negativas, positivas ou algo mais complicado. Cada pessoa em uma rede social pode ser identificada por um conjunto de features tais como gostos pessoais, horário de uso do sistema, etc. Representar uma rede social por pontinhos é reducionista. É para isso que grafos podem ser empregados&lt;/p>
 &lt;h3 id="grafos">Grafos&lt;/h3>
-&lt;div class="alert alert-">
-&lt;div>
-Se você não tem a mais vaga ideia do que é um grafo, o que é um grafo conectado ou uma comunidade em grafo recomendo fortemente ler o post anterior (&lt;a href="/post/edge_graph_filtering/" title="Grafos e filtragem de arestas I: conceitos e confusões.">Grafos e filtragem de arestas: conceitos e confusões.&lt;/a>.). Mas também recomendo dar uma lida no post mesmo se você tiver algum entendimento. Pela área de grafos ser estudada em diferentes campos com nomenclaturas diferentes existem muitos conceitos ambíguos e nomes iguais(diferentes) para coisas diferentes(iguais).
-&lt;/div>
-&lt;/div>
 &lt;p>Um grafo armazena objetos que têm relações pares a pares entre si. Sendo possível associar a cada objeto ou relação um outro tipo de dado genérico tais como um número real, um vetor ou mesmo outro grafo. Mas é importante ressaltar que grafos estão em todo lugar, por exemplo em matrizes de correlação. Portanto, usar grafos para analisar correlações é válido, especialmente quando muitas dessas correlações podem ou queremos que sejam descartadas.&lt;/p>
 &lt;blockquote class="twitter-tweet">&lt;p lang="pt" dir="ltr">Até onde já estudei, toda estrutura de dados pode ser representada como um grafo. Nesse sentido, podemos dizer que o grafo é a &amp;quot;mãe&amp;quot; de todas as estruturas de dados. Talvez devêssemos dar mais foco a grafos nos cursos de EDs.&lt;/p>&amp;mdash; psiquiatra de computadores (🌳, 🌳) (@coproduto) &lt;a href="https://twitter.com/coproduto/status/1514562359007842310?ref_src=twsrc%5Etfw">April 14, 2022&lt;/a>&lt;/blockquote>
 &lt;script async src="https://platform.twitter.com/widgets.js" charset="utf-8">&lt;/script>
@@ -199,7 +194,7 @@ prices.to_csv(
 f&amp;quot;sp500_prices_{start_date}_{end_date}.csv&amp;quot;)
 &lt;/code>&lt;/pre>
 &lt;h3 id="retorno-e-matrizes-de-correlação">Retorno e matrizes de correlação&lt;/h3>
-&lt;p>A correlação será calculada para todos os ativos considerando o retorno; o percentual de mudança em relação ao dia anterior.&lt;/p>
+&lt;p>A correlação será calculada para todos os ativos considerando o retorno. O retorno que estamos calculando aqui é simplesmente a mudança percentual do preço de fechamento do ativo.&lt;/p>
 &lt;pre>&lt;code class="language-python">returns_all = prices.pct_change()
 # a primeira linha não faz sentido, não existe retorno no primeiro dia
 returns_all = returns_all.iloc[1:, :]
@@ -260,7 +255,9 @@ Number of remained stocks: 492
 &lt;p>A maior parte das arestas foi removida. Será que conseguimos fazer algo com esse grafo compactado?&lt;/p>
 &lt;h2 id="nsbm-buscando-hierarquia-e-comunidades">nSBM: buscando hierarquia e comunidades&lt;/h2>
 &lt;h3 id="convertendo-o-igraph-em-graph-tool">Convertendo o iGraph em graph-tool&lt;/h3>
-&lt;p>O graph-tool trabalha com uma estrutura de dados própria para ganhar um desempenho melhor, o que é bom, mas precisamos construir nosso grafo novamente&lt;/p>
+&lt;p>O graph-tool é um pacote com excelente desempenho, mas para ganhar essa performance ele
+exige um pouquinho mais de trabalho tais como declarar o tipo dos dados. O primeiro
+passo para usar o graph-tool é converter nosso grafo iGraph para uma instância dele&lt;/p>
 &lt;pre>&lt;code class="language-python">import graph_tool.all as gt
 gnsbm = gt.Graph(directed=False)
 # iremos adicionar os vértices
@@ -307,7 +304,7 @@ rgba[i] = [c[0], c[1], c[2], .5]
 }
 state.draw(**options)
 &lt;/code>&lt;/pre>
-&lt;p>Finalmente, vamos ver o resultado da nossa filtragem e inferência&lt;/p>
+&lt;p>Finalmente, agora é só ver o resultado da nossa filtragem e inferência&lt;/p>
 &lt;pre>&lt;code class="language-python">plt.figure(dpi=150)
 plt.title(f&amp;quot;Sectors of the S&amp;amp;P 500 from {start_date} to {end_date}&amp;quot;)
 legend = plt.legend(
@@ -398,7 +395,7 @@ dist_matrix = dist_matrix.fillna(0)
 np.fill_diagonal(dist_matrix.values, 0)
 &lt;/code>&lt;/pre>
 &lt;h3 id="extraindo-o-mst">Extraindo o MST&lt;/h3>
-&lt;p>O &lt;code>igraph&lt;/code> já implementa um algoritmo para extrair o MST de um grafo de forma eficiente, mesmo que o grafo seja completo. Nossa matriz de correlação é um grafo completo&lt;/p>
+&lt;p>O &lt;code>igraph&lt;/code> já implementa um algoritmo para extrair o MST de um grafo de forma eficiente, mesmo que o grafo seja completo. Nossa matriz de correlação é um grafo completo!&lt;/p>
 &lt;pre>&lt;code class="language-python">
 g = ig.Graph.Weighted_Adjacency(dist_matrix.values, mode='undirected')
 g = g.spanning_tree(weights=&amp;quot;weight&amp;quot;, return_tree=True)
@@ -414,7 +411,7 @@ sector2color[sector] for sector in sectors
 pos = g.layout_fruchterman_reingold(niter=10000, weights=&amp;quot;weight&amp;quot;)
 pos = np.array(pos.coords)
 &lt;/code>&lt;/pre>
-&lt;p>Finalmente, nosso resultado!&lt;/p>
+&lt;p>Finalmente, nosso resultado:&lt;/p>
 &lt;pre>&lt;code class="language-python">from matplotlib.collections import LineCollection
 lines = []
 colors = []
@@ -455,7 +452,7 @@ plt.show()
 MST para ativos do S&amp;amp;P500 no primeiro semestre de 2018
 &lt;/figcaption>
 &lt;/figure>
-&lt;p>Alguns padrões aparecem, mas o MST é muito menos rico de informações que o nSBM, exploraremos mais essas vantagens em posteriormente.&lt;/p></description></item><item><title>Grafos e filtragem de arestas I: conceitos e confusões</title><link>/post/edge_graph_filtering/</link><pubDate>Tue, 15 Feb 2022 00:00:00 +0000</pubDate><guid>/post/edge_graph_filtering/</guid><description>&lt;h1 id="introdução">Introdução&lt;/h1>
+&lt;p>Alguns padrões aparecem, mas o MST é muito menos rico de informações que o nSBM, exploraremos mais essas vantagens em posts futuros.&lt;/p></description></item><item><title>Grafos e filtragem de arestas I: conceitos e confusões</title><link>/post/edge_graph_filtering/</link><pubDate>Tue, 15 Feb 2022 00:00:00 +0000</pubDate><guid>/post/edge_graph_filtering/</guid><description>&lt;h1 id="introdução">Introdução&lt;/h1>
 &lt;div class="alert alert-note">
 &lt;div>
 Esse post é bem informal e foi feito para o grupo de estudos de MlOps. O conteúdo pode mudar significativamente com o passar do tempo.
