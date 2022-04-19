@@ -13,7 +13,7 @@ class="toc-inpage d-print-none d-none d-sm-block d-md-none " open>
 &lt;/li>
 &lt;li>&lt;a href="#baixando-e-criando-nosso-grafo">Baixando e criando nosso grafo&lt;/a>
 &lt;ul>
-&lt;li>&lt;a href="#extraíndo-o-preço-de-fechamento">Extraíndo o preço de fechamento&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#extraindo-o-preço-de-fechamento">Extraindo o preço de fechamento&lt;/a>&lt;/li>
 &lt;li>&lt;a href="#retorno-e-matrizes-de-correlação">Retorno e matrizes de correlação&lt;/a>&lt;/li>
 &lt;li>&lt;a href="#criando-o-grafo-completo-e-filtrando">Criando o grafo completo e filtrando&lt;/a>&lt;/li>
 &lt;/ul>
@@ -107,7 +107,7 @@ Se você não tem a mais vaga ideia do que é um grafo, o que é um grafo conect
 &lt;a href="/post/edge_graph_filtering/#estrutural-threshold">No post anterior eu discuti o porquê disso poder ser bem perigoso.&lt;/a>.&lt;/p>
 &lt;p>Uma maneira mais elaborada de se analisar matrizes de correlação é através da construção de
 &lt;a href="https://www.youtube.com/watch?v=jMioOe2eTcY" target="_blank" rel="noopener">árvores de expansão mínima (MST)&lt;/a>, apesar do nome complicado é um processo bem simples de construir um grafo e você pode encontrar diversos tutoriais sobre MST e o mercado de ações na internet.&lt;/p>
-&lt;p>Devido a tutoriais com MST estarem já espalhados, decidi fazer algo diferente aqui e propor usar um método pouco conhecido para exploração de grafos e aplicar ele em matrizes de correlação de ativos. Esse método é conhecido pela sigla &lt;em>nSBM&lt;/em>, modelo de bloco estocástico aninhado (nested Sthocastic Block Model) e é um método não-paramétrico para inferência de comunidades em grafos que permite analisar a hierarquia de comunidades.&lt;/p>
+&lt;p>Devido a tutoriais com MST estarem já espalhados, decidi fazer algo diferente aqui e propor usar um método pouco conhecido para exploração de grafos e aplicar ele em matrizes de correlação de ativos. Esse método é conhecido pela sigla &lt;em>nSBM&lt;/em>, modelo de bloco estocástico aninhado (nested Stochastic Block Model) e é um método não-paramétrico para inferência de comunidades em grafos que permite analisar a hierarquia de comunidades.&lt;/p>
 &lt;div class="alert alert-">
 &lt;div>
 No final do post vou mostrar a mesma matriz analisada pelo MST só para você ter uma ideia do porquê o nSBM ser bem mais interessante.
@@ -115,7 +115,7 @@ No final do post vou mostrar a mesma matriz analisada pelo MST só para você te
 &lt;/div>
 &lt;p>Uma das grandes qualidades dos SBM e variantes é que eles são construídos em cima de um arcabouço estatístico rigoroso e ao mesmo tempo é possível detectar comunidades com pouquíssimos vértices. Isso é ótimo, pois duas coisas que não queremos é que o método que escolhamos diga que certas coisas formam comunidades mesmo que não passe de um amontoado de coisas aleatórias e que ele bote coisas onde não devia só porque são pequenas demais, &lt;strong>isso é uma crítica aos métodos de detecção por maximização de modularidade presentes no Gelphi.&lt;/strong>&lt;/p>
 &lt;h2 id="baixando-e-criando-nosso-grafo">Baixando e criando nosso grafo&lt;/h2>
-&lt;h3 id="extraíndo-o-preço-de-fechamento">Extraíndo o preço de fechamento&lt;/h3>
+&lt;h3 id="extraindo-o-preço-de-fechamento">Extraindo o preço de fechamento&lt;/h3>
 &lt;p>Vamos começar importando o que for necessário&lt;/p>
 &lt;pre>&lt;code class="language-python">import yfinance as yf
 import pandas as pd
@@ -264,7 +264,7 @@ Number of remained stocks: 492
 &lt;p>A maior parte das arestas foi removida. Será que conseguimos fazer algo com esse grafo compactado?&lt;/p>
 &lt;h2 id="nsbm-buscando-hierarquia-e-comunidades">nSBM: buscando hierarquia e comunidades&lt;/h2>
 &lt;h3 id="convertendo-o-igraph-em-graph-tool">Convertendo o iGraph em graph-tool&lt;/h3>
-&lt;p>O graph-tool trabalha com uma estrutura de dados prórpia para ganhar um desempenho melhor, o que é bom, mas precisamos construir nosso grafo novamente&lt;/p>
+&lt;p>O graph-tool trabalha com uma estrutura de dados própria para ganhar um desempenho melhor, o que é bom, mas precisamos construir nosso grafo novamente&lt;/p>
 &lt;pre>&lt;code class="language-python">import graph_tool.all as gt
 gnsbm = gt.Graph(directed=False)
 # iremos adicionar os vértices
@@ -276,7 +276,7 @@ gnsbm.add_edge(e.source, e.target)
 &lt;/code>&lt;/pre>
 &lt;h3 id="inferência-dos-blocos">Inferência dos blocos&lt;/h3>
 &lt;p>Com o grafo construído iremos executar o algoritmo de inferência de blocos.
-Esse algoritmo executa uma minimização do que é conhecido como &lt;em>&amp;ldquo;description length&amp;rdquo;&lt;/em> do modelo Bayesiano. Em um post futuro falarei um pouco sobre a matemática se você se já estiver interessado de uma olhada no artigo original do Tiago Peixoto
+Esse algoritmo executa uma minimização do que é conhecido como &lt;em>&amp;ldquo;description length&amp;rdquo;&lt;/em> do modelo Bayesiano. Em um post futuro falarei um pouco sobre a matemática se você se já estiver interessado dê uma olhada no artigo original do Tiago Peixoto
 &lt;a href="https://dx.doi.org/10.1103/PhysRevX.4.011047" target="_blank" rel="noopener">aqui&lt;/a>.&lt;/p>
 &lt;pre>&lt;code class="language-python">state = gt.minimize_nested_blockmodel_dl(gnsbm)
 &lt;/code>&lt;/pre>
@@ -295,7 +295,7 @@ for i, symbol in enumerate(symbols):
 c = sector2color[symbol2sector[symbol]]
 rgba[i] = [c[0], c[1], c[2], .5]
 &lt;/code>&lt;/pre>
-&lt;p>Executaremos o método draw para gerar o plot. O parâmetro que talvez você queira brincar um pouco é o $\beta \in (0, 1)$. Tal parâmetro é responsável pela força do &lt;strong>edge-bundling&lt;/strong>, ou seja, a força com que as arestas serão atraídas uma a outra. Este parâmetro tem finalidades apenas para facilitar a visualização, não existe nenhuma relação com o nSBM.&lt;/p>
+&lt;p>Executaremos o método draw para gerar o plot. O parâmetro que talvez você queira brincar um pouco é o $\beta \in (0, 1)$. Tal parâmetro é responsável pela força do &lt;strong>edge-bundling&lt;/strong>, ou seja, a força com que as arestas serão atraídas uma à outra. Este parâmetro tem finalidades apenas para facilitar a visualização, não existe nenhuma relação com o nSBM.&lt;/p>
 &lt;pre>&lt;code class="language-python">options = {
 'output': f'nsbm_{start_date}_{end_date}.png',
 'beta': .9,
@@ -345,13 +345,13 @@ Resultado do modelo de blocos aninhados para o primeiro semestre de 2018 de ativ
 &lt;/a>
 &lt;/figure>
 &lt;ul>
-&lt;li>Cada circulo no conjunto que parece a escova de uma vassoura é um ativo, um vértice do grafo original.&lt;/li>
-&lt;li>Cada escova é uma comunidade de ativos. Podemos navegar na hierarquia seguindo o caminho reverso apontado pelas setinhas no grafo em preto. Veja que na imagem eu coloquei como exemplo três comunidades que perntencem a mesma comunidade pai.
+&lt;li>Cada círculo no conjunto que parece a escova de uma vassoura é um ativo, um vértice do grafo original.&lt;/li>
+&lt;li>Cada escova é uma comunidade de ativos. Podemos navegar na hierarquia seguindo o caminho reverso apontado pelas setinhas no grafo em preto. Veja que na imagem eu coloquei como exemplo três comunidades que pertencem à mesma comunidade pai.
 Uma coisa interessante que podemos observar é que a maior parte dos ativos relacionados a &lt;strong>Consumer staples&lt;/strong> forma uma comunidade com &lt;strong>Real state&lt;/strong> e &lt;strong>Utilities&lt;/strong> no segundo nível.&lt;/li>
 &lt;/ul>
 &lt;p>E as arestas?&lt;/p>
 &lt;ul>
-&lt;li>Podemos notar que um grande número de conexões entre &lt;strong>Financials&lt;/strong>, &lt;strong>Industrials&lt;/strong> e &lt;strong>Information technology&lt;/strong> sobreviveram ao filtro de disparidade. Sendo um indicativo que esses ativos tem uma forte relação nos retornos.
+&lt;li>Podemos notar que um grande número de conexões entre &lt;strong>Financials&lt;/strong>, &lt;strong>Industrials&lt;/strong> e &lt;strong>Information technology&lt;/strong> sobreviveram ao filtro de disparidade. Sendo um indicativo que esses ativos têm uma forte relação nos retornos.
 Ok, antes eu falei que o $\beta$ controla o efeito de atração entre as arestas, veja o que acontece se eu reduzir o $\beta$ para $0.5$:&lt;/li>
 &lt;/ul>
 &lt;figure id="figure-horrível-não-é-mesmo">
@@ -390,7 +390,7 @@ r3 = state.levels[3].get_blocks()[r2]
 &lt;/code>&lt;/pre>
 &lt;pre>&lt;code>(19, 0, 0)
 &lt;/code>&lt;/pre>
-&lt;p>Você pode explorar as comunidades usando essa abordagem. Contudo, eu recomendo você usar o THREE.js ou D3 para realizar essa exploração. Futuramente disponiblizarei meu código para permitir uma visualização iterativa do nsbm usando threejs direto no browser!&lt;/p>
+&lt;p>Você pode explorar as comunidades usando essa abordagem. Contudo, eu recomendo você usar o THREE.js ou D3 para realizar essa exploração. Futuramente disponibilizarei meu código para permitir uma visualização interativa do nsbm usando threejs direto no browser!&lt;/p>
 &lt;h2 id="extras-mst">Extras: MST&lt;/h2>
 &lt;p>Eu prometi mostrar como ficaria o mesmo universo de dados usando MST (árvores de expansão mínima). A intuição por trás do MST é que queremos construir um grafo esparso de um grafo original, tal que as somas dos pesos das arestas seja a menor possível sem desconectar os vértices do grafo. Veja mais aprofundado
 &lt;a href="https://hudsonthames.org/networks-with-mlfinlab-minimum-spanning-tree-mst/" target="_blank" rel="noopener">aqui&lt;/a>.&lt;/p>
@@ -459,7 +459,7 @@ plt.show()
 MST para ativos do S&amp;amp;P500 no primeiro semestre de 2018
 &lt;/figcaption>
 &lt;/figure>
-&lt;p>Alguns padrões de aparecem, mas o MST é muito menos rico de informações que o nSBM, exploraremos as vantagens do MST em próximos posts.&lt;/p></description></item><item><title>Grafos e filtragem de arestas I: conceitos e confusões</title><link>/post/edge_graph_filtering/</link><pubDate>Tue, 15 Feb 2022 00:00:00 +0000</pubDate><guid>/post/edge_graph_filtering/</guid><description>&lt;h1 id="introdução">Introdução&lt;/h1>
+&lt;p>Alguns padrões aparecem, mas o MST é muito menos rico de informações que o nSBM, exploraremos as vantagens do MST em próximos posts.&lt;/p></description></item><item><title>Grafos e filtragem de arestas I: conceitos e confusões</title><link>/post/edge_graph_filtering/</link><pubDate>Tue, 15 Feb 2022 00:00:00 +0000</pubDate><guid>/post/edge_graph_filtering/</guid><description>&lt;h1 id="introdução">Introdução&lt;/h1>
 &lt;div class="alert alert-note">
 &lt;div>
 Esse post é bem informal e foi feito para o grupo de estudos de MlOps. O conteúdo pode mudar significativamente com o passar do tempo.
