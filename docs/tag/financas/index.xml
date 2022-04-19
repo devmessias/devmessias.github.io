@@ -33,6 +33,7 @@ class="toc-inpage d-print-none d-none d-sm-block d-md-none " open>
 &lt;li>&lt;a href="#visualizando-o-mst">Visualizando o MST&lt;/a>&lt;/li>
 &lt;/ul>
 &lt;/li>
+&lt;li>&lt;a href="#agradecimentos">Agradecimentos&lt;/a>&lt;/li>
 &lt;/ul>
 &lt;/li>
 &lt;/ul>
@@ -466,4 +467,8 @@ plt.show()
 MST para ativos do S&amp;amp;P500 no primeiro semestre de 2018
 &lt;/figcaption>
 &lt;/figure>
-&lt;p>Alguns padrões aparecem, mas o MST é muito menos rico de informações que o nSBM, exploraremos mais essas vantagens em posts futuros.&lt;/p></description></item></channel></rss>
+&lt;p>Alguns padrões aparecem, mas o MST é muito menos rico de informações que o nSBM, exploraremos mais essas vantagens em posts futuros.&lt;/p>
+&lt;h2 id="agradecimentos">Agradecimentos&lt;/h2>
+&lt;p>Agradeço ao
+&lt;a href="https://www.linkedin.com/in/maikereis/" target="_blank" rel="noopener">Maike Reis&lt;/a> e
+&lt;a href="https://www.linkedin.com/in/felipe-alves-dos-santos/" target="_blank" rel="noopener">Felipe Santos&lt;/a> pelas dicas e correções.&lt;/p></description></item></channel></rss>
