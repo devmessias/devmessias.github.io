@@ -171,12 +171,12 @@ $$
 &amp;hellip;etc
 \end{eqnarray}
 $$
-Também espera-se que o ruído da câmera, rugas e imperfeições sejam reduzidas $\mathcal P_{rugas}(foto\ \ original) \neq \mathcal P_{rugas}(foto\ \ filtrada)$ e $|rugas\ \ foto \ \ original| \ll |rugas\ \ foto \ \ filtrada|$. O símbolo $|.|$ significa que estamos contando o número de rugas da foto, do conjunto de rugas, e $\ll$ significa muito menor.&lt;/p>
+Também espera-se que o ruído da câmera, rugas e imperfeições sejam reduzidas $\mathcal P_{rugas}(foto\ \ original) \neq \mathcal P_{rugas}(foto\ \ filtrada)$ e $|rugas\ \ foto \ \ filtrada|\ll|rugas\ \ foto \ \ original| $. O símbolo $|.|$ significa que estamos contando o número de rugas da foto, do conjunto de rugas, e $\ll$ significa muito menor.&lt;/p>
 &lt;p>Da mesma maneira que no caso de fotos, se temos um grafo, $G$, queremos que sua versão filtrada, $\tilde G$, tenha uma ou mais propriedades (definido de antemão) preservadas após efetuar a filtragem, isto é
 $$
 \mathcal P_{algo} (G) \sim \mathcal P_{algo} (\tilde G)
 $$&lt;/p>
-&lt;p>Sendo que o objetivo principal costuma ser uma redução drástica no número de relações (arestas), $|E| \le |\tilde E|$. OK, então antes de entrar nos métodos de filtragem precisamos discorrer sobre quais seriam essas propriedades que queremos preservar.&lt;/p>
+&lt;p>Sendo que o objetivo principal costuma ser uma redução drástica no número de relações (arestas), $|\tilde E| \le |E|$. OK, então antes de entrar nos métodos de filtragem precisamos discorrer sobre quais seriam essas propriedades que queremos preservar.&lt;/p>
 &lt;div class="alert alert-note">
 &lt;div>
 &lt;p>Diferente de uma imagem em que filtros só ocorrem nos valores definidos na posição dos pixels em um grafo, podemos filtrar tanto os valores definidos nos vértices/arestas quanto a própria estrutura do grafo em si.&lt;/p>

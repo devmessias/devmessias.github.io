@@ -40,13 +40,10 @@ class="toc-inpage d-print-none d-none d-sm-block d-md-none " open>
 &lt;p>Esse post é da série sobre filtragem em grafos (esparsificação). O post anterior pode ser acessado em:
 &lt;a href="/pt-br/post/edge_graph_filtering/" title="Grafos e filtragem de arestas I: conceitos e confusões.">Grafos e filtragem de arestas: conceitos e confusões.&lt;/a>.&lt;/p>
 &lt;p>O objetivo é mostrar como usar o modelo de bloco estocástico aninhado (nSBM) para o processo de análise exploratória do mercado de ações. O nSBM e SBM são modelos não-paramétricos estabelecidos numa sólida base estatística. Vou te ensinar na prática como usar eles no python e como analisar os outputs, que a primeira vista podem parecer artísticos ou complexos. Veja só:&lt;/p>
-&lt;figure id="figure-imagem-original-e-imagem-com-contaminação-de-um-ruído">
-&lt;a data-fancybox="" href="/pt-br/post/nsbm_sp500_stock_market_disparity_filter/nsbm_final_2018-01-01_2018-06-01_hudcff6362c16284ef400b42c5fe2e1b69_266080_0x500_resize_lanczos_2.png" data-caption="Imagem original e imagem com contaminação de um ruído.">
+&lt;figure >
+&lt;a data-fancybox="" href="/pt-br/post/nsbm_sp500_stock_market_disparity_filter/nsbm_final_2018-01-01_2018-06-01_hudcff6362c16284ef400b42c5fe2e1b69_266080_0x500_resize_lanczos_2.png" >
 &lt;img data-src="/pt-br/post/nsbm_sp500_stock_market_disparity_filter/nsbm_final_2018-01-01_2018-06-01_hudcff6362c16284ef400b42c5fe2e1b69_266080_0x500_resize_lanczos_2.png" class="lazyload" alt="" width="100%" height="500px">
 &lt;/a>
-&lt;figcaption>
-Imagem original e imagem com contaminação de um ruído.
-&lt;/figcaption>
 &lt;/figure>
 &lt;p>A ordem que seguiremos nesse post é:&lt;/p>
 &lt;ol>
@@ -87,9 +84,8 @@ Se você não tem a mais vaga ideia do que é um grafo, o que é um grafo conect
 &lt;/div>
 &lt;/div>
 &lt;p>Um grafo armazena objetos que têm relações pares a pares entre si. Sendo possível associar a cada objeto ou relação um outro tipo de dado genérico tais como um número real, um vetor ou mesmo outro grafo. Mas é importante ressaltar que grafos estão em todo lugar, por exemplo em matrizes de correlação. Portanto, usar grafos para analisar correlações é válido, especialmente quando muitas dessas correlações podem ou queremos que sejam descartadas.&lt;/p>
-&lt;!-- &lt;blockquote class="twitter-tweet">&lt;p lang="pt" dir="ltr">Até onde já estudei, toda estrutura de dados pode ser representada como um grafo. Nesse sentido, podemos dizer que o grafo é a &amp;quot;mãe&amp;quot; de todas as estruturas de dados. Talvez devêssemos dar mais foco a grafos nos cursos de EDs.&lt;/p>&amp;mdash; psiquiatra de computadores (🌳, 🌳) (@coproduto) &lt;a href="https://twitter.com/coproduto/status/1514562359007842310?ref_src=twsrc%5Etfw">April 14, 2022&lt;/a>&lt;/blockquote>
+&lt;blockquote class="twitter-tweet">&lt;p lang="pt" dir="ltr">Até onde já estudei, toda estrutura de dados pode ser representada como um grafo. Nesse sentido, podemos dizer que o grafo é a &amp;quot;mãe&amp;quot; de todas as estruturas de dados. Talvez devêssemos dar mais foco a grafos nos cursos de EDs.&lt;/p>&amp;mdash; psiquiatra de computadores (🌳, 🌳) (@coproduto) &lt;a href="https://twitter.com/coproduto/status/1514562359007842310?ref_src=twsrc%5Etfw">April 14, 2022&lt;/a>&lt;/blockquote>
 &lt;script async src="https://platform.twitter.com/widgets.js" charset="utf-8">&lt;/script>
--->
 &lt;h3 id="matrizes-de-correlação">Matrizes de correlação&lt;/h3>
 &lt;p>No &lt;em>OpenCode&lt;/em> matrizes de correlação já apareceram em diversos posts:&lt;/p>
 &lt;ul>
@@ -1874,12 +1870,13 @@ $$
 &amp;hellip;etc
 \end{eqnarray}
 $$
-Também espera-se que o ruído da câmera, rugas e imperfeições sejam reduzidas $\mathcal P_{rugas}(foto\ \ original) \neq \mathcal P_{rugas}(foto\ \ filtrada)$ e $|rugas\ \ foto \ \ original| \ll |rugas\ \ foto \ \ filtrada|$. O símbolo $|.|$ significa que estamos contando o número de rugas da foto, do conjunto de rugas, e $\ll$ significa muito menor.&lt;/p>
+Também espera-se que o ruído da câmera, rugas e imperfeições sejam reduzidas $\mathcal P_{rugas}(foto\ \ original) \neq \mathcal P_{rugas}(foto\ \ filtrada)$ e
+$|rugas\ \ foto \ \ filtrada|\ll|rugas\ \ foto \ \ original|. O símbolo $|.|$ significa que estamos contando o número de rugas da foto, do conjunto de rugas, e $\ll$ significa muito menor.&lt;/p>
 &lt;p>Da mesma maneira que no caso de fotos, se temos um grafo, $G$, queremos que sua versão filtrada, $\tilde G$, tenha uma ou mais propriedades (definido de antemão) preservadas após efetuar a filtragem, isto é
 $$
 \mathcal P_{algo} (G) \sim \mathcal P_{algo} (\tilde G)
 $$&lt;/p>
-&lt;p>Sendo que o objetivo principal costuma ser uma redução drástica no número de relações (arestas), $|E| \le |\tilde E|$. OK, então antes de entrar nos métodos de filtragem precisamos discorrer sobre quais seriam essas propriedades que queremos preservar.&lt;/p>
+&lt;p>Sendo que o objetivo principal costuma ser uma redução drástica no número de relações (arestas), $|\tilde E| \le |E|$. OK, então antes de entrar nos métodos de filtragem precisamos discorrer sobre quais seriam essas propriedades que queremos preservar.&lt;/p>
 &lt;div class="alert alert-note">
 &lt;div>
 &lt;p>Diferente de uma imagem em que filtros só ocorrem nos valores definidos na posição dos pixels em um grafo, podemos filtrar tanto os valores definidos nos vértices/arestas quanto a própria estrutura do grafo em si.&lt;/p>
