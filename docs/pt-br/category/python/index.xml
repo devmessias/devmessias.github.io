@@ -113,7 +113,7 @@ Se você não tem a mais vaga ideia do que é um grafo, o que é um grafo conect
 No final do post vou mostrar a mesma matriz analisada pelo MST só para você ter uma ideia do porquê o nSBM ser bem mais interessante.
 &lt;/div>
 &lt;/div>
-&lt;p>Uma das grandes qualidades dos SBM e variantes é que eles são construídos em cima de um arcabouço estatístico rigoroso e ao mesmo tempo é possível detectar comunidades com pouquíssimos vértices. Isso é ótimo, pois duas coisas que não queremos é que o método que escolhamos diga que certas coisas formam comunidades mesmo que não passe de um amontoado de coisas aleatórias e que ele bote coisas onde não devia só porque são pequenas demais, &lt;strong>isso é uma crítica aos métodos de detecção por maximização de modularidade presentes no Gelphi.&lt;/strong>&lt;/p>
+&lt;p>Uma das grandes qualidades dos SBM e variantes é que eles são construídos em cima de um arcabouço estatístico rigoroso e ao mesmo tempo é possível detectar comunidades com pouquíssimos vértices. Isso é ótimo, pois duas coisas que não queremos é que o método que escolhamos diga que certas coisas formam comunidades mesmo que não passe de um amontoado de coisas aleatórias e que ele bote coisas onde não devia só porque são pequenas demais, &lt;strong>isso é uma crítica aos métodos de detecção por maximização de modularidade.&lt;/strong>&lt;/p>
 &lt;h2 id="baixando-e-criando-nosso-grafo">Baixando e criando nosso grafo&lt;/h2>
 &lt;h3 id="extraindo-o-preço-de-fechamento">Extraindo o preço de fechamento&lt;/h3>
 &lt;p>Vamos começar importando o que for necessário&lt;/p>
@@ -459,7 +459,8 @@ plt.show()
 MST para ativos do S&amp;amp;P500 no primeiro semestre de 2018
 &lt;/figcaption>
 &lt;/figure>
-&lt;p>Alguns padrões aparecem, mas o MST é muito menos rico de informações que o nSBM, exploraremos as vantagens do MST em próximos posts.&lt;/p></description></item><item><title>Metaprogramação em Python com ASTs: criando um decorador com introspecção</title><link>/pt-br/post/python_ast_metaprogramming_with_introspection_and_decorators/</link><pubDate>Mon, 11 Apr 2022 00:00:00 +0000</pubDate><guid>/pt-br/post/python_ast_metaprogramming_with_introspection_and_decorators/</guid><description>&lt;details
+&lt;p>Alguns padrões aparecem, mas o MST é muito menos rico de informações que o nSBM,
+exploraremos mais essas vantagens em posteriormente.&lt;/p></description></item><item><title>Metaprogramação em Python com ASTs: criando um decorador com introspecção</title><link>/pt-br/post/python_ast_metaprogramming_with_introspection_and_decorators/</link><pubDate>Mon, 11 Apr 2022 00:00:00 +0000</pubDate><guid>/pt-br/post/python_ast_metaprogramming_with_introspection_and_decorators/</guid><description>&lt;details
 class="toc-inpage d-print-none d-none d-sm-block d-md-none " open>
 &lt;summary class="font-weight-bold">Lista de Conteúdos&lt;/summary>
 &lt;nav id="TableOfContents">
