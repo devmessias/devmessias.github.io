@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>finanças | Bruno Messias</title><link>/tag/financas/</link><atom:link href="/tag/financas/index.xml" rel="self" type="application/rss+xml"/><description>finanças</description><generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>en</language><copyright>Bruno Messias</copyright><lastBuildDate>Mon, 18 Apr 2022 00:00:00 +0000</lastBuildDate><image><url>/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_2.png</url><title>finanças</title><link>/tag/financas/</link></image><item><title>Grafos e modelo de blocos aninhados para matrizes de correlação: clusterização do mercado de ações [Rascunho]</title><link>/post/nsbm_sp500_stock_market_disparity_filter/</link><pubDate>Mon, 18 Apr 2022 00:00:00 +0000</pubDate><guid>/post/nsbm_sp500_stock_market_disparity_filter/</guid><description>&lt;details
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>finanças | Bruno Messias</title><link>/tag/financas/</link><atom:link href="/tag/financas/index.xml" rel="self" type="application/rss+xml"/><description>finanças</description><generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>en</language><copyright>Bruno Messias</copyright><lastBuildDate>Mon, 18 Apr 2022 00:00:00 +0000</lastBuildDate><image><url>/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_2.png</url><title>finanças</title><link>/tag/financas/</link></image><item><title>Grafos e modelo de blocos aninhados para matrizes de correlação: clusterização do mercado de ações [Draft]</title><link>/post/nsbm_sp500_stock_market_disparity_filter/</link><pubDate>Mon, 18 Apr 2022 00:00:00 +0000</pubDate><guid>/post/nsbm_sp500_stock_market_disparity_filter/</guid><description>&lt;details
 class="toc-inpage d-print-none d-none d-sm-block d-md-none " open>
 &lt;summary class="font-weight-bold">Table of Contents&lt;/summary>
 &lt;nav id="TableOfContents">
@@ -23,6 +23,7 @@ class="toc-inpage d-print-none d-none d-sm-block d-md-none " open>
 &lt;li>&lt;a href="#convertendo-o-igraph-em-graph-tool">Convertendo o iGraph em graph-tool&lt;/a>&lt;/li>
 &lt;li>&lt;a href="#inferência-dos-blocos">Inferência dos blocos&lt;/a>&lt;/li>
 &lt;li>&lt;a href="#como-analisar">Como analisar?&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#outras-aplicações-de-nsbm">Outras aplicações de nSBM&lt;/a>&lt;/li>
 &lt;/ul>
 &lt;/li>
 &lt;li>&lt;a href="#extras-mst">Extras: MST&lt;/a>
@@ -384,6 +385,19 @@ r3 = state.levels[3].get_blocks()[r2]
 &lt;pre>&lt;code>(19, 0, 0)
 &lt;/code>&lt;/pre>
 &lt;p>Você pode explorar as comunidades usando essa abordagem. Contudo, eu recomendo você usar o THREE.js ou D3 para realizar essa exploração. Futuramente disponibilizarei meu código para permitir uma visualização interativa do nsbm usando threejs direto no browser!&lt;/p>
+&lt;h3 id="outras-aplicações-de-nsbm">Outras aplicações de nSBM&lt;/h3>
+&lt;p>nSBM&amp;rsquo;s e SBM&amp;rsquo;s encontram diversas aplicações como
+&lt;a href="https://www.science.org/doi/10.1126/sciadv.aaq1360" target="_blank" rel="noopener">NLP&lt;/a> e em um trabalho recente meu em análise de
+&lt;a href="https://arxiv.org/abs/2110.01421" target="_blank" rel="noopener">surveys&lt;/a>.
+&lt;figure id="figure-um-jaba-próprio-nsbm-do-censo-escolar-pense">
+&lt;a data-fancybox="" href="/post/nsbm_sp500_stock_market_disparity_filter/allDummyAUC_alpha=0-05_hu1c20d905c5634e6a84f02ee440a1f7e5_1616945_0x400_resize_lanczos_2.png" data-caption="Um jaba próprio. nSBM do censo escolar PeNSE.">
+&lt;img src="/post/nsbm_sp500_stock_market_disparity_filter/allDummyAUC_alpha=0-05_hu1c20d905c5634e6a84f02ee440a1f7e5_1616945_0x400_resize_lanczos_2.png" alt="" height="400px">
+&lt;/a>
+&lt;figcaption>
+Um jaba próprio. nSBM do censo escolar PeNSE.
+&lt;/figcaption>
+&lt;/figure>
+&lt;/p>
 &lt;h2 id="extras-mst">Extras: MST&lt;/h2>
 &lt;p>Eu prometi mostrar como ficaria o mesmo universo de dados usando MST (árvores de expansão mínima). A intuição por trás do MST é que queremos construir um grafo esparso de um grafo original, tal que as somas dos pesos das arestas seja a menor possível sem desconectar os vértices do grafo. Veja mais aprofundado
 &lt;a href="https://hudsonthames.org/networks-with-mlfinlab-minimum-spanning-tree-mst/" target="_blank" rel="noopener">aqui&lt;/a>.&lt;/p>
