@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Grafos | Bruno Messias</title><link>/pt-br/category/grafos/</link><atom:link href="/pt-br/category/grafos/index.xml" rel="self" type="application/rss+xml"/><description>Grafos</description><generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>pt-br</language><copyright>Bruno Messias</copyright><lastBuildDate>Mon, 18 Apr 2022 00:00:00 +0000</lastBuildDate><image><url>/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_2.png</url><title>Grafos</title><link>/pt-br/category/grafos/</link></image><item><title>Grafos e modelo de blocos aninhados para matrizes de correlação: clusterização do mercado de ações</title><link>/pt-br/post/nsbm_sp500_stock_market_disparity_filter/</link><pubDate>Mon, 18 Apr 2022 00:00:00 +0000</pubDate><guid>/pt-br/post/nsbm_sp500_stock_market_disparity_filter/</guid><description>&lt;details
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Grafos | Bruno Messias</title><link>/pt-br/category/grafos/</link><atom:link href="/pt-br/category/grafos/index.xml" rel="self" type="application/rss+xml"/><description>Grafos</description><generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>pt-br</language><copyright>Bruno Messias</copyright><lastBuildDate>Mon, 18 Apr 2022 00:00:00 +0000</lastBuildDate><image><url>/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_3.png</url><title>Grafos</title><link>/pt-br/category/grafos/</link></image><item><title>Grafos e modelo de blocos aninhados para matrizes de correlação: clusterização do mercado de ações</title><link>/pt-br/post/nsbm_sp500_stock_market_disparity_filter/</link><pubDate>Mon, 18 Apr 2022 00:00:00 +0000</pubDate><guid>/pt-br/post/nsbm_sp500_stock_market_disparity_filter/</guid><description>&lt;details
 class="toc-inpage d-print-none d-none d-sm-block d-md-none " open>
 &lt;summary class="font-weight-bold">Lista de Conteúdos&lt;/summary>
 &lt;nav id="TableOfContents">
@@ -43,8 +43,8 @@ class="toc-inpage d-print-none d-none d-sm-block d-md-none " open>
 &lt;a href="/pt-br/post/edge_graph_filtering/" title="Grafos e filtragem de arestas I: conceitos e confusões.">Grafos e filtragem de arestas: conceitos e confusões.&lt;/a>&lt;/p>
 &lt;p>O objetivo é mostrar como usar o modelo de bloco estocástico aninhado (nSBM) para o processo de análise exploratória do mercado de ações. O nSBM e SBM são modelos não-paramétricos estabelecidos numa sólida base estatística. Vou te ensinar na prática como usar eles no python e como analisar os outputs, que a primeira vista podem parecer artísticos ou complexos. Veja só:&lt;/p>
 &lt;figure >
-&lt;a data-fancybox="" href="/pt-br/post/nsbm_sp500_stock_market_disparity_filter/nsbm_final_2018-01-01_2018-06-01_hudcff6362c16284ef400b42c5fe2e1b69_266080_0x500_resize_lanczos_2.png" >
-&lt;img data-src="/pt-br/post/nsbm_sp500_stock_market_disparity_filter/nsbm_final_2018-01-01_2018-06-01_hudcff6362c16284ef400b42c5fe2e1b69_266080_0x500_resize_lanczos_2.png" class="lazyload" alt="" width="100%" height="500px">
+&lt;a data-fancybox="" href="/pt-br/post/nsbm_sp500_stock_market_disparity_filter/nsbm_final_2018-01-01_2018-06-01_hudcff6362c16284ef400b42c5fe2e1b69_266080_0x500_resize_lanczos_3.png" >
+&lt;img data-src="/pt-br/post/nsbm_sp500_stock_market_disparity_filter/nsbm_final_2018-01-01_2018-06-01_hudcff6362c16284ef400b42c5fe2e1b69_266080_0x500_resize_lanczos_3.png" class="lazyload" alt="" width="100%" height="500px">
 &lt;/a>
 &lt;/figure>
 &lt;p>A ordem que seguiremos nesse post é:&lt;/p>
@@ -81,7 +81,7 @@ class="toc-inpage d-print-none d-none d-sm-block d-md-none " open>
 &lt;p>Um exemplo de conjunto de dados extremamente complicado são as redes sociais. Redes sociais são conjuntos de pessoas e a existência de pelo menos relações pares a pares (hyper-grafos é um assunto para outro post) podendo ser negativas, positivas ou algo mais complicado. Cada pessoa em uma rede social pode ser identificada por um conjunto de features tais como gostos pessoais, horário de uso do sistema, etc. Representar uma rede social por pontinhos é reducionista. É para isso que grafos podem ser empregados&lt;/p>
 &lt;h3 id="grafos">Grafos&lt;/h3>
 &lt;p>Um grafo armazena objetos que têm relações pares a pares entre si. Sendo possível associar a cada objeto ou relação um outro tipo de dado genérico tais como um número real, um vetor ou mesmo outro grafo. Mas é importante ressaltar que grafos estão em todo lugar, por exemplo em matrizes de correlação. Portanto, usar grafos para analisar correlações é válido, especialmente quando muitas dessas correlações podem ou queremos que sejam descartadas.&lt;/p>
-&lt;blockquote class="twitter-tweet">&lt;p lang="pt" dir="ltr">Até onde já estudei, toda estrutura de dados pode ser representada como um grafo. Nesse sentido, podemos dizer que o grafo é a &amp;quot;mãe&amp;quot; de todas as estruturas de dados. Talvez devêssemos dar mais foco a grafos nos cursos de EDs.&lt;/p>&amp;mdash; psiquiatra de computadores (🌳, 🌳) (@coproduto) &lt;a href="https://twitter.com/coproduto/status/1514562359007842310?ref_src=twsrc%5Etfw">April 14, 2022&lt;/a>&lt;/blockquote>
+&lt;blockquote class="twitter-tweet">&lt;p lang="pt" dir="ltr">Até onde já estudei, toda estrutura de dados pode ser representada como um grafo. Nesse sentido, podemos dizer que o grafo é a &amp;quot;mãe&amp;quot; de todas as estruturas de dados. Talvez devêssemos dar mais foco a grafos nos cursos de EDs.&lt;/p>&amp;mdash; o polvo da empresa do potinho (@coproduto) &lt;a href="https://twitter.com/coproduto/status/1514562359007842310?ref_src=twsrc%5Etfw">April 14, 2022&lt;/a>&lt;/blockquote>
 &lt;script async src="https://platform.twitter.com/widgets.js" charset="utf-8">&lt;/script>
 &lt;h3 id="matrizes-de-correlação">Matrizes de correlação&lt;/h3>
 &lt;p>No &lt;em>OpenCode&lt;/em> matrizes de correlação já apareceram em diversos posts:&lt;/p>
@@ -214,8 +214,8 @@ plt.savefig(&amp;quot;correlation.png&amp;quot;, dpi=150)
 plt.clf()
 &lt;/code>&lt;/pre>
 &lt;figure id="figure-matriz-de-correlação-entre-ativos-do-sp500-para-o-primeiro-semestre-de-2018-sim-uma-bagunça">
-&lt;a data-fancybox="" href="/pt-br/post/nsbm_sp500_stock_market_disparity_filter/correlation_hu6c68fc9d1aa2b5f7307017b57ffa4d90_521823_0x500_resize_lanczos_2.png" data-caption="Matriz de correlação entre ativos do s&amp;amp;amp;p500 para o primeiro semestre de 2018. Sim, uma bagunça!">
-&lt;img data-src="/pt-br/post/nsbm_sp500_stock_market_disparity_filter/correlation_hu6c68fc9d1aa2b5f7307017b57ffa4d90_521823_0x500_resize_lanczos_2.png" class="lazyload" alt="" width="100%" height="500px">
+&lt;a data-fancybox="" href="/pt-br/post/nsbm_sp500_stock_market_disparity_filter/correlation_hu6c68fc9d1aa2b5f7307017b57ffa4d90_521823_0x500_resize_lanczos_3.png" data-caption="Matriz de correlação entre ativos do s&amp;amp;amp;p500 para o primeiro semestre de 2018. Sim, uma bagunça!">
+&lt;img data-src="/pt-br/post/nsbm_sp500_stock_market_disparity_filter/correlation_hu6c68fc9d1aa2b5f7307017b57ffa4d90_521823_0x500_resize_lanczos_3.png" class="lazyload" alt="" width="100%" height="500px">
 &lt;/a>
 &lt;figcaption>
 Matriz de correlação entre ativos do s&amp;amp;p500 para o primeiro semestre de 2018. Sim, uma bagunça!
@@ -325,8 +325,8 @@ dpi=150, bbox_extra_artists=(legend,), facecolor='w', edgecolor='w')
 plt.show()
 &lt;/code>&lt;/pre>
 &lt;figure id="figure-resultado-do-modelo-de-blocos-aninhados-para-o-primeiro-semestre-de-2018-de-ativos-do-sp500-artístico">
-&lt;a data-fancybox="" href="/pt-br/post/nsbm_sp500_stock_market_disparity_filter/nsbm_final_2018-01-01_2018-06-01_hudcff6362c16284ef400b42c5fe2e1b69_266080_0x500_resize_lanczos_2.png" data-caption="Resultado do modelo de blocos aninhados para o primeiro semestre de 2018 de ativos do s&amp;amp;amp;p500. Artístico?">
-&lt;img data-src="/pt-br/post/nsbm_sp500_stock_market_disparity_filter/nsbm_final_2018-01-01_2018-06-01_hudcff6362c16284ef400b42c5fe2e1b69_266080_0x500_resize_lanczos_2.png" class="lazyload" alt="" width="100%" height="500px">
+&lt;a data-fancybox="" href="/pt-br/post/nsbm_sp500_stock_market_disparity_filter/nsbm_final_2018-01-01_2018-06-01_hudcff6362c16284ef400b42c5fe2e1b69_266080_0x500_resize_lanczos_3.png" data-caption="Resultado do modelo de blocos aninhados para o primeiro semestre de 2018 de ativos do s&amp;amp;amp;p500. Artístico?">
+&lt;img data-src="/pt-br/post/nsbm_sp500_stock_market_disparity_filter/nsbm_final_2018-01-01_2018-06-01_hudcff6362c16284ef400b42c5fe2e1b69_266080_0x500_resize_lanczos_3.png" class="lazyload" alt="" width="100%" height="500px">
 &lt;/a>
 &lt;figcaption>
 Resultado do modelo de blocos aninhados para o primeiro semestre de 2018 de ativos do s&amp;amp;p500. Artístico?
@@ -335,8 +335,8 @@ Resultado do modelo de blocos aninhados para o primeiro semestre de 2018 de ativ
 &lt;p>Ok, muito bonito! Conseguimos ver agrupamentos de certos setores, algumas misturas, muitas conexões entre o &lt;em>Financials&lt;/em> e &lt;em>Industrials&lt;/em>, etc. Se você não consegue ver isso agora vou tentar te explicar como interpretar esse gráfico.&lt;/p>
 &lt;h3 id="como-analisar">Como analisar?&lt;/h3>
 &lt;figure >
-&lt;a data-fancybox="" href="/pt-br/post/nsbm_sp500_stock_market_disparity_filter/descripition_nsbm_sp500_hufe6166112f10aa58541f55447fe95bbb_1458779_0x500_resize_lanczos_2.png" >
-&lt;img data-src="/pt-br/post/nsbm_sp500_stock_market_disparity_filter/descripition_nsbm_sp500_hufe6166112f10aa58541f55447fe95bbb_1458779_0x500_resize_lanczos_2.png" class="lazyload" alt="" width="100%" height="500px">
+&lt;a data-fancybox="" href="/pt-br/post/nsbm_sp500_stock_market_disparity_filter/descripition_nsbm_sp500_hufe6166112f10aa58541f55447fe95bbb_1458779_0x500_resize_lanczos_3.png" >
+&lt;img data-src="/pt-br/post/nsbm_sp500_stock_market_disparity_filter/descripition_nsbm_sp500_hufe6166112f10aa58541f55447fe95bbb_1458779_0x500_resize_lanczos_3.png" class="lazyload" alt="" width="100%" height="500px">
 &lt;/a>
 &lt;/figure>
 &lt;ul>
@@ -350,8 +350,8 @@ Uma coisa interessante que podemos observar é que a maior parte dos ativos rela
 Ok, antes eu falei que o $\beta$ controla o efeito de atração entre as arestas, veja o que acontece se eu reduzir o $\beta$ para $0.5$:&lt;/li>
 &lt;/ul>
 &lt;figure id="figure-horrível-não-é-mesmo">
-&lt;a data-fancybox="" href="/pt-br/post/nsbm_sp500_stock_market_disparity_filter/nsbm_2018-01-01_2018-06-01_beta_0.5_hu63a031e361e4cd7a15f51f9db9995b63_1589031_0x400_resize_lanczos_2.png" data-caption="Horrível não é mesmo?">
-&lt;img src="/pt-br/post/nsbm_sp500_stock_market_disparity_filter/nsbm_2018-01-01_2018-06-01_beta_0.5_hu63a031e361e4cd7a15f51f9db9995b63_1589031_0x400_resize_lanczos_2.png" alt="" height="400px">
+&lt;a data-fancybox="" href="/pt-br/post/nsbm_sp500_stock_market_disparity_filter/nsbm_2018-01-01_2018-06-01_beta_0.5_hu63a031e361e4cd7a15f51f9db9995b63_1589031_0x400_resize_lanczos_3.png" data-caption="Horrível não é mesmo?">
+&lt;img src="/pt-br/post/nsbm_sp500_stock_market_disparity_filter/nsbm_2018-01-01_2018-06-01_beta_0.5_hu63a031e361e4cd7a15f51f9db9995b63_1589031_0x400_resize_lanczos_3.png" alt="" height="400px">
 &lt;/a>
 &lt;figcaption>
 Horrível não é mesmo?
@@ -391,8 +391,8 @@ r3 = state.levels[3].get_blocks()[r2]
 &lt;a href="https://www.science.org/doi/10.1126/sciadv.aaq1360" target="_blank" rel="noopener">NLP&lt;/a> e em um trabalho recente meu em análise de
 &lt;a href="https://arxiv.org/abs/2110.01421" target="_blank" rel="noopener">surveys&lt;/a>.
 &lt;figure id="figure-um-jaba-próprio-nsbm-do-censo-escolar-pense">
-&lt;a data-fancybox="" href="/pt-br/post/nsbm_sp500_stock_market_disparity_filter/allDummyAUC_alpha=0-05_hu1c20d905c5634e6a84f02ee440a1f7e5_1616945_0x400_resize_lanczos_2.png" data-caption="Um jaba próprio. nSBM do censo escolar PeNSE.">
-&lt;img src="/pt-br/post/nsbm_sp500_stock_market_disparity_filter/allDummyAUC_alpha=0-05_hu1c20d905c5634e6a84f02ee440a1f7e5_1616945_0x400_resize_lanczos_2.png" alt="" height="400px">
+&lt;a data-fancybox="" href="/pt-br/post/nsbm_sp500_stock_market_disparity_filter/allDummyAUC_alpha=0-05_hu1c20d905c5634e6a84f02ee440a1f7e5_1616945_0x400_resize_lanczos_3.png" data-caption="Um jaba próprio. nSBM do censo escolar PeNSE.">
+&lt;img src="/pt-br/post/nsbm_sp500_stock_market_disparity_filter/allDummyAUC_alpha=0-05_hu1c20d905c5634e6a84f02ee440a1f7e5_1616945_0x400_resize_lanczos_3.png" alt="" height="400px">
 &lt;/a>
 &lt;figcaption>
 Um jaba próprio. nSBM do censo escolar PeNSE.
@@ -460,8 +460,8 @@ plt.savefig(f'mst_{start_date}_{end_date}.png', bbox_inches='tight',)
 plt.show()
 &lt;/code>&lt;/pre>
 &lt;figure id="figure-mst-para-ativos-do-sp500-no-primeiro-semestre-de-2018">
-&lt;a data-fancybox="" href="/pt-br/post/nsbm_sp500_stock_market_disparity_filter/mst_2018-01-01_2018-06-01_huc06590f539d2bf35f6546a367d158c6d_73932_0x500_resize_lanczos_2.png" data-caption="MST para ativos do S&amp;amp;amp;P500 no primeiro semestre de 2018">
-&lt;img data-src="/pt-br/post/nsbm_sp500_stock_market_disparity_filter/mst_2018-01-01_2018-06-01_huc06590f539d2bf35f6546a367d158c6d_73932_0x500_resize_lanczos_2.png" class="lazyload" alt="" width="100%" height="500px">
+&lt;a data-fancybox="" href="/pt-br/post/nsbm_sp500_stock_market_disparity_filter/mst_2018-01-01_2018-06-01_huc06590f539d2bf35f6546a367d158c6d_73932_0x500_resize_lanczos_3.png" data-caption="MST para ativos do S&amp;amp;amp;P500 no primeiro semestre de 2018">
+&lt;img data-src="/pt-br/post/nsbm_sp500_stock_market_disparity_filter/mst_2018-01-01_2018-06-01_huc06590f539d2bf35f6546a367d158c6d_73932_0x500_resize_lanczos_3.png" class="lazyload" alt="" width="100%" height="500px">
 &lt;/a>
 &lt;figcaption>
 MST para ativos do S&amp;amp;P500 no primeiro semestre de 2018
@@ -527,7 +527,7 @@ plt.close()
 &lt;p>Note na figura acima que o plot para a função $\frac{e^{-\frac{(x-\mu)^2}{2\sigma^2}}}{\sqrt(2\pi\sigma^2)}$ e o histograma coincidem. Você pode testar essa coincidência com outras distribuições, o mesmo comportamento se repetira. É isso que quero dizer com &lt;strong>universalidade&lt;/strong>.&lt;/p>
 &lt;p>Um questionamento válido é que estamos tratando apenas de uma variável aleatória e sua amostragem. Mas no mundo real existem outras estruturas mais intricadas. Por exemplo
 pegue um conjunto de variáveis aleatórias
-$\mathcal C=(X_{1 1}, X_{1 2}, \cdots, X_{N N})$, suponha que exista uma certa **simetria** nesse conjunto, uma possibilidade é $X_{i j} = X_{j i}$.
+$\mathcal C=(X_{1 1}, X_{1 2}, \cdots, X_{N N})$, suponha que exista uma certa &lt;strong>simetria&lt;/strong> nesse conjunto, uma possibilidade é $X_{i j} = X_{j i}$.
 Não é difícil imaginar situações onde tal conjunto apareça.&lt;/p>
 &lt;p>Podemos armazenar uma realização de $\mathcal C$ em uma matriz que nada mais é que um grafo completo com pesos. Ao estudar essas matrizes oriundas desse tipo de amostragem entramos em um novo campo da matemática, o campo das matrizes aleatórias.
 Nesse campo de estudos uma amostragem não retorna um número, mas sim uma matriz.&lt;/p>
@@ -897,9 +897,9 @@ $$
 onde $\mathbf D^{-1/2}$ é uma matriz diagonal com as entradas sendo os desvios padrão para cada serie de dados, isto é&lt;br>
 $$
 \begin{bmatrix}
-\sigma_{1} &amp;amp;0 &amp;amp;\cdots &amp;amp;0 \&lt;br>
-0 &amp;amp;\sigma_{2} &amp;amp;\cdots &amp;amp;0 \&lt;br>
-\vdots &amp;amp;\vdots &amp;amp;\ddots &amp;amp;\vdots \&lt;br>
+\sigma_{1} &amp;amp;0 &amp;amp;\cdots &amp;amp;0 \\
+0 &amp;amp;\sigma_{2} &amp;amp;\cdots &amp;amp;0 \\
+\vdots &amp;amp;\vdots &amp;amp;\ddots &amp;amp;\vdots \\
 0 &amp;amp;0 &amp;amp;\cdots &amp;amp;\sigma_{M} \end{bmatrix}
 $$&lt;/p>
 &lt;p>Discutimos uma maneira de obter uma matriz de correlação filtrada, $\mathbf{\tilde C}$, através de RMT,
@@ -992,19 +992,23 @@ plt.close()
 &lt;p>[2] Wigner, E.P., 1957. Statistical properties of real symmetric matrices with many dimensions (pp. 174-184). Princeton University.&lt;/p>
 &lt;/li>
 &lt;li>
-&lt;p>[4] “From Prime Numbers to Nuclear Physics and Beyond,” Institute for Advanced Study. &lt;a href="https://www.ias.edu/ideas/2013/primes-random-matrices">https://www.ias.edu/ideas/2013/primes-random-matrices&lt;/a> (accessed Sep. 30, 2020).&lt;/p>
+&lt;p>[4] “From Prime Numbers to Nuclear Physics and Beyond,” Institute for Advanced Study.
+&lt;a href="https://www.ias.edu/ideas/2013/primes-random-matrices" target="_blank" rel="noopener">https://www.ias.edu/ideas/2013/primes-random-matrices&lt;/a> (accessed Sep. 30, 2020).&lt;/p>
 &lt;/li>
 &lt;li>
-&lt;p>[5] “GUE hypothesis,” What’s new. &lt;a href="https://terrytao.wordpress.com/tag/gue-hypothesis/">https://terrytao.wordpress.com/tag/gue-hypothesis/&lt;/a> (accessed Nov. 22, 2021).&lt;/p>
+&lt;p>[5] “GUE hypothesis,” What’s new.
+&lt;a href="https://terrytao.wordpress.com/tag/gue-hypothesis/" target="_blank" rel="noopener">https://terrytao.wordpress.com/tag/gue-hypothesis/&lt;/a> (accessed Nov. 22, 2021).&lt;/p>
 &lt;/li>
 &lt;li>
 &lt;p>[6] R. Hudson and A. Gregoriou, “Calculating and Comparing Security Returns is Harder than you Think: A Comparison between Logarithmic and Simple Returns,” Social Science Research Network, Rochester, NY, SSRN Scholarly Paper ID 1549328, Feb. 2010. doi: 10.2139/ssrn.1549328.&lt;/p>
 &lt;/li>
 &lt;li>
-&lt;p>[7] A. Meucci, “Quant Nugget 2: Linear vs. Compounded Returns – Common Pitfalls in Portfolio Management,” Social Science Research Network, Rochester, NY, SSRN Scholarly Paper ID 1586656, May 2010. Accessed: Dec. 01, 2021. [Online]. Available: &lt;a href="https://papers.ssrn.com/abstract=1586656">https://papers.ssrn.com/abstract=1586656&lt;/a>&lt;/p>
+&lt;p>[7] A. Meucci, “Quant Nugget 2: Linear vs. Compounded Returns – Common Pitfalls in Portfolio Management,” Social Science Research Network, Rochester, NY, SSRN Scholarly Paper ID 1586656, May 2010. Accessed: Dec. 01, 2021. [Online]. Available:
+&lt;a href="https://papers.ssrn.com/abstract=1586656" target="_blank" rel="noopener">https://papers.ssrn.com/abstract=1586656&lt;/a>&lt;/p>
 &lt;/li>
 &lt;li>
-&lt;p>[8] Lidian, “Analysis on Stocks: Log(1+return) or Simple Return?,” Medium, Sep. 18, 2020. &lt;a href="https://medium.com/@huangchingchiu/analysis-on-stocks-log-1-return-or-simple-return-371c3f60fab2">https://medium.com/@huangchingchiu/analysis-on-stocks-log-1-return-or-simple-return-371c3f60fab2&lt;/a> (accessed Nov. 25, 2021).&lt;/p>
+&lt;p>[8] Lidian, “Analysis on Stocks: Log(1+return) or Simple Return?,” Medium, Sep. 18, 2020.
+&lt;a href="https://medium.com/@huangchingchiu/analysis-on-stocks-log-1-return-or-simple-return-371c3f60fab2" target="_blank" rel="noopener">https://medium.com/@huangchingchiu/analysis-on-stocks-log-1-return-or-simple-return-371c3f60fab2&lt;/a> (accessed Nov. 25, 2021).&lt;/p>
 &lt;/li>
 &lt;li>
 &lt;p>[9] N. A. Eterovic and D. S. Eterovic, “Separating the Wheat from the Chaff: Understanding Portfolio Returns in an Emerging Market,” Social Science Research Network, Rochester, NY, SSRN Scholarly Paper ID 2161646, Oct. 2012. doi: 10.2139/ssrn.2161646.&lt;/p>
@@ -1022,15 +1026,19 @@ plt.close()
 &lt;p>[14] L. Sandoval, A. B. Bortoluzzo, and M. K. Venezuela, “Not all that glitters is RMT in the forecasting of risk of portfolios in the Brazilian stock market,” Physica A: Statistical Mechanics and its Applications, vol. 410, pp. 94–109, Sep. 2014, doi: 10.1016/j.physa.2014.05.006.&lt;/p>
 &lt;/li>
 &lt;li>
-&lt;p>[15] M. E. A. Seddik, C. Louart, M. Tamaazousti, and R. Couillet, “Random Matrix Theory Proves that Deep Learning Representations of GAN-data Behave as Gaussian Mixtures,” arXiv:2001.08370 [cs, stat], Jan. 2020, Accessed: Dec. 05, 2021. [Online]. Available: &lt;a href="http://arxiv.org/abs/2001.08370">http://arxiv.org/abs/2001.08370&lt;/a>&lt;/p>
+&lt;p>[15] M. E. A. Seddik, C. Louart, M. Tamaazousti, and R. Couillet, “Random Matrix Theory Proves that Deep Learning Representations of GAN-data Behave as Gaussian Mixtures,” arXiv:2001.08370 [cs, stat], Jan. 2020, Accessed: Dec. 05, 2021. [Online]. Available:
+&lt;a href="http://arxiv.org/abs/2001.08370" target="_blank" rel="noopener">http://arxiv.org/abs/2001.08370&lt;/a>&lt;/p>
 &lt;/li>
 &lt;li>
-&lt;p>[16] D. B. Aires, “Análise de crises financeiras brasileiras usando teoria das matrizes aleatórias,” Universidade Estadual Paulista (Unesp), 2021. Accessed: Dec. 05, 2021. [Online]. Available: &lt;a href="https://repositorio.unesp.br/handle/11449/204550">https://repositorio.unesp.br/handle/11449/204550&lt;/a>&lt;/p>
+&lt;p>[16] D. B. Aires, “Análise de crises financeiras brasileiras usando teoria das matrizes aleatórias,” Universidade Estadual Paulista (Unesp), 2021. Accessed: Dec. 05, 2021. [Online]. Available:
+&lt;a href="https://repositorio.unesp.br/handle/11449/204550" target="_blank" rel="noopener">https://repositorio.unesp.br/handle/11449/204550&lt;/a>&lt;/p>
 &lt;/li>
 &lt;li>
-&lt;p>[17] S. Rome, “Eigen-vesting II. Optimize Your Portfolio With Optimization,” Scott Rome, Mar. 22, 2016. &lt;a href="http://srome.github.io//Eigenvesting-II-Optimize-Your-Portfolio-With-Optimization/">http://srome.github.io//Eigenvesting-II-Optimize-Your-Portfolio-With-Optimization/&lt;/a> (accessed Dec. 05, 2021).&lt;/p>
+&lt;p>[17] S. Rome, “Eigen-vesting II. Optimize Your Portfolio With Optimization,” Scott Rome, Mar. 22, 2016.
+&lt;a href="http://srome.github.io//Eigenvesting-II-Optimize-Your-Portfolio-With-Optimization/" target="_blank" rel="noopener">http://srome.github.io//Eigenvesting-II-Optimize-Your-Portfolio-With-Optimization/&lt;/a> (accessed Dec. 05, 2021).&lt;/p>
 &lt;/li>
 &lt;li>
-&lt;p>[18] “11.1 Portfolio Optimization — MOSEK Fusion API for Python 9.3.10.” &lt;a href="https://docs.mosek.com/latest/pythonfusion/case-studies-portfolio.html">https://docs.mosek.com/latest/pythonfusion/case-studies-portfolio.html&lt;/a> (accessed Dec. 05, 2021).&lt;/p>
+&lt;p>[18] “11.1 Portfolio Optimization — MOSEK Fusion API for Python 9.3.10.”
+&lt;a href="https://docs.mosek.com/latest/pythonfusion/case-studies-portfolio.html" target="_blank" rel="noopener">https://docs.mosek.com/latest/pythonfusion/case-studies-portfolio.html&lt;/a> (accessed Dec. 05, 2021).&lt;/p>
 &lt;/li>
 &lt;/ul></description></item></channel></rss>

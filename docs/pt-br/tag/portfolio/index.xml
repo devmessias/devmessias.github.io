@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>portfolio | Bruno Messias</title><link>/pt-br/tag/portfolio/</link><atom:link href="/pt-br/tag/portfolio/index.xml" rel="self" type="application/rss+xml"/><description>portfolio</description><generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>pt-br</language><copyright>Bruno Messias</copyright><lastBuildDate>Mon, 06 Dec 2021 00:00:00 +0000</lastBuildDate><image><url>/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_2.png</url><title>portfolio</title><link>/pt-br/tag/portfolio/</link></image><item><title>Variações do teorema central do limite para matrizes aleatórias.</title><link>/pt-br/post/random_matrix_portfolio/</link><pubDate>Mon, 06 Dec 2021 00:00:00 +0000</pubDate><guid>/pt-br/post/random_matrix_portfolio/</guid><description>&lt;blockquote>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>portfolio | Bruno Messias</title><link>/pt-br/tag/portfolio/</link><atom:link href="/pt-br/tag/portfolio/index.xml" rel="self" type="application/rss+xml"/><description>portfolio</description><generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>pt-br</language><copyright>Bruno Messias</copyright><lastBuildDate>Mon, 06 Dec 2021 00:00:00 +0000</lastBuildDate><image><url>/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_3.png</url><title>portfolio</title><link>/pt-br/tag/portfolio/</link></image><item><title>Variações do teorema central do limite para matrizes aleatórias.</title><link>/pt-br/post/random_matrix_portfolio/</link><pubDate>Mon, 06 Dec 2021 00:00:00 +0000</pubDate><guid>/pt-br/post/random_matrix_portfolio/</guid><description>&lt;blockquote>
 &lt;p>Disponível em
 &lt;a href="https://opencodecom.net/post/2021-12-14-variacoes-do-teorema-central-do-limite-para-matrizes-aleatorias-de-nucleos-atomicos-a-filtragem-de-matrizes-de-correlaca/" target="_blank" rel="noopener">https://opencodecom.net/&lt;/a>&lt;/p>
 &lt;/blockquote>
@@ -54,7 +54,7 @@ plt.close()
 &lt;p>Note na figura acima que o plot para a função $\frac{e^{-\frac{(x-\mu)^2}{2\sigma^2}}}{\sqrt(2\pi\sigma^2)}$ e o histograma coincidem. Você pode testar essa coincidência com outras distribuições, o mesmo comportamento se repetira. É isso que quero dizer com &lt;strong>universalidade&lt;/strong>.&lt;/p>
 &lt;p>Um questionamento válido é que estamos tratando apenas de uma variável aleatória e sua amostragem. Mas no mundo real existem outras estruturas mais intricadas. Por exemplo
 pegue um conjunto de variáveis aleatórias
-$\mathcal C=(X_{1 1}, X_{1 2}, \cdots, X_{N N})$, suponha que exista uma certa **simetria** nesse conjunto, uma possibilidade é $X_{i j} = X_{j i}$.
+$\mathcal C=(X_{1 1}, X_{1 2}, \cdots, X_{N N})$, suponha que exista uma certa &lt;strong>simetria&lt;/strong> nesse conjunto, uma possibilidade é $X_{i j} = X_{j i}$.
 Não é difícil imaginar situações onde tal conjunto apareça.&lt;/p>
 &lt;p>Podemos armazenar uma realização de $\mathcal C$ em uma matriz que nada mais é que um grafo completo com pesos. Ao estudar essas matrizes oriundas desse tipo de amostragem entramos em um novo campo da matemática, o campo das matrizes aleatórias.
 Nesse campo de estudos uma amostragem não retorna um número, mas sim uma matriz.&lt;/p>
@@ -424,9 +424,9 @@ $$
 onde $\mathbf D^{-1/2}$ é uma matriz diagonal com as entradas sendo os desvios padrão para cada serie de dados, isto é&lt;br>
 $$
 \begin{bmatrix}
-\sigma_{1} &amp;amp;0 &amp;amp;\cdots &amp;amp;0 \&lt;br>
-0 &amp;amp;\sigma_{2} &amp;amp;\cdots &amp;amp;0 \&lt;br>
-\vdots &amp;amp;\vdots &amp;amp;\ddots &amp;amp;\vdots \&lt;br>
+\sigma_{1} &amp;amp;0 &amp;amp;\cdots &amp;amp;0 \\
+0 &amp;amp;\sigma_{2} &amp;amp;\cdots &amp;amp;0 \\
+\vdots &amp;amp;\vdots &amp;amp;\ddots &amp;amp;\vdots \\
 0 &amp;amp;0 &amp;amp;\cdots &amp;amp;\sigma_{M} \end{bmatrix}
 $$&lt;/p>
 &lt;p>Discutimos uma maneira de obter uma matriz de correlação filtrada, $\mathbf{\tilde C}$, através de RMT,
@@ -519,19 +519,23 @@ plt.close()
 &lt;p>[2] Wigner, E.P., 1957. Statistical properties of real symmetric matrices with many dimensions (pp. 174-184). Princeton University.&lt;/p>
 &lt;/li>
 &lt;li>
-&lt;p>[4] “From Prime Numbers to Nuclear Physics and Beyond,” Institute for Advanced Study. &lt;a href="https://www.ias.edu/ideas/2013/primes-random-matrices">https://www.ias.edu/ideas/2013/primes-random-matrices&lt;/a> (accessed Sep. 30, 2020).&lt;/p>
+&lt;p>[4] “From Prime Numbers to Nuclear Physics and Beyond,” Institute for Advanced Study.
+&lt;a href="https://www.ias.edu/ideas/2013/primes-random-matrices" target="_blank" rel="noopener">https://www.ias.edu/ideas/2013/primes-random-matrices&lt;/a> (accessed Sep. 30, 2020).&lt;/p>
 &lt;/li>
 &lt;li>
-&lt;p>[5] “GUE hypothesis,” What’s new. &lt;a href="https://terrytao.wordpress.com/tag/gue-hypothesis/">https://terrytao.wordpress.com/tag/gue-hypothesis/&lt;/a> (accessed Nov. 22, 2021).&lt;/p>
+&lt;p>[5] “GUE hypothesis,” What’s new.
+&lt;a href="https://terrytao.wordpress.com/tag/gue-hypothesis/" target="_blank" rel="noopener">https://terrytao.wordpress.com/tag/gue-hypothesis/&lt;/a> (accessed Nov. 22, 2021).&lt;/p>
 &lt;/li>
 &lt;li>
 &lt;p>[6] R. Hudson and A. Gregoriou, “Calculating and Comparing Security Returns is Harder than you Think: A Comparison between Logarithmic and Simple Returns,” Social Science Research Network, Rochester, NY, SSRN Scholarly Paper ID 1549328, Feb. 2010. doi: 10.2139/ssrn.1549328.&lt;/p>
 &lt;/li>
 &lt;li>
-&lt;p>[7] A. Meucci, “Quant Nugget 2: Linear vs. Compounded Returns – Common Pitfalls in Portfolio Management,” Social Science Research Network, Rochester, NY, SSRN Scholarly Paper ID 1586656, May 2010. Accessed: Dec. 01, 2021. [Online]. Available: &lt;a href="https://papers.ssrn.com/abstract=1586656">https://papers.ssrn.com/abstract=1586656&lt;/a>&lt;/p>
+&lt;p>[7] A. Meucci, “Quant Nugget 2: Linear vs. Compounded Returns – Common Pitfalls in Portfolio Management,” Social Science Research Network, Rochester, NY, SSRN Scholarly Paper ID 1586656, May 2010. Accessed: Dec. 01, 2021. [Online]. Available:
+&lt;a href="https://papers.ssrn.com/abstract=1586656" target="_blank" rel="noopener">https://papers.ssrn.com/abstract=1586656&lt;/a>&lt;/p>
 &lt;/li>
 &lt;li>
-&lt;p>[8] Lidian, “Analysis on Stocks: Log(1+return) or Simple Return?,” Medium, Sep. 18, 2020. &lt;a href="https://medium.com/@huangchingchiu/analysis-on-stocks-log-1-return-or-simple-return-371c3f60fab2">https://medium.com/@huangchingchiu/analysis-on-stocks-log-1-return-or-simple-return-371c3f60fab2&lt;/a> (accessed Nov. 25, 2021).&lt;/p>
+&lt;p>[8] Lidian, “Analysis on Stocks: Log(1+return) or Simple Return?,” Medium, Sep. 18, 2020.
+&lt;a href="https://medium.com/@huangchingchiu/analysis-on-stocks-log-1-return-or-simple-return-371c3f60fab2" target="_blank" rel="noopener">https://medium.com/@huangchingchiu/analysis-on-stocks-log-1-return-or-simple-return-371c3f60fab2&lt;/a> (accessed Nov. 25, 2021).&lt;/p>
 &lt;/li>
 &lt;li>
 &lt;p>[9] N. A. Eterovic and D. S. Eterovic, “Separating the Wheat from the Chaff: Understanding Portfolio Returns in an Emerging Market,” Social Science Research Network, Rochester, NY, SSRN Scholarly Paper ID 2161646, Oct. 2012. doi: 10.2139/ssrn.2161646.&lt;/p>
@@ -549,15 +553,19 @@ plt.close()
 &lt;p>[14] L. Sandoval, A. B. Bortoluzzo, and M. K. Venezuela, “Not all that glitters is RMT in the forecasting of risk of portfolios in the Brazilian stock market,” Physica A: Statistical Mechanics and its Applications, vol. 410, pp. 94–109, Sep. 2014, doi: 10.1016/j.physa.2014.05.006.&lt;/p>
 &lt;/li>
 &lt;li>
-&lt;p>[15] M. E. A. Seddik, C. Louart, M. Tamaazousti, and R. Couillet, “Random Matrix Theory Proves that Deep Learning Representations of GAN-data Behave as Gaussian Mixtures,” arXiv:2001.08370 [cs, stat], Jan. 2020, Accessed: Dec. 05, 2021. [Online]. Available: &lt;a href="http://arxiv.org/abs/2001.08370">http://arxiv.org/abs/2001.08370&lt;/a>&lt;/p>
+&lt;p>[15] M. E. A. Seddik, C. Louart, M. Tamaazousti, and R. Couillet, “Random Matrix Theory Proves that Deep Learning Representations of GAN-data Behave as Gaussian Mixtures,” arXiv:2001.08370 [cs, stat], Jan. 2020, Accessed: Dec. 05, 2021. [Online]. Available:
+&lt;a href="http://arxiv.org/abs/2001.08370" target="_blank" rel="noopener">http://arxiv.org/abs/2001.08370&lt;/a>&lt;/p>
 &lt;/li>
 &lt;li>
-&lt;p>[16] D. B. Aires, “Análise de crises financeiras brasileiras usando teoria das matrizes aleatórias,” Universidade Estadual Paulista (Unesp), 2021. Accessed: Dec. 05, 2021. [Online]. Available: &lt;a href="https://repositorio.unesp.br/handle/11449/204550">https://repositorio.unesp.br/handle/11449/204550&lt;/a>&lt;/p>
+&lt;p>[16] D. B. Aires, “Análise de crises financeiras brasileiras usando teoria das matrizes aleatórias,” Universidade Estadual Paulista (Unesp), 2021. Accessed: Dec. 05, 2021. [Online]. Available:
+&lt;a href="https://repositorio.unesp.br/handle/11449/204550" target="_blank" rel="noopener">https://repositorio.unesp.br/handle/11449/204550&lt;/a>&lt;/p>
 &lt;/li>
 &lt;li>
-&lt;p>[17] S. Rome, “Eigen-vesting II. Optimize Your Portfolio With Optimization,” Scott Rome, Mar. 22, 2016. &lt;a href="http://srome.github.io//Eigenvesting-II-Optimize-Your-Portfolio-With-Optimization/">http://srome.github.io//Eigenvesting-II-Optimize-Your-Portfolio-With-Optimization/&lt;/a> (accessed Dec. 05, 2021).&lt;/p>
+&lt;p>[17] S. Rome, “Eigen-vesting II. Optimize Your Portfolio With Optimization,” Scott Rome, Mar. 22, 2016.
+&lt;a href="http://srome.github.io//Eigenvesting-II-Optimize-Your-Portfolio-With-Optimization/" target="_blank" rel="noopener">http://srome.github.io//Eigenvesting-II-Optimize-Your-Portfolio-With-Optimization/&lt;/a> (accessed Dec. 05, 2021).&lt;/p>
 &lt;/li>
 &lt;li>
-&lt;p>[18] “11.1 Portfolio Optimization — MOSEK Fusion API for Python 9.3.10.” &lt;a href="https://docs.mosek.com/latest/pythonfusion/case-studies-portfolio.html">https://docs.mosek.com/latest/pythonfusion/case-studies-portfolio.html&lt;/a> (accessed Dec. 05, 2021).&lt;/p>
+&lt;p>[18] “11.1 Portfolio Optimization — MOSEK Fusion API for Python 9.3.10.”
+&lt;a href="https://docs.mosek.com/latest/pythonfusion/case-studies-portfolio.html" target="_blank" rel="noopener">https://docs.mosek.com/latest/pythonfusion/case-studies-portfolio.html&lt;/a> (accessed Dec. 05, 2021).&lt;/p>
 &lt;/li>
 &lt;/ul></description></item></channel></rss>

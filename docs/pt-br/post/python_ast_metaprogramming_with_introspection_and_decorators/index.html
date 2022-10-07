@@ -1,15 +1,216 @@
-<!doctype html><html lang=pt-br><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=generator content="Source Themes Academic 4.8.0"><meta name=author content="Bruno Messias"><meta name=description content="Python é interpretado ou compilado? Conhecer as sutilezas da resposta para essa pergunta nos ajudará a entender e escrever um código que escreve funções em tempo de execução (runtime) . Nosso exemplo será um decorador que tem acesso ao locals de uma função decorada sem usar truques com trace."><link rel=alternate hreflang=en href=/post/python_ast_metaprogramming_with_introspection_and_decorators/><link rel=alternate hreflang=pt-br href=/pt-br/post/python_ast_metaprogramming_with_introspection_and_decorators/><meta name=theme-color content="#2962ff"><script src=/js/mathjax-config.js></script><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/academicons/1.8.6/css/academicons.min.css integrity="sha256-uFVgMKfistnJAfoCUQigIl+JfUaP47GrRKjf6CTPVmw=" crossorigin=anonymous><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.0-1/css/all.min.css integrity="sha256-4w9DunooKSr3MFXHXWyFER38WmPdm361bQS/2KUWZbU=" crossorigin=anonymous><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css integrity="sha256-Vzbj7sDDS/woiFS3uNKo8eIuni59rjyNGtXfstRzStA=" crossorigin=anonymous><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/github.min.css crossorigin=anonymous title=hl-light><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/dracula.min.css crossorigin=anonymous title=hl-dark disabled><script src=https://cdnjs.cloudflare.com/ajax/libs/lazysizes/5.1.2/lazysizes.min.js integrity="sha256-Md1qLToewPeKjfAHU1zyPwOutccPAm5tahnaw7Osw0A=" crossorigin=anonymous async></script><script src=https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js integrity crossorigin=anonymous async></script><link rel=stylesheet href="https://fonts.googleapis.com/css?family=Montserrat:400,700%7CRoboto:400,400italic,700%7CRoboto+Mono&display=swap"><link rel=stylesheet href=/css/academic.css><script async src="https://www.googletagmanager.com/gtag/js?id=UA-178064356-1"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
-function trackOutboundLink(url,target){gtag('event','click',{'event_category':'outbound','event_label':url,'transport_type':'beacon','event_callback':function(){if(target!=='_blank'){document.location=url;}}});console.debug("Outbound link clicked: "+url);}
-function onClickCallback(event){if((event.target.tagName!=='A')||(event.target.host===window.location.host)){return;}
-trackOutboundLink(event.target,event.target.getAttribute('target'));}
-gtag('js',new Date());gtag('config','UA-178064356-1',{});document.addEventListener('click',onClickCallback,false);</script><link rel=manifest href=/pt-br/index.webmanifest><link rel=icon type=image/png href=/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_32x32_fill_lanczos_center_2.png><link rel=apple-touch-icon type=image/png href=/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_192x192_fill_lanczos_center_2.png><link rel=canonical href=/pt-br/post/python_ast_metaprogramming_with_introspection_and_decorators/><meta property="twitter:site" content="@devmessias"><meta property="twitter:creator" content="@devmessias"><meta property="og:site_name" content="Bruno Messias"><meta property="og:url" content="/pt-br/post/python_ast_metaprogramming_with_introspection_and_decorators/"><meta property="og:title" content="Metaprogramação em Python com ASTs: criando um decorador com introspecção | Bruno Messias"><meta property="og:description" content="Python é interpretado ou compilado? Conhecer as sutilezas da resposta para essa pergunta nos ajudará a entender e escrever um código que escreve funções em tempo de execução (runtime) . Nosso exemplo será um decorador que tem acesso ao locals de uma função decorada sem usar truques com trace."><meta property="twitter:image" content="https://devmessias.github.io/img/ast_english_sentence.png"><meta property="og:image" content="https://devmessias.github.io/img/ast_english_sentence.png"><meta property="og:image:secure_url" content="https://devmessias.github.io/img/ast_english_sentence.png"><meta property="twitter:card" content="summary_large_image"><meta property="og:locale" content="pt-br"><meta property="article:published_time" content="2022-04-11T00:00:00+00:00"><meta property="article:modified_time" content="2022-04-11T00:00:00+00:00"><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"/pt-br/post/python_ast_metaprogramming_with_introspection_and_decorators/"},"headline":"Metaprogramação em Python com ASTs: criando um decorador com introspecção","datePublished":"2022-04-11T00:00:00Z","dateModified":"2022-04-11T00:00:00Z","author":{"@type":"Person","name":"Bruno Messias"},"publisher":{"@type":"Organization","name":"Bruno Messias","logo":{"@type":"ImageObject","url":"/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_192x192_fill_lanczos_center_2.png"}},"description":"Python é interpretado ou compilado? Conhecer as sutilezas da resposta para essa pergunta nos ajudará a entender e escrever um código que escreve funções em tempo de execução (runtime) . Nosso exemplo será um decorador que tem acesso ao locals de uma função decorada sem usar truques com trace."}</script><title>Metaprogramação em Python com ASTs: criando um decorador com introspecção | Bruno Messias</title></head><body id=top class=page-wrapper data-spy=scroll data-offset=70 data-target=#TableOfContents><aside class=search-results id=search><div class=container><section class=search-header><div class="row no-gutters justify-content-between mb-3"><div class=col-6><h1>Pesquisar</h1></div><div class="col-6 col-search-close"><a class=js-search href=#><i class="fas fa-times-circle text-muted" aria-hidden=true></i></a></div></div><div id=search-box><input name=q id=search-query placeholder=Pesquisar... autocapitalize=off autocomplete=off autocorrect=off spellcheck=false type=search></div></section><section class=section-search-results><div id=search-hits></div></section></div></aside><div class=page-header><nav class="navbar navbar-expand-lg navbar-light compensate-for-scrollbar" id=navbar-main><div class=container><div class="d-none d-lg-inline-flex"><a class=navbar-brand href=/pt-br>Bruno Messias</a></div><button type=button class=navbar-toggler data-toggle=collapse data-target=#navbar-content aria-controls=navbar aria-expanded=false aria-label="Alterar navegação">
-<span><i class="fas fa-bars"></i></span></button><div class="navbar-brand-mobile-wrapper d-inline-flex d-lg-none"><a class=navbar-brand href=/pt-br>Bruno Messias</a></div><div class="navbar-collapse main-menu-item collapse justify-content-start" id=navbar-content><ul class="navbar-nav d-md-inline-flex"><li class=nav-item><a class=nav-link href=/pt-br/#about><span>About</span></a></li><li class=nav-item><a class=nav-link href=/pt-br/#posts><span>Recent Posts</span></a></li><li class=nav-item><a class=nav-link href=/pt-br/#projects><span>Projects</span></a></li><li class=nav-item><a class=nav-link href=/pt-br/#featured><span>Publications</span></a></li><li class=nav-item><a class="nav-link active" href=/pt-br/post/><span>Posts</span></a></li></ul></div><ul class="nav-icons navbar-nav flex-row ml-auto d-flex pl-md-2"><li class=nav-item><a class="nav-link js-search" href=# aria-label=Pesquisar><i class="fas fa-search" aria-hidden=true></i></a></li><li class="nav-item dropdown i18n-dropdown"><a href=# class="nav-link dropdown-toggle" data-toggle=dropdown aria-haspopup=true><i class="fas fa-globe mr-1" aria-hidden=true></i><span class="d-none d-lg-inline">Português (Brasil)</span></a><div class=dropdown-menu><div class="dropdown-item dropdown-item-active"><span>Português (Brasil)</span></div><a class=dropdown-item href=/post/python_ast_metaprogramming_with_introspection_and_decorators/><span>English</span></a></div></li></ul></div></nav></div><div id=macaquinho123 class=page-body><div class="container-fluid docs"><div class="row flex-xl-nowrap"><div class="col-12 col-md-10 offset-md-2"><div class=bg-overlay-img style="--bg-url: url(/pt-br/post/python_ast_metaprogramming_with_introspection_and_decorators/ast_english_sentence_hue5b8d52ce962721ee6d0acb19268cb10_239788_0x200_resize_lanczos_2.png)"><h1 class=text-left>Metaprogramação em Python com ASTs: criando um decorador com introspecção</h1><p class="page-subtitle text-left">Python é interpretado ou compilado? Conhecer as sutilezas da resposta para essa pergunta nos ajudará a entender e escrever um código que escreve funções em tempo de execução (runtime)</p><div class=article-metadata><span class=article-date>Apr 11, 2022</span>
-<span class=middot-divider></span><a href=/pt-br/post/python_ast_metaprogramming_with_introspection_and_decorators/#disqus_thread></a><span class=middot-divider></span><span class=article-categories><i class="fas fa-folder mr-1"></i><a href=/pt-br/category/python/>Python</a></span></div></div></div></div><div class="row flex-xl-nowrap"><div class="d-none d-md-block col-md-3 docs-toc sidebar-toc"><ul class="nav toc-top"><li><a href=# id=back_to_top class=docs-toc-title>Sumário</a></li></ul><nav id=TableOfContents><ul><li><ul><li><a href=#introdução>Introdução</a></li><li><a href=#asts-o-que-são>ASTs: O que são?</a></li><li><a href=#python-é--interpretado-ou-compilado>Python é interpretado ou compilado?</a></li><li><a href=#extraindo-e-interpretando-asts>Extraindo e interpretando ASTs</a></li><li><a href=#como-metaprogramar-de-forma-eficiente>Como metaprogramar de forma eficiente?</a><ul><li><a href=#6-passos-simples>6 passos simples</a></li></ul></li><li><a href=#criando-nossa-meta-função>Criando nossa meta-função</a><ul><li><a href=#primeira-iteração>Primeira iteração</a></li><li><a href=#o-nodetransformer>O NodeTransformer</a></li><li><a href=#a-segunda-iteração>A segunda iteração</a></li><li><a href=#criando-uma-nova-função-em-runtime>Criando uma nova função em runtime</a></li></ul></li><li><a href=#integrando-a-manipulação-de-ast-com-um-decorador>Integrando a manipulação de AST com um decorador</a></li></ul></li></ul></nav></div><main class="col-12 col-md-9 py-md-3 pl-md-5 docs-content" role=main><article class=article><div class=article-container><div class=article-style><details class="toc-inpage d-print-none d-none d-sm-block d-md-none" open><summary class=font-weight-bold>Lista de Conteúdos</summary><nav id=TableOfContents><ul><li><ul><li><a href=#introdução>Introdução</a></li><li><a href=#asts-o-que-são>ASTs: O que são?</a></li><li><a href=#python-é--interpretado-ou-compilado>Python é interpretado ou compilado?</a></li><li><a href=#extraindo-e-interpretando-asts>Extraindo e interpretando ASTs</a></li><li><a href=#como-metaprogramar-de-forma-eficiente>Como metaprogramar de forma eficiente?</a><ul><li><a href=#6-passos-simples>6 passos simples</a></li></ul></li><li><a href=#criando-nossa-meta-função>Criando nossa meta-função</a><ul><li><a href=#primeira-iteração>Primeira iteração</a></li><li><a href=#o-nodetransformer>O NodeTransformer</a></li><li><a href=#a-segunda-iteração>A segunda iteração</a></li><li><a href=#criando-uma-nova-função-em-runtime>Criando uma nova função em runtime</a></li></ul></li><li><a href=#integrando-a-manipulação-de-ast-com-um-decorador>Integrando a manipulação de AST com um decorador</a></li></ul></li></ul></nav></details><h2 id=introdução>Introdução</h2><p>Não se assuste com as palavras no título. Embora possam ser estranhas para você provavelmente em algum momento você utilizou ferramentas que fazem uso de técnicas de metaprogramação ou inspeção de AST. Pytest e Numba são exemplos.</p><p><a href=/pt-br/post/python_decorator_that_exposes_locals/ title="An introspective python decorator using  stack frames and the inspect module">No post anterior eu falei sobre python frames e inspection.</a>.
-Mostrei como podemos usar <code>inspect.signautre</code> para criar um decorador que valide argumentos:</p><pre><code class=language-python>@math_validator() 
+<!doctype html><html lang=pt-br>
+<head>
+<meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<meta http-equiv=x-ua-compatible content="IE=edge">
+<meta name=generator content="Source Themes Academic 4.8.0">
+<meta name=author content="Bruno Messias">
+<meta name=description content="Python é interpretado ou compilado? Conhecer as sutilezas da resposta para essa pergunta nos ajudará a entender e escrever um código que escreve funções em tempo de execução (runtime) . Nosso exemplo será um decorador que tem acesso ao locals de uma função decorada sem usar truques com trace.">
+<link rel=alternate hreflang=en href=/post/python_ast_metaprogramming_with_introspection_and_decorators/>
+<link rel=alternate hreflang=pt-br href=/pt-br/post/python_ast_metaprogramming_with_introspection_and_decorators/>
+<meta name=theme-color content="#2962ff">
+<script src=/js/mathjax-config.js></script>
+<link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/academicons/1.8.6/css/academicons.min.css integrity="sha256-uFVgMKfistnJAfoCUQigIl+JfUaP47GrRKjf6CTPVmw=" crossorigin=anonymous>
+<link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.0-1/css/all.min.css integrity="sha256-4w9DunooKSr3MFXHXWyFER38WmPdm361bQS/2KUWZbU=" crossorigin=anonymous>
+<link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css integrity="sha256-Vzbj7sDDS/woiFS3uNKo8eIuni59rjyNGtXfstRzStA=" crossorigin=anonymous>
+<link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/github.min.css crossorigin=anonymous title=hl-light>
+<link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/dracula.min.css crossorigin=anonymous title=hl-dark disabled>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/lazysizes/5.1.2/lazysizes.min.js integrity="sha256-Md1qLToewPeKjfAHU1zyPwOutccPAm5tahnaw7Osw0A=" crossorigin=anonymous async></script>
+<script src=https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js integrity crossorigin=anonymous async></script>
+<link rel=stylesheet href="https://fonts.googleapis.com/css?family=Montserrat:400,700%7CRoboto:400,400italic,700%7CRoboto+Mono&display=swap">
+<link rel=stylesheet href=/css/academic.css>
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-178064356-1"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}function trackOutboundLink(a,b){gtag('event','click',{event_category:'outbound',event_label:a,transport_type:'beacon',event_callback:function(){b!=='_blank'&&(document.location=a)}}),console.debug("Outbound link clicked: "+a)}function onClickCallback(a){if(a.target.tagName!=='A'||a.target.host===window.location.host)return;trackOutboundLink(a.target,a.target.getAttribute('target'))}gtag('js',new Date),gtag('config','UA-178064356-1',{}),document.addEventListener('click',onClickCallback,!1)</script>
+<link rel=manifest href=/pt-br/index.webmanifest>
+<link rel=icon type=image/png href=/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_32x32_fill_lanczos_center_3.png>
+<link rel=apple-touch-icon type=image/png href=/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_192x192_fill_lanczos_center_3.png>
+<link rel=canonical href=/pt-br/post/python_ast_metaprogramming_with_introspection_and_decorators/>
+<meta property="twitter:site" content="@devmessias">
+<meta property="twitter:creator" content="@devmessias">
+<meta property="og:site_name" content="Bruno Messias">
+<meta property="og:url" content="/pt-br/post/python_ast_metaprogramming_with_introspection_and_decorators/">
+<meta property="og:title" content="Metaprogramação em Python com ASTs: criando um decorador com introspecção | Bruno Messias">
+<meta property="og:description" content="Python é interpretado ou compilado? Conhecer as sutilezas da resposta para essa pergunta nos ajudará a entender e escrever um código que escreve funções em tempo de execução (runtime) . Nosso exemplo será um decorador que tem acesso ao locals de uma função decorada sem usar truques com trace.">
+<meta property="twitter:image" content="https://devmessias.github.io/img/ast_english_sentence.png">
+<meta property="og:image" content="https://devmessias.github.io/img/ast_english_sentence.png">
+<meta property="og:image:secure_url" content="https://devmessias.github.io/img/ast_english_sentence.png">
+<meta property="twitter:card" content="summary_large_image">
+<meta property="og:locale" content="pt-br">
+<meta property="article:published_time" content="2022-04-11T00:00:00+00:00">
+<meta property="article:modified_time" content="2022-04-11T00:00:00+00:00">
+<script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"/pt-br/post/python_ast_metaprogramming_with_introspection_and_decorators/"},"headline":"Metaprogramação em Python com ASTs: criando um decorador com introspecção","datePublished":"2022-04-11T00:00:00Z","dateModified":"2022-04-11T00:00:00Z","author":{"@type":"Person","name":"Bruno Messias"},"publisher":{"@type":"Organization","name":"Bruno Messias","logo":{"@type":"ImageObject","url":"/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_192x192_fill_lanczos_center_3.png"}},"description":"Python é interpretado ou compilado? Conhecer as sutilezas da resposta para essa pergunta nos ajudará a entender e escrever um código que escreve funções em tempo de execução (runtime) . Nosso exemplo será um decorador que tem acesso ao locals de uma função decorada sem usar truques com trace."}</script>
+<title>Metaprogramação em Python com ASTs: criando um decorador com introspecção | Bruno Messias</title>
+</head>
+<body id=top class=page-wrapper data-spy=scroll data-offset=70 data-target=#TableOfContents>
+<aside class=search-results id=search>
+<div class=container>
+<section class=search-header>
+<div class="row no-gutters justify-content-between mb-3">
+<div class=col-6>
+<h1>Pesquisar</h1>
+</div>
+<div class="col-6 col-search-close">
+<a class=js-search href=#><i class="fas fa-times-circle text-muted" aria-hidden=true></i></a>
+</div>
+</div>
+<div id=search-box>
+<input name=q id=search-query placeholder=Pesquisar... autocapitalize=off autocomplete=off autocorrect=off spellcheck=false type=search>
+</div>
+</section>
+<section class=section-search-results>
+<div id=search-hits>
+</div>
+</section>
+</div>
+</aside>
+<div class=page-header>
+<nav class="navbar navbar-expand-lg navbar-light compensate-for-scrollbar" id=navbar-main>
+<div class=container>
+<div class="d-none d-lg-inline-flex">
+<a class=navbar-brand href=/pt-br>Bruno Messias</a>
+</div>
+<button type=button class=navbar-toggler data-toggle=collapse data-target=#navbar-content aria-controls=navbar aria-expanded=false aria-label="Alterar navegação">
+<span><i class="fas fa-bars"></i></span>
+</button>
+<div class="navbar-brand-mobile-wrapper d-inline-flex d-lg-none">
+<a class=navbar-brand href=/pt-br>Bruno Messias</a>
+</div>
+<div class="navbar-collapse main-menu-item collapse justify-content-start" id=navbar-content>
+<ul class="navbar-nav d-md-inline-flex">
+<li class=nav-item>
+<a class=nav-link href=/pt-br/#about><span>About</span></a>
+</li>
+<li class=nav-item>
+<a class=nav-link href=/pt-br/#posts><span>Recent Posts</span></a>
+</li>
+<li class=nav-item>
+<a class=nav-link href=/pt-br/#projects><span>Projects</span></a>
+</li>
+<li class=nav-item>
+<a class=nav-link href=/pt-br/#featured><span>Publications</span></a>
+</li>
+<li class=nav-item>
+<a class="nav-link active" href=/pt-br/post/><span>Posts</span></a>
+</li>
+</ul>
+</div>
+<ul class="nav-icons navbar-nav flex-row ml-auto d-flex pl-md-2">
+<li class=nav-item>
+<a class="nav-link js-search" href=# aria-label=Pesquisar><i class="fas fa-search" aria-hidden=true></i></a>
+</li>
+<li class="nav-item dropdown i18n-dropdown">
+<a href=# class="nav-link dropdown-toggle" data-toggle=dropdown aria-haspopup=true>
+<i class="fas fa-globe mr-1" aria-hidden=true></i><span class="d-none d-lg-inline">Português (Brasil)</span>
+</a>
+<div class=dropdown-menu>
+<div class="dropdown-item dropdown-item-active">
+<span>Português (Brasil)</span>
+</div>
+<a class=dropdown-item href=/post/python_ast_metaprogramming_with_introspection_and_decorators/>
+<span>English</span>
+</a>
+</div>
+</li>
+</ul>
+</div>
+</nav>
+</div>
+<div id=macaquinho123 class=page-body>
+<div class="container-fluid docs">
+<div class="row flex-xl-nowrap">
+<div class="col-12 col-md-10 offset-md-2">
+<div class=bg-overlay-img style=--bg-url:url(/pt-br/post/python_ast_metaprogramming_with_introspection_and_decorators/ast_english_sentence_hue5b8d52ce962721ee6d0acb19268cb10_239788_0x200_resize_lanczos_3.png)>
+<h1 class=text-left>Metaprogramação em Python com ASTs: criando um decorador com introspecção</h1>
+<p class="page-subtitle text-left">Python é interpretado ou compilado? Conhecer as sutilezas da resposta para essa pergunta nos ajudará a entender e escrever um código que escreve funções em tempo de execução (runtime)</p>
+<div class=article-metadata>
+<span class=article-date>
+Apr 11, 2022
+</span>
+<span class=middot-divider></span>
+<a href=/pt-br/post/python_ast_metaprogramming_with_introspection_and_decorators/#disqus_thread></a>
+<span class=middot-divider></span>
+<span class=article-categories>
+<i class="fas fa-folder mr-1"></i><a href=/pt-br/category/python/>Python</a></span>
+</div>
+</div>
+</div>
+</div>
+<div class="row flex-xl-nowrap">
+<div class="d-none d-md-block col-md-3 docs-toc sidebar-toc">
+<ul class="nav toc-top">
+<li><a href=# id=back_to_top class=docs-toc-title>Sumário</a></li>
+</ul>
+<nav id=TableOfContents>
+<ul>
+<li>
+<ul>
+<li><a href=#introdução>Introdução</a></li>
+<li><a href=#asts-o-que-são>ASTs: O que são?</a></li>
+<li><a href=#python-é--interpretado-ou-compilado>Python é interpretado ou compilado?</a></li>
+<li><a href=#extraindo-e-interpretando-asts>Extraindo e interpretando ASTs</a></li>
+<li><a href=#como-metaprogramar-de-forma-eficiente>Como metaprogramar de forma eficiente?</a>
+<ul>
+<li><a href=#6-passos-simples>6 passos simples</a></li>
+</ul>
+</li>
+<li><a href=#criando-nossa-meta-função>Criando nossa meta-função</a>
+<ul>
+<li><a href=#primeira-iteração>Primeira iteração</a></li>
+<li><a href=#o-nodetransformer>O NodeTransformer</a></li>
+<li><a href=#a-segunda-iteração>A segunda iteração</a></li>
+<li><a href=#criando-uma-nova-função-em-runtime>Criando uma nova função em runtime</a></li>
+</ul>
+</li>
+<li><a href=#integrando-a-manipulação-de-ast-com-um-decorador>Integrando a manipulação de AST com um decorador</a></li>
+</ul>
+</li>
+</ul>
+</nav>
+</div>
+<main class="col-12 col-md-8 docs-content" role=main>
+<article class=article>
+<div class=article-container>
+<div class=article-style>
+<details class="toc-inpage d-print-none d-none d-sm-block d-md-none" open>
+<summary class=font-weight-bold>Lista de Conteúdos</summary>
+<nav id=TableOfContents>
+<ul>
+<li>
+<ul>
+<li><a href=#introdução>Introdução</a></li>
+<li><a href=#asts-o-que-são>ASTs: O que são?</a></li>
+<li><a href=#python-é--interpretado-ou-compilado>Python é interpretado ou compilado?</a></li>
+<li><a href=#extraindo-e-interpretando-asts>Extraindo e interpretando ASTs</a></li>
+<li><a href=#como-metaprogramar-de-forma-eficiente>Como metaprogramar de forma eficiente?</a>
+<ul>
+<li><a href=#6-passos-simples>6 passos simples</a></li>
+</ul>
+</li>
+<li><a href=#criando-nossa-meta-função>Criando nossa meta-função</a>
+<ul>
+<li><a href=#primeira-iteração>Primeira iteração</a></li>
+<li><a href=#o-nodetransformer>O NodeTransformer</a></li>
+<li><a href=#a-segunda-iteração>A segunda iteração</a></li>
+<li><a href=#criando-uma-nova-função-em-runtime>Criando uma nova função em runtime</a></li>
+</ul>
+</li>
+<li><a href=#integrando-a-manipulação-de-ast-com-um-decorador>Integrando a manipulação de AST com um decorador</a></li>
+</ul>
+</li>
+</ul>
+</nav>
+</details>
+<h2 id=introdução>Introdução</h2>
+<p>Não se assuste com as palavras no título. Embora possam ser estranhas para você provavelmente em algum momento você utilizou ferramentas que fazem uso de técnicas de metaprogramação ou inspeção de AST. Pytest e Numba são exemplos.</p>
+<p>
+<a href=/pt-br/post/python_decorator_that_exposes_locals/ title="An introspective python decorator using  stack frames and the inspect module">No post anterior eu falei sobre python frames e inspection.</a>.
+Mostrei como podemos usar <code>inspect.signautre</code> para criar um decorador que valide argumentos:</p>
+<pre><code class=language-python>@math_validator() 
 def simple_method(x: &quot;\in R&quot;, y: &quot;\in R_+&quot;, z: float = 2) -&gt; float: 
     ... 
 simple_method(1, 0) 
-</code></pre><pre><code>simple_method((1, 2)) -&gt; 1.5 
+</code></pre>
+<pre><code>simple_method((1, 2)) -&gt; 1.5 
 ---&gt; 19 simple_method(1, 0) 
 ... 
 &lt;locals&gt;.decorate.&lt;locals&gt;.decorated(*_args) 
@@ -21,7 +222,9 @@ simple_method(1, 0)
 
 ValueError: y doesn't belong to the space of real numbers greater than zero 
 
-</code></pre><p>No outro exemplo mostrei como podemos combinar o <code>signature</code> com <code>sys.trace</code> para criar um decorador que expõe o <code>locals</code> da função decorada. O que nos permite fazer coisas legais tais como criar um decorador <code>@report</code></p><pre><code class=language-python>@report('{arg.n_bananas} Monkey {gluttonous_monkey} ate too much bananas.  Num monkeys {num_monkeys}') 
+</code></pre>
+<p>No outro exemplo mostrei como podemos combinar o <code>signature</code> com <code>sys.trace</code> para criar um decorador que expõe o <code>locals</code> da função decorada. O que nos permite fazer coisas legais tais como criar um decorador <code>@report</code></p>
+<pre><code class=language-python>@report('{arg.n_bananas} Monkey {gluttonous_monkey} ate too much bananas.  Num monkeys {num_monkeys}') 
 def feed_monkeys(n_bananas):  
     num_monkeys = 3 
     monkeys = { 
@@ -38,7 +241,17 @@ def feed_monkeys(n_bananas):
             n_bananas -= 1 
 
     gluttonous_monkey = max(monkeys, key=lambda k: monkeys[k][&quot;bananas&quot;])  
-</code></pre><p>Contudo, no final do post passado eu disse que essa solução tem alguns problemas</p><p><div class=spoiler><p><a class="btn btn-primary" data-toggle=collapse href=#spoiler-2 role=button aria-expanded=false aria-controls=spoiler-2>Click here to see the solution</a></p><div class="collapse card" id=spoiler-2><div class=card-body><pre><code class=language-python>import sys 
+</code></pre>
+<p>Contudo, no final do post passado eu disse que essa solução tem alguns problemas</p>
+<p><div class=spoiler>
+<p>
+<a class="btn btn-primary" data-toggle=collapse href=#spoiler-2 role=button aria-expanded=false aria-controls=spoiler-2>
+Click here to see the solution
+</a>
+</p>
+<div class="collapse card" id=spoiler-2>
+<div class=card-body>
+<pre><code class=language-python>import sys 
 import inspect 
 from types import SimpleNamespace 
 
@@ -99,36 +312,126 @@ def report(formater):
         return decorated 
     return decorate 
 
-</code></pre></div></div></div>Quais são os problemas?</p><ul><li><p>É esperado que o tracing reduza a performance do sistema. Se você usar a solução acima só para casos pontuais ou debug é ok</p></li><li><p>Pode criar conflitos com outras ferramentas e bibliotecas que também estão usando a ferramenta de tracing, tais como debuggers.</p></li><li><p>Parece uma solução feia!</p></li></ul><p>Você pode se perguntar: &ldquo;<em>Overengineering! Era só esse fazer isso aqui:</em>&rdquo;</p><pre><code class=language-python>@report('stuff goes here') 
+</code></pre>
+</div>
+</div>
+</div>
+Quais são os problemas?</p>
+<ul>
+<li>
+<p>É esperado que o tracing reduza a performance do sistema. Se você usar a solução acima só para casos pontuais ou debug é ok</p>
+</li>
+<li>
+<p>Pode criar conflitos com outras ferramentas e bibliotecas que também estão usando a ferramenta de tracing, tais como debuggers.</p>
+</li>
+<li>
+<p>Parece uma solução feia!</p>
+</li>
+</ul>
+<p>Você pode se perguntar: &ldquo;<em>Overengineering! Era só esse fazer isso aqui:</em>&rdquo;</p>
+<pre><code class=language-python>@report('stuff goes here') 
 def func(x, y): 
     random_var = np.random.uniform() 
     ... #more local vars 
     result = (x+y)**random_var 
     return result, locals  
-</code></pre><p><em>"..e dentro do decorador ele mudar para isso"</em></p><pre><code class=language-python>_result, local_vars = func(x, y) 
-</code></pre><p>A razão é:</p><p>O ponto de usar um decorador é para evitar mudanças em qualquer outra parte da nossa codebase. Por exemplo, se em qualquer outra parte da nossa codebase func está sendo chamada, eu teria que fazer mudanças do tipo</p><pre><code class=language-python>result = func(x, y) # to  
+</code></pre>
+<p><em>"..e dentro do decorador ele mudar para isso"</em></p>
+<pre><code class=language-python>_result, local_vars = func(x, y) 
+</code></pre>
+<p>A razão é:</p>
+<p>O ponto de usar um decorador é para evitar mudanças em qualquer outra parte da nossa codebase. Por exemplo, se em qualquer outra parte da nossa codebase func está sendo chamada, eu teria que fazer mudanças do tipo</p>
+<pre><code class=language-python>result = func(x, y) # to  
 result = func(x, y)[0] 
-</code></pre><p>E se futuramente eu quisesse remover o decorador de uma função eu teria que desfazer todas as mudanças acima</p><ul><li><p>Você irá aumentar o cognitive load de todos os membros do seu time que não precisam saber sobre ou usar o decorador.</p></li><li><p>Se você está ok com fazer mudanças em outros lugares do seu código por que não criar novas funções ao invés de decoradores que funcionam mais ou menos?</p></li></ul><p>Ok, você pode estar pensando: &ldquo;Tá , faz sentido não fazer isso que sugeri, mas do que adianta evitar sujar sua codebase se você tá criando problemas de desempenho e debug? Não parece uma boa solução na maioria dos casos.&rdquo; Eu tenho que concordar com você!</p><p>Bom, então o que podemos fazer?? O problema que encontramos é que em python não temos context managers que podem lidar com namespaces
-<a href=https://mail.python.org/archives/list/python-ideas@python.org/thread/TAVHEKDZVYKJUGZKWSVZVAOGBPLZVKQG/ target=_blank rel=noopener>https://mail.python.org/archives/list/python-ideas@python.org/</a>. Mas não se desanime com essa limitação, a questão agora é:</p><div class="alert alert-note"><div><strong>Se uma linguagem não tem uma feature que eu preciso o que eu posso fazer?</strong></div></div><p>Em pyhton estamos bem com isso pois é fácil manipular o que é conhecido como <strong>A</strong>bstract <strong>S</strong>yntax <strong>T</strong>ree (árvore sintática abstrata) e compilar ela em uma nova função em tempo de execução (runtime). ** Quando programamos desse jeito estamos no reino da metaprogramação! Tentarei esclarecer esses pontos agora**</p><h2 id=asts-o-que-são>ASTs: O que são?</h2><p>Uma linguagem de programação é obviamente, pelo menos uma linguagem&mldr; OK, <strong>mas o que é uma linguagem? Todas as linguagens humanas compartilham uma estrutura em comum? Como podemos comparar sentenças diferentes na mesma linguagem?</strong> Essas questões talvez pareçam ser mais adequadas para serem respondidas por filósofos. Contudo, também é tema de trabalho de matemáticos e computeiros</p><p>A grande diferença é que matemáticos e computeiros comumente preferem falar sobre coisas usando algum formalismo matemático. Em essência, <strong>AST</strong> faz parte de um formalismo matemático que permite isso. Uma <strong>AST</strong> permite representar uma sentença através de um grafo direcionado do tipo árvore. Para isso usamos um conjunto de regras bem definidas em como construir essa árvore.</p><h3>Como saber se uma sentença está gramaticalmente correta?</h3><p>Você provavelmente se lembra quase institivamente de um conjunto de regras que aprendeu durante sua vida ou acabou se acostumando sobre como organizar e compor verbos, substantivos, adjetivos, etc. Este conjunto de regras e guias é a sintaxe da linguagem que você fala/escreve. <em>AST</em>s permitem checar e compreender uma sentença utilizando essas regras</p><p>Pegue por exemplo a sentença</p><p><em>&ldquo;I drive a car to my college&rdquo;</em>, a AST é a seguinte</p><figure id=figure-fonte-geeks-for-geekssyntax-tree--natural-language-processinghttpswwwgeeksforgeeksorgsyntax-tree-natural-language-processing><a data-fancybox href=/pt-br/post/python_ast_metaprogramming_with_introspection_and_decorators/ast_english_sentence_hue5b8d52ce962721ee6d0acb19268cb10_239788_0x400_resize_lanczos_2.png data-caption='<strong>Fonte</strong>:<a href="https://www.geeksforgeeks.org/syntax-tree-natural-language-processing/"> Geeks for Geeks:Syntax Tree – Natural Language Processing.</a>'><img src=/pt-br/post/python_ast_metaprogramming_with_introspection_and_decorators/ast_english_sentence_hue5b8d52ce962721ee6d0acb19268cb10_239788_0x400_resize_lanczos_2.png alt height=400px></a><figcaption><strong>Fonte</strong>:<a href=https://www.geeksforgeeks.org/syntax-tree-natural-language-processing/> Geeks for Geeks:Syntax Tree – Natural Language Processing.</a></figcaption></figure><p>Qual a vantagem de usar ASTs? Note que não precisamos falar de espaços, caligrafia ou estilo pessoal de organizar escrita para compreender uma sentença e saber se ela está válida. Além disso, temos uma estrutura hierárquica que permite entender a sentença por níveis!</p><p>Não é uma surpresa que ASTs são também uma ferramenta comum em processos de analisar a validade de um código ou na construção de um compilador/interpretador. Nesse post iremos manipular a AST! Mas antes disso quero fazer uma pergunta:</p><h2 id=python-é--interpretado-ou-compilado>Python é interpretado ou compilado?</h2><p>Geralmente, quando encontro um hater de python ou mesmo um entusiasta ouço ou leio coisas do tipo:</p><ul><li>&ldquo;<em>Python é lento pois é uma linguagem interpretada</em>&rdquo;</li><li>&ldquo;*Python é legal pois não tem chatice de compilação&rdquo;</li><li><em>&ldquo;Python é ruim comparado a C pois não tem um compilador&rdquo;</em></li></ul><p>Bem, essas asserções não são verdadeiras, pois estão usando conceitos errados! Outra confusão é que geralmente quando se fala em python estamos nos referindo a linguagem (sintaxe, etc) python mais a máquina virtual do CPython. Vamos conversar um pouco mais sobre isso</p><p>Dizer que uma linguagem hoje é <em>puramente compilada ou interpretada</em> é confuso, pois essa divisão é borrada. Veja o seguinte</p><pre><code class=language-python>hello_world = &quot;print('Hello, world!')&quot;
+</code></pre>
+<p>E se futuramente eu quisesse remover o decorador de uma função eu teria que desfazer todas as mudanças acima</p>
+<ul>
+<li>
+<p>Você irá aumentar o cognitive load de todos os membros do seu time que não precisam saber sobre ou usar o decorador.</p>
+</li>
+<li>
+<p>Se você está ok com fazer mudanças em outros lugares do seu código por que não criar novas funções ao invés de decoradores que funcionam mais ou menos?</p>
+</li>
+</ul>
+<p>Ok, você pode estar pensando: &ldquo;Tá , faz sentido não fazer isso que sugeri, mas do que adianta evitar sujar sua codebase se você tá criando problemas de desempenho e debug? Não parece uma boa solução na maioria dos casos.&rdquo; Eu tenho que concordar com você!</p>
+<p>Bom, então o que podemos fazer?? O problema que encontramos é que em python não temos context managers que podem lidar com namespaces
+<a href=https://mail.python.org/archives/list/python-ideas@python.org/thread/TAVHEKDZVYKJUGZKWSVZVAOGBPLZVKQG/ target=_blank rel=noopener>https://mail.python.org/archives/list/python-ideas@python.org/</a>. Mas não se desanime com essa limitação, a questão agora é:</p>
+<div class="alert alert-note">
+<div>
+<strong>Se uma linguagem não tem uma feature que eu preciso o que eu posso fazer?</strong>
+</div>
+</div>
+<p>Em pyhton estamos bem com isso pois é fácil manipular o que é conhecido como <strong>A</strong>bstract <strong>S</strong>yntax <strong>T</strong>ree (árvore sintática abstrata) e compilar ela em uma nova função em tempo de execução (runtime). ** Quando programamos desse jeito estamos no reino da metaprogramação! Tentarei esclarecer esses pontos agora**</p>
+<h2 id=asts-o-que-são>ASTs: O que são?</h2>
+<p>Uma linguagem de programação é obviamente, pelo menos uma linguagem&mldr; OK, <strong>mas o que é uma linguagem? Todas as linguagens humanas compartilham uma estrutura em comum? Como podemos comparar sentenças diferentes na mesma linguagem?</strong> Essas questões talvez pareçam ser mais adequadas para serem respondidas por filósofos. Contudo, também é tema de trabalho de matemáticos e computeiros</p>
+<p>A grande diferença é que matemáticos e computeiros comumente preferem falar sobre coisas usando algum formalismo matemático. Em essência, <strong>AST</strong> faz parte de um formalismo matemático que permite isso. Uma <strong>AST</strong> permite representar uma sentença através de um grafo direcionado do tipo árvore. Para isso usamos um conjunto de regras bem definidas em como construir essa árvore.</p>
+<h3>Como saber se uma sentença está gramaticalmente correta?</h3>
+<p>Você provavelmente se lembra quase institivamente de um conjunto de regras que aprendeu durante sua vida ou acabou se acostumando sobre como organizar e compor verbos, substantivos, adjetivos, etc. Este conjunto de regras e guias é a sintaxe da linguagem que você fala/escreve. <em>AST</em>s permitem checar e compreender uma sentença utilizando essas regras</p>
+<p>Pegue por exemplo a sentença</p>
+<p><em>&ldquo;I drive a car to my college&rdquo;</em>, a AST é a seguinte</p>
+<figure id=figure-fonte-geeks-for-geekssyntax-tree--natural-language-processinghttpswwwgeeksforgeeksorgsyntax-tree-natural-language-processing>
+<a data-fancybox href=/pt-br/post/python_ast_metaprogramming_with_introspection_and_decorators/ast_english_sentence_hue5b8d52ce962721ee6d0acb19268cb10_239788_0x400_resize_lanczos_3.png data-caption='<strong>Fonte</strong>:<a href="https://www.geeksforgeeks.org/syntax-tree-natural-language-processing/"> Geeks for Geeks:Syntax Tree – Natural Language Processing.</a>'>
+<img src=/pt-br/post/python_ast_metaprogramming_with_introspection_and_decorators/ast_english_sentence_hue5b8d52ce962721ee6d0acb19268cb10_239788_0x400_resize_lanczos_3.png alt height=400px>
+</a>
+<figcaption>
+<strong>Fonte</strong>:<a href=https://www.geeksforgeeks.org/syntax-tree-natural-language-processing/> Geeks for Geeks:Syntax Tree – Natural Language Processing.</a>
+</figcaption>
+</figure>
+<p>Qual a vantagem de usar ASTs? Note que não precisamos falar de espaços, caligrafia ou estilo pessoal de organizar escrita para compreender uma sentença e saber se ela está válida. Além disso, temos uma estrutura hierárquica que permite entender a sentença por níveis!</p>
+<p>Não é uma surpresa que ASTs são também uma ferramenta comum em processos de analisar a validade de um código ou na construção de um compilador/interpretador. Nesse post iremos manipular a AST! Mas antes disso quero fazer uma pergunta:</p>
+<h2 id=python-é--interpretado-ou-compilado>Python é interpretado ou compilado?</h2>
+<p>Geralmente, quando encontro um hater de python ou mesmo um entusiasta ouço ou leio coisas do tipo:</p>
+<ul>
+<li>&ldquo;<em>Python é lento pois é uma linguagem interpretada</em>&rdquo;</li>
+<li>&ldquo;*Python é legal pois não tem chatice de compilação&rdquo;</li>
+<li><em>&ldquo;Python é ruim comparado a C pois não tem um compilador&rdquo;</em></li>
+</ul>
+<p>Bem, essas asserções não são verdadeiras, pois estão usando conceitos errados! Outra confusão é que geralmente quando se fala em python estamos nos referindo a linguagem (sintaxe, etc) python mais a máquina virtual do CPython. Vamos conversar um pouco mais sobre isso</p>
+<p>Dizer que uma linguagem hoje é <em>puramente compilada ou interpretada</em> é confuso, pois essa divisão é borrada. Veja o seguinte</p>
+<pre><code class=language-python>hello_world = &quot;print('Hello, world!')&quot;
 hello_world_obj = compile(hello_world, '&lt;string&gt;', 'single')
-</code></pre><p>Pois é&mldr; se você tentaria defender nos comentários que python é puramente interpretado as coisas estão mais difíceis para você. Por que tem um <code>compile</code> disponível? O que ele faz?</p><pre><code class=language-python>exec(hello_world_obj)
+</code></pre>
+<p>Pois é&mldr; se você tentaria defender nos comentários que python é puramente interpretado as coisas estão mais difíceis para você. Por que tem um <code>compile</code> disponível? O que ele faz?</p>
+<pre><code class=language-python>exec(hello_world_obj)
 Hello, world!
-</code></pre><p>O que será que tem dentro desse <code>hello_world_obj</code>?</p><pre><code class=language-python>print(f&quot;Bad news for you:\n\tContent: {hello_world_obj.co_code}\n\tType: {type(hello_world_obj.co_code)}&quot;)
+</code></pre>
+<p>O que será que tem dentro desse <code>hello_world_obj</code>?</p>
+<pre><code class=language-python>print(f&quot;Bad news for you:\n\tContent: {hello_world_obj.co_code}\n\tType: {type(hello_world_obj.co_code)}&quot;)
 
     Bad news for you:
     	Content: b'e\x00d\x00\x83\x01F\x00d\x01S\x00'
     	Type: &lt;class 'bytes'&gt;
-</code></pre><p>Para entender os prints acima você precisa compreender o que acontece por trás dos panos quando um código python é &ldquo;<em>interpretado</em>&rdquo;.</p><p>Após você escrever um código e chamar o comando python, o python inicia um processo de compilação criando as ASTs, depois gerando bytecodes a partir das ASTs e esses últimos serão encapsulados em <code>code_object</code>s. Na última etapa os code objects serão interpretados pela máquina virtual do CPython. O diagrama à baixo é uma representação simples (com passos omitidos) do processo</p><div class="mermaid mermaidContainer">graph LR;
+</code></pre>
+<p>Para entender os prints acima você precisa compreender o que acontece por trás dos panos quando um código python é &ldquo;<em>interpretado</em>&rdquo;.</p>
+<p>Após você escrever um código e chamar o comando python, o python inicia um processo de compilação criando as ASTs, depois gerando bytecodes a partir das ASTs e esses últimos serão encapsulados em <code>code_object</code>s. Na última etapa os code objects serão interpretados pela máquina virtual do CPython. O diagrama à baixo é uma representação simples (com passos omitidos) do processo</p>
+<div class="mermaid mermaidContainer">
+graph LR;
 A[Source Code]-->|parsing|B[Parse Tree];
 B-->C[AST];
 C-->E[Bytecode];
 E-->F[Code Object];
-F-->|execution by|G[CPython Virtual Machine];</div><p>A fase de compilação são os primeiros passos do diagrama acima</p><div class="mermaid mermaidContainer">graph LR;
+F-->|execution by|G[CPython Virtual Machine];
+</div>
+<p>A fase de compilação são os primeiros passos do diagrama acima</p>
+<div class="mermaid mermaidContainer">
+graph LR;
 A[Source Code]-->|parsing|B[Parse Tree];
 B-->C[AST];
 C-->E[Bytecode];
-E-->F[Code Object];</div>Se você não conhece os conceitos dos nomes acima não se preocupe, não precisamos de tanto aprofundamento.
-**Bytecodes são apenas uma maneira compacta de dizer ao interpretador o que o código quer que ele faça. Enquanto code objects são coisas que encapsulam esses bytecodes.**<p>Ok, onde isso entra na minha solução? O que eu proponho fazer é manipular a AST e compilar um novo code object que será interpretado pelo cpython!</p><blockquote><p>Um história engraçada do Luciano Ramalho:<blockquote class=twitter-tweet><p lang=en dir=ltr>In 2018 I told a CBP officer I was entering the US to speak at PyCon. He asked: "Is Python interpreted or compiled?" After a 2 second pause I said "Interpreted". I didn't give the correct answer because I didn't want to extend the "pleasant" conversation. He let me in.</p>&mdash; Luciano Ramalho ☔ 🐍 ⚗ ▶️😷💉💉💉 (@ramalhoorg) <a href="https://twitter.com/ramalhoorg/status/1474044907585167362?ref_src=twsrc%5Etfw">December 23, 2021</a></blockquote><script async src=https://platform.twitter.com/widgets.js></script></p></blockquote><h2 id=extraindo-e-interpretando-asts>Extraindo e interpretando ASTs</h2><p>Veja o seguinte exemplo:</p><pre><code class=language-python>import inspect
+E-->F[Code Object];
+</div>
+Se você não conhece os conceitos dos nomes acima não se preocupe, não precisamos de tanto aprofundamento.
+**Bytecodes são apenas uma maneira compacta de dizer ao interpretador o que o código quer que ele faça. Enquanto code objects são coisas que encapsulam esses bytecodes.**
+<p>Ok, onde isso entra na minha solução? O que eu proponho fazer é manipular a AST e compilar um novo code object que será interpretado pelo cpython!</p>
+<blockquote>
+<p>Um história engraçada do Luciano Ramalho:
+<blockquote class=twitter-tweet><p lang=en dir=ltr>In 2018 I told a CBP officer I was entering the US to speak at PyCon. He asked: "Is Python interpreted or compiled?" After a 2 second pause I said "Interpreted". I didn't give the correct answer because I didn't want to extend the "pleasant" conversation. He let me in.</p>&mdash; Luciano I — Imperador do Metaverso (@ramalhoorg) <a href="https://twitter.com/ramalhoorg/status/1474044907585167362?ref_src=twsrc%5Etfw">December 23, 2021</a></blockquote>
+<script async src=https://platform.twitter.com/widgets.js></script>
+</p>
+</blockquote>
+<h2 id=extraindo-e-interpretando-asts>Extraindo e interpretando ASTs</h2>
+<p>Veja o seguinte exemplo:</p>
+<pre><code class=language-python>import inspect
 import ast
 import astor # install this for pretty printing
 def example(a: float, b:float = 2) -&gt; float:
@@ -138,7 +441,8 @@ def example(a: float, b:float = 2) -&gt; float:
 tree = ast.parse(inspect.getsource(example))
 print(astor.dump(tree))
 astor.to_source(tree)
-</code></pre><pre><code>Module(
+</code></pre>
+<pre><code>Module(
     body=[
         FunctionDef(name='example',
             args=arguments(posonlyargs=[],
@@ -158,19 +462,53 @@ astor.to_source(tree)
             returns=Name(id='float'),
             type_comment=None)],
     type_ignores=[])
-</code></pre><p>O output acima é a AST da função. Gaste algum tempo olhando essa saída e tente entender/inferir o que cada coisa significa e como ela é organizada. A imagem abaixo é a representação visual da saída acima</p><figure><a data-fancybox href=/pt-br/post/python_ast_metaprogramming_with_introspection_and_decorators/simple_ast_hudca446749283cbe6d28b67a245474890_120568_0x1000_resize_lanczos_2.png><img src=/pt-br/post/python_ast_metaprogramming_with_introspection_and_decorators/simple_ast_hudca446749283cbe6d28b67a245474890_120568_0x1000_resize_lanczos_2.png alt height=400px></a></figure><p>Cada elemento do output que inicia com uma letra maiúscula é um nó, <strong>node</strong>(Name, BinOp, FunctionDef, etc) derivado da classe <code>ast.Node</code>. Um dos nós mais importante é o <code>ast.Name</code>.
-Por exemplo em</p><pre><code>value=BinOp(left=Name(id='a'), op=Add, right=Name(id='b')),
-</code></pre><p>o <code>ast.Name(...</code> é usado para referenciar as variáveis <code>a</code> e <code>b</code> da nossa função.</p><p>Ok, voltemos ao nosso problema. Lembre-se que uma solução ruim era reescrever cada função que precisa ser decorada, por exemplo</p><pre><code class=language-python>def func(x, y):
+</code></pre>
+<p>O output acima é a AST da função. Gaste algum tempo olhando essa saída e tente entender/inferir o que cada coisa significa e como ela é organizada. A imagem abaixo é a representação visual da saída acima</p>
+<figure>
+<a data-fancybox href=/pt-br/post/python_ast_metaprogramming_with_introspection_and_decorators/simple_ast_hudca446749283cbe6d28b67a245474890_120568_0x1000_resize_lanczos_3.png>
+<img src=/pt-br/post/python_ast_metaprogramming_with_introspection_and_decorators/simple_ast_hudca446749283cbe6d28b67a245474890_120568_0x1000_resize_lanczos_3.png alt height=400px>
+</a>
+</figure>
+<p>Cada elemento do output que inicia com uma letra maiúscula é um nó, <strong>node</strong>(Name, BinOp, FunctionDef, etc) derivado da classe <code>ast.Node</code>. Um dos nós mais importante é o <code>ast.Name</code>.
+Por exemplo em</p>
+<pre><code>value=BinOp(left=Name(id='a'), op=Add, right=Name(id='b')),
+</code></pre>
+<p>o <code>ast.Name(...</code> é usado para referenciar as variáveis <code>a</code> e <code>b</code> da nossa função.</p>
+<p>Ok, voltemos ao nosso problema. Lembre-se que uma solução ruim era reescrever cada função que precisa ser decorada, por exemplo</p>
+<pre><code class=language-python>def func(x, y):
     random_var = np.random.uniform()
     ... #more local vars
     result = (x+y)**random_var
     return result
-</code></pre><p>como</p><pre><code class=language-python>def func_transformed(x, y):
+</code></pre>
+<p>como</p>
+<pre><code class=language-python>def func_transformed(x, y):
     random_var = np.random.uniform()
     ... #more local vars
     result = (x+y)**random_var
     return result, locals 
-</code></pre><p>A coisa legal que faremos aqui é <strong>escrever uma função que escrevera essas mudanças para nós! E depois colocaremos a compilação dentro de um decorador para evitar que nossa codebase seja alterada.</strong></p><h2 id=como-metaprogramar-de-forma-eficiente>Como metaprogramar de forma eficiente?</h2><p>Fazer um código que faça as alterações desejadas na nossa AST pode ser trabalhoso. Como começar a ter uma ideia do que precisa ser feito? Eu penso em uma sucessão de 6 passos e ir iterando para melhorar</p><h3 id=6-passos-simples>6 passos simples</h3><ol><li>Criar uma função exemplo (A)</li><li>Codar uma função transformada do jeito que queremos que ela seja (B)</li><li>Escrever um teste para que possa ser usado posteriormente para<br>checar se nossa função transformada (B) bate com a função gerada pela meta-programação (C)</li><li>Extrair a AST de A e B</li><li>Comparar as ASTs. O que elas diferem? Anote as diferenças<ul><li>Você pode usar a <code>difflib</code> do python para fazer isso</li></ul></li><li>Criar uma nova e mais complexa função exemplo (A) e repetir o processo até termos uma boa ideia das modificações necessárias na AST</li></ol><h2 id=criando-nossa-meta-função>Criando nossa meta-função</h2><h3 id=primeira-iteração>Primeira iteração</h3><p>Começaremos escrevendo uma função incrivelmente simples</p><pre><code class=language-python>def example_1(x, y):
+</code></pre>
+<p>A coisa legal que faremos aqui é <strong>escrever uma função que escrevera essas mudanças para nós! E depois colocaremos a compilação dentro de um decorador para evitar que nossa codebase seja alterada.</strong></p>
+<h2 id=como-metaprogramar-de-forma-eficiente>Como metaprogramar de forma eficiente?</h2>
+<p>Fazer um código que faça as alterações desejadas na nossa AST pode ser trabalhoso. Como começar a ter uma ideia do que precisa ser feito? Eu penso em uma sucessão de 6 passos e ir iterando para melhorar</p>
+<h3 id=6-passos-simples>6 passos simples</h3>
+<ol>
+<li>Criar uma função exemplo (A)</li>
+<li>Codar uma função transformada do jeito que queremos que ela seja (B)</li>
+<li>Escrever um teste para que possa ser usado posteriormente para<br>
+checar se nossa função transformada (B) bate com a função gerada pela meta-programação (C)</li>
+<li>Extrair a AST de A e B</li>
+<li>Comparar as ASTs. O que elas diferem? Anote as diferenças
+<ul>
+<li>Você pode usar a <code>difflib</code> do python para fazer isso</li>
+</ul>
+</li>
+<li>Criar uma nova e mais complexa função exemplo (A) e repetir o processo até termos uma boa ideia das modificações necessárias na AST</li>
+</ol>
+<h2 id=criando-nossa-meta-função>Criando nossa meta-função</h2>
+<h3 id=primeira-iteração>Primeira iteração</h3>
+<p>Começaremos escrevendo uma função incrivelmente simples</p>
+<pre><code class=language-python>def example_1(x, y):
     internal_var  =  222
     result = (x+y)**internal_var
     return result
@@ -184,7 +522,9 @@ def test_meta_example_1(meta_func, x, y):
     result, locals_dict = meta_func(x, y)
     assert result == expected_result
     assert expected_locals == locals_dict
-</code></pre><p>Agora usaseri a <code>difflib</code> para entender as diferenças entre as duas ASTs.</p><pre><code class=language-python>import difflib
+</code></pre>
+<p>Agora usaseri a <code>difflib</code> para entender as diferenças entre as duas ASTs.</p>
+<pre><code class=language-python>import difflib
 from pprint import pprint
 
 example_1_ast_str = astor.dump_tree(ast.parse(inspect.getsource(example_1)))
@@ -196,7 +536,8 @@ pprint(
         difflib.unified_diff(example_1_ast_str.splitlines(), example_1_expected_str.splitlines(), n=0)
     )
 )
-</code></pre><pre><code>['--- \n',
+</code></pre>
+<pre><code>['--- \n',
 '+++ \n',
 '@@ -3 +3 @@\n',
 &quot;-        FunctionDef(name='example_1',&quot;,
@@ -205,12 +546,23 @@ pprint(
 &quot;-                Return(value=Name(id='result'))],&quot;,
 &quot;+                Return(value=Tuple(elts=[Name(id='result'), &quot;
 &quot;Call(func=Name(id='locals'), args=[], keywords=[])]))],&quot;]
-</code></pre><p>Com o output acima sabemos aogra que precisaremos mudar o seguinte nó na AST</p><pre><code>Return(value=Name(id='result'))],
-</code></pre><p>para isto</p><pre><code>Return(value=Tuple(elts=[Name(id='result'), Call(func=Name(id='locals'), args=[], keywords=[])]))],
-</code></pre><p>Como alterar nós na AST? Com a ajuda do <code>NodeTransformer</code></p><h3 id=o-nodetransformer>O NodeTransformer</h3><p>O <code>ast.NodeTransformer</code> nos permite criar objetos com uma interface de caminhante. O caminhante visitará cada Node da AST e durante cada visita ele pode remover, substituir, modificar ou adicionar Nodes. Após fazer essas alterações o caminhante pode continuar sua caminhada nos filhos do Node ou apenas parar.</p><p>Vamos iniciar criando uma classe derivada de <code>ast.NodeTransformer</code></p><pre><code class=language-python>class ASTTransformer(ast.NodeTransformer):
+</code></pre>
+<p>Com o output acima sabemos aogra que precisaremos mudar o seguinte nó na AST</p>
+<pre><code>Return(value=Name(id='result'))],
+</code></pre>
+<p>para isto</p>
+<pre><code>Return(value=Tuple(elts=[Name(id='result'), Call(func=Name(id='locals'), args=[], keywords=[])]))],
+</code></pre>
+<p>Como alterar nós na AST? Com a ajuda do <code>NodeTransformer</code></p>
+<h3 id=o-nodetransformer>O NodeTransformer</h3>
+<p>O <code>ast.NodeTransformer</code> nos permite criar objetos com uma interface de caminhante. O caminhante visitará cada Node da AST e durante cada visita ele pode remover, substituir, modificar ou adicionar Nodes. Após fazer essas alterações o caminhante pode continuar sua caminhada nos filhos do Node ou apenas parar.</p>
+<p>Vamos iniciar criando uma classe derivada de <code>ast.NodeTransformer</code></p>
+<pre><code class=language-python>class ASTTransformer(ast.NodeTransformer):
     def visit_Return(self, node):
-</code></pre><p>Se queremos interagir com um nó do tipo <code>AlgumaCoisa</code> precisamos sobrescrever o método <code>visit_AlgumaCoisa</code>.
-Portanto, como sabemos que precisamos mudar o <code>Return</code> iremos sobrescrever o <code>visit_Return</code>. Precisaremos criar também um nó para pegar o <code>locals</code>. Esse nó é o <code>Call</code></p><pre><code class=language-python>class ASTTransformer(ast.NodeTransformer):
+</code></pre>
+<p>Se queremos interagir com um nó do tipo <code>AlgumaCoisa</code> precisamos sobrescrever o método <code>visit_AlgumaCoisa</code>.
+Portanto, como sabemos que precisamos mudar o <code>Return</code> iremos sobrescrever o <code>visit_Return</code>. Precisaremos criar também um nó para pegar o <code>locals</code>. Esse nó é o <code>Call</code></p>
+<pre><code class=language-python>class ASTTransformer(ast.NodeTransformer):
     def visit_Return(self, node):
         node_locals = ast.Call(
             func=ast.Name(id='locals', ctx=ast.Load()),
@@ -218,7 +570,9 @@ Portanto, como sabemos que precisamos mudar o <code>Return</code> iremos sobresc
         )
         self.generic_visit(node)
         return node
-</code></pre><p>Veja que usamos o nó <code>Name</code> para identificar a função <code>locals</code>. Agora, de acordo com o resultado do nosso diff o resultado do <code>Return</code> precisa ser uma nó do tipo <code>Tuple</code></p><pre><code class=language-python>class ASTTransformer(ast.NodeTransformer):
+</code></pre>
+<p>Veja que usamos o nó <code>Name</code> para identificar a função <code>locals</code>. Agora, de acordo com o resultado do nosso diff o resultado do <code>Return</code> precisa ser uma nó do tipo <code>Tuple</code></p>
+<pre><code class=language-python>class ASTTransformer(ast.NodeTransformer):
     def visit_Return(self, node):
         node_locals = ast.Call(
             func=ast.Name(id='locals', ctx=ast.Load()),
@@ -233,8 +587,11 @@ Portanto, como sabemos que precisamos mudar o <code>Return</code> iremos sobresc
         )
         self.generic_visit(new_node)
         return new_node
-</code></pre><p>Uma nova coisa apareceu. O argumento <code>elts</code>. Não se preoucupe em entender tudo. Mas o <code>elts</code> é um arg que diz qual é a lista de nós que a Tupla deve conter. Toda vez que você quiser entender um pouco mais sobre ASTs e a gramática do python você pode consultar a documentação oficial
-<a href=https://docs.python.org/3/library/ast.html target=_blank rel=noopener>aqui</a>.</p><p>Quase tudo pronto. A última coisa que precisamos fazer é corrigir nossa AST. Pois ao alterar o Node precisamos preencher/corrigir as informações de line_number e column_offest. O python torna isso fácil com o método <code>fix_missing_locations</code></p><pre><code class=language-python>
+</code></pre>
+<p>Uma nova coisa apareceu. O argumento <code>elts</code>. Não se preoucupe em entender tudo. Mas o <code>elts</code> é um arg que diz qual é a lista de nós que a Tupla deve conter. Toda vez que você quiser entender um pouco mais sobre ASTs e a gramática do python você pode consultar a documentação oficial
+<a href=https://docs.python.org/3/library/ast.html target=_blank rel=noopener>aqui</a>.</p>
+<p>Quase tudo pronto. A última coisa que precisamos fazer é corrigir nossa AST. Pois ao alterar o Node precisamos preencher/corrigir as informações de line_number e column_offest. O python torna isso fácil com o método <code>fix_missing_locations</code></p>
+<pre><code class=language-python>
 class ASTTransformer(ast.NodeTransformer):
     def visit_Return(self, node):
         new_node = node
@@ -253,7 +610,9 @@ class ASTTransformer(ast.NodeTransformer):
         ast.fix_missing_locations(new_node)
         self.generic_visit(new_node)
         return new_node
-</code></pre><p>Ok, vamos ver se funcionou. Para isso, precisamos instanciar nosso transformer e chamar o método <code>visit</code> que diz para o caminhante iniciar a caminhada e fazer as modificações pedidas</p><pre><code class=language-python>tree_meta = ast.parse(inspect.getsource(example_1))
+</code></pre>
+<p>Ok, vamos ver se funcionou. Para isso, precisamos instanciar nosso transformer e chamar o método <code>visit</code> que diz para o caminhante iniciar a caminhada e fazer as modificações pedidas</p>
+<pre><code class=language-python>tree_meta = ast.parse(inspect.getsource(example_1))
 transformer = ASTTransformer()
 transformer.visit(tree_meta)
 example_1_meta_ast_str = astor.dump_tree(tree_meta)
@@ -265,12 +624,17 @@ pprint(
         difflib.unified_diff(example_1_meta_ast_str.splitlines(), example_1_expected_str.splitlines(), n=0)
     )
 )
-</code></pre><pre><code>['--- \n',
+</code></pre>
+<pre><code>['--- \n',
 '+++ \n',
 '@@ -3 +3 @@\n',
 &quot;-        FunctionDef(name='example_1',&quot;,
 &quot;+        FunctionDef(name='example_1_expected',&quot;]
-</code></pre><p>Funcionou! Vamos adicionar um pouco mais de complicação para ver se o NodeTransformer continuará funcionando.</p><h3 id=a-segunda-iteração>A segunda iteração</h3><p>Seja criativo na hora de complicar, eu fiz isso aqui é feio mais adiciona muita confusão para estressar o NodeTransformer.</p><pre><code class=language-python>def example_2(x, y):
+</code></pre>
+<p>Funcionou! Vamos adicionar um pouco mais de complicação para ver se o NodeTransformer continuará funcionando.</p>
+<h3 id=a-segunda-iteração>A segunda iteração</h3>
+<p>Seja criativo na hora de complicar, eu fiz isso aqui é feio mais adiciona muita confusão para estressar o NodeTransformer.</p>
+<pre><code class=language-python>def example_2(x, y):
     internal_var  =  222
     def sub(x, y):
         ommit_this_var = 1
@@ -291,7 +655,8 @@ def test_meta_example_2(meta_func, x, y):
     del expected_locals[&quot;sub&quot;]
     assert result == expected_result
     assert expected_locals == locals_dict
-</code></pre><pre><code class=language-python>example_2_ast_str = astor.dump_tree(ast.parse(inspect.getsource(example_2)))
+</code></pre>
+<pre><code class=language-python>example_2_ast_str = astor.dump_tree(ast.parse(inspect.getsource(example_2)))
 example_2_expected_str = astor.dump_tree(ast.parse(inspect.getsource(example_2_expected)))
 
 
@@ -300,7 +665,8 @@ pprint(
         difflib.unified_diff(example_2_ast_str.splitlines(), example_2_expected_str.splitlines(), n=0)
     )
 )
-</code></pre><pre><code>['--- \n',
+</code></pre>
+<pre><code>['--- \n',
 '+++ \n',
 '@@ -3 +3 @@\n',
 &quot;-        FunctionDef(name='example_2',&quot;,
@@ -314,7 +680,9 @@ pprint(
 'Constant(value=False, kind=None)]),',
 &quot;+                            Call(func=Name(id='locals'), args=[], &quot;
 'keywords=[])]))],']
-</code></pre><p>Agora é hora de cruzar os dedos e esperar que continue funcionando</p><pre><code class=language-python>tree_meta = ast.parse(inspect.getsource(example_2))
+</code></pre>
+<p>Agora é hora de cruzar os dedos e esperar que continue funcionando</p>
+<pre><code class=language-python>tree_meta = ast.parse(inspect.getsource(example_2))
 transformer = ASTTransformer()
 transformer.visit(tree_meta)
 example_2_meta_ast_str = astor.dump_tree(tree_meta)
@@ -326,7 +694,8 @@ pprint(
         difflib.unified_diff(example_2_meta_ast_str.splitlines(), example_2_expected_str.splitlines(), n=0)
     )
 )
-</code></pre><pre><code>['--- \n',
+</code></pre>
+<pre><code>['--- \n',
 '+++ \n',
 '@@ -3 +3 @@\n',
 &quot;-        FunctionDef(name='example_2',&quot;,
@@ -340,7 +709,9 @@ pprint(
 'keywords=[])]))],',
 &quot;+                        Return(value=BinOp(left=Name(id='x'), op=Sub, &quot;
 &quot;right=Name(id='y')))],&quot;]
-</code></pre><p>Falhou miseravelmente. Qual é o problema? Se você olhar o <code>diff</code> com cuidado verá que o <code>NodeTransformer</code> alterou a função interna. Não queremos isso. Portanto, diremos para o caminhante evitar modificar se estiver em uma função interna. Para isso, precisamos sobrescrever o método <code>visit_FunctionDef</code> e criar uma flag para marcar em que nível o caminhante está</p><pre><code class=language-python>class ASTTransformer(ast.NodeTransformer):
+</code></pre>
+<p>Falhou miseravelmente. Qual é o problema? Se você olhar o <code>diff</code> com cuidado verá que o <code>NodeTransformer</code> alterou a função interna. Não queremos isso. Portanto, diremos para o caminhante evitar modificar se estiver em uma função interna. Para isso, precisamos sobrescrever o método <code>visit_FunctionDef</code> e criar uma flag para marcar em que nível o caminhante está</p>
+<pre><code class=language-python>class ASTTransformer(ast.NodeTransformer):
     def visit_FunctionDef(self, node):
         if self._sub:
             return node
@@ -369,7 +740,8 @@ pprint(
         ast.fix_missing_locations(new_node)
         self.generic_visit(new_node)
         return new_node 
-</code></pre><pre><code class=language-python>tree_meta = ast.parse(inspect.getsource(example_2))
+</code></pre>
+<pre><code class=language-python>tree_meta = ast.parse(inspect.getsource(example_2))
 transformer = ASTTransformer()
 transformer.visit(tree_meta)
 example_2_meta_ast_str = astor.dump_tree(tree_meta)
@@ -381,12 +753,17 @@ pprint(
         difflib.unified_diff(example_2_meta_ast_str.splitlines(), example_2_expected_str.splitlines(), n=0)
     )
 )
-</code></pre><pre><code>['--- \n',
+</code></pre>
+<pre><code>['--- \n',
 '+++ \n',
 '@@ -3 +3 @@\n',
 &quot;-        FunctionDef(name='example_2',&quot;,
 &quot;+        FunctionDef(name='example_2_expected',&quot;]
-</code></pre><p>Tudo ok! Próximo passo: compilar nossa ast.</p><h3 id=criando-uma-nova-função-em-runtime>Criando uma nova função em runtime</h3><p>O que faremos agora é compilar a AST transformada e associa-la com uma nova função. Em python podemos fazer isso em tempo de execução com <code>type.FunctionType</code></p><pre><code class=language-python>from types import FunctionType, CodeType
+</code></pre>
+<p>Tudo ok! Próximo passo: compilar nossa ast.</p>
+<h3 id=criando-uma-nova-função-em-runtime>Criando uma nova função em runtime</h3>
+<p>O que faremos agora é compilar a AST transformada e associa-la com uma nova função. Em python podemos fazer isso em tempo de execução com <code>type.FunctionType</code></p>
+<pre><code class=language-python>from types import FunctionType, CodeType
 
 def transform_and_compile(func: FunctionType)-&gt;FunctionType:
     source = inspect.getsource(func)
@@ -400,14 +777,21 @@ def transform_and_compile(func: FunctionType)-&gt;FunctionType:
     # we must to pass the globals context to the function
     transformed_func = FunctionType(function_code, func.__globals__)
     return transformed_func
-</code></pre><pre><code class=language-python>test_meta_example_1(transform_and_compile(example_1), 4, 2)
+</code></pre>
+<pre><code class=language-python>test_meta_example_1(transform_and_compile(example_1), 4, 2)
 test_meta_example_2(transform_and_compile(example_2), 1, 2)
 
-</code></pre><p>Veja que <code>transform_and_compile</code> foi capaz de criar novas funções que passaram nos testes que escrevemos nas iterações anteriores! Agora é o passo final e mais fácil desse post. Integrar com o decorador.</p><h2 id=integrando-a-manipulação-de-ast-com-um-decorador>Integrando a manipulação de AST com um decorador</h2><p>O que faremos é chamar <code>transform_and_compile</code> logo após o <code>def decorate</code> para evitar compilações desnecessárias toda vez que chamarmos a função decorada</p><pre><code class=language-python>def report(fmt):
+</code></pre>
+<p>Veja que <code>transform_and_compile</code> foi capaz de criar novas funções que passaram nos testes que escrevemos nas iterações anteriores! Agora é o passo final e mais fácil desse post. Integrar com o decorador.</p>
+<h2 id=integrando-a-manipulação-de-ast-com-um-decorador>Integrando a manipulação de AST com um decorador</h2>
+<p>O que faremos é chamar <code>transform_and_compile</code> logo após o <code>def decorate</code> para evitar compilações desnecessárias toda vez que chamarmos a função decorada</p>
+<pre><code class=language-python>def report(fmt):
     def decorate(func):
         meta_func = transform_and_compile(func)
         ....
-</code></pre><p>Agora, dentro de <code>def decorated</code> podemos chamar a <code>meta_func</code> e retornar só o resultado pois não queremos mudar nossa codebase</p><pre><code class=language-python>def report(fmt):
+</code></pre>
+<p>Agora, dentro de <code>def decorated</code> podemos chamar a <code>meta_func</code> e retornar só o resultado pois não queremos mudar nossa codebase</p>
+<pre><code class=language-python>def report(fmt):
     def decorate(func):
         meta_func = transform_and_compile(func)
         ...
@@ -415,7 +799,9 @@ test_meta_example_2(transform_and_compile(example_2), 1, 2)
             _result, internal_locals = meta_func(*_args)
             ....
             return _result
-</code></pre><p>Com todas as coisas que fizemos no post nosso decorador <code>report</code> está pronto para ser usado</p><pre><code class=language-python>
+</code></pre>
+<p>Com todas as coisas que fizemos no post nosso decorador <code>report</code> está pronto para ser usado</p>
+<pre><code class=language-python>
 def report(fmt):
     def decorate(func):
         meta_func = transform_and_compile(func)
@@ -442,7 +828,9 @@ def report(fmt):
             return result
         return decorated 
     return decorate
-</code></pre><p>Veja o resultado em uma função bem simples</p><pre><code class=language-python>@report(fmt='{name}(a={a}, b={b}, c={c}); sum_ab {sum_ab}, diff_ab {dif_ab}; r={result}')
+</code></pre>
+<p>Veja o resultado em uma função bem simples</p>
+<pre><code class=language-python>@report(fmt='{name}(a={a}, b={b}, c={c}); sum_ab {sum_ab}, diff_ab {dif_ab}; r={result}')
 def dummy_example(a, b, c=2):
     sum_ab = a + b
     dif_ab = a - b
@@ -451,15 +839,118 @@ def dummy_example(a, b, c=2):
 
 r = dummy_example(2, 3, 1)
 print(&quot;r:&quot;, r)
-</code></pre><pre><code>    dummy_example(a=2, b=3, c=1); sum_ab 5, diff_ab -1; r=4
+</code></pre>
+<pre><code>    dummy_example(a=2, b=3, c=1); sum_ab 5, diff_ab -1; r=4
     r: 4
-</code></pre><p>Eu sei que esse post pode ter sido difícil, se tiver dúvida você pode entrar em contato comigo pelos comentários abaixo, twitter ou linkedin. Compartilhe se você gostou.</p></div><div class=article-tags><a class="badge badge-light" href=/pt-br/tag/python/>python</a>
+</code></pre>
+<p>Eu sei que esse post pode ter sido difícil, se tiver dúvida você pode entrar em contato comigo pelos comentários abaixo, twitter ou linkedin. Compartilhe se você gostou.</p>
+</div>
+<div class=article-tags>
+<a class="badge badge-light" href=/pt-br/tag/python/>python</a>
 <a class="badge badge-light" href=/pt-br/tag/ast/>ast</a>
 <a class="badge badge-light" href=/pt-br/tag/compilers/>compilers</a>
 <a class="badge badge-light" href=/pt-br/tag/decorators/>decorators</a>
 <a class="badge badge-light" href=/pt-br/tag/debugging/>debugging</a>
-<a class="badge badge-light" href=/pt-br/tag/hacks/>hacks</a></div><div class=share-box aria-hidden=true><h5 class=text-center>Compartilhe se você gostou</h5><ul class=share><li><a href="https://twitter.com/intent/tweet?url=/pt-br/post/python_ast_metaprogramming_with_introspection_and_decorators/&text=Metaprograma%c3%a7%c3%a3o%20em%20Python%20com%20ASTs:%20criando%20um%20decorador%20com%20introspec%c3%a7%c3%a3o" target=_blank rel=noopener class=share-btn-twitter><i class="fab fa-twitter"></i></a></li><li><a href="https://www.facebook.com/sharer.php?u=/pt-br/post/python_ast_metaprogramming_with_introspection_and_decorators/&t=Metaprograma%c3%a7%c3%a3o%20em%20Python%20com%20ASTs:%20criando%20um%20decorador%20com%20introspec%c3%a7%c3%a3o" target=_blank rel=noopener class=share-btn-facebook><i class="fab fa-facebook"></i></a></li><li><a href="mailto:?subject=Metaprograma%c3%a7%c3%a3o%20em%20Python%20com%20ASTs:%20criando%20um%20decorador%20com%20introspec%c3%a7%c3%a3o&body=/pt-br/post/python_ast_metaprogramming_with_introspection_and_decorators/" target=_blank rel=noopener class=share-btn-email><i class="fas fa-envelope"></i></a></li><li><a href="https://www.linkedin.com/shareArticle?url=/pt-br/post/python_ast_metaprogramming_with_introspection_and_decorators/&title=Metaprograma%c3%a7%c3%a3o%20em%20Python%20com%20ASTs:%20criando%20um%20decorador%20com%20introspec%c3%a7%c3%a3o" target=_blank rel=noopener class=share-btn-linkedin><i class="fab fa-linkedin-in"></i></a></li><li><a href="whatsapp://send?text=Metaprograma%c3%a7%c3%a3o%20em%20Python%20com%20ASTs:%20criando%20um%20decorador%20com%20introspec%c3%a7%c3%a3o%20/pt-br/post/python_ast_metaprogramming_with_introspection_and_decorators/" target=_blank rel=noopener class=share-btn-whatsapp><i class="fab fa-whatsapp"></i></a></li><li><a href="https://service.weibo.com/share/share.php?url=/pt-br/post/python_ast_metaprogramming_with_introspection_and_decorators/&title=Metaprograma%c3%a7%c3%a3o%20em%20Python%20com%20ASTs:%20criando%20um%20decorador%20com%20introspec%c3%a7%c3%a3o" target=_blank rel=noopener class=share-btn-weibo><i class="fab fa-weibo"></i></a></li></ul></div><div class="media author-card content-widget-hr"><img class="avatar mr-3 avatar-circle" src=/pt-br/author/bruno-messias/avatar_hu8c5dc81c7296f83357bec0b4ab814f69_6046_270x270_fill_lanczos_center_2.png alt="Bruno Messias"><div class=media-body><h5 class=card-title><a href=/>Bruno Messias</a></h5><h6 class=card-subtitle>Ph.D Candidate /Software Developer</h6><p class=card-text>Free-software enthusiast, researcher, and software developer. Currently, working in the field of Graphs, Complex Systems and Machine Learning.</p><ul class=network-icon aria-hidden=true><li><a href=mailto:devmessias@gmail.com><i class="fas fa-envelope"></i></a></li><li><a href=https://twitter.com/devmessias target=_blank rel=noopener><i class="fab fa-twitter"></i></a></li><li><a href=https://github.com/devmessias target=_blank rel=noopener><i class="fab fa-github"></i></a></li><li><a href=https://www.linkedin.com/in/bruno-messias-510553193/ target=_blank rel=noopener><i class="fab fa-linkedin"></i></a></li></ul></div></div><section id=comments><div id=disqus_thread></div><script>let disqus_config=function(){};(function(){if(["localhost","127.0.0.1"].indexOf(window.location.hostname)!=-1){document.getElementById('disqus_thread').innerHTML='Disqus comments not available by default when the website is previewed locally.';return;}
-var d=document,s=d.createElement('script');s.async=true;s.src='https://'+"devmessias"+'.disqus.com/embed.js';s.setAttribute('data-timestamp',+new Date());(d.head||d.body).appendChild(s);})();</script><noscript>Please enable JavaScript to view the <a href=https://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript><a href=https://disqus.com class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a></section><div class="article-widget content-widget-hr"><h3>Relacionados</h3><ul><li><a href=/pt-br/post/python_decorator_that_exposes_locals/>An introspective python decorator using stack frames and the inspect module</a></li><li><a href=/pt-br/post/investigando_processos_e_bugs_strace_lsof_no_linux/>Dissecando processos e erros no Linux com o lsof e strace: casos para DevOps/MlOps</a></li><li><a href=/pt-br/post/nsbm_sp500_stock_market_disparity_filter/>Grafos e modelo de blocos aninhados para matrizes de correlação: clusterização do mercado de ações</a></li><li><a href=/pt-br/post/random_matrix_portfolio/>Variações do teorema central do limite para matrizes aleatórias.</a></li><li><a href=/pt-br/post/edge_graph_filtering/>Grafos e filtragem de arestas I: conceitos e confusões</a></li></ul></div></div></article></main></div></div></div><script src=https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/4.1.4/imagesloaded.pkgd.min.js integrity="sha256-lqvxZrPLtfffUl2G/e7szqSvPBILGbwmsGE1MKlOi0Q=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/jquery.isotope/3.0.6/isotope.pkgd.min.js integrity="sha256-CBrpuqrMhXwcLLUd5tvQ4euBHCdh7wGlDfNz8vbu/iI=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js integrity="sha256-yt2kYMy0w8AbtF89WXb2P1rfjcP/HTHLT7097U8Y5b8=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/mermaid/8.4.8/mermaid.min.js integrity="sha256-lyWCDMnMeZiXRi7Zl54sZGKYmgQs4izcT7+tKc+KUBk=" crossorigin=anonymous title=mermaid></script><script src=https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/highlight.min.js integrity="sha256-eOgo0OtLL4cdq7RdwRUiGKLX9XsIJ7nGhWEKbohmVAQ=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/languages/r.min.js></script><script>const code_highlighting=true;</script><script>const isSiteThemeDark=false;</script><script>const search_config={"indexURI":"/pt-br/index.json","minLength":1,"threshold":0.3};const i18n={"no_results":"Sem resultados","placeholder":"Pesquisar...","results":"Resultados encontrados"};const content_type={'post':"Posts",'project':"Projetos",'publication':"Publicações",'talk':"Palestras",'slides':"Slides"};</script><script id=search-hit-fuse-template type=text/x-template>
+<a class="badge badge-light" href=/pt-br/tag/hacks/>hacks</a>
+</div>
+<div class=share-box aria-hidden=true>
+<h5 class=text-center>Compartilhe se você gostou</h5>
+<ul class=share>
+<li>
+<a href="https://twitter.com/intent/tweet?url=/pt-br/post/python_ast_metaprogramming_with_introspection_and_decorators/&text=Metaprograma%c3%a7%c3%a3o%20em%20Python%20com%20ASTs:%20criando%20um%20decorador%20com%20introspec%c3%a7%c3%a3o" target=_blank rel=noopener class=share-btn-twitter>
+<i class="fab fa-twitter"></i>
+</a>
+</li>
+<li>
+<a href="https://www.facebook.com/sharer.php?u=/pt-br/post/python_ast_metaprogramming_with_introspection_and_decorators/&t=Metaprograma%c3%a7%c3%a3o%20em%20Python%20com%20ASTs:%20criando%20um%20decorador%20com%20introspec%c3%a7%c3%a3o" target=_blank rel=noopener class=share-btn-facebook>
+<i class="fab fa-facebook"></i>
+</a>
+</li>
+<li>
+<a href="mailto:?subject=Metaprograma%c3%a7%c3%a3o%20em%20Python%20com%20ASTs:%20criando%20um%20decorador%20com%20introspec%c3%a7%c3%a3o&body=/pt-br/post/python_ast_metaprogramming_with_introspection_and_decorators/" target=_blank rel=noopener class=share-btn-email>
+<i class="fas fa-envelope"></i>
+</a>
+</li>
+<li>
+<a href="https://www.linkedin.com/shareArticle?url=/pt-br/post/python_ast_metaprogramming_with_introspection_and_decorators/&title=Metaprograma%c3%a7%c3%a3o%20em%20Python%20com%20ASTs:%20criando%20um%20decorador%20com%20introspec%c3%a7%c3%a3o" target=_blank rel=noopener class=share-btn-linkedin>
+<i class="fab fa-linkedin-in"></i>
+</a>
+</li>
+<li>
+<a href="whatsapp://send?text=Metaprograma%c3%a7%c3%a3o%20em%20Python%20com%20ASTs:%20criando%20um%20decorador%20com%20introspec%c3%a7%c3%a3o%20/pt-br/post/python_ast_metaprogramming_with_introspection_and_decorators/" target=_blank rel=noopener class=share-btn-whatsapp>
+<i class="fab fa-whatsapp"></i>
+</a>
+</li>
+<li>
+<a href="https://service.weibo.com/share/share.php?url=/pt-br/post/python_ast_metaprogramming_with_introspection_and_decorators/&title=Metaprograma%c3%a7%c3%a3o%20em%20Python%20com%20ASTs:%20criando%20um%20decorador%20com%20introspec%c3%a7%c3%a3o" target=_blank rel=noopener class=share-btn-weibo>
+<i class="fab fa-weibo"></i>
+</a>
+</li>
+</ul>
+</div>
+<div class="media author-card content-widget-hr">
+<img class="avatar mr-3 avatar-circle" src=/pt-br/author/bruno-messias/avatar_hu8c5dc81c7296f83357bec0b4ab814f69_6046_270x270_fill_lanczos_center_3.png alt="Bruno Messias">
+<div class=media-body>
+<h5 class=card-title><a href=/>Bruno Messias</a></h5>
+<h6 class=card-subtitle>Ph.D Candidate /Software Developer</h6>
+<p class=card-text>Free-software enthusiast, researcher, and software developer. Currently, working in the field of Graphs, Complex Systems and Machine Learning.</p>
+<ul class=network-icon aria-hidden=true>
+<li>
+<a href=mailto:devmessias@gmail.com>
+<i class="fas fa-envelope"></i>
+</a>
+</li>
+<li>
+<a href=https://twitter.com/devmessias target=_blank rel=noopener>
+<i class="fab fa-twitter"></i>
+</a>
+</li>
+<li>
+<a href=https://github.com/devmessias target=_blank rel=noopener>
+<i class="fab fa-github"></i>
+</a>
+</li>
+<li>
+<a href=https://www.linkedin.com/in/bruno-messias-510553193/ target=_blank rel=noopener>
+<i class="fab fa-linkedin"></i>
+</a>
+</li>
+</ul>
+</div>
+</div>
+<section id=comments>
+<div id=disqus_thread></div>
+<script>let disqus_config=function(){};(function(){if(["localhost","127.0.0.1"].indexOf(window.location.hostname)!=-1){document.getElementById('disqus_thread').innerHTML='Disqus comments not available by default when the website is previewed locally.';return}var b=document,a=b.createElement('script');a.async=!0,a.src='https://devmessias.disqus.com/embed.js',a.setAttribute('data-timestamp',+new Date),(b.head||b.body).appendChild(a)})()</script>
+<noscript>Please enable JavaScript to view the <a href=https://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript>
+<a href=https://disqus.com class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a>
+</section>
+<div class="article-widget content-widget-hr">
+<h3>Relacionados</h3>
+<ul>
+<li><a href=/pt-br/post/python_decorator_that_exposes_locals/>An introspective python decorator using stack frames and the inspect module</a></li>
+<li><a href=/pt-br/post/investigando_processos_e_bugs_strace_lsof_no_linux/>Dissecando processos e erros no Linux com o lsof e strace: casos para DevOps/MlOps</a></li>
+<li><a href=/pt-br/post/nsbm_sp500_stock_market_disparity_filter/>Grafos e modelo de blocos aninhados para matrizes de correlação: clusterização do mercado de ações</a></li>
+<li><a href=/pt-br/post/random_matrix_portfolio/>Variações do teorema central do limite para matrizes aleatórias.</a></li>
+<li><a href=/pt-br/post/edge_graph_filtering/>Grafos e filtragem de arestas I: conceitos e confusões</a></li>
+</ul>
+</div>
+</div>
+</article>
+</main>
+</div>
+</div>
+</div>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin=anonymous></script>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/4.1.4/imagesloaded.pkgd.min.js integrity="sha256-lqvxZrPLtfffUl2G/e7szqSvPBILGbwmsGE1MKlOi0Q=" crossorigin=anonymous></script>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/jquery.isotope/3.0.6/isotope.pkgd.min.js integrity="sha256-CBrpuqrMhXwcLLUd5tvQ4euBHCdh7wGlDfNz8vbu/iI=" crossorigin=anonymous></script>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js integrity="sha256-yt2kYMy0w8AbtF89WXb2P1rfjcP/HTHLT7097U8Y5b8=" crossorigin=anonymous></script>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/mermaid/8.4.8/mermaid.min.js integrity="sha256-lyWCDMnMeZiXRi7Zl54sZGKYmgQs4izcT7+tKc+KUBk=" crossorigin=anonymous title=mermaid></script>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/highlight.min.js integrity="sha256-eOgo0OtLL4cdq7RdwRUiGKLX9XsIJ7nGhWEKbohmVAQ=" crossorigin=anonymous></script>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/languages/r.min.js></script>
+<script>const code_highlighting=!0</script>
+<script>const isSiteThemeDark=!1</script>
+<script>const search_config={indexURI:"/pt-br/index.json",minLength:1,threshold:.3},i18n={no_results:"Sem resultados",placeholder:"Pesquisar...",results:"Resultados encontrados"},content_type={post:"Posts",project:"Projetos",publication:"Publicações",talk:"Palestras",slides:"Slides"}</script>
+<script id=search-hit-fuse-template type=text/x-template>
       <div class="search-hit" id="summary-{{key}}">
       <div class="search-hit-content">
         <div class="search-hit-name">
@@ -469,9 +960,55 @@ var d=document,s=d.createElement('script');s.async=true;s.src='https://'+"devmes
         </div>
       </div>
       </div>
-    </script><script src=https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.2.1/fuse.min.js integrity="sha256-VzgmKYmhsGNNN4Ph1kMW+BjoYJM2jV5i4IlFoeZA9XI=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin=anonymous></script><script id=dsq-count-scr src=https://devmessias.disqus.com/count.js async></script><script src=/js/academic.min.37431be2d92d7fb0160054761ab79602.js></script><div class=page-footer><div class=container><footer class=site-footer><p class=powered-by>Bruno Messias</p><p class=powered-by>Powered by the
+    </script>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.2.1/fuse.min.js integrity="sha256-VzgmKYmhsGNNN4Ph1kMW+BjoYJM2jV5i4IlFoeZA9XI=" crossorigin=anonymous></script>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin=anonymous></script>
+<script id=dsq-count-scr src=https://devmessias.disqus.com/count.js async></script>
+<script src=/js/academic.min.4aaf2d64e50f8e54cf66dcc54147a22e.js></script>
+<div class=page-footer>
+<div class=container>
+<footer class=site-footer>
+<p class=powered-by>
+Bruno Messias
+</p>
+<p class=powered-by>
+Powered by the
 <a href=https://sourcethemes.com/academic/ target=_blank rel=noopener>Academic theme</a> for
 <a href=https://gohugo.io target=_blank rel=noopener>Hugo</a>.
-<span class=float-right aria-hidden=true><a href=# class=back-to-top><span class=button_icon><i class="fas fa-chevron-up fa-2x"></i></span></a></span></p></footer></div></div><div id=modal class="modal fade" role=dialog><div class=modal-dialog><div class=modal-content><div class=modal-header><h5 class=modal-title>Citação</h5><button type=button class=close data-dismiss=modal aria-label=Close>
-<span aria-hidden=true>&#215;</span></button></div><div class=modal-body><pre><code class="tex hljs"></code></pre></div><div class=modal-footer><a class="btn btn-outline-primary my-1 js-copy-cite" href=# target=_blank><i class="fas fa-copy"></i>Copiar</a>
-<a class="btn btn-outline-primary my-1 js-download-cite" href=# target=_blank><i class="fas fa-download"></i>Download</a><div id=modal-error></div></div></div></div></div></body></html>
+<span class=float-right aria-hidden=true>
+<a href=# class=back-to-top>
+<span class=button_icon>
+<i class="fas fa-chevron-up fa-2x"></i>
+</span>
+</a>
+</span>
+</p>
+</footer>
+</div>
+</div>
+<div id=modal class="modal fade" role=dialog>
+<div class=modal-dialog>
+<div class=modal-content>
+<div class=modal-header>
+<h5 class=modal-title>Citação</h5>
+<button type=button class=close data-dismiss=modal aria-label=Close>
+<span aria-hidden=true>&#215;</span>
+</button>
+</div>
+<div class=modal-body>
+<pre><code class="tex hljs"></code></pre>
+</div>
+<div class=modal-footer>
+<a class="btn btn-outline-primary my-1 js-copy-cite" href=# target=_blank>
+<i class="fas fa-copy"></i> Copiar
+</a>
+<a class="btn btn-outline-primary my-1 js-download-cite" href=# target=_blank>
+<i class="fas fa-download"></i> Download
+</a>
+<div id=modal-error></div>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

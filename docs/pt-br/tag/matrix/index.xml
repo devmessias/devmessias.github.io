@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>matrix | Bruno Messias</title><link>/pt-br/tag/matrix/</link><atom:link href="/pt-br/tag/matrix/index.xml" rel="self" type="application/rss+xml"/><description>matrix</description><generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>pt-br</language><copyright>Bruno Messias</copyright><lastBuildDate>Tue, 15 Feb 2022 00:00:00 +0000</lastBuildDate><image><url>/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_2.png</url><title>matrix</title><link>/pt-br/tag/matrix/</link></image><item><title>Grafos e filtragem de arestas I: conceitos e confusões</title><link>/pt-br/post/edge_graph_filtering/</link><pubDate>Tue, 15 Feb 2022 00:00:00 +0000</pubDate><guid>/pt-br/post/edge_graph_filtering/</guid><description>&lt;h1 id="introdução">Introdução&lt;/h1>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>matrix | Bruno Messias</title><link>/pt-br/tag/matrix/</link><atom:link href="/pt-br/tag/matrix/index.xml" rel="self" type="application/rss+xml"/><description>matrix</description><generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>pt-br</language><copyright>Bruno Messias</copyright><lastBuildDate>Tue, 15 Feb 2022 00:00:00 +0000</lastBuildDate><image><url>/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_3.png</url><title>matrix</title><link>/pt-br/tag/matrix/</link></image><item><title>Grafos e filtragem de arestas I: conceitos e confusões</title><link>/pt-br/post/edge_graph_filtering/</link><pubDate>Tue, 15 Feb 2022 00:00:00 +0000</pubDate><guid>/pt-br/post/edge_graph_filtering/</guid><description>&lt;h1 id="introdução">Introdução&lt;/h1>
 &lt;div class="alert alert-note">
 &lt;div>
 Esse post é bem informal e foi feito para o grupo de estudos de MlOps. O conteúdo pode mudar significativamente com o passar do tempo.
@@ -85,8 +85,8 @@ C[C R$0]-->|R$0,50|A;
 Filtragem para remover ruídos&lt;/h2>
 &lt;p>Talvez a primeira coisa que vem à sua cabeça quando ouve a palavra filtro é Instagram. Alguns filtros de fotos feitos para embelezar nada mais são que um filtro para remoção de ruídos.&lt;/p>
 &lt;figure id="figure-imagem-original-e-imagem-com-contaminação-de-um-ruído">
-&lt;a data-fancybox="" href="/pt-br/post/edge_graph_filtering/photo_noisy_hu82d76e04dbaf989091cb8bf76c11c929_737197_0x200_resize_lanczos_2.png" data-caption="Imagem original e imagem com contaminação de um ruído.">
-&lt;img data-src="/pt-br/post/edge_graph_filtering/photo_noisy_hu82d76e04dbaf989091cb8bf76c11c929_737197_0x200_resize_lanczos_2.png" class="lazyload" alt="" width="100%" height="200px">
+&lt;a data-fancybox="" href="/pt-br/post/edge_graph_filtering/photo_noisy_hu82d76e04dbaf989091cb8bf76c11c929_737197_0x200_resize_lanczos_3.png" data-caption="Imagem original e imagem com contaminação de um ruído.">
+&lt;img data-src="/pt-br/post/edge_graph_filtering/photo_noisy_hu82d76e04dbaf989091cb8bf76c11c929_737197_0x200_resize_lanczos_3.png" class="lazyload" alt="" width="100%" height="200px">
 &lt;/a>
 &lt;figcaption>
 Imagem original e imagem com contaminação de um ruído.
@@ -107,8 +107,8 @@ Os principios da &lt;em>Gestalt&lt;/em> são apresentados nessa figura. [].
 &lt;/figure>
 &lt;p>Como se relaciona com os grafos? Um dos porquês para realizar a filtragem de um grafo consiste em remover relações (arestas) espúrias para ressaltar um dado padrão que queremos analisar. Comumente, esse padrão são estruturas de comunidades e/ou agrupamentos obtidos via métodos de visualização.&lt;/p>
 &lt;figure id="figure-os-princípios-da-gestalt-são-usados-para-desenvolver-métodos-de-processamento-de-imagens-imagem-retirada-de-">
-&lt;a data-fancybox="" href="/pt-br/post/edge_graph_filtering/gestalt_cv_example_hu5510a9064a332f07be8be12a15f3553e_77088_0x300_resize_lanczos_2.png" data-caption="Os princípios da &amp;lt;em&amp;gt;Gestalt&amp;lt;/em&amp;gt; são usados para desenvolver métodos de processamento de imagens. Imagem retirada de []">
-&lt;img data-src="/pt-br/post/edge_graph_filtering/gestalt_cv_example_hu5510a9064a332f07be8be12a15f3553e_77088_0x300_resize_lanczos_2.png" class="lazyload" alt="" width="100%" height="200px">
+&lt;a data-fancybox="" href="/pt-br/post/edge_graph_filtering/gestalt_cv_example_hu5510a9064a332f07be8be12a15f3553e_77088_0x300_resize_lanczos_3.png" data-caption="Os princípios da &amp;lt;em&amp;gt;Gestalt&amp;lt;/em&amp;gt; são usados para desenvolver métodos de processamento de imagens. Imagem retirada de []">
+&lt;img data-src="/pt-br/post/edge_graph_filtering/gestalt_cv_example_hu5510a9064a332f07be8be12a15f3553e_77088_0x300_resize_lanczos_3.png" class="lazyload" alt="" width="100%" height="200px">
 &lt;/a>
 &lt;figcaption>
 Os princípios da &lt;em>Gestalt&lt;/em> são usados para desenvolver métodos de processamento de imagens. Imagem retirada de []
@@ -250,8 +250,8 @@ plt.imshow(W)
 plt.show()
 &lt;/code>&lt;/pre>
 &lt;figure id="figure-a-matriz-de-adjacência-todos-os-pesos-são-1-do-grafo-gerado-por-nosso-modelo">
-&lt;a data-fancybox="" href="/pt-br/post/edge_graph_filtering/adj_sbm_hueb053748435c7d9559526a97c502365f_19313_400x0_resize_lanczos_2.png" data-caption="A matriz de adjacência (todos os pesos são 1) do grafo gerado por nosso modelo.">
-&lt;img data-src="/pt-br/post/edge_graph_filtering/adj_sbm_hueb053748435c7d9559526a97c502365f_19313_400x0_resize_lanczos_2.png" class="lazyload" alt="" width="400px" height="100%">
+&lt;a data-fancybox="" href="/pt-br/post/edge_graph_filtering/adj_sbm_hueb053748435c7d9559526a97c502365f_19313_400x0_resize_lanczos_3.png" data-caption="A matriz de adjacência (todos os pesos são 1) do grafo gerado por nosso modelo.">
+&lt;img data-src="/pt-br/post/edge_graph_filtering/adj_sbm_hueb053748435c7d9559526a97c502365f_19313_400x0_resize_lanczos_3.png" class="lazyload" alt="" width="400px" height="100%">
 &lt;/a>
 &lt;figcaption>
 A matriz de adjacência (todos os pesos são 1) do grafo gerado por nosso modelo.
@@ -287,8 +287,8 @@ print(f&amp;quot;Found {len(set(g_sbm_community_index))} communities&amp;quot;)
 plot(g_sbm, g_sbm_community_index, p)
 &lt;/code>&lt;/pre>
 &lt;figure id="figure-resultado-da-identificação-de-comunidades-usando-o-algoritmo-guloso-parece-ok">
-&lt;a data-fancybox="" href="/pt-br/post/edge_graph_filtering/modularity_sbm_hu232f725335f418633017afb243ed9c06_2880_400x0_resize_lanczos_2.png" data-caption="Resultado da identificação de comunidades usando o algoritmo guloso. Parece Ok">
-&lt;img data-src="/pt-br/post/edge_graph_filtering/modularity_sbm_hu232f725335f418633017afb243ed9c06_2880_400x0_resize_lanczos_2.png" class="lazyload" alt="" width="400px" height="100%">
+&lt;a data-fancybox="" href="/pt-br/post/edge_graph_filtering/modularity_sbm_hu232f725335f418633017afb243ed9c06_2880_400x0_resize_lanczos_3.png" data-caption="Resultado da identificação de comunidades usando o algoritmo guloso. Parece Ok">
+&lt;img data-src="/pt-br/post/edge_graph_filtering/modularity_sbm_hu232f725335f418633017afb243ed9c06_2880_400x0_resize_lanczos_3.png" class="lazyload" alt="" width="400px" height="100%">
 &lt;/a>
 &lt;figcaption>
 Resultado da identificação de comunidades usando o algoritmo guloso. Parece Ok
@@ -302,8 +302,8 @@ g_community_index = [find_where(n, p) for n in g.nodes]
 plot(g, g_community_index, p)
 &lt;/code>&lt;/pre>
 &lt;figure id="figure-resultado-da-identificação-de-comunidades-usando-o-algoritmo-guloso-para-o-modelo-er">
-&lt;a data-fancybox="" href="/pt-br/post/edge_graph_filtering/modularity_er_hu5a3fc90699528d500dae239de7f4b909_3810_400x0_resize_lanczos_2.png" data-caption="Resultado da identificação de comunidades usando o algoritmo guloso para o modelo ER.">
-&lt;img data-src="/pt-br/post/edge_graph_filtering/modularity_er_hu5a3fc90699528d500dae239de7f4b909_3810_400x0_resize_lanczos_2.png" class="lazyload" alt="" width="400px" height="100%">
+&lt;a data-fancybox="" href="/pt-br/post/edge_graph_filtering/modularity_er_hu5a3fc90699528d500dae239de7f4b909_3810_400x0_resize_lanczos_3.png" data-caption="Resultado da identificação de comunidades usando o algoritmo guloso para o modelo ER.">
+&lt;img data-src="/pt-br/post/edge_graph_filtering/modularity_er_hu5a3fc90699528d500dae239de7f4b909_3810_400x0_resize_lanczos_3.png" class="lazyload" alt="" width="400px" height="100%">
 &lt;/a>
 &lt;figcaption>
 Resultado da identificação de comunidades usando o algoritmo guloso para o modelo ER.
@@ -337,8 +337,8 @@ a2.set_title('ER')
 plt.show()
 &lt;/code>&lt;/pre>
 &lt;figure id="figure-visualização-via-force-directed-para-uma-amostra-de-um-sbm-e-outra-erdos-renyi-cores-representam-as-comunidades-identificadas-pelo-método-guloso-de-maximização-de-modularidade">
-&lt;a data-fancybox="" href="/pt-br/post/edge_graph_filtering/fd_sbm_and_er_hudae8c8a39de2754d2a986f6769de4dd6_25660_400x0_resize_lanczos_2.png" data-caption="Visualização via force-directed para uma amostra de um SBM e outra Erdos-Renyi. Cores representam as comunidades identificadas pelo método guloso de maximização de modularidade">
-&lt;img data-src="/pt-br/post/edge_graph_filtering/fd_sbm_and_er_hudae8c8a39de2754d2a986f6769de4dd6_25660_400x0_resize_lanczos_2.png" class="lazyload" alt="" width="400px" height="100%">
+&lt;a data-fancybox="" href="/pt-br/post/edge_graph_filtering/fd_sbm_and_er_hudae8c8a39de2754d2a986f6769de4dd6_25660_400x0_resize_lanczos_3.png" data-caption="Visualização via force-directed para uma amostra de um SBM e outra Erdos-Renyi. Cores representam as comunidades identificadas pelo método guloso de maximização de modularidade">
+&lt;img data-src="/pt-br/post/edge_graph_filtering/fd_sbm_and_er_hudae8c8a39de2754d2a986f6769de4dd6_25660_400x0_resize_lanczos_3.png" class="lazyload" alt="" width="400px" height="100%">
 &lt;/a>
 &lt;figcaption>
 Visualização via force-directed para uma amostra de um SBM e outra Erdos-Renyi. Cores representam as comunidades identificadas pelo método guloso de maximização de modularidade
@@ -382,8 +382,8 @@ B;
 &lt;/code>&lt;/pre>
 &lt;p>Uma das maiores limitações/perigo de se usar o método um &lt;em>naive threshold&lt;/em> é que em grafos que modelam situações do mundo real (seja ele direto ou não) a distribuição de pesos costuma seguir uma fat-tail e distorcida tal como essa aqui:&lt;/p>
 &lt;figure id="figure-distribuição-de-probabilidade-dos-pesos-das-arestas-em-função-do-peso-note-que-poucas-arestas-tem-um-peso-relevante-fonte-extracting-the-multiscale-backbone-of-complex-weighted-networkshttpsarxivorgabs09042389">
-&lt;a data-fancybox="" href="/pt-br/post/edge_graph_filtering/fat_tail_hua90d0707a945e6e9d352ed2f3ab43782_45362_400x0_resize_lanczos_2.png" data-caption="Distribuição de probabilidade dos pesos das arestas em função do peso. Note que poucas arestas tem um peso relevante. Fonte: &amp;lt;em&amp;gt;&amp;lt;a href=&amp;#34;https://arxiv.org/abs/0904.2389&amp;#34;&amp;gt;Extracting the multiscale backbone of complex weighted networks&amp;lt;/a&amp;gt;&amp;lt;/em&amp;gt;">
-&lt;img data-src="/pt-br/post/edge_graph_filtering/fat_tail_hua90d0707a945e6e9d352ed2f3ab43782_45362_400x0_resize_lanczos_2.png" class="lazyload" alt="" width="400px" height="100%">
+&lt;a data-fancybox="" href="/pt-br/post/edge_graph_filtering/fat_tail_hua90d0707a945e6e9d352ed2f3ab43782_45362_400x0_resize_lanczos_3.png" data-caption="Distribuição de probabilidade dos pesos das arestas em função do peso. Note que poucas arestas tem um peso relevante. Fonte: &amp;lt;em&amp;gt;&amp;lt;a href=&amp;#34;https://arxiv.org/abs/0904.2389&amp;#34;&amp;gt;Extracting the multiscale backbone of complex weighted networks&amp;lt;/a&amp;gt;&amp;lt;/em&amp;gt;">
+&lt;img data-src="/pt-br/post/edge_graph_filtering/fat_tail_hua90d0707a945e6e9d352ed2f3ab43782_45362_400x0_resize_lanczos_3.png" class="lazyload" alt="" width="400px" height="100%">
 &lt;/a>
 &lt;figcaption>
 Distribuição de probabilidade dos pesos das arestas em função do peso. Note que poucas arestas tem um peso relevante. Fonte: &lt;em>&lt;a href="https://arxiv.org/abs/0904.2389">Extracting the multiscale backbone of complex weighted networks&lt;/a>&lt;/em>
@@ -546,7 +546,7 @@ A---C;
 A---D;
 D---C;
 &lt;/code>&lt;/pre>
-&lt;p>Então $(1-p_{BA})^{k_b-1} = (1-1/2)^1 = 1/2$. Ok , então se escolhermos $\alpha$ igual 0.52 a tabela anterior (para **A**) diz para remover a aresta (A,B) enquanto por **B** o método nos diz que é para manter. Isso causa uma ambiguidade em como decidir se vamos manter ou não as arestas. Você pode escolher manter se os dois concordam ou manter se apenas um passar no teste. **Essa ambiguidade não aparece no caso de grafos direcionados!**&lt;/p>
+&lt;p>Então $(1-p_{BA})^{k_b-1} = (1-1/2)^1 = 1/2$. Ok , então se escolhermos $\alpha$ igual 0.52 a tabela anterior (para &lt;strong>A&lt;/strong>) diz para remover a aresta (A,B) enquanto por &lt;strong>B&lt;/strong> o método nos diz que é para manter. Isso causa uma ambiguidade em como decidir se vamos manter ou não as arestas. Você pode escolher manter se os dois concordam ou manter se apenas um passar no teste. &lt;strong>Essa ambiguidade não aparece no caso de grafos direcionados!&lt;/strong>&lt;/p>
 &lt;h3 id="pontos-positivos-1">Pontos positivos&lt;/h3>
 &lt;ul>
 &lt;li>é estabelecido dentro de uma formalização matemática robusta&lt;/li>
@@ -617,7 +617,7 @@ plt.close()
 &lt;p>Note na figura acima que o plot para a função $\frac{e^{-\frac{(x-\mu)^2}{2\sigma^2}}}{\sqrt(2\pi\sigma^2)}$ e o histograma coincidem. Você pode testar essa coincidência com outras distribuições, o mesmo comportamento se repetira. É isso que quero dizer com &lt;strong>universalidade&lt;/strong>.&lt;/p>
 &lt;p>Um questionamento válido é que estamos tratando apenas de uma variável aleatória e sua amostragem. Mas no mundo real existem outras estruturas mais intricadas. Por exemplo
 pegue um conjunto de variáveis aleatórias
-$\mathcal C=(X_{1 1}, X_{1 2}, \cdots, X_{N N})$, suponha que exista uma certa **simetria** nesse conjunto, uma possibilidade é $X_{i j} = X_{j i}$.
+$\mathcal C=(X_{1 1}, X_{1 2}, \cdots, X_{N N})$, suponha que exista uma certa &lt;strong>simetria&lt;/strong> nesse conjunto, uma possibilidade é $X_{i j} = X_{j i}$.
 Não é difícil imaginar situações onde tal conjunto apareça.&lt;/p>
 &lt;p>Podemos armazenar uma realização de $\mathcal C$ em uma matriz que nada mais é que um grafo completo com pesos. Ao estudar essas matrizes oriundas desse tipo de amostragem entramos em um novo campo da matemática, o campo das matrizes aleatórias.
 Nesse campo de estudos uma amostragem não retorna um número, mas sim uma matriz.&lt;/p>
@@ -987,9 +987,9 @@ $$
 onde $\mathbf D^{-1/2}$ é uma matriz diagonal com as entradas sendo os desvios padrão para cada serie de dados, isto é&lt;br>
 $$
 \begin{bmatrix}
-\sigma_{1} &amp;amp;0 &amp;amp;\cdots &amp;amp;0 \&lt;br>
-0 &amp;amp;\sigma_{2} &amp;amp;\cdots &amp;amp;0 \&lt;br>
-\vdots &amp;amp;\vdots &amp;amp;\ddots &amp;amp;\vdots \&lt;br>
+\sigma_{1} &amp;amp;0 &amp;amp;\cdots &amp;amp;0 \\
+0 &amp;amp;\sigma_{2} &amp;amp;\cdots &amp;amp;0 \\
+\vdots &amp;amp;\vdots &amp;amp;\ddots &amp;amp;\vdots \\
 0 &amp;amp;0 &amp;amp;\cdots &amp;amp;\sigma_{M} \end{bmatrix}
 $$&lt;/p>
 &lt;p>Discutimos uma maneira de obter uma matriz de correlação filtrada, $\mathbf{\tilde C}$, através de RMT,
@@ -1082,19 +1082,23 @@ plt.close()
 &lt;p>[2] Wigner, E.P., 1957. Statistical properties of real symmetric matrices with many dimensions (pp. 174-184). Princeton University.&lt;/p>
 &lt;/li>
 &lt;li>
-&lt;p>[4] “From Prime Numbers to Nuclear Physics and Beyond,” Institute for Advanced Study. &lt;a href="https://www.ias.edu/ideas/2013/primes-random-matrices">https://www.ias.edu/ideas/2013/primes-random-matrices&lt;/a> (accessed Sep. 30, 2020).&lt;/p>
+&lt;p>[4] “From Prime Numbers to Nuclear Physics and Beyond,” Institute for Advanced Study.
+&lt;a href="https://www.ias.edu/ideas/2013/primes-random-matrices" target="_blank" rel="noopener">https://www.ias.edu/ideas/2013/primes-random-matrices&lt;/a> (accessed Sep. 30, 2020).&lt;/p>
 &lt;/li>
 &lt;li>
-&lt;p>[5] “GUE hypothesis,” What’s new. &lt;a href="https://terrytao.wordpress.com/tag/gue-hypothesis/">https://terrytao.wordpress.com/tag/gue-hypothesis/&lt;/a> (accessed Nov. 22, 2021).&lt;/p>
+&lt;p>[5] “GUE hypothesis,” What’s new.
+&lt;a href="https://terrytao.wordpress.com/tag/gue-hypothesis/" target="_blank" rel="noopener">https://terrytao.wordpress.com/tag/gue-hypothesis/&lt;/a> (accessed Nov. 22, 2021).&lt;/p>
 &lt;/li>
 &lt;li>
 &lt;p>[6] R. Hudson and A. Gregoriou, “Calculating and Comparing Security Returns is Harder than you Think: A Comparison between Logarithmic and Simple Returns,” Social Science Research Network, Rochester, NY, SSRN Scholarly Paper ID 1549328, Feb. 2010. doi: 10.2139/ssrn.1549328.&lt;/p>
 &lt;/li>
 &lt;li>
-&lt;p>[7] A. Meucci, “Quant Nugget 2: Linear vs. Compounded Returns – Common Pitfalls in Portfolio Management,” Social Science Research Network, Rochester, NY, SSRN Scholarly Paper ID 1586656, May 2010. Accessed: Dec. 01, 2021. [Online]. Available: &lt;a href="https://papers.ssrn.com/abstract=1586656">https://papers.ssrn.com/abstract=1586656&lt;/a>&lt;/p>
+&lt;p>[7] A. Meucci, “Quant Nugget 2: Linear vs. Compounded Returns – Common Pitfalls in Portfolio Management,” Social Science Research Network, Rochester, NY, SSRN Scholarly Paper ID 1586656, May 2010. Accessed: Dec. 01, 2021. [Online]. Available:
+&lt;a href="https://papers.ssrn.com/abstract=1586656" target="_blank" rel="noopener">https://papers.ssrn.com/abstract=1586656&lt;/a>&lt;/p>
 &lt;/li>
 &lt;li>
-&lt;p>[8] Lidian, “Analysis on Stocks: Log(1+return) or Simple Return?,” Medium, Sep. 18, 2020. &lt;a href="https://medium.com/@huangchingchiu/analysis-on-stocks-log-1-return-or-simple-return-371c3f60fab2">https://medium.com/@huangchingchiu/analysis-on-stocks-log-1-return-or-simple-return-371c3f60fab2&lt;/a> (accessed Nov. 25, 2021).&lt;/p>
+&lt;p>[8] Lidian, “Analysis on Stocks: Log(1+return) or Simple Return?,” Medium, Sep. 18, 2020.
+&lt;a href="https://medium.com/@huangchingchiu/analysis-on-stocks-log-1-return-or-simple-return-371c3f60fab2" target="_blank" rel="noopener">https://medium.com/@huangchingchiu/analysis-on-stocks-log-1-return-or-simple-return-371c3f60fab2&lt;/a> (accessed Nov. 25, 2021).&lt;/p>
 &lt;/li>
 &lt;li>
 &lt;p>[9] N. A. Eterovic and D. S. Eterovic, “Separating the Wheat from the Chaff: Understanding Portfolio Returns in an Emerging Market,” Social Science Research Network, Rochester, NY, SSRN Scholarly Paper ID 2161646, Oct. 2012. doi: 10.2139/ssrn.2161646.&lt;/p>
@@ -1112,15 +1116,19 @@ plt.close()
 &lt;p>[14] L. Sandoval, A. B. Bortoluzzo, and M. K. Venezuela, “Not all that glitters is RMT in the forecasting of risk of portfolios in the Brazilian stock market,” Physica A: Statistical Mechanics and its Applications, vol. 410, pp. 94–109, Sep. 2014, doi: 10.1016/j.physa.2014.05.006.&lt;/p>
 &lt;/li>
 &lt;li>
-&lt;p>[15] M. E. A. Seddik, C. Louart, M. Tamaazousti, and R. Couillet, “Random Matrix Theory Proves that Deep Learning Representations of GAN-data Behave as Gaussian Mixtures,” arXiv:2001.08370 [cs, stat], Jan. 2020, Accessed: Dec. 05, 2021. [Online]. Available: &lt;a href="http://arxiv.org/abs/2001.08370">http://arxiv.org/abs/2001.08370&lt;/a>&lt;/p>
+&lt;p>[15] M. E. A. Seddik, C. Louart, M. Tamaazousti, and R. Couillet, “Random Matrix Theory Proves that Deep Learning Representations of GAN-data Behave as Gaussian Mixtures,” arXiv:2001.08370 [cs, stat], Jan. 2020, Accessed: Dec. 05, 2021. [Online]. Available:
+&lt;a href="http://arxiv.org/abs/2001.08370" target="_blank" rel="noopener">http://arxiv.org/abs/2001.08370&lt;/a>&lt;/p>
 &lt;/li>
 &lt;li>
-&lt;p>[16] D. B. Aires, “Análise de crises financeiras brasileiras usando teoria das matrizes aleatórias,” Universidade Estadual Paulista (Unesp), 2021. Accessed: Dec. 05, 2021. [Online]. Available: &lt;a href="https://repositorio.unesp.br/handle/11449/204550">https://repositorio.unesp.br/handle/11449/204550&lt;/a>&lt;/p>
+&lt;p>[16] D. B. Aires, “Análise de crises financeiras brasileiras usando teoria das matrizes aleatórias,” Universidade Estadual Paulista (Unesp), 2021. Accessed: Dec. 05, 2021. [Online]. Available:
+&lt;a href="https://repositorio.unesp.br/handle/11449/204550" target="_blank" rel="noopener">https://repositorio.unesp.br/handle/11449/204550&lt;/a>&lt;/p>
 &lt;/li>
 &lt;li>
-&lt;p>[17] S. Rome, “Eigen-vesting II. Optimize Your Portfolio With Optimization,” Scott Rome, Mar. 22, 2016. &lt;a href="http://srome.github.io//Eigenvesting-II-Optimize-Your-Portfolio-With-Optimization/">http://srome.github.io//Eigenvesting-II-Optimize-Your-Portfolio-With-Optimization/&lt;/a> (accessed Dec. 05, 2021).&lt;/p>
+&lt;p>[17] S. Rome, “Eigen-vesting II. Optimize Your Portfolio With Optimization,” Scott Rome, Mar. 22, 2016.
+&lt;a href="http://srome.github.io//Eigenvesting-II-Optimize-Your-Portfolio-With-Optimization/" target="_blank" rel="noopener">http://srome.github.io//Eigenvesting-II-Optimize-Your-Portfolio-With-Optimization/&lt;/a> (accessed Dec. 05, 2021).&lt;/p>
 &lt;/li>
 &lt;li>
-&lt;p>[18] “11.1 Portfolio Optimization — MOSEK Fusion API for Python 9.3.10.” &lt;a href="https://docs.mosek.com/latest/pythonfusion/case-studies-portfolio.html">https://docs.mosek.com/latest/pythonfusion/case-studies-portfolio.html&lt;/a> (accessed Dec. 05, 2021).&lt;/p>
+&lt;p>[18] “11.1 Portfolio Optimization — MOSEK Fusion API for Python 9.3.10.”
+&lt;a href="https://docs.mosek.com/latest/pythonfusion/case-studies-portfolio.html" target="_blank" rel="noopener">https://docs.mosek.com/latest/pythonfusion/case-studies-portfolio.html&lt;/a> (accessed Dec. 05, 2021).&lt;/p>
 &lt;/li>
 &lt;/ul></description></item></channel></rss>

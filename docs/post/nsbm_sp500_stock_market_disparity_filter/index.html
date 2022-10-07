@@ -1,42 +1,315 @@
-<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=generator content="Source Themes Academic 4.8.0"><meta name=author content="Bruno Messias"><meta name=description content="Como analisar as correlações entre centenas ou milhares de elementos? Uma maneira muito interessante e constantemente empregada é a utilização de grafos MST. Aqui vou sugerir uma outra maneira usando método bayesiano e detecção de comunidades."><link rel=alternate hreflang=pt-br href=/pt-br/post/nsbm_sp500_stock_market_disparity_filter/><link rel=alternate hreflang=en href=/post/nsbm_sp500_stock_market_disparity_filter/><meta name=theme-color content="#2962ff"><script src=/js/mathjax-config.js></script><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/academicons/1.8.6/css/academicons.min.css integrity="sha256-uFVgMKfistnJAfoCUQigIl+JfUaP47GrRKjf6CTPVmw=" crossorigin=anonymous><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.0-1/css/all.min.css integrity="sha256-4w9DunooKSr3MFXHXWyFER38WmPdm361bQS/2KUWZbU=" crossorigin=anonymous><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css integrity="sha256-Vzbj7sDDS/woiFS3uNKo8eIuni59rjyNGtXfstRzStA=" crossorigin=anonymous><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/github.min.css crossorigin=anonymous title=hl-light><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/dracula.min.css crossorigin=anonymous title=hl-dark disabled><script src=https://cdnjs.cloudflare.com/ajax/libs/lazysizes/5.1.2/lazysizes.min.js integrity="sha256-Md1qLToewPeKjfAHU1zyPwOutccPAm5tahnaw7Osw0A=" crossorigin=anonymous async></script><script src=https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js integrity crossorigin=anonymous async></script><link rel=stylesheet href="https://fonts.googleapis.com/css?family=Montserrat:400,700%7CRoboto:400,400italic,700%7CRoboto+Mono&display=swap"><link rel=stylesheet href=/css/academic.css><script async src="https://www.googletagmanager.com/gtag/js?id=UA-178064356-1"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
-function trackOutboundLink(url,target){gtag('event','click',{'event_category':'outbound','event_label':url,'transport_type':'beacon','event_callback':function(){if(target!=='_blank'){document.location=url;}}});console.debug("Outbound link clicked: "+url);}
-function onClickCallback(event){if((event.target.tagName!=='A')||(event.target.host===window.location.host)){return;}
-trackOutboundLink(event.target,event.target.getAttribute('target'));}
-gtag('js',new Date());gtag('config','UA-178064356-1',{});document.addEventListener('click',onClickCallback,false);</script><link rel=manifest href=/index.webmanifest><link rel=icon type=image/png href=/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_32x32_fill_lanczos_center_2.png><link rel=apple-touch-icon type=image/png href=/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_192x192_fill_lanczos_center_2.png><link rel=canonical href=/post/nsbm_sp500_stock_market_disparity_filter/><meta property="twitter:site" content="@devmessias"><meta property="twitter:creator" content="@devmessias"><meta property="og:site_name" content="Bruno Messias"><meta property="og:url" content="/post/nsbm_sp500_stock_market_disparity_filter/"><meta property="og:title" content="Grafos e modelo de blocos aninhados para matrizes de correlação: clusterização do mercado de ações | Bruno Messias"><meta property="og:description" content="Como analisar as correlações entre centenas ou milhares de elementos? Uma maneira muito interessante e constantemente empregada é a utilização de grafos MST. Aqui vou sugerir uma outra maneira usando método bayesiano e detecção de comunidades."><meta property="twitter:image" content="https://devmessias.github.io/img/nested_stochastic_block_model_sp500_twitter.png"><meta property="og:image" content="https://devmessias.github.io/img/nested_stochastic_block_model_sp500_twitter.png"><meta property="og:image:secure_url" content="https://devmessias.github.io/img/nested_stochastic_block_model_sp500_twitter.png"><meta property="twitter:card" content="summary_large_image"><meta property="og:locale" content="en"><meta property="article:published_time" content="2022-04-18T00:00:00+00:00"><meta property="article:modified_time" content="2022-04-18T00:00:00+00:00"><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"/post/nsbm_sp500_stock_market_disparity_filter/"},"headline":"Grafos e modelo de blocos aninhados para matrizes de correlação: clusterização do mercado de ações","datePublished":"2022-04-18T00:00:00Z","dateModified":"2022-04-18T00:00:00Z","author":{"@type":"Person","name":"Bruno Messias"},"publisher":{"@type":"Organization","name":"Bruno Messias","logo":{"@type":"ImageObject","url":"/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_192x192_fill_lanczos_center_2.png"}},"description":"Como analisar as correlações entre centenas ou milhares de elementos? Uma maneira muito interessante e constantemente empregada é a utilização de grafos MST. Aqui vou sugerir uma outra maneira usando método bayesiano e detecção de comunidades."}</script><title>Grafos e modelo de blocos aninhados para matrizes de correlação: clusterização do mercado de ações | Bruno Messias</title></head><body id=top class=page-wrapper data-spy=scroll data-offset=70 data-target=#TableOfContents><aside class=search-results id=search><div class=container><section class=search-header><div class="row no-gutters justify-content-between mb-3"><div class=col-6><h1>Search</h1></div><div class="col-6 col-search-close"><a class=js-search href=#><i class="fas fa-times-circle text-muted" aria-hidden=true></i></a></div></div><div id=search-box><input name=q id=search-query placeholder=Search... autocapitalize=off autocomplete=off autocorrect=off spellcheck=false type=search></div></section><section class=section-search-results><div id=search-hits></div></section></div></aside><div class=page-header><nav class="navbar navbar-expand-lg navbar-light compensate-for-scrollbar" id=navbar-main><div class=container><div class="d-none d-lg-inline-flex"><a class=navbar-brand href=/>Bruno Messias</a></div><button type=button class=navbar-toggler data-toggle=collapse data-target=#navbar-content aria-controls=navbar aria-expanded=false aria-label="Toggle navigation">
-<span><i class="fas fa-bars"></i></span></button><div class="navbar-brand-mobile-wrapper d-inline-flex d-lg-none"><a class=navbar-brand href=/>Bruno Messias</a></div><div class="navbar-collapse main-menu-item collapse justify-content-start" id=navbar-content><ul class="navbar-nav d-md-inline-flex"><li class=nav-item><a class=nav-link href=/#about><span>About</span></a></li><li class=nav-item><a class=nav-link href=/#posts><span>Recent Posts</span></a></li><li class=nav-item><a class=nav-link href=/#projects><span>Projects</span></a></li><li class=nav-item><a class=nav-link href=/#featured><span>Publications</span></a></li><li class=nav-item><a class="nav-link active" href=/post/><span>Posts</span></a></li></ul></div><ul class="nav-icons navbar-nav flex-row ml-auto d-flex pl-md-2"><li class=nav-item><a class="nav-link js-search" href=# aria-label=Search><i class="fas fa-search" aria-hidden=true></i></a></li><li class="nav-item dropdown i18n-dropdown"><a href=# class="nav-link dropdown-toggle" data-toggle=dropdown aria-haspopup=true><i class="fas fa-globe mr-1" aria-hidden=true></i><span class="d-none d-lg-inline">English</span></a><div class=dropdown-menu><div class="dropdown-item dropdown-item-active"><span>English</span></div><a class=dropdown-item href=/pt-br/post/nsbm_sp500_stock_market_disparity_filter/><span>Português (Brasil)</span></a></div></li></ul></div></nav></div><div id=macaquinho123 class=page-body><div class="container-fluid docs"><div class="row flex-xl-nowrap"><div class="col-12 col-md-10 offset-md-2"><div class=bg-overlay-img style="--bg-url: url(/post/nsbm_sp500_stock_market_disparity_filter/nested_stochastic_block_model_sp500_hudcff6362c16284ef400b42c5fe2e1b69_266080_0x200_resize_lanczos_2.png)"><h1 class=text-left>Grafos e modelo de blocos aninhados para matrizes de correlação: clusterização do mercado de ações</h1><p class="page-subtitle text-left">Grafos e filtragem de arestas, parte II</p><div class=article-metadata><span class=article-date>Apr 18, 2022</span>
-<span class=middot-divider></span><a href=/post/nsbm_sp500_stock_market_disparity_filter/#disqus_thread></a><span class=middot-divider></span><span class=article-categories><i class="fas fa-folder mr-1"></i><a href=/category/grafos/>Grafos</a>, <a href=/category/python/>Python</a>, <a href=/category/data-science/>Data Science</a></span></div><div class="btn-links mb-3"></div></div></div></div><div class="row flex-xl-nowrap"><div class="d-none d-md-block col-md-3 docs-toc sidebar-toc"><ul class="nav toc-top"><li><a href=# id=back_to_top class=docs-toc-title>Contents</a></li></ul><nav id=TableOfContents><ul><li><ul><li><a href=#introdução>Introdução</a><ul><li><a href=#grafos>Grafos</a></li><li><a href=#matrizes-de-correlação>Matrizes de correlação</a></li></ul></li><li><a href=#baixando-e-criando-nosso-grafo>Baixando e criando nosso grafo</a><ul><li><a href=#extraindo-o-preço-de-fechamento>Extraindo o preço de fechamento</a></li><li><a href=#retorno-e-matrizes-de-correlação>Retorno e matrizes de correlação</a></li><li><a href=#criando-o-grafo-completo-e-filtrando>Criando o grafo completo e filtrando</a></li></ul></li><li><a href=#nsbm-buscando-hierarquia-e-comunidades>nSBM: buscando hierarquia e comunidades</a><ul><li><a href=#convertendo-o-igraph-em-graph-tool>Convertendo o iGraph em graph-tool</a></li><li><a href=#inferência-dos-blocos>Inferência dos blocos</a></li><li><a href=#como-analisar>Como analisar?</a></li><li><a href=#outras-aplicações-de-nsbm>Outras aplicações de nSBM</a></li></ul></li><li><a href=#extras-mst>Extras: MST</a><ul><li><a href=#convertendo-correlações-em-distâncias>Convertendo correlações em distâncias</a></li><li><a href=#extraindo-o-mst>Extraindo o MST</a></li><li><a href=#visualizando-o-mst>Visualizando o MST</a></li></ul></li><li><a href=#agradecimentos>Agradecimentos</a></li></ul></li></ul></nav></div><main class="col-12 col-md-9 py-md-3 pl-md-5 docs-content" role=main><article class=article><div class=article-container><div class=article-style><details class="toc-inpage d-print-none d-none d-sm-block d-md-none" open><summary class=font-weight-bold>Table of Contents</summary><nav id=TableOfContents><ul><li><ul><li><a href=#introdução>Introdução</a><ul><li><a href=#grafos>Grafos</a></li><li><a href=#matrizes-de-correlação>Matrizes de correlação</a></li></ul></li><li><a href=#baixando-e-criando-nosso-grafo>Baixando e criando nosso grafo</a><ul><li><a href=#extraindo-o-preço-de-fechamento>Extraindo o preço de fechamento</a></li><li><a href=#retorno-e-matrizes-de-correlação>Retorno e matrizes de correlação</a></li><li><a href=#criando-o-grafo-completo-e-filtrando>Criando o grafo completo e filtrando</a></li></ul></li><li><a href=#nsbm-buscando-hierarquia-e-comunidades>nSBM: buscando hierarquia e comunidades</a><ul><li><a href=#convertendo-o-igraph-em-graph-tool>Convertendo o iGraph em graph-tool</a></li><li><a href=#inferência-dos-blocos>Inferência dos blocos</a></li><li><a href=#como-analisar>Como analisar?</a></li><li><a href=#outras-aplicações-de-nsbm>Outras aplicações de nSBM</a></li></ul></li><li><a href=#extras-mst>Extras: MST</a><ul><li><a href=#convertendo-correlações-em-distâncias>Convertendo correlações em distâncias</a></li><li><a href=#extraindo-o-mst>Extraindo o MST</a></li><li><a href=#visualizando-o-mst>Visualizando o MST</a></li></ul></li><li><a href=#agradecimentos>Agradecimentos</a></li></ul></li></ul></nav></details><p>Esse post é da série sobre filtragem em grafos (esparsificação). O post anterior pode ser acessado em:
-<a href=/post/edge_graph_filtering/ title="Grafos e filtragem de arestas I: conceitos e confusões.">Grafos e filtragem de arestas: conceitos e confusões.</a></p><p>O objetivo é mostrar como usar o modelo de bloco estocástico aninhado (nSBM) para o processo de análise exploratória do mercado de ações. O nSBM e SBM são modelos não-paramétricos estabelecidos numa sólida base estatística. Vou te ensinar na prática como usar eles no python e como analisar os outputs, que a primeira vista podem parecer artísticos ou complexos. Veja só:</p><figure><a data-fancybox href=/post/nsbm_sp500_stock_market_disparity_filter/nsbm_final_2018-01-01_2018-06-01_hudcff6362c16284ef400b42c5fe2e1b69_266080_0x500_resize_lanczos_2.png><img data-src=/post/nsbm_sp500_stock_market_disparity_filter/nsbm_final_2018-01-01_2018-06-01_hudcff6362c16284ef400b42c5fe2e1b69_266080_0x500_resize_lanczos_2.png class=lazyload alt width=100% height=500px></a></figure><p>A ordem que seguiremos nesse post é:</p><ol><li>Uma introdução meio longa para te situar em grafos e o porquê usar eles aqui.</li><li>Código<ol><li>Construção da matriz de correlação entre os retornos dos ativos</li><li>Filtragem da matriz de correlação via um filtro de grafos</li><li>Inferência e visualização do nSBM</li></ol></li><li>Como analisar o nSBM?</li><li>Extra: MST</li></ol><p>Para reproduzir esse post recomendo usar um ambiente conda, pois uma das bibliotecas depende de diversas coisas além de libs usais do python</p><p>Comece checando se você tem as seguintes bibliotecas instaladas</p><pre><code>matplotlib, pandas, yfinance
-</code></pre><p>Instale o igraph com</p><pre><code>$ pip install python-igraph
-</code></pre><p>O graph-tool, do excelente
-<a href=https://twitter.com/tiagopeixoto target=_blank rel=noopener>Tiago Peixoto</a> via conda-forge</p><pre><code>$ conda install -c conda-forge graph-tool
-</code></pre><p>Não menos importante, você precisa instalar minha biblioteca de filtragem de grafos, o <code>edgeseraser</code> deixe seu star
-<a href=https://github.com/devmessias/edgeseraser target=_blank rel=noopener>aqui</a> :).</p><pre><code>$ pip install edgeseraser
-</code></pre><h2 id=introdução>Introdução</h2><p>Análise exploratória é usada tanto como o objetivo final em si como uma ferramenta que fornece subsídios para melhores tomadas de decisões para escolha de modelos preditivos ou pré-seleção de instâncias para serem analisadas com mais detalhes.</p><p>Contudo, muitas das técnicas exploradas e ensinadas na web se restringem àquelas que podem ser empregadas quando o conjunto de dados vive em algum espaço organizado (como o $\mathbb R^n$) e cujos dados não têm relação entre si. Um conjunto de pontos. Mas e os dados que não se enquadram nisso?</p><p>Um exemplo de conjunto de dados extremamente complicado são as redes sociais. Redes sociais são conjuntos de pessoas e a existência de pelo menos relações pares a pares (hyper-grafos é um assunto para outro post) podendo ser negativas, positivas ou algo mais complicado. Cada pessoa em uma rede social pode ser identificada por um conjunto de features tais como gostos pessoais, horário de uso do sistema, etc. Representar uma rede social por pontinhos é reducionista. É para isso que grafos podem ser empregados</p><h3 id=grafos>Grafos</h3><p>Um grafo armazena objetos que têm relações pares a pares entre si. Sendo possível associar a cada objeto ou relação um outro tipo de dado genérico tais como um número real, um vetor ou mesmo outro grafo. Mas é importante ressaltar que grafos estão em todo lugar, por exemplo em matrizes de correlação. Portanto, usar grafos para analisar correlações é válido, especialmente quando muitas dessas correlações podem ou queremos que sejam descartadas.</p><blockquote class=twitter-tweet><p lang=pt dir=ltr>Até onde já estudei, toda estrutura de dados pode ser representada como um grafo. Nesse sentido, podemos dizer que o grafo é a "mãe" de todas as estruturas de dados. Talvez devêssemos dar mais foco a grafos nos cursos de EDs.</p>&mdash; psiquiatra de computadores (🌳, 🌳) (@coproduto) <a href="https://twitter.com/coproduto/status/1514562359007842310?ref_src=twsrc%5Etfw">April 14, 2022</a></blockquote><script async src=https://platform.twitter.com/widgets.js></script><h3 id=matrizes-de-correlação>Matrizes de correlação</h3><p>No <em>OpenCode</em> matrizes de correlação já apareceram em diversos posts:</p><ul><li><p><a href=https://opencodecom.net/post/2021-12-14-variacoes-do-teorema-central-do-limite-para-matrizes-aleatorias-de-nucleos-atomicos-a-filtragem-de-matrizes-de-correlaca/ target=_blank rel=noopener>Variações do teorema central do limite para matrizes aleatórias: de núcleos atômicos a filtragem de matrizes de correlação para construção de carteiras</a></p></li><li><p><a href=https://opencodecom.net/post/2021-09-01-correlacao-entre-ativos-no-python/ target=_blank rel=noopener>Correlação entre Ativos no Python</a></p></li></ul><p>Mas o que é uma matriz de correlação se não um conjunto de relações pares a pares com valores reais? Bom, então a questão aqui fica evidente: <strong>Uma matriz de correlação pode ser analisada usando ferramentas feitas para analisar grafos! Ok, isso pode ser feito, mas você pode se perguntar o porquê de fazer isso.</strong></p><p>Uma atividade muito comum quando exploramos matrizes de correlação é tentar encontrar grupos de elementos fortemente/fracamente correlacionados, isso não é uma tarefa trivial à medida que o número de elementos aumenta. Além disso, é comum jogarmos fora as relações que são muito fracas. Quando fazemos isso estamos esparsificando a matriz, na terminologia de grafos estamos filtrando arestas!
-<a href=/post/edge_graph_filtering/#estrutural-threshold>No post anterior eu discuti o porquê disso poder ser bem perigoso.</a>.</p><p>Uma maneira mais elaborada de se analisar matrizes de correlação é através da construção de
-<a href="https://www.youtube.com/watch?v=jMioOe2eTcY" target=_blank rel=noopener>árvores de expansão mínima (MST)</a>, apesar do nome complicado é um processo bem simples de construir um grafo e você pode encontrar diversos tutoriais sobre MST e o mercado de ações na internet.</p><p>Devido a tutoriais com MST estarem já espalhados, decidi fazer algo diferente aqui e propor usar um método pouco conhecido para exploração de grafos e aplicar ele em matrizes de correlação de ativos. Esse método é conhecido pela sigla <em>nSBM</em>, modelo de bloco estocástico aninhado (nested Stochastic Block Model) e é um método não-paramétrico para inferência de comunidades em grafos que permite analisar a hierarquia de comunidades.</p><div class="alert alert-"><div>No final do post vou mostrar a mesma matriz analisada pelo MST só para você ter uma ideia do porquê o nSBM ser bem mais interessante.</div></div><p>Uma das grandes qualidades dos SBM e variantes é que eles são construídos em cima de um arcabouço estatístico rigoroso e ao mesmo tempo é possível detectar comunidades com pouquíssimos vértices. Isso é ótimo, pois duas coisas que não queremos é que o método que escolhamos diga que certas coisas formam comunidades mesmo que não passe de um amontoado de coisas aleatórias e que ele bote coisas onde não devia só porque são pequenas demais, <strong>isso é uma crítica aos métodos de detecção por maximização de modularidade</strong></p><h2 id=baixando-e-criando-nosso-grafo>Baixando e criando nosso grafo</h2><h3 id=extraindo-o-preço-de-fechamento>Extraindo o preço de fechamento</h3><p>Vamos começar importando o que for necessário</p><pre><code class=language-python>import yfinance as yf
+<!doctype html><html lang=en>
+<head>
+<meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<meta http-equiv=x-ua-compatible content="IE=edge">
+<meta name=generator content="Source Themes Academic 4.8.0">
+<meta name=author content="Bruno Messias">
+<meta name=description content="How to extract insights of huge correlation matrices? Here I'll show you how a comunity detection methdod in graphs can help us in this task.">
+<link rel=alternate hreflang=pt-br href=/pt-br/post/nsbm_sp500_stock_market_disparity_filter/>
+<link rel=alternate hreflang=en href=/post/nsbm_sp500_stock_market_disparity_filter/>
+<meta name=theme-color content="#2962ff">
+<script src=/js/mathjax-config.js></script>
+<link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/academicons/1.8.6/css/academicons.min.css integrity="sha256-uFVgMKfistnJAfoCUQigIl+JfUaP47GrRKjf6CTPVmw=" crossorigin=anonymous>
+<link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.0-1/css/all.min.css integrity="sha256-4w9DunooKSr3MFXHXWyFER38WmPdm361bQS/2KUWZbU=" crossorigin=anonymous>
+<link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css integrity="sha256-Vzbj7sDDS/woiFS3uNKo8eIuni59rjyNGtXfstRzStA=" crossorigin=anonymous>
+<link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/github.min.css crossorigin=anonymous title=hl-light>
+<link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/dracula.min.css crossorigin=anonymous title=hl-dark disabled>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/lazysizes/5.1.2/lazysizes.min.js integrity="sha256-Md1qLToewPeKjfAHU1zyPwOutccPAm5tahnaw7Osw0A=" crossorigin=anonymous async></script>
+<script src=https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js integrity crossorigin=anonymous async></script>
+<link rel=stylesheet href="https://fonts.googleapis.com/css?family=Montserrat:400,700%7CRoboto:400,400italic,700%7CRoboto+Mono&display=swap">
+<link rel=stylesheet href=/css/academic.css>
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-178064356-1"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}function trackOutboundLink(a,b){gtag('event','click',{event_category:'outbound',event_label:a,transport_type:'beacon',event_callback:function(){b!=='_blank'&&(document.location=a)}}),console.debug("Outbound link clicked: "+a)}function onClickCallback(a){if(a.target.tagName!=='A'||a.target.host===window.location.host)return;trackOutboundLink(a.target,a.target.getAttribute('target'))}gtag('js',new Date),gtag('config','UA-178064356-1',{}),document.addEventListener('click',onClickCallback,!1)</script>
+<link rel=manifest href=/index.webmanifest>
+<link rel=icon type=image/png href=/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_32x32_fill_lanczos_center_3.png>
+<link rel=apple-touch-icon type=image/png href=/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_192x192_fill_lanczos_center_3.png>
+<link rel=canonical href=/post/nsbm_sp500_stock_market_disparity_filter/>
+<meta property="twitter:site" content="@devmessias">
+<meta property="twitter:creator" content="@devmessias">
+<meta property="og:site_name" content="Bruno Messias">
+<meta property="og:url" content="/post/nsbm_sp500_stock_market_disparity_filter/">
+<meta property="og:title" content="Correlation matrix analysis with the nested stochastic block model: extracting the hidden graph structure of stock market. | Bruno Messias">
+<meta property="og:description" content="How to extract insights of huge correlation matrices? Here I'll show you how a comunity detection methdod in graphs can help us in this task.">
+<meta property="twitter:image" content="https://devmessias.github.io/img/nested_stochastic_block_model_sp500_twitter.png">
+<meta property="og:image" content="https://devmessias.github.io/img/nested_stochastic_block_model_sp500_twitter.png">
+<meta property="og:image:secure_url" content="https://devmessias.github.io/img/nested_stochastic_block_model_sp500_twitter.png">
+<meta property="twitter:card" content="summary_large_image">
+<meta property="og:locale" content="en">
+<meta property="article:published_time" content="2022-04-18T00:00:00+00:00">
+<meta property="article:modified_time" content="2022-04-18T00:00:00+00:00">
+<script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"/post/nsbm_sp500_stock_market_disparity_filter/"},"headline":"Correlation matrix analysis with the nested stochastic block model: extracting the hidden graph structure of stock market.","datePublished":"2022-04-18T00:00:00Z","dateModified":"2022-04-18T00:00:00Z","author":{"@type":"Person","name":"Bruno Messias"},"publisher":{"@type":"Organization","name":"Bruno Messias","logo":{"@type":"ImageObject","url":"/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_192x192_fill_lanczos_center_3.png"}},"description":"How to extract insights of huge correlation matrices? Here I'll show you how a comunity detection methdod in graphs can help us in this task."}</script>
+<title>Correlation matrix analysis with the nested stochastic block model: extracting the hidden graph structure of stock market. | Bruno Messias</title>
+</head>
+<body id=top class=page-wrapper data-spy=scroll data-offset=70 data-target=#TableOfContents>
+<aside class=search-results id=search>
+<div class=container>
+<section class=search-header>
+<div class="row no-gutters justify-content-between mb-3">
+<div class=col-6>
+<h1>Search</h1>
+</div>
+<div class="col-6 col-search-close">
+<a class=js-search href=#><i class="fas fa-times-circle text-muted" aria-hidden=true></i></a>
+</div>
+</div>
+<div id=search-box>
+<input name=q id=search-query placeholder=Search... autocapitalize=off autocomplete=off autocorrect=off spellcheck=false type=search>
+</div>
+</section>
+<section class=section-search-results>
+<div id=search-hits>
+</div>
+</section>
+</div>
+</aside>
+<div class=page-header>
+<nav class="navbar navbar-expand-lg navbar-light compensate-for-scrollbar" id=navbar-main>
+<div class=container>
+<div class="d-none d-lg-inline-flex">
+<a class=navbar-brand href=/>Bruno Messias</a>
+</div>
+<button type=button class=navbar-toggler data-toggle=collapse data-target=#navbar-content aria-controls=navbar aria-expanded=false aria-label="Toggle navigation">
+<span><i class="fas fa-bars"></i></span>
+</button>
+<div class="navbar-brand-mobile-wrapper d-inline-flex d-lg-none">
+<a class=navbar-brand href=/>Bruno Messias</a>
+</div>
+<div class="navbar-collapse main-menu-item collapse justify-content-start" id=navbar-content>
+<ul class="navbar-nav d-md-inline-flex">
+<li class=nav-item>
+<a class=nav-link href=/#about><span>About</span></a>
+</li>
+<li class=nav-item>
+<a class=nav-link href=/#posts><span>Recent Posts</span></a>
+</li>
+<li class=nav-item>
+<a class=nav-link href=/#projects><span>Projects</span></a>
+</li>
+<li class=nav-item>
+<a class=nav-link href=/#featured><span>Publications</span></a>
+</li>
+<li class=nav-item>
+<a class="nav-link active" href=/post/><span>Posts</span></a>
+</li>
+</ul>
+</div>
+<ul class="nav-icons navbar-nav flex-row ml-auto d-flex pl-md-2">
+<li class=nav-item>
+<a class="nav-link js-search" href=# aria-label=Search><i class="fas fa-search" aria-hidden=true></i></a>
+</li>
+<li class="nav-item dropdown i18n-dropdown">
+<a href=# class="nav-link dropdown-toggle" data-toggle=dropdown aria-haspopup=true>
+<i class="fas fa-globe mr-1" aria-hidden=true></i><span class="d-none d-lg-inline">English</span>
+</a>
+<div class=dropdown-menu>
+<div class="dropdown-item dropdown-item-active">
+<span>English</span>
+</div>
+<a class=dropdown-item href=/pt-br/post/nsbm_sp500_stock_market_disparity_filter/>
+<span>Português (Brasil)</span>
+</a>
+</div>
+</li>
+</ul>
+</div>
+</nav>
+</div>
+<div id=macaquinho123 class=page-body>
+<div class="container-fluid docs">
+<div class="row flex-xl-nowrap">
+<div class="col-12 col-md-10 offset-md-2">
+<div class=bg-overlay-img style=--bg-url:url(/post/nsbm_sp500_stock_market_disparity_filter/nested_stochastic_block_model_sp500_hudcff6362c16284ef400b42c5fe2e1b69_266080_0x200_resize_lanczos_3.png)>
+<h1 class=text-left>Correlation matrix analysis with the nested stochastic block model: extracting the hidden graph structure of stock market.</h1>
+<div class=article-metadata>
+<span class=article-date>
+Apr 18, 2022
+</span>
+<span class=middot-divider></span>
+<a href=/post/nsbm_sp500_stock_market_disparity_filter/#disqus_thread></a>
+<span class=middot-divider></span>
+<span class=article-categories>
+<i class="fas fa-folder mr-1"></i><a href=/category/grafos/>Grafos</a>, <a href=/category/python/>Python</a>, <a href=/category/data-science/>Data Science</a></span>
+</div>
+<div class="btn-links mb-3">
+</div>
+</div>
+</div>
+</div>
+<div class="row flex-xl-nowrap">
+<div class="d-none d-md-block col-md-3 docs-toc sidebar-toc">
+<ul class="nav toc-top">
+<li><a href=# id=back_to_top class=docs-toc-title>Contents</a></li>
+</ul>
+<nav id=TableOfContents>
+<ul>
+<li>
+<ul>
+<li><a href=#introduction>Introduction</a>
+<ul>
+<li><a href=#graphs>Graphs</a></li>
+<li><a href=#correlation-matrices>Correlation matrices</a></li>
+</ul>
+</li>
+<li><a href=#downloading-and-preprocessing-the-data>Downloading and preprocessing the data</a>
+<ul>
+<li><a href=#closing-prices-of-the-sp-500>Closing prices of the S&P 500</a></li>
+<li><a href=#returns-and-correlation-matrix>Returns and correlation matrix</a></li>
+<li><a href=#removing-irrelevant-correlations-with-the-edgeseraser-library>Removing irrelevant correlations with the edgeseraser library</a></li>
+</ul>
+</li>
+<li><a href=#nsbm-fiding-the-hierarquical-structure>nSBM: fiding the hierarquical structure</a>
+<ul>
+<li><a href=#converting-from-igraph-to-graph-tool>Converting from igraph to graph-tool</a></li>
+<li><a href=#how-to-use-the-graph-tool-nsbm>How to use the graph-tool nSBM?</a></li>
+<li><a href=#how-to-analyze>How to analyze?</a></li>
+</ul>
+</li>
+<li><a href=#conclusion>Conclusion</a></li>
+</ul>
+</li>
+</ul>
+</nav>
+</div>
+<main class="col-12 col-md-8 docs-content" role=main>
+<article class=article>
+<div class=article-container>
+<div class=article-style>
+<details class="toc-inpage d-print-none d-none d-sm-block d-md-none" open>
+<summary class=font-weight-bold>Table of Contents</summary>
+<nav id=TableOfContents>
+<ul>
+<li>
+<ul>
+<li><a href=#introduction>Introduction</a>
+<ul>
+<li><a href=#graphs>Graphs</a></li>
+<li><a href=#correlation-matrices>Correlation matrices</a></li>
+</ul>
+</li>
+<li><a href=#downloading-and-preprocessing-the-data>Downloading and preprocessing the data</a>
+<ul>
+<li><a href=#closing-prices-of-the-sp-500>Closing prices of the S&P 500</a></li>
+<li><a href=#returns-and-correlation-matrix>Returns and correlation matrix</a></li>
+<li><a href=#removing-irrelevant-correlations-with-the-edgeseraser-library>Removing irrelevant correlations with the edgeseraser library</a></li>
+</ul>
+</li>
+<li><a href=#nsbm-fiding-the-hierarquical-structure>nSBM: fiding the hierarquical structure</a>
+<ul>
+<li><a href=#converting-from-igraph-to-graph-tool>Converting from igraph to graph-tool</a></li>
+<li><a href=#how-to-use-the-graph-tool-nsbm>How to use the graph-tool nSBM?</a></li>
+<li><a href=#how-to-analyze>How to analyze?</a></li>
+</ul>
+</li>
+<li><a href=#conclusion>Conclusion</a></li>
+</ul>
+</li>
+</ul>
+</nav>
+</details>
+<p>In this post I&rsquo;ll show you how the nested stochastic block model (nSBM) can be used to extract insights from correlation matrices using a combination with a filtering edge graph technique called disparity filter. I&rsquo;ll use as a case study a correlation matrix derived from the stock market data.</p>
+<p>Don&rsquo;t be afraid, you will be able to reproduce the beautiful plot presented below and understand what it means.</p>
+<figure id=figure-what-you-will-be-able-to-accomplish-the-end-of-this-post>
+<a data-fancybox href=/post/nsbm_sp500_stock_market_disparity_filter/nsbm_final_2018-01-01_2018-06-01_hudcff6362c16284ef400b42c5fe2e1b69_266080_0x500_resize_lanczos_3.png data-caption="What you will be able to accomplish the end of this post.">
+<img data-src=/post/nsbm_sp500_stock_market_disparity_filter/nsbm_final_2018-01-01_2018-06-01_hudcff6362c16284ef400b42c5fe2e1b69_266080_0x500_resize_lanczos_3.png class=lazyload alt width=100% height=500px>
+</a>
+<figcaption>
+What you will be able to accomplish the end of this post.
+</figcaption>
+</figure>
+<p>If you want to reproduce use a conda environment due to the <code>graph-tool</code> dependency. Besides that, check if you
+have the following packages installed:</p>
+<pre><code>matplotlib, pandas, yfinance
+</code></pre>
+<p>Probably you will need to install the <code>igraph</code> package</p>
+<pre><code>$ pip install python-igraph
+</code></pre>
+<p>Now, install the <code>graph-tool</code> made by
+<a href=https://twitter.com/tiagopeixoto target=_blank rel=noopener>Tiago Peixoto</a>.</p>
+<pre><code>$ conda install -c conda-forge graph-tool
+</code></pre>
+<p>No less important, we will need to remove weakling edges from the graph. To do so, we will use my package, <code>edgeseraser</code>. The repository of the project is available here:
+<a href=https://github.com/devmessias/edgeseraser target=_blank rel=noopener>devmessias/edgeseraser</a>. To install the <code>edgeseraser</code> run the following command:</p>
+<pre><code>$ pip install edgeseraser
+</code></pre>
+<h2 id=introduction>Introduction</h2>
+<p>Exploratory data analysis allows us to gain insights or improve our choices of the next steps in the data
+science process. In some cases we can explore the data assuming that all the entities are independent of each other. What happens when it&rsquo;s not the case?</p>
+<h3 id=graphs>Graphs</h3>
+<p>A graph is a data structure used to store objects (vertexes) with binary relationships. Those relationships are called edges.
+Each edge can have generic data associated with it. Like a numeric value.
+Maybe you can think that this data structure is rare in the world of data. But
+if you look carefully at the data spread on the internet, graphs are everywhere: social networks, economic transactions, correlation matrices and many more.</p>
+<h3 id=correlation-matrices>Correlation matrices</h3>
+<p>A correlation matrix is a storing mechanism that quantifies relationships between pairs of random variables.
+Thus, a correlation matrix is at least a complete weighted graph. The main point of this
+post is to show how we can use tools of network science to analyze the correlation matrix. Ok, but maybe you&rsquo;re asking: Why do we need to do this?</p>
+<p>Correlation matrices are commonly used to discover and segment the universe of possible random variables. With this segmentation into groups (clustering) the dataset can be analyzed in a granular way. Therefore, improving our efficiency to discard unnecessary information.</p>
+<p>A widely spread way to analyze correlation matrices using graph analytics is through the use of minimum spanning trees. I won&rsquo;t go into details about this method (check the following posts
+<a href="https://hudsonthames.org/networks-with-mlfinlab-minimum-spanning-tree-mst/#:~:text=A%20Minimum%20Spanning%20Tree%20%28MST%29%20is%20a%20graph%20consisting%20of,a%20stock%20crisis%20%5B2%5D." target=_blank rel=noopener>Networks with MlFinLab: Minimum Spanning </a> and
+<a href=https://www.bcb.gov.br/pec/wps/ingl/wps351.pdf target=_blank rel=noopener>Dynamic spanning trees in stock market networks:
+The case of Asia-Pacific</a>) because I want to show how we can use a different technique that at the same time is more flexible and powerful when we want to understand the hidden group structure of a correlation matrix.</p>
+<p>This technique is called the nested stochastic block model (nSBM) and it&rsquo;s a probabilistic model that allows us to infer the hidden group structure of a graph. The nSBM is a generalization of the stochastic block model (SBM) that assumes that the graph is composed of a set of communities (groups) that are connected by a set of edges. The SBM is a generative model that allows us to generate graphs with a given number of communities. This generative model also creates those communities using parameters that describe the probability of connection between vertices residing in the same or different comunities. Although the SBM is a powerful tool to analyze the structure of a graph, it&rsquo;s not enough to infer the small communities (small groups of stocks) in our graph. To do so, we need to use the nSBM.</p>
+<p>Ok, let&rsquo;s go to the real stuff and start to code.</p>
+<h2 id=downloading-and-preprocessing-the-data>Downloading and preprocessing the data</h2>
+<h3 id=closing-prices-of-the-sp-500>Closing prices of the S&P 500</h3>
+<p>Let&rsquo;s start importing what we need</p>
+<pre><code class=language-python>import yfinance as yf
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 import igraph as ig
 from edgeseraser.disparity import filter_ig_graph
-mpl.rcParams.update(_VSCode_defaultMatplotlib_Params)
-
-plt.style.context('classic')
-mpl.rcParams['figure.facecolor'] = 'white'
-
-</code></pre><p>Usaremos uma tabela contendo os simbolos de um conjunto de ativos e os setores. O csv tem a seguinte organização, e está disponível
-<a href=https://raw.githubusercontent.com/datasets/s-and-p-500-companies/master/data/constituents.csv target=_blank rel=noopener>aqui</a>.</p><table><thead><tr><th>Symbol</th><th>Name</th><th>Sector</th></tr></thead><tbody><tr><td>MMM</td><td>3M</td><td>Industrials</td></tr><tr><td>AOS</td><td>A. O. Smith</td><td>Industrials</td></tr><tr><td>ABT</td><td>Abbott Laboratories</td><td>Health Care</td></tr><tr><td>ABBV</td><td>AbbVie</td><td>Health Care</td></tr></tbody></table><pre><code class=language-python>!wget https://raw.githubusercontent.com/datasets/s-and-p-500-companies/master/data/constituents.csv
-</code></pre><pre><code class=language-python>df = pd.read_csv(&quot;constituents.csv&quot;)
+</code></pre>
+<p>To keep things simple, I choose to use the following data available
+<a href=https://raw.githubusercontent.com/datasets/s-and-p-500-companies/master/data/constituents.csv target=_blank rel=noopener>here</a>. This data encompasses the S&P500 from a specific time with symbols and sectors like this:</p>
+<table>
+<thead>
+<tr>
+<th>Symbol</th>
+<th>Name</th>
+<th>Sector</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MMM</td>
+<td>3M</td>
+<td>Industrials</td>
+</tr>
+<tr>
+<td>AOS</td>
+<td>A. O. Smith</td>
+<td>Industrials</td>
+</tr>
+<tr>
+<td>ABT</td>
+<td>Abbott Laboratories</td>
+<td>Health Care</td>
+</tr>
+<tr>
+<td>ABBV</td>
+<td>AbbVie</td>
+<td>Health Care</td>
+</tr>
+</tbody>
+</table>
+<pre><code class=language-python>!wget https://raw.githubusercontent.com/datasets/s-and-p-500-companies/master/data/constituents.csv
+</code></pre>
+<p>After downloading the data we just need to load it into a pandas dataframe.</p>
+<pre><code class=language-python>df = pd.read_csv(&quot;constituents.csv&quot;)
 all_symbols = df['Symbol'].values
 all_sectors = df['Sector'].values
 all_names = df['Name'].values
-
-# Criaremos um dicionário para mapear um simbolo para seu 
-# setor e uma cor
-symbol2sector = dict(zip(all_symbols, all_sectors))
+</code></pre>
+<p>The following dictionaries will be used to map the symbols to sectors and names latter on</p>
+<pre><code>symbol2sector = dict(zip(all_symbols, all_sectors))
 symbol2name = dict(zip(all_symbols, all_names))
-</code></pre><p>Hora de baixar as informações sobre os ativos. Iremos computar as correlações numa janela de um semestre.</p><pre><code class=language-python>start_date = '2018-01-01'
+</code></pre>
+<p>Time to download the information about each symbol. Let&rsquo;s request one semester
+of data from yahoo finance API</p>
+<pre><code class=language-python>start_date = '2018-01-01'
 end_date = '2018-06-01'
 try:
     prices = pd.read_csv(
@@ -65,45 +338,74 @@ except FileNotFoundError:
     del df
     prices.to_csv(
         f&quot;sp500_prices_{start_date}_{end_date}.csv&quot;)
-</code></pre><h3 id=retorno-e-matrizes-de-correlação>Retorno e matrizes de correlação</h3><p>A correlação será calculada para todos os ativos considerando o retorno. O retorno que estamos calculando aqui é simplesmente a mudança percentual do preço de fechamento do ativo.</p><pre><code class=language-python>returns_all = prices.pct_change()
+</code></pre>
+<h3 id=returns-and-correlation-matrix>Returns and correlation matrix</h3>
+<p>We first start by computing the percentage of price changes for each stock, that is, the return of each stock.</p>
+<pre><code class=language-python>returns_all = prices.pct_change()
 # a primeira linha não faz sentido, não existe retorno no primeiro dia
 returns_all = returns_all.iloc[1:, :]
 returns_all.dropna(axis=1, thresh=len(returns_all.index)//2., inplace=True)
 returns_all.dropna(axis=0, inplace=True)
 symbols = returns_all.columns.values
-</code></pre><p>Para calcular a correlação é fácil</p><pre><code class=language-python># plot the correlation matrix with ticks at each item
+</code></pre>
+<p>The correlation matrix is then computed using these returns</p>
+<pre><code class=language-python># plot the correlation matrix with ticks at each item
 correlation_matrix = returns_all.corr()
 plt.title(f&quot;Correlation matrix from {start_date} to {end_date}&quot;)
 plt.imshow(correlation_matrix)
 plt.colorbar()
 plt.savefig(&quot;correlation.png&quot;, dpi=150)
 plt.clf()
-</code></pre><figure id=figure-matriz-de-correlação-entre-ativos-do-sp500-para-o-primeiro-semestre-de-2018-sim-uma-bagunça><a data-fancybox href=/post/nsbm_sp500_stock_market_disparity_filter/correlation_hu6c68fc9d1aa2b5f7307017b57ffa4d90_521823_0x500_resize_lanczos_2.png data-caption="Matriz de correlação entre ativos do s&amp;amp;p500 para o primeiro semestre de 2018. Sim, uma bagunça!"><img data-src=/post/nsbm_sp500_stock_market_disparity_filter/correlation_hu6c68fc9d1aa2b5f7307017b57ffa4d90_521823_0x500_resize_lanczos_2.png class=lazyload alt width=100% height=500px></a><figcaption>Matriz de correlação entre ativos do s&p500 para o primeiro semestre de 2018. Sim, uma bagunça!</figcaption></figure><p>Ok, você seria louco de analisar essa matriz manualmente. Vamos partir para o motivo desse post que é usar nSBM.</p><h3 id=criando-o-grafo-completo-e-filtrando>Criando o grafo completo e filtrando</h3><p>Como queremos explorar as comunidades usaremos apenas as correlações positivas,</p><pre><code class=language-python>pos_correlation = correlation_matrix.copy()
-# vamos considerar apenas as correlações positivas pois queremos 
-# apenas as comunidades
+</code></pre>
+<figure id=figure-correlation-matrix-for-sp500-off-the-first-2018-semester-yes-its-a-mess>
+<a data-fancybox href=/post/nsbm_sp500_stock_market_disparity_filter/correlation_hu6c68fc9d1aa2b5f7307017b57ffa4d90_521823_0x500_resize_lanczos_3.png data-caption="Correlation matrix for S&amp;amp;P500 off the first 2018 semester. Yes, it&amp;rsquo;s a mess!">
+<img data-src=/post/nsbm_sp500_stock_market_disparity_filter/correlation_hu6c68fc9d1aa2b5f7307017b57ffa4d90_521823_0x500_resize_lanczos_3.png class=lazyload alt width=100% height=500px>
+</a>
+<figcaption>
+Correlation matrix for S&P500 off the first 2018 semester. Yes, it&rsquo;s a mess!
+</figcaption>
+</figure>
+<p>Ok, look into the image above. If you try to find groups of stocks that are less correlated just using visual inspection you will have a hard time. This works just for a small set of stocks. Obviously, that are another approaches like using linked cluster algorithms, but they are still hard to analyze when the number of stocks increases.</p>
+<h3 id=removing-irrelevant-correlations-with-the-edgeseraser-library>Removing irrelevant correlations with the edgeseraser library</h3>
+<p>Our goal here is to understand the structure of the stock market communities,
+so we will keep just the matrix elements with positive values.</p>
+<pre><code class=language-python>pos_correlation = correlation_matrix.copy()
+# vamos considerar apenas as correlações positivas pois queremos
+# apenas as comunidade&gt;
 pos_correlation[pos_correlation &lt; 0.] = 0
 # diagonal principal é setada a 0 para evitar auto-arestas
 np.fill_diagonal(pos_correlation.values, 0)
-</code></pre><p>Agora basta construir o grafo não direcionado associando os pesos das arestas com a correlação entre os ativos.</p><pre><code class=language-python>g = ig.Graph.Weighted_Adjacency(pos_correlation.values, mode='undirected')
+</code></pre>
+<p>Now, we create a weighted graph where each vertex is a stock and each positive correlation is a weight associated to the edge between two stocks.</p>
+<pre><code class=language-python>g = ig.Graph.Weighted_Adjacency(pos_correlation.values, mode='undirected')
 # criamos uma feature symbol para cada vértice
 g.vs[&quot;symbol&quot;] = returns_all.columns
 # o grafo pode estar desconectado. Portanto, extraímos a componente gigante
 cl = g.clusters()
 g = cl.giant()
 n_edges_before = g.ecount()
-</code></pre><p>Agora iremos aplicar o
-<a href=/post/edge_graph_filtering/#estatistico title="Grafos e filtragem de arestas I: conceitos e confusões. Filtro estatístico">filtro de disparidade</a>
-do edgeseraser para remover as arestas que não são significativas</p><pre><code class=language-python>_ = filter_ig_graph(g, .25, cond=&quot;both&quot;, field=&quot;weight&quot;)
+</code></pre>
+<p>The graph above has too much information, which is problematic for graph analysis. So, we must first identify and keep only the relevant edges. To do so, we use the disparity filter
+available in my <code>edgeseraser</code> package.</p>
+<pre><code class=language-python>_ = filter_ig_graph(g, .25, cond=&quot;both&quot;, field=&quot;weight&quot;)
 cl = g.clusters()
 g = cl.giant()
 n_edges_after = g.ecount()
-</code></pre><pre><code class=language-python>print(f&quot;Percentage of edges removed: {(n_edges_before - n_edges_after)/n_edges_before*100:.2f}%&quot;)
+</code></pre>
+<pre><code class=language-python>print(f&quot;Percentage of edges removed: {(n_edges_before - n_edges_after)/n_edges_before*100:.2f}%&quot;)
 print(f&quot;Number of remained stocks: {len(symbols)}&quot;)
-</code></pre><pre><code>Percentage of edges removed: 95.76%
+...
+Percentage of edges removed: 95.76%
 Number of remained stocks: 492
-</code></pre><p>A maior parte das arestas foi removida. Será que conseguimos fazer algo com esse grafo compactado?</p><h2 id=nsbm-buscando-hierarquia-e-comunidades>nSBM: buscando hierarquia e comunidades</h2><h3 id=convertendo-o-igraph-em-graph-tool>Convertendo o iGraph em graph-tool</h3><p>O graph-tool é um pacote com excelente desempenho, mas para ganhar essa performance ele
-exige um pouquinho mais de trabalho tais como declarar o tipo dos dados. O primeiro
-passo para usar o graph-tool é converter nosso grafo iGraph para uma instância dele</p><pre><code class=language-python>import graph_tool.all as gt
+</code></pre>
+<p>Most of the edges have been deleted and only a backbone remained in our graph. This backbone structure can now be used to extract
+insights from the stock market.</p>
+<h2 id=nsbm-fiding-the-hierarquical-structure>nSBM: fiding the hierarquical structure</h2>
+<h3 id=converting-from-igraph-to-graph-tool>Converting from igraph to graph-tool</h3>
+<p>Here we will use the graph-tool lib to infer the hierarchical structure of the graph. Thus,
+we must first convert the graph from <code>igraph</code> to <code>graph-tool</code>. This conversion
+can be accomplished with following code</p>
+<pre><code class=language-python>import graph_tool.all as gt
 
 gnsbm = gt.Graph(directed=False)
 # iremos adicionar os vértices
@@ -113,10 +415,16 @@ for v in g.vs:
 for e in g.es:
     gnsbm.add_edge(e.source, e.target)
 
-</code></pre><h3 id=inferência-dos-blocos>Inferência dos blocos</h3><p>Com o grafo construído iremos executar o algoritmo de inferência de blocos.
-Esse algoritmo executa uma minimização do que é conhecido como <em>&ldquo;description length&rdquo;</em> do modelo Bayesiano. Em um post futuro falarei um pouco sobre a matemática se você se já estiver interessado dê uma olhada no artigo original do Tiago Peixoto
-<a href=https://dx.doi.org/10.1103/PhysRevX.4.011047 target=_blank rel=noopener>aqui</a>.</p><pre><code class=language-python>state = gt.minimize_nested_blockmodel_dl(gnsbm)
-</code></pre><p>O código abaixo é só para gerar as cores para nosso plot</p><pre><code class=language-python>symbols = g.vs[&quot;symbol&quot;]
+</code></pre>
+<h3 id=how-to-use-the-graph-tool-nsbm>How to use the graph-tool nSBM?</h3>
+<p>With the sparsified correlation graph that encompass the stock relationships we can ask ourselves how those relationships ties stocks together. Here we will use the nSBM to answer this.</p>
+<p>The
+<a href=https://dx.doi.org/10.1103/PhysRevX.4.011047 target=_blank rel=noopener>nSBM</a>
+is an inference method that optimizes a set of parameters that defines a generative graph model for our data. In our case, to find this model for the sparsified s&p500 correlation graph we will cal the method <code>minimize_nested_blockmodel_dl</code></p>
+<pre><code class=language-python>state = gt.minimize_nested_blockmodel_dl(gnsbm)
+</code></pre>
+<p>The code bellow is used just to define the colors for our plot.</p>
+<pre><code class=language-python>symbols = g.vs[&quot;symbol&quot;]
 sectors = [symbol2sector[symbol] for symbol in symbols]
 u_sectors = np.sort(np.unique(sectors))
 u_colors = [plt.cm.tab10(i/len(u_sectors))
@@ -131,7 +439,10 @@ gnsbm.vertex_properties['rgba'] = rgba
 for i, symbol in enumerate(symbols):
     c = sector2color[symbol2sector[symbol]]
     rgba[i] = [c[0], c[1], c[2], .5]
-</code></pre><p>Executaremos o método draw para gerar o plot. O parâmetro que talvez você queira brincar um pouco é o $\beta \in (0, 1)$. Tal parâmetro é responsável pela força do <strong>edge-bundling</strong>, ou seja, a força com que as arestas serão atraídas uma à outra. Este parâmetro tem finalidades apenas para facilitar a visualização, não existe nenhuma relação com o nSBM.</p><pre><code class=language-python>options = {
+</code></pre>
+<p>Calling the <code>draw</code> method we create a plot with the nSBM result. You can play a
+little changing the `$\beta \in (0, 1)$ parameter to see how the things change. This parameter controls the strength of the <strong>edge-bundling</strong> algorithm.</p>
+<pre><code class=language-python>options = {
     'output': f'nsbm_{start_date}_{end_date}.png',
     'beta': .9,
     'bg_color': 'w',
@@ -141,13 +452,16 @@ for i, symbol in enumerate(symbols):
     'hedge_pen_width': 2,
     'hvertex_fill_color': np.array([0., 0., 0., .5]),
     'hedge_color': np.array([0., 0., 0., .5]),
-    'hedge_marker_size': 20, 
-    'hvertex_size':20   
+    'hedge_marker_size': 20,
+    'hvertex_size':20
 }
 
 state.draw(**options)
 
-</code></pre><p>Finalmente, agora é só ver o resultado da nossa filtragem e inferência</p><pre><code class=language-python>plt.figure(dpi=150)
+</code></pre>
+<p>Finally, we can see the hierarchical structure obtained from our filtered graph using
+the nSBM algorithm.</p>
+<pre><code class=language-python>plt.figure(dpi=150)
 plt.title(f&quot;Sectors of the S&amp;P 500 from {start_date} to {end_date}&quot;)
 legend = plt.legend(
     [plt.Line2D([0], [0], color=c, lw=10)
@@ -165,87 +479,182 @@ plt.axis('off')
 plt.savefig(f'nsbm_final_{start_date}_{end_date}.png', bbox_inches='tight',
             dpi=150, bbox_extra_artists=(legend,), facecolor='w', edgecolor='w')
 plt.show()
-</code></pre><figure id=figure-resultado-do-modelo-de-blocos-aninhados-para-o-primeiro-semestre-de-2018-de-ativos-do-sp500-artístico><a data-fancybox href=/post/nsbm_sp500_stock_market_disparity_filter/nsbm_final_2018-01-01_2018-06-01_hudcff6362c16284ef400b42c5fe2e1b69_266080_0x500_resize_lanczos_2.png data-caption="Resultado do modelo de blocos aninhados para o primeiro semestre de 2018 de ativos do s&amp;amp;p500. Artístico?"><img data-src=/post/nsbm_sp500_stock_market_disparity_filter/nsbm_final_2018-01-01_2018-06-01_hudcff6362c16284ef400b42c5fe2e1b69_266080_0x500_resize_lanczos_2.png class=lazyload alt width=100% height=500px></a><figcaption>Resultado do modelo de blocos aninhados para o primeiro semestre de 2018 de ativos do s&p500. Artístico?</figcaption></figure><p>Ok, muito bonito! Conseguimos ver agrupamentos de certos setores, algumas misturas, muitas conexões entre o <em>Financials</em> e <em>Industrials</em>, etc. Se você não consegue ver isso agora vou tentar te explicar como interpretar esse gráfico.</p><h3 id=como-analisar>Como analisar?</h3><figure><a data-fancybox href=/post/nsbm_sp500_stock_market_disparity_filter/descripition_nsbm_sp500_hufe6166112f10aa58541f55447fe95bbb_1458779_0x500_resize_lanczos_2.png><img data-src=/post/nsbm_sp500_stock_market_disparity_filter/descripition_nsbm_sp500_hufe6166112f10aa58541f55447fe95bbb_1458779_0x500_resize_lanczos_2.png class=lazyload alt width=100% height=500px></a></figure><ul><li>Cada círculo no conjunto que parece a escova de uma vassoura é um ativo, um vértice do grafo original.</li><li>Cada escova é uma comunidade de ativos. Podemos navegar na hierarquia seguindo o caminho reverso apontado pelas setinhas no grafo em preto. Veja que na imagem eu coloquei como exemplo três comunidades que pertencem à mesma comunidade pai.
-Uma coisa interessante que podemos observar é que a maior parte dos ativos relacionados a <strong>Consumer staples</strong> forma uma comunidade com <strong>Real state</strong> e <strong>Utilities</strong> no segundo nível.</li></ul><p>E as arestas?</p><ul><li>Podemos notar que um grande número de conexões entre <strong>Financials</strong>, <strong>Industrials</strong> e <strong>Information technology</strong> sobreviveram ao filtro de disparidade. Sendo um indicativo que esses ativos têm uma forte relação nos retornos.
-Ok, antes eu falei que o $\beta$ controla o efeito de atração entre as arestas, veja o que acontece se eu reduzir o $\beta$ para $0.5$:</li></ul><figure id=figure-horrível-não-é-mesmo><a data-fancybox href=/post/nsbm_sp500_stock_market_disparity_filter/nsbm_2018-01-01_2018-06-01_beta_0.5_hu63a031e361e4cd7a15f51f9db9995b63_1589031_0x400_resize_lanczos_2.png data-caption="Horrível não é mesmo?"><img src=/post/nsbm_sp500_stock_market_disparity_filter/nsbm_2018-01-01_2018-06-01_beta_0.5_hu63a031e361e4cd7a15f51f9db9995b63_1589031_0x400_resize_lanczos_2.png alt height=400px></a><figcaption>Horrível não é mesmo?</figcaption></figure><p>Você também pode explorar o resultado do nSBM manualmente. Para obter um sumário da hierarquia das comunidades obtidas pelo nSBM podemos invocar o método <code>print_summary</code></p><pre><code class=language-python>state.print_summary()
-</code></pre><pre><code>l: 0, N: 483, B: 25
+</code></pre>
+<figure id=figure-nsbm-result-for-the-correlation-matrix-of-sp500-returns>
+<a data-fancybox href=/post/nsbm_sp500_stock_market_disparity_filter/nsbm_final_2018-01-01_2018-06-01_hudcff6362c16284ef400b42c5fe2e1b69_266080_0x500_resize_lanczos_3.png data-caption="nSBM result for the correlation matrix of S&amp;amp;P500 returns.">
+<img data-src=/post/nsbm_sp500_stock_market_disparity_filter/nsbm_final_2018-01-01_2018-06-01_hudcff6362c16284ef400b42c5fe2e1b69_266080_0x500_resize_lanczos_3.png class=lazyload alt width=100% height=500px>
+</a>
+<figcaption>
+nSBM result for the correlation matrix of S&P500 returns.
+</figcaption>
+</figure>
+<p>Wow, beautiful, isn&rsquo;t it? But maybe you can only see a beautiful picture and not be
+able to understand what is happening. So, let&rsquo;s try to understand what this plot is
+telling us.</p>
+<h3 id=how-to-analyze>How to analyze?</h3>
+<figure>
+<a data-fancybox href=/post/nsbm_sp500_stock_market_disparity_filter/descripition_nsbm_sp500_eng_hubc8bd3aa9dee5e4b9544c9c74b387fed_1482556_0x400_resize_lanczos_3.png>
+<img data-src=/post/nsbm_sp500_stock_market_disparity_filter/descripition_nsbm_sp500_eng_hubc8bd3aa9dee5e4b9544c9c74b387fed_1482556_0x400_resize_lanczos_3.png class=lazyload alt width=80% height=400px>
+</a>
+</figure>
+<ul>
+<li>Each circle (leaf) represents a stock. A vertex in the original graph.</li>
+<li>Each group of leafs which resembles a broom is a community detected by the nSBM.
+Navigating backwards through the arrows we can see the hierarchical community structure. The image above shows three communities that belong to
+the same grandfather&rsquo;s community.</li>
+</ul>
+<p>We can see interesting stuff in the community structure. For example, the majority of stocks related to <strong>Consumer staples</strong>, <strong>Real state</strong>, and <strong>Utilities</strong> belongs to the same community.</p>
+<p>What is the meaning of the edges?</p>
+<ul>
+<li>A larger number of edges between <strong>Financials</strong>, <strong>Industrials</strong> and <strong>Information technology</strong> survive the filtering technique, which indicates a strong relationship between these sectors.</li>
+</ul>
+<p>The visual inspection of the edges relationships is meaningful only because of the use of edge bundling algorithm. Let&rsquo;s see how a weak bundling turns our job into a hard one setting $\beta = 0.5$</p>
+<figure id=figure-can-you-understand-what-is-happening-me-neither>
+<a data-fancybox href=/post/nsbm_sp500_stock_market_disparity_filter/nsbm_2018-01-01_2018-06-01_beta_0.5_hu63a031e361e4cd7a15f51f9db9995b63_1589031_0x400_resize_lanczos_3.png data-caption="Can you understand what is happening? Me neither.">
+<img src=/post/nsbm_sp500_stock_market_disparity_filter/nsbm_2018-01-01_2018-06-01_beta_0.5_hu63a031e361e4cd7a15f51f9db9995b63_1589031_0x400_resize_lanczos_3.png alt height=4200px>
+</a>
+<figcaption>
+Can you understand what is happening? Me neither.
+</figcaption>
+</figure>
+<p>A visual inspection is sometimes not enough, and maybe you need to create an automatic analysis, which is easy to do with the graph-tool. For example,
+to obtain a summary of the hierarchical community structure obtained by the nSBM algorithm we can call the <code>print_summary</code> method.</p>
+<pre><code class=language-python>state.print_summary()
+</code></pre>
+<pre><code>l: 0, N: 483, B: 25
 l: 1, N: 25, B: 6
 l: 2, N: 6, B: 2
 l: 3, N: 2, B: 1
 l: 4, N: 1, B: 1
-</code></pre><p>No nível de folhas temos os ativos. No primeiro nível temos <strong>21</strong> comunidades para os <strong>11</strong> setores.</p><p>Supondo que você queira obter quais comunidades um dado ativo pertence, no caso &ldquo;TSLA&rdquo;,</p><pre><code class=language-python># esse é o indice da TSLA no nosso grafo original
+</code></pre>
+<p>In the first level, we have <strong>21</strong> communities for all the <strong>11</strong> sectors.</p>
+<p>If we want to know which communities the <strong>TSLA</strong> stock belongs to, we go through
+the hierarchy in the reverse order,</p>
+<pre><code class=language-python># esse é o indice da TSLA no nosso grafo original
 symbol = &quot;TSLA&quot;
 index_tesla = symbols.index(symbol)
-symbol, symbol2sector[symbol], symbol2name[symbol]
-</code></pre><pre><code>('TSLA', 'Consumer Discretionary', 'Tesla')
-</code></pre><p>Para obter as comunidades que o TSLA pertence percorremos a hierarquia de baixo para cima, até a raiz</p><pre><code class=language-python># para obter os indices 
+print(symbol, symbol2sector[symbol], symbol2name[symbol])
 r0 = state.levels[0].get_blocks()[index_tesla]
 r1 = state.levels[1].get_blocks()[r0]
 r2 = state.levels[2].get_blocks()[r1]
 r3 = state.levels[3].get_blocks()[r2]
 (r1, r2, r3)
 
-</code></pre><pre><code>(19, 0, 0)
-</code></pre><p>Você pode explorar as comunidades usando essa abordagem. Contudo, eu recomendo você usar o THREE.js ou D3 para realizar essa exploração. Futuramente disponibilizarei meu código para permitir uma visualização interativa do nsbm usando threejs direto no browser!</p><h3 id=outras-aplicações-de-nsbm>Outras aplicações de nSBM</h3><p>nSBM&rsquo;s e SBM&rsquo;s encontram diversas aplicações como
-<a href=https://www.science.org/doi/10.1126/sciadv.aaq1360 target=_blank rel=noopener>NLP</a> e em um trabalho recente meu em análise de
-<a href=https://arxiv.org/abs/2110.01421 target=_blank rel=noopener>surveys</a>.<figure id=figure-um-jaba-próprio-nsbm-do-censo-escolar-pense><a data-fancybox href="/post/nsbm_sp500_stock_market_disparity_filter/allDummyAUC_alpha=0-05_hu1c20d905c5634e6a84f02ee440a1f7e5_1616945_0x400_resize_lanczos_2.png" data-caption="Um jaba próprio. nSBM do censo escolar PeNSE."><img src="/post/nsbm_sp500_stock_market_disparity_filter/allDummyAUC_alpha=0-05_hu1c20d905c5634e6a84f02ee440a1f7e5_1616945_0x400_resize_lanczos_2.png" alt height=400px></a><figcaption>Um jaba próprio. nSBM do censo escolar PeNSE.</figcaption></figure></p><h2 id=extras-mst>Extras: MST</h2><p>Eu prometi mostrar como ficaria o mesmo universo de dados usando MST (árvores de expansão mínima). A intuição por trás do MST é que queremos construir um grafo esparso de um grafo original, tal que as somas dos pesos das arestas seja a menor possível sem desconectar os vértices do grafo. Veja mais aprofundado
-<a href=https://hudsonthames.org/networks-with-mlfinlab-minimum-spanning-tree-mst/ target=_blank rel=noopener>aqui</a>.</p><h3 id=convertendo-correlações-em-distâncias>Convertendo correlações em distâncias</h3><p>A primeira coisa que precisamos fazer é converter a matriz de correlação em uma matriz de distância. Isso pode ser feito usando a seguinte função</p><p>$d(\mathrm{stock}_1, \mathrm{stock}_2) = \sqrt{2(1-\mathrm{corr}(\mathrm{stock_1}, \mathrm{stock}_2))}$</p><pre><code class=language-python>dist_matrix = np.sqrt(2*(1-correlation_matrix))
-dist_matrix = dist_matrix.fillna(0)
-np.fill_diagonal(dist_matrix.values, 0)
-</code></pre><h3 id=extraindo-o-mst>Extraindo o MST</h3><p>O <code>igraph</code> já implementa um algoritmo para extrair o MST de um grafo de forma eficiente, mesmo que o grafo seja completo. Nossa matriz de correlação é um grafo completo!</p><pre><code class=language-python>
-g = ig.Graph.Weighted_Adjacency(dist_matrix.values, mode='undirected')
-g = g.spanning_tree(weights=&quot;weight&quot;, return_tree=True)
-g.vs[&quot;symbol&quot;] = returns_all.columns
-
-sectors = [symbol2sector[symbol] for symbol in returns_all.columns]
-colors = [
-    sector2color[sector] for sector in sectors
-]
-</code></pre><h3 id=visualizando-o-mst>Visualizando o MST</h3><p>Agora com nosso MST vamos usar um layout de grafos bem simples para visualizar nosso grafo</p><pre><code class=language-python>g.vs[&quot;color&quot;] = colors
-
-pos = g.layout_fruchterman_reingold(niter=10000, weights=&quot;weight&quot;)
-pos = np.array(pos.coords)
-</code></pre><p>Finalmente, nosso resultado:</p><pre><code class=language-python>from matplotlib.collections import LineCollection
-
-lines = []
-colors = []
-for s, t in g.get_edgelist():
-    x0, y0 = pos[s]
-    x1, y1 = pos[t]
-    lines.append([(x0, y0), (x1, y1)])
-    colors.append(&quot;black&quot;)
-lc = LineCollection(lines, colors=colors, zorder=0, alpha=.5)
-fig = plt.figure(figsize=(10, 10))
-ax = fig.add_subplot(1, 1, 1)
-ax.scatter(
-    pos[:, 0],
-    pos[:, 1],
-    c=g.vs[&quot;color&quot;],
-    s=25,
-    marker=&quot;d&quot;,
-    alpha=.8,
-    zorder=1
-)
-ax.add_collection(lc)
-ax.axis('off')
-legend = ax.legend(
-    [plt.Line2D([0], [0], color=c, lw=10)
-        for c in list(sector2color.values())],
-    list(sector2color.keys()),
-    bbox_to_anchor=(1.05, 1),
-    loc=2,
-    borderaxespad=0.)
-plt.savefig(f'mst_{start_date}_{end_date}.png', bbox_inches='tight',)
-plt.show()
-</code></pre><figure id=figure-mst-para-ativos-do-sp500-no-primeiro-semestre-de-2018><a data-fancybox href=/post/nsbm_sp500_stock_market_disparity_filter/mst_2018-01-01_2018-06-01_huc06590f539d2bf35f6546a367d158c6d_73932_0x500_resize_lanczos_2.png data-caption="MST para ativos do S&amp;amp;P500 no primeiro semestre de 2018"><img data-src=/post/nsbm_sp500_stock_market_disparity_filter/mst_2018-01-01_2018-06-01_huc06590f539d2bf35f6546a367d158c6d_73932_0x500_resize_lanczos_2.png class=lazyload alt width=100% height=500px></a><figcaption>MST para ativos do S&P500 no primeiro semestre de 2018</figcaption></figure><p>Alguns padrões aparecem, mas o MST é muito menos rico de informações que o nSBM, exploraremos mais essas vantagens em posts futuros.</p><h2 id=agradecimentos>Agradecimentos</h2><p>Agradeço ao
-<a href=https://www.linkedin.com/in/maikereis/ target=_blank rel=noopener>Maike Reis</a> e
-<a href=https://www.linkedin.com/in/felipe-alves-dos-santos/ target=_blank rel=noopener>Felipe Santos</a> pelas dicas e correções.</p></div><div class=article-tags><a class="badge badge-light" href=/tag/grafos/>grafos</a>
+</code></pre>
+<pre><code>('TSLA', 'Consumer Discretionary', 'Tesla')
+(19, 0, 0)
+</code></pre>
+<h2 id=conclusion>Conclusion</h2>
+<p>The aim of this post was to give you a first impression of a metodology that combines the use of nSBM and edge filtering techniques to enhance our understanding of the correlation structure of the data, specially in the case of financial data. However, this methodology can be applied in different scenarios like
+<a href=https://www.science.org/doi/10.1126/sciadv.aaq1360 target=_blank rel=noopener>topic modeling in NLP</a> and
+<a href=https://arxiv.org/abs/2110.01421 target=_blank rel=noopener>survey analysis</a>.</p>
+</div>
+<div class=article-tags>
+<a class="badge badge-light" href=/tag/grafos/>grafos</a>
 <a class="badge badge-light" href=/tag/comunidades/>comunidades</a>
 <a class="badge badge-light" href=/tag/nsbm/>nsbm</a>
 <a class="badge badge-light" href=/tag/financas/>finanças</a>
 <a class="badge badge-light" href=/tag/mercado-de-acoes/>mercado-de-ações</a>
-<a class="badge badge-light" href=/tag/python/>python</a></div><div class=share-box aria-hidden=true><h5 class=text-center>Share this page if you like it</h5><ul class=share><li><a href="https://twitter.com/intent/tweet?url=/post/nsbm_sp500_stock_market_disparity_filter/&text=Grafos%20e%20modelo%20de%20blocos%20aninhados%20para%20matrizes%20de%20correla%c3%a7%c3%a3o:%20clusteriza%c3%a7%c3%a3o%20do%20mercado%20de%20a%c3%a7%c3%b5es" target=_blank rel=noopener class=share-btn-twitter><i class="fab fa-twitter"></i></a></li><li><a href="https://www.facebook.com/sharer.php?u=/post/nsbm_sp500_stock_market_disparity_filter/&t=Grafos%20e%20modelo%20de%20blocos%20aninhados%20para%20matrizes%20de%20correla%c3%a7%c3%a3o:%20clusteriza%c3%a7%c3%a3o%20do%20mercado%20de%20a%c3%a7%c3%b5es" target=_blank rel=noopener class=share-btn-facebook><i class="fab fa-facebook"></i></a></li><li><a href="mailto:?subject=Grafos%20e%20modelo%20de%20blocos%20aninhados%20para%20matrizes%20de%20correla%c3%a7%c3%a3o:%20clusteriza%c3%a7%c3%a3o%20do%20mercado%20de%20a%c3%a7%c3%b5es&body=/post/nsbm_sp500_stock_market_disparity_filter/" target=_blank rel=noopener class=share-btn-email><i class="fas fa-envelope"></i></a></li><li><a href="https://www.linkedin.com/shareArticle?url=/post/nsbm_sp500_stock_market_disparity_filter/&title=Grafos%20e%20modelo%20de%20blocos%20aninhados%20para%20matrizes%20de%20correla%c3%a7%c3%a3o:%20clusteriza%c3%a7%c3%a3o%20do%20mercado%20de%20a%c3%a7%c3%b5es" target=_blank rel=noopener class=share-btn-linkedin><i class="fab fa-linkedin-in"></i></a></li><li><a href="whatsapp://send?text=Grafos%20e%20modelo%20de%20blocos%20aninhados%20para%20matrizes%20de%20correla%c3%a7%c3%a3o:%20clusteriza%c3%a7%c3%a3o%20do%20mercado%20de%20a%c3%a7%c3%b5es%20/post/nsbm_sp500_stock_market_disparity_filter/" target=_blank rel=noopener class=share-btn-whatsapp><i class="fab fa-whatsapp"></i></a></li><li><a href="https://service.weibo.com/share/share.php?url=/post/nsbm_sp500_stock_market_disparity_filter/&title=Grafos%20e%20modelo%20de%20blocos%20aninhados%20para%20matrizes%20de%20correla%c3%a7%c3%a3o:%20clusteriza%c3%a7%c3%a3o%20do%20mercado%20de%20a%c3%a7%c3%b5es" target=_blank rel=noopener class=share-btn-weibo><i class="fab fa-weibo"></i></a></li></ul></div><div class="media author-card content-widget-hr"><img class="avatar mr-3 avatar-circle" src=/author/bruno-messias/avatar_hu8c5dc81c7296f83357bec0b4ab814f69_6046_270x270_fill_lanczos_center_2.png alt="Bruno Messias"><div class=media-body><h5 class=card-title><a href=/>Bruno Messias</a></h5><h6 class=card-subtitle>Ph.D Candidate/Software Developer</h6><p class=card-text>Free-software enthusiast, researcher, and software developer. Currently, working in the field of Graphs, Complex Systems and Machine Learning.</p><ul class=network-icon aria-hidden=true><li><a href=mailto:devmessias@gmail.com><i class="fas fa-envelope"></i></a></li><li><a href=https://twitter.com/devmessias target=_blank rel=noopener><i class="fab fa-twitter"></i></a></li><li><a href=https://github.com/devmessias target=_blank rel=noopener><i class="fab fa-github"></i></a></li><li><a href=https://www.linkedin.com/in/bruno-messias-510553193/ target=_blank rel=noopener><i class="fab fa-linkedin"></i></a></li></ul></div></div><section id=comments><div id=disqus_thread></div><script>let disqus_config=function(){};(function(){if(["localhost","127.0.0.1"].indexOf(window.location.hostname)!=-1){document.getElementById('disqus_thread').innerHTML='Disqus comments not available by default when the website is previewed locally.';return;}
-var d=document,s=d.createElement('script');s.async=true;s.src='https://'+"devmessias"+'.disqus.com/embed.js';s.setAttribute('data-timestamp',+new Date());(d.head||d.body).appendChild(s);})();</script><noscript>Please enable JavaScript to view the <a href=https://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript><a href=https://disqus.com class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a></section><div class="article-widget content-widget-hr"><h3>Related</h3><ul><li><a href=/post/edge_graph_filtering/>Grafos e filtragem de arestas I: conceitos e confusões</a></li><li><a href=/post/random_matrix_portfolio/>Variações do teorema central do limite para matrizes aleatórias.</a></li><li><a href=/post/python_ast_metaprogramming_with_introspection_and_decorators/>Going meta with python: manipulating ASTs to create an introspective decorator at runtime</a></li><li><a href=/post/python_decorator_that_exposes_locals/>An introspective python decorator using stack frames and the inspect module</a></li><li><a href=/post/using_lsof_and_strace_to_investigate_process_and_failures/>Dissecting processes and failures in Linux with lsof and strace: cases for MlOps and DevOps</a></li></ul></div></div></article></main></div></div></div><script src=https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/4.1.4/imagesloaded.pkgd.min.js integrity="sha256-lqvxZrPLtfffUl2G/e7szqSvPBILGbwmsGE1MKlOi0Q=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/jquery.isotope/3.0.6/isotope.pkgd.min.js integrity="sha256-CBrpuqrMhXwcLLUd5tvQ4euBHCdh7wGlDfNz8vbu/iI=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js integrity="sha256-yt2kYMy0w8AbtF89WXb2P1rfjcP/HTHLT7097U8Y5b8=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/mermaid/8.4.8/mermaid.min.js integrity="sha256-lyWCDMnMeZiXRi7Zl54sZGKYmgQs4izcT7+tKc+KUBk=" crossorigin=anonymous title=mermaid></script><script src=https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/highlight.min.js integrity="sha256-eOgo0OtLL4cdq7RdwRUiGKLX9XsIJ7nGhWEKbohmVAQ=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/languages/r.min.js></script><script>const code_highlighting=true;</script><script>const isSiteThemeDark=false;</script><script>const search_config={"indexURI":"/index.json","minLength":1,"threshold":0.3};const i18n={"no_results":"No results found","placeholder":"Search...","results":"results found"};const content_type={'post':"Posts",'project':"Projects",'publication':"Publications",'talk':"Talks",'slides':"Slides"};</script><script id=search-hit-fuse-template type=text/x-template>
+<a class="badge badge-light" href=/tag/python/>python</a>
+</div>
+<div class=share-box aria-hidden=true>
+<h5 class=text-center>Share this page if you like it</h5>
+<ul class=share>
+<li>
+<a href="https://twitter.com/intent/tweet?url=/post/nsbm_sp500_stock_market_disparity_filter/&text=Correlation%20matrix%20analysis%20with%20the%20nested%20stochastic%20block%20model:%20extracting%20the%20hidden%20graph%20structure%20of%20stock%20market." target=_blank rel=noopener class=share-btn-twitter>
+<i class="fab fa-twitter"></i>
+</a>
+</li>
+<li>
+<a href="https://www.facebook.com/sharer.php?u=/post/nsbm_sp500_stock_market_disparity_filter/&t=Correlation%20matrix%20analysis%20with%20the%20nested%20stochastic%20block%20model:%20extracting%20the%20hidden%20graph%20structure%20of%20stock%20market." target=_blank rel=noopener class=share-btn-facebook>
+<i class="fab fa-facebook"></i>
+</a>
+</li>
+<li>
+<a href="mailto:?subject=Correlation%20matrix%20analysis%20with%20the%20nested%20stochastic%20block%20model:%20extracting%20the%20hidden%20graph%20structure%20of%20stock%20market.&body=/post/nsbm_sp500_stock_market_disparity_filter/" target=_blank rel=noopener class=share-btn-email>
+<i class="fas fa-envelope"></i>
+</a>
+</li>
+<li>
+<a href="https://www.linkedin.com/shareArticle?url=/post/nsbm_sp500_stock_market_disparity_filter/&title=Correlation%20matrix%20analysis%20with%20the%20nested%20stochastic%20block%20model:%20extracting%20the%20hidden%20graph%20structure%20of%20stock%20market." target=_blank rel=noopener class=share-btn-linkedin>
+<i class="fab fa-linkedin-in"></i>
+</a>
+</li>
+<li>
+<a href="whatsapp://send?text=Correlation%20matrix%20analysis%20with%20the%20nested%20stochastic%20block%20model:%20extracting%20the%20hidden%20graph%20structure%20of%20stock%20market.%20/post/nsbm_sp500_stock_market_disparity_filter/" target=_blank rel=noopener class=share-btn-whatsapp>
+<i class="fab fa-whatsapp"></i>
+</a>
+</li>
+<li>
+<a href="https://service.weibo.com/share/share.php?url=/post/nsbm_sp500_stock_market_disparity_filter/&title=Correlation%20matrix%20analysis%20with%20the%20nested%20stochastic%20block%20model:%20extracting%20the%20hidden%20graph%20structure%20of%20stock%20market." target=_blank rel=noopener class=share-btn-weibo>
+<i class="fab fa-weibo"></i>
+</a>
+</li>
+</ul>
+</div>
+<div class="media author-card content-widget-hr">
+<img class="avatar mr-3 avatar-circle" src=/author/bruno-messias/avatar_hu8c5dc81c7296f83357bec0b4ab814f69_6046_270x270_fill_lanczos_center_3.png alt="Bruno Messias">
+<div class=media-body>
+<h5 class=card-title><a href=/>Bruno Messias</a></h5>
+<h6 class=card-subtitle>Ph.D Candidate/Software Developer</h6>
+<p class=card-text>Free-software enthusiast, researcher, and software developer. Currently, working in the field of Graphs, Complex Systems and Machine Learning.</p>
+<ul class=network-icon aria-hidden=true>
+<li>
+<a href=mailto:devmessias@gmail.com>
+<i class="fas fa-envelope"></i>
+</a>
+</li>
+<li>
+<a href=https://twitter.com/devmessias target=_blank rel=noopener>
+<i class="fab fa-twitter"></i>
+</a>
+</li>
+<li>
+<a href=https://github.com/devmessias target=_blank rel=noopener>
+<i class="fab fa-github"></i>
+</a>
+</li>
+<li>
+<a href=https://www.linkedin.com/in/bruno-messias-510553193/ target=_blank rel=noopener>
+<i class="fab fa-linkedin"></i>
+</a>
+</li>
+</ul>
+</div>
+</div>
+<section id=comments>
+<div id=disqus_thread></div>
+<script>let disqus_config=function(){};(function(){if(["localhost","127.0.0.1"].indexOf(window.location.hostname)!=-1){document.getElementById('disqus_thread').innerHTML='Disqus comments not available by default when the website is previewed locally.';return}var b=document,a=b.createElement('script');a.async=!0,a.src='https://devmessias.disqus.com/embed.js',a.setAttribute('data-timestamp',+new Date),(b.head||b.body).appendChild(a)})()</script>
+<noscript>Please enable JavaScript to view the <a href=https://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript>
+<a href=https://disqus.com class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a>
+</section>
+<div class="article-widget content-widget-hr">
+<h3>Related</h3>
+<ul>
+<li><a href=/post/edge_graph_filtering/>Grafos e filtragem de arestas I: conceitos e confusões</a></li>
+<li><a href=/post/random_matrix_portfolio/>Variações do teorema central do limite para matrizes aleatórias.</a></li>
+<li><a href=/post/python_ast_metaprogramming_with_introspection_and_decorators/>Going meta with python: manipulating ASTs to create an introspective decorator at runtime</a></li>
+<li><a href=/post/python_decorator_that_exposes_locals/>An introspective python decorator using stack frames and the inspect module</a></li>
+<li><a href=/post/using_lsof_and_strace_to_investigate_process_and_failures/>Dissecting processes and failures in Linux with lsof and strace: cases for MlOps and DevOps</a></li>
+</ul>
+</div>
+</div>
+</article>
+</main>
+</div>
+</div>
+</div>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin=anonymous></script>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/4.1.4/imagesloaded.pkgd.min.js integrity="sha256-lqvxZrPLtfffUl2G/e7szqSvPBILGbwmsGE1MKlOi0Q=" crossorigin=anonymous></script>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/jquery.isotope/3.0.6/isotope.pkgd.min.js integrity="sha256-CBrpuqrMhXwcLLUd5tvQ4euBHCdh7wGlDfNz8vbu/iI=" crossorigin=anonymous></script>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js integrity="sha256-yt2kYMy0w8AbtF89WXb2P1rfjcP/HTHLT7097U8Y5b8=" crossorigin=anonymous></script>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/mermaid/8.4.8/mermaid.min.js integrity="sha256-lyWCDMnMeZiXRi7Zl54sZGKYmgQs4izcT7+tKc+KUBk=" crossorigin=anonymous title=mermaid></script>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/highlight.min.js integrity="sha256-eOgo0OtLL4cdq7RdwRUiGKLX9XsIJ7nGhWEKbohmVAQ=" crossorigin=anonymous></script>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/languages/r.min.js></script>
+<script>const code_highlighting=!0</script>
+<script>const isSiteThemeDark=!1</script>
+<script>const search_config={indexURI:"/index.json",minLength:1,threshold:.3},i18n={no_results:"No results found",placeholder:"Search...",results:"results found"},content_type={post:"Posts",project:"Projects",publication:"Publications",talk:"Talks",slides:"Slides"}</script>
+<script id=search-hit-fuse-template type=text/x-template>
       <div class="search-hit" id="summary-{{key}}">
       <div class="search-hit-content">
         <div class="search-hit-name">
@@ -255,11 +664,60 @@ var d=document,s=d.createElement('script');s.async=true;s.src='https://'+"devmes
         </div>
       </div>
       </div>
-    </script><script src=https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.2.1/fuse.min.js integrity="sha256-VzgmKYmhsGNNN4Ph1kMW+BjoYJM2jV5i4IlFoeZA9XI=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin=anonymous></script><script id=dsq-count-scr src=https://devmessias.disqus.com/count.js async></script><script src=/js/academic.min.37431be2d92d7fb0160054761ab79602.js></script><div class=page-footer><div class=container><footer class=site-footer><p class=powered-by><a href=/privacy/>Privacy Policy</a>
+    </script>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.2.1/fuse.min.js integrity="sha256-VzgmKYmhsGNNN4Ph1kMW+BjoYJM2jV5i4IlFoeZA9XI=" crossorigin=anonymous></script>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin=anonymous></script>
+<script id=dsq-count-scr src=https://devmessias.disqus.com/count.js async></script>
+<script src=/js/academic.min.4aaf2d64e50f8e54cf66dcc54147a22e.js></script>
+<div class=page-footer>
+<div class=container>
+<footer class=site-footer>
+<p class=powered-by>
+<a href=/privacy/>Privacy Policy</a>
 &#183;
-<a href=/terms/>Terms</a></p><p class=powered-by>Bruno Messias</p><p class=powered-by>Powered by the
+<a href=/terms/>Terms</a>
+</p>
+<p class=powered-by>
+Bruno Messias
+</p>
+<p class=powered-by>
+Powered by the
 <a href=https://sourcethemes.com/academic/ target=_blank rel=noopener>Academic theme</a> for
 <a href=https://gohugo.io target=_blank rel=noopener>Hugo</a>.
-<span class=float-right aria-hidden=true><a href=# class=back-to-top><span class=button_icon><i class="fas fa-chevron-up fa-2x"></i></span></a></span></p></footer></div></div><div id=modal class="modal fade" role=dialog><div class=modal-dialog><div class=modal-content><div class=modal-header><h5 class=modal-title>Cite</h5><button type=button class=close data-dismiss=modal aria-label=Close>
-<span aria-hidden=true>&#215;</span></button></div><div class=modal-body><pre><code class="tex hljs"></code></pre></div><div class=modal-footer><a class="btn btn-outline-primary my-1 js-copy-cite" href=# target=_blank><i class="fas fa-copy"></i>Copy</a>
-<a class="btn btn-outline-primary my-1 js-download-cite" href=# target=_blank><i class="fas fa-download"></i>Download</a><div id=modal-error></div></div></div></div></div></body></html>
+<span class=float-right aria-hidden=true>
+<a href=# class=back-to-top>
+<span class=button_icon>
+<i class="fas fa-chevron-up fa-2x"></i>
+</span>
+</a>
+</span>
+</p>
+</footer>
+</div>
+</div>
+<div id=modal class="modal fade" role=dialog>
+<div class=modal-dialog>
+<div class=modal-content>
+<div class=modal-header>
+<h5 class=modal-title>Cite</h5>
+<button type=button class=close data-dismiss=modal aria-label=Close>
+<span aria-hidden=true>&#215;</span>
+</button>
+</div>
+<div class=modal-body>
+<pre><code class="tex hljs"></code></pre>
+</div>
+<div class=modal-footer>
+<a class="btn btn-outline-primary my-1 js-copy-cite" href=# target=_blank>
+<i class="fas fa-copy"></i> Copy
+</a>
+<a class="btn btn-outline-primary my-1 js-download-cite" href=# target=_blank>
+<i class="fas fa-download"></i> Download
+</a>
+<div id=modal-error></div>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

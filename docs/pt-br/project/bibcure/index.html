@@ -1,43 +1,354 @@
-<!doctype html><html lang=pt-br><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=generator content="Source Themes Academic 4.8.0"><meta name=author content="Bruno Messias"><meta name=description content="Bibcure helps in boring tasks by keeping your bibfile up to date and normalized...also allows you to easily download all papers inside your bibtex"><link rel=alternate hreflang=en href=/project/bibcure/><link rel=alternate hreflang=pt-br href=/pt-br/project/bibcure/><meta name=theme-color content="#2962ff"><script src=/js/mathjax-config.js></script><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/academicons/1.8.6/css/academicons.min.css integrity="sha256-uFVgMKfistnJAfoCUQigIl+JfUaP47GrRKjf6CTPVmw=" crossorigin=anonymous><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.0-1/css/all.min.css integrity="sha256-4w9DunooKSr3MFXHXWyFER38WmPdm361bQS/2KUWZbU=" crossorigin=anonymous><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css integrity="sha256-Vzbj7sDDS/woiFS3uNKo8eIuni59rjyNGtXfstRzStA=" crossorigin=anonymous><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/github.min.css crossorigin=anonymous title=hl-light><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/dracula.min.css crossorigin=anonymous title=hl-dark disabled><script src=https://cdnjs.cloudflare.com/ajax/libs/lazysizes/5.1.2/lazysizes.min.js integrity="sha256-Md1qLToewPeKjfAHU1zyPwOutccPAm5tahnaw7Osw0A=" crossorigin=anonymous async></script><script src=https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js integrity crossorigin=anonymous async></script><link rel=stylesheet href="https://fonts.googleapis.com/css?family=Montserrat:400,700%7CRoboto:400,400italic,700%7CRoboto+Mono&display=swap"><link rel=stylesheet href=/css/academic.css><script async src="https://www.googletagmanager.com/gtag/js?id=UA-178064356-1"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
-function trackOutboundLink(url,target){gtag('event','click',{'event_category':'outbound','event_label':url,'transport_type':'beacon','event_callback':function(){if(target!=='_blank'){document.location=url;}}});console.debug("Outbound link clicked: "+url);}
-function onClickCallback(event){if((event.target.tagName!=='A')||(event.target.host===window.location.host)){return;}
-trackOutboundLink(event.target,event.target.getAttribute('target'));}
-gtag('js',new Date());gtag('config','UA-178064356-1',{});document.addEventListener('click',onClickCallback,false);</script><link rel=manifest href=/pt-br/index.webmanifest><link rel=icon type=image/png href=/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_32x32_fill_lanczos_center_2.png><link rel=apple-touch-icon type=image/png href=/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_192x192_fill_lanczos_center_2.png><link rel=canonical href=/pt-br/project/bibcure/><meta property="twitter:site" content="@devmessias"><meta property="twitter:creator" content="@devmessias"><meta property="og:site_name" content="Bruno Messias"><meta property="og:url" content="/pt-br/project/bibcure/"><meta property="og:title" content="Bibcure | Bruno Messias"><meta property="og:description" content="Bibcure helps in boring tasks by keeping your bibfile up to date and normalized...also allows you to easily download all papers inside your bibtex"><meta property="twitter:card" content="summary"><meta property="og:image" content="/pt-br/project/bibcure/featured.png"><meta property="og:locale" content="pt-br"><meta property="article:published_time" content="2017-09-13T17:43:22+00:00"><meta property="article:modified_time" content="2017-09-13T17:43:22+00:00"><script type=application/ld+json>{"@context":"https://schema.org","@type":"Article","mainEntityOfPage":{"@type":"WebPage","@id":"/pt-br/project/bibcure/"},"headline":"Bibcure","image":["/pt-br/project/bibcure/featured.png"],"datePublished":"2017-09-13T17:43:22Z","dateModified":"2017-09-13T17:43:22Z","author":{"@type":"Person","name":"Bruno Messias"},"publisher":{"@type":"Organization","name":"Bruno Messias","logo":{"@type":"ImageObject","url":"/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_192x192_fill_lanczos_center_2.png"}},"description":"Bibcure helps in boring tasks by keeping your bibfile up to date and normalized...also allows you to easily download all papers inside your bibtex"}</script><title>Bibcure | Bruno Messias</title></head><body id=top class=page-wrapper data-spy=scroll data-offset=70 data-target=#TableOfContents><aside class=search-results id=search><div class=container><section class=search-header><div class="row no-gutters justify-content-between mb-3"><div class=col-6><h1>Pesquisar</h1></div><div class="col-6 col-search-close"><a class=js-search href=#><i class="fas fa-times-circle text-muted" aria-hidden=true></i></a></div></div><div id=search-box><input name=q id=search-query placeholder=Pesquisar... autocapitalize=off autocomplete=off autocorrect=off spellcheck=false type=search></div></section><section class=section-search-results><div id=search-hits></div></section></div></aside><div class=page-header><nav class="navbar navbar-expand-lg navbar-light compensate-for-scrollbar" id=navbar-main><div class=container><div class="d-none d-lg-inline-flex"><a class=navbar-brand href=/pt-br>Bruno Messias</a></div><button type=button class=navbar-toggler data-toggle=collapse data-target=#navbar-content aria-controls=navbar aria-expanded=false aria-label="Alterar navegação">
-<span><i class="fas fa-bars"></i></span></button><div class="navbar-brand-mobile-wrapper d-inline-flex d-lg-none"><a class=navbar-brand href=/pt-br>Bruno Messias</a></div><div class="navbar-collapse main-menu-item collapse justify-content-start" id=navbar-content><ul class="navbar-nav d-md-inline-flex"><li class=nav-item><a class=nav-link href=/pt-br/#about><span>About</span></a></li><li class=nav-item><a class=nav-link href=/pt-br/#posts><span>Recent Posts</span></a></li><li class=nav-item><a class=nav-link href=/pt-br/#projects><span>Projects</span></a></li><li class=nav-item><a class=nav-link href=/pt-br/#featured><span>Publications</span></a></li><li class=nav-item><a class=nav-link href=/pt-br/post/><span>Posts</span></a></li></ul></div><ul class="nav-icons navbar-nav flex-row ml-auto d-flex pl-md-2"><li class=nav-item><a class="nav-link js-search" href=# aria-label=Pesquisar><i class="fas fa-search" aria-hidden=true></i></a></li><li class="nav-item dropdown i18n-dropdown"><a href=# class="nav-link dropdown-toggle" data-toggle=dropdown aria-haspopup=true><i class="fas fa-globe mr-1" aria-hidden=true></i><span class="d-none d-lg-inline">Português (Brasil)</span></a><div class=dropdown-menu><div class="dropdown-item dropdown-item-active"><span>Português (Brasil)</span></div><a class=dropdown-item href=/project/bibcure/><span>English</span></a></div></li></ul></div></nav></div><article class="article article-project"><div class="article-container pt-3"><h1 class=text-left>Bibcure</h1><div class=article-metadata><span class=article-date>Sep 13, 2017</span>
-<span class=middot-divider></span><a href=/pt-br/project/bibcure/#disqus_thread></a></div></div><div class="article-header article-container featured-image-wrapper mt-4 mb-4" style=max-width:263px;max-height:263px><div style=position:relative><img src=/pt-br/project/bibcure/featured.png alt class=featured-image></div></div><div class=article-container><div class=article-style><a href=https://github.com/bibcure/bibcure>Bibcure helps in boring tasks by keeping your bibfile up to date and normalized...also allows you to easily download all papers inside your bibtex</a><p><img src=https://raw.githubusercontent.com/bibcure/logo/master/gifs/bibcure_op.gif alt></p><h1 id=requirementsinstall>Requirements/Install</h1><pre><code>$ sudo python /usr/bin/pip install bibcure
-</code></pre><h2 id=scihub2pdfbeta>scihub2pdf(beta)</h2><p><img src=https://raw.githubusercontent.com/bibcure/logo/master/sci_hub_64.png alt> If you want download articles via a DOI number, article title or a bibtex file, using the
-database of arxiv, libgen or sci-hub, see</p><p><a href=https://github.com/bibcure/scihub2pdf target=_blank rel=noopener>bibcure/scihub2pdf</a></p><h1 id=features-and-how-to-use>Features and how to use</h1><h2 id=bibcure>bibcure</h2><p>Given a bib file&mldr;</p><pre><code>$ bibcure -i input.bib -o output.bib
-</code></pre><ul><li><p>check sure the Arxiv items have been published, then update them(requires
-internet connection)</p></li><li><p>complete all fields(url, journal, etc) of all bib items using DOI number(requires
-internet connection)</p></li><li><p>find and create DOI number associated with each bib item which has not
+<!doctype html><html lang=pt-br>
+<head>
+<meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<meta http-equiv=x-ua-compatible content="IE=edge">
+<meta name=generator content="Source Themes Academic 4.8.0">
+<meta name=author content="Bruno Messias">
+<meta name=description content="Bibcure helps in boring tasks by keeping your bibfile up to date and normalized...also allows you to easily download all papers inside your bibtex">
+<link rel=alternate hreflang=en href=/project/bibcure/>
+<link rel=alternate hreflang=pt-br href=/pt-br/project/bibcure/>
+<meta name=theme-color content="#2962ff">
+<script src=/js/mathjax-config.js></script>
+<link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/academicons/1.8.6/css/academicons.min.css integrity="sha256-uFVgMKfistnJAfoCUQigIl+JfUaP47GrRKjf6CTPVmw=" crossorigin=anonymous>
+<link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.0-1/css/all.min.css integrity="sha256-4w9DunooKSr3MFXHXWyFER38WmPdm361bQS/2KUWZbU=" crossorigin=anonymous>
+<link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css integrity="sha256-Vzbj7sDDS/woiFS3uNKo8eIuni59rjyNGtXfstRzStA=" crossorigin=anonymous>
+<link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/github.min.css crossorigin=anonymous title=hl-light>
+<link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/dracula.min.css crossorigin=anonymous title=hl-dark disabled>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/lazysizes/5.1.2/lazysizes.min.js integrity="sha256-Md1qLToewPeKjfAHU1zyPwOutccPAm5tahnaw7Osw0A=" crossorigin=anonymous async></script>
+<script src=https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js integrity crossorigin=anonymous async></script>
+<link rel=stylesheet href="https://fonts.googleapis.com/css?family=Montserrat:400,700%7CRoboto:400,400italic,700%7CRoboto+Mono&display=swap">
+<link rel=stylesheet href=/css/academic.css>
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-178064356-1"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}function trackOutboundLink(a,b){gtag('event','click',{event_category:'outbound',event_label:a,transport_type:'beacon',event_callback:function(){b!=='_blank'&&(document.location=a)}}),console.debug("Outbound link clicked: "+a)}function onClickCallback(a){if(a.target.tagName!=='A'||a.target.host===window.location.host)return;trackOutboundLink(a.target,a.target.getAttribute('target'))}gtag('js',new Date),gtag('config','UA-178064356-1',{}),document.addEventListener('click',onClickCallback,!1)</script>
+<link rel=manifest href=/pt-br/index.webmanifest>
+<link rel=icon type=image/png href=/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_32x32_fill_lanczos_center_3.png>
+<link rel=apple-touch-icon type=image/png href=/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_192x192_fill_lanczos_center_3.png>
+<link rel=canonical href=/pt-br/project/bibcure/>
+<meta property="twitter:site" content="@devmessias">
+<meta property="twitter:creator" content="@devmessias">
+<meta property="og:site_name" content="Bruno Messias">
+<meta property="og:url" content="/pt-br/project/bibcure/">
+<meta property="og:title" content="Bibcure | Bruno Messias">
+<meta property="og:description" content="Bibcure helps in boring tasks by keeping your bibfile up to date and normalized...also allows you to easily download all papers inside your bibtex">
+<meta property="twitter:card" content="summary"><meta property="og:image" content="/pt-br/project/bibcure/featured.png">
+<meta property="og:locale" content="pt-br">
+<meta property="article:published_time" content="2017-09-13T17:43:22+00:00">
+<meta property="article:modified_time" content="2017-09-13T17:43:22+00:00">
+<script type=application/ld+json>{"@context":"https://schema.org","@type":"Article","mainEntityOfPage":{"@type":"WebPage","@id":"/pt-br/project/bibcure/"},"headline":"Bibcure","image":["/pt-br/project/bibcure/featured.png"],"datePublished":"2017-09-13T17:43:22Z","dateModified":"2017-09-13T17:43:22Z","author":{"@type":"Person","name":"Bruno Messias"},"publisher":{"@type":"Organization","name":"Bruno Messias","logo":{"@type":"ImageObject","url":"/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_192x192_fill_lanczos_center_3.png"}},"description":"Bibcure helps in boring tasks by keeping your bibfile up to date and normalized...also allows you to easily download all papers inside your bibtex"}</script>
+<title>Bibcure | Bruno Messias</title>
+</head>
+<body id=top class=page-wrapper data-spy=scroll data-offset=70 data-target=#TableOfContents>
+<aside class=search-results id=search>
+<div class=container>
+<section class=search-header>
+<div class="row no-gutters justify-content-between mb-3">
+<div class=col-6>
+<h1>Pesquisar</h1>
+</div>
+<div class="col-6 col-search-close">
+<a class=js-search href=#><i class="fas fa-times-circle text-muted" aria-hidden=true></i></a>
+</div>
+</div>
+<div id=search-box>
+<input name=q id=search-query placeholder=Pesquisar... autocapitalize=off autocomplete=off autocorrect=off spellcheck=false type=search>
+</div>
+</section>
+<section class=section-search-results>
+<div id=search-hits>
+</div>
+</section>
+</div>
+</aside>
+<div class=page-header>
+<nav class="navbar navbar-expand-lg navbar-light compensate-for-scrollbar" id=navbar-main>
+<div class=container>
+<div class="d-none d-lg-inline-flex">
+<a class=navbar-brand href=/pt-br>Bruno Messias</a>
+</div>
+<button type=button class=navbar-toggler data-toggle=collapse data-target=#navbar-content aria-controls=navbar aria-expanded=false aria-label="Alterar navegação">
+<span><i class="fas fa-bars"></i></span>
+</button>
+<div class="navbar-brand-mobile-wrapper d-inline-flex d-lg-none">
+<a class=navbar-brand href=/pt-br>Bruno Messias</a>
+</div>
+<div class="navbar-collapse main-menu-item collapse justify-content-start" id=navbar-content>
+<ul class="navbar-nav d-md-inline-flex">
+<li class=nav-item>
+<a class=nav-link href=/pt-br/#about><span>About</span></a>
+</li>
+<li class=nav-item>
+<a class=nav-link href=/pt-br/#posts><span>Recent Posts</span></a>
+</li>
+<li class=nav-item>
+<a class=nav-link href=/pt-br/#projects><span>Projects</span></a>
+</li>
+<li class=nav-item>
+<a class=nav-link href=/pt-br/#featured><span>Publications</span></a>
+</li>
+<li class=nav-item>
+<a class=nav-link href=/pt-br/post/><span>Posts</span></a>
+</li>
+</ul>
+</div>
+<ul class="nav-icons navbar-nav flex-row ml-auto d-flex pl-md-2">
+<li class=nav-item>
+<a class="nav-link js-search" href=# aria-label=Pesquisar><i class="fas fa-search" aria-hidden=true></i></a>
+</li>
+<li class="nav-item dropdown i18n-dropdown">
+<a href=# class="nav-link dropdown-toggle" data-toggle=dropdown aria-haspopup=true>
+<i class="fas fa-globe mr-1" aria-hidden=true></i><span class="d-none d-lg-inline">Português (Brasil)</span>
+</a>
+<div class=dropdown-menu>
+<div class="dropdown-item dropdown-item-active">
+<span>Português (Brasil)</span>
+</div>
+<a class=dropdown-item href=/project/bibcure/>
+<span>English</span>
+</a>
+</div>
+</li>
+</ul>
+</div>
+</nav>
+</div>
+<article class="article article-project">
+<div class="article-container pt-3">
+<h1 class=text-left>Bibcure</h1>
+<div class=article-metadata>
+<span class=article-date>
+Sep 13, 2017
+</span>
+<span class=middot-divider></span>
+<a href=/pt-br/project/bibcure/#disqus_thread></a>
+</div>
+</div>
+<div class="article-header article-container featured-image-wrapper mt-4 mb-4" style=max-width:263px;max-height:263px>
+<div style=position:relative>
+<img src=/pt-br/project/bibcure/featured.png alt class=featured-image>
+</div>
+</div>
+<div class=article-container>
+<div class=article-style>
+<a href=https://github.com/bibcure/bibcure>
+Bibcure helps in boring tasks by keeping your bibfile up to date and normalized...also allows you to easily download all papers inside your bibtex
+</a>
+<p><img src=https://raw.githubusercontent.com/bibcure/logo/master/gifs/bibcure_op.gif alt></p>
+<h1 id=requirementsinstall>Requirements/Install</h1>
+<pre><code>$ sudo python /usr/bin/pip install bibcure
+</code></pre>
+<h2 id=scihub2pdfbeta>scihub2pdf(beta)</h2>
+<p><img src=https://raw.githubusercontent.com/bibcure/logo/master/sci_hub_64.png alt> If you want download articles via a DOI number, article title or a bibtex file, using the
+database of arxiv, libgen or sci-hub, see</p>
+<p>
+<a href=https://github.com/bibcure/scihub2pdf target=_blank rel=noopener>bibcure/scihub2pdf</a></p>
+<h1 id=features-and-how-to-use>Features and how to use</h1>
+<h2 id=bibcure>bibcure</h2>
+<p>Given a bib file&mldr;</p>
+<pre><code>$ bibcure -i input.bib -o output.bib
+</code></pre>
+<ul>
+<li>
+<p>check sure the Arxiv items have been published, then update them(requires
+internet connection)</p>
+</li>
+<li>
+<p>complete all fields(url, journal, etc) of all bib items using DOI number(requires
+internet connection)</p>
+</li>
+<li>
+<p>find and create DOI number associated with each bib item which has not
 DOI field(requires
-internet connection)</p></li><li><p>abbreviate jorunals names</p></li></ul><h2 id=arxivcheck>arxivcheck</h2><p>Given a arxiv id&mldr;</p><pre><code>$ arxivcheck 1601.02785
-</code></pre><ul><li>check if has been published, and then returns the updated bib (requires internet connection)</li></ul><p>Given a title&mldr;</p><pre><code>$ arxivcheck --title An useful paper published on arxiv
-</code></pre><p>search papers related and return a bib the first item.
-You can easily append a bib into a bibfile, just do</p><pre><code>$ arxivcheck --title An useful paper published on arxiv &gt;&gt; file.bib
-</code></pre><p>You also can interact with results, just pass &ndash;ask parameter</p><pre><code>$ arxivcheck --ask --title An useful paper published on arxiv
-</code></pre><h2 id=scihub2pdf>scihub2pdf</h2><p>Given a bibtex file</p><pre><code>$ scihub2pdf -i input.bib
-</code></pre><p>Given a DOI number&mldr;</p><pre><code>$ scihub2pdf 10.1038/s41524-017-0032-0
-</code></pre><p>Given arxivId&mldr;</p><pre><code>$ scihub2pdf arxiv:1708.06891
-</code></pre><p>Given a title&mldr;</p><pre><code>$ scihub2bib --title An useful paper
-</code></pre><p>or arxiv&mldr;</p><pre><code>$ scihub2bib --title arxiv:An useful paper
-</code></pre><p>Location folder as argument</p><pre><code>$ scihub2pdf -i input.bib -l somefoler/
-</code></pre><p>Use libgen instead sci-hub</p><pre><code>$ scihub2pdf -i input.bib --uselibgen
-</code></pre><h2 id=doi2bib>doi2bib</h2><p>Given a DOI number&mldr;</p><pre><code>$ doi2bib 10.1038/s41524-017-0032-0
-</code></pre><ul><li>get bib item given a doi(requires
-internet connection)</li></ul><p>You can easily append
-a bib into a bibfile, just do</p><pre><code>$ doi2bib 10.1038/s41524-017-0032-0 &gt;&gt; file.bib
-</code></pre><p>You also can generate a bibtex from a txt file containing a list of DOIs</p><pre><code>$ doi2bib --input file_with_dois.txt --output refs.bib
-</code></pre><h2 id=title2bib>title2bib</h2><p>Given a title&mldr;</p><pre><code>$ title2bib An useful paper
-</code></pre><ul><li>search papers related and return a bib for the selected paper(requires
-internet connection)</li></ul><p>You can easily append
-a bib into a bibfile, just do</p><pre><code>$ title2bib An useful paper --first &gt;&gt; file.bib
-</code></pre><p>You also can generate a bibtex from a txt file containing a list of &ldquo;titles&rdquo;</p><pre><code>$ title2bib --input file_with_titles.txt --output refs.bib --first
-</code></pre><h2 id=sci-hub-vs-libgen>Sci-Hub vs LibGen</h2><h3 id=sci-hub>Sci-hub:</h3><ul><li>Stable</li><li>Annoying CAPTCHA</li><li>Fast</li></ul><h3 id=libgen>Libgen</h3><ul><li>Unstalbe</li><li>No CAPTCHA</li><li>Slow</li></ul></div><div class=article-tags><a class="badge badge-light" href=/pt-br/tag/latex/>latex</a>
+internet connection)</p>
+</li>
+<li>
+<p>abbreviate jorunals names</p>
+</li>
+</ul>
+<h2 id=arxivcheck>arxivcheck</h2>
+<p>Given a arxiv id&mldr;</p>
+<pre><code>$ arxivcheck 1601.02785
+</code></pre>
+<ul>
+<li>check if has been published, and then returns the updated bib (requires internet connection)</li>
+</ul>
+<p>Given a title&mldr;</p>
+<pre><code>$ arxivcheck --title An useful paper published on arxiv
+</code></pre>
+<p>search papers related and return a bib the first item.
+You can easily append a bib into a bibfile, just do</p>
+<pre><code>$ arxivcheck --title An useful paper published on arxiv &gt;&gt; file.bib
+</code></pre>
+<p>You also can interact with results, just pass &ndash;ask parameter</p>
+<pre><code>$ arxivcheck --ask --title An useful paper published on arxiv
+</code></pre>
+<h2 id=scihub2pdf>scihub2pdf</h2>
+<p>Given a bibtex file</p>
+<pre><code>$ scihub2pdf -i input.bib
+</code></pre>
+<p>Given a DOI number&mldr;</p>
+<pre><code>$ scihub2pdf 10.1038/s41524-017-0032-0
+</code></pre>
+<p>Given arxivId&mldr;</p>
+<pre><code>$ scihub2pdf arxiv:1708.06891
+</code></pre>
+<p>Given a title&mldr;</p>
+<pre><code>$ scihub2bib --title An useful paper
+</code></pre>
+<p>or arxiv&mldr;</p>
+<pre><code>$ scihub2bib --title arxiv:An useful paper
+</code></pre>
+<p>Location folder as argument</p>
+<pre><code>$ scihub2pdf -i input.bib -l somefoler/
+</code></pre>
+<p>Use libgen instead sci-hub</p>
+<pre><code>$ scihub2pdf -i input.bib --uselibgen
+</code></pre>
+<h2 id=doi2bib>doi2bib</h2>
+<p>Given a DOI number&mldr;</p>
+<pre><code>$ doi2bib 10.1038/s41524-017-0032-0
+</code></pre>
+<ul>
+<li>get bib item given a doi(requires
+internet connection)</li>
+</ul>
+<p>You can easily append
+a bib into a bibfile, just do</p>
+<pre><code>$ doi2bib 10.1038/s41524-017-0032-0 &gt;&gt; file.bib
+</code></pre>
+<p>You also can generate a bibtex from a txt file containing a list of DOIs</p>
+<pre><code>$ doi2bib --input file_with_dois.txt --output refs.bib
+</code></pre>
+<h2 id=title2bib>title2bib</h2>
+<p>Given a title&mldr;</p>
+<pre><code>$ title2bib An useful paper
+</code></pre>
+<ul>
+<li>search papers related and return a bib for the selected paper(requires
+internet connection)</li>
+</ul>
+<p>You can easily append
+a bib into a bibfile, just do</p>
+<pre><code>$ title2bib An useful paper --first &gt;&gt; file.bib
+</code></pre>
+<p>You also can generate a bibtex from a txt file containing a list of &ldquo;titles&rdquo;</p>
+<pre><code>$ title2bib --input file_with_titles.txt --output refs.bib --first
+</code></pre>
+<h2 id=sci-hub-vs-libgen>Sci-Hub vs LibGen</h2>
+<h3 id=sci-hub>Sci-hub:</h3>
+<ul>
+<li>Stable</li>
+<li>Annoying CAPTCHA</li>
+<li>Fast</li>
+</ul>
+<h3 id=libgen>Libgen</h3>
+<ul>
+<li>Unstalbe</li>
+<li>No CAPTCHA</li>
+<li>Slow</li>
+</ul>
+</div>
+<div class=article-tags>
+<a class="badge badge-light" href=/pt-br/tag/latex/>latex</a>
 <a class="badge badge-light" href=/pt-br/tag/bibtex/>bibtex</a>
 <a class="badge badge-light" href=/pt-br/tag/scihub/>scihub</a>
-<a class="badge badge-light" href=/pt-br/tag/python/>python</a></div><div class=share-box aria-hidden=true><h5 class=text-center>Compartilhe se você gostou</h5><ul class=share><li><a href="https://twitter.com/intent/tweet?url=/pt-br/project/bibcure/&text=Bibcure" target=_blank rel=noopener class=share-btn-twitter><i class="fab fa-twitter"></i></a></li><li><a href="https://www.facebook.com/sharer.php?u=/pt-br/project/bibcure/&t=Bibcure" target=_blank rel=noopener class=share-btn-facebook><i class="fab fa-facebook"></i></a></li><li><a href="mailto:?subject=Bibcure&body=/pt-br/project/bibcure/" target=_blank rel=noopener class=share-btn-email><i class="fas fa-envelope"></i></a></li><li><a href="https://www.linkedin.com/shareArticle?url=/pt-br/project/bibcure/&title=Bibcure" target=_blank rel=noopener class=share-btn-linkedin><i class="fab fa-linkedin-in"></i></a></li><li><a href="whatsapp://send?text=Bibcure%20/pt-br/project/bibcure/" target=_blank rel=noopener class=share-btn-whatsapp><i class="fab fa-whatsapp"></i></a></li><li><a href="https://service.weibo.com/share/share.php?url=/pt-br/project/bibcure/&title=Bibcure" target=_blank rel=noopener class=share-btn-weibo><i class="fab fa-weibo"></i></a></li></ul></div><div class="media author-card content-widget-hr"><img class="avatar mr-3 avatar-circle" src=/pt-br/author/bruno-messias/avatar_hu8c5dc81c7296f83357bec0b4ab814f69_6046_270x270_fill_lanczos_center_2.png alt="Bruno Messias"><div class=media-body><h5 class=card-title><a href=/>Bruno Messias</a></h5><h6 class=card-subtitle>Ph.D Candidate /Software Developer</h6><p class=card-text>Free-software enthusiast, researcher, and software developer. Currently, working in the field of Graphs, Complex Systems and Machine Learning.</p><ul class=network-icon aria-hidden=true><li><a href=mailto:devmessias@gmail.com><i class="fas fa-envelope"></i></a></li><li><a href=https://twitter.com/devmessias target=_blank rel=noopener><i class="fab fa-twitter"></i></a></li><li><a href=https://github.com/devmessias target=_blank rel=noopener><i class="fab fa-github"></i></a></li><li><a href=https://www.linkedin.com/in/bruno-messias-510553193/ target=_blank rel=noopener><i class="fab fa-linkedin"></i></a></li></ul></div></div><section id=comments><div id=disqus_thread></div><script>let disqus_config=function(){};(function(){if(["localhost","127.0.0.1"].indexOf(window.location.hostname)!=-1){document.getElementById('disqus_thread').innerHTML='Disqus comments not available by default when the website is previewed locally.';return;}
-var d=document,s=d.createElement('script');s.async=true;s.src='https://'+"devmessias"+'.disqus.com/embed.js';s.setAttribute('data-timestamp',+new Date());(d.head||d.body).appendChild(s);})();</script><noscript>Please enable JavaScript to view the <a href=https://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript><a href=https://disqus.com class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a></section><div class="article-widget content-widget-hr"><h3>Relacionados</h3><ul><li><a href=/pt-br/post/nsbm_sp500_stock_market_disparity_filter/>Grafos e modelo de blocos aninhados para matrizes de correlação: clusterização do mercado de ações</a></li><li><a href=/pt-br/post/python_ast_metaprogramming_with_introspection_and_decorators/>Metaprogramação em Python com ASTs: criando um decorador com introspecção</a></li><li><a href=/pt-br/post/python_decorator_that_exposes_locals/>An introspective python decorator using stack frames and the inspect module</a></li><li><a href=/pt-br/post/edge_graph_filtering/>Grafos e filtragem de arestas I: conceitos e confusões</a></li><li><a href=/pt-br/post/investigando_processos_e_bugs_strace_lsof_no_linux/>Dissecando processos e erros no Linux com o lsof e strace: casos para DevOps/MlOps</a></li></ul></div><div class="project-related-pages content-widget-hr"></div></div></article><script src=https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/4.1.4/imagesloaded.pkgd.min.js integrity="sha256-lqvxZrPLtfffUl2G/e7szqSvPBILGbwmsGE1MKlOi0Q=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/jquery.isotope/3.0.6/isotope.pkgd.min.js integrity="sha256-CBrpuqrMhXwcLLUd5tvQ4euBHCdh7wGlDfNz8vbu/iI=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js integrity="sha256-yt2kYMy0w8AbtF89WXb2P1rfjcP/HTHLT7097U8Y5b8=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/highlight.min.js integrity="sha256-eOgo0OtLL4cdq7RdwRUiGKLX9XsIJ7nGhWEKbohmVAQ=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/languages/r.min.js></script><script>const code_highlighting=true;</script><script>const isSiteThemeDark=false;</script><script>const search_config={"indexURI":"/pt-br/index.json","minLength":1,"threshold":0.3};const i18n={"no_results":"Sem resultados","placeholder":"Pesquisar...","results":"Resultados encontrados"};const content_type={'post':"Posts",'project':"Projetos",'publication':"Publicações",'talk':"Palestras",'slides':"Slides"};</script><script id=search-hit-fuse-template type=text/x-template>
+<a class="badge badge-light" href=/pt-br/tag/python/>python</a>
+</div>
+<div class=share-box aria-hidden=true>
+<h5 class=text-center>Compartilhe se você gostou</h5>
+<ul class=share>
+<li>
+<a href="https://twitter.com/intent/tweet?url=/pt-br/project/bibcure/&text=Bibcure" target=_blank rel=noopener class=share-btn-twitter>
+<i class="fab fa-twitter"></i>
+</a>
+</li>
+<li>
+<a href="https://www.facebook.com/sharer.php?u=/pt-br/project/bibcure/&t=Bibcure" target=_blank rel=noopener class=share-btn-facebook>
+<i class="fab fa-facebook"></i>
+</a>
+</li>
+<li>
+<a href="mailto:?subject=Bibcure&body=/pt-br/project/bibcure/" target=_blank rel=noopener class=share-btn-email>
+<i class="fas fa-envelope"></i>
+</a>
+</li>
+<li>
+<a href="https://www.linkedin.com/shareArticle?url=/pt-br/project/bibcure/&title=Bibcure" target=_blank rel=noopener class=share-btn-linkedin>
+<i class="fab fa-linkedin-in"></i>
+</a>
+</li>
+<li>
+<a href="whatsapp://send?text=Bibcure%20/pt-br/project/bibcure/" target=_blank rel=noopener class=share-btn-whatsapp>
+<i class="fab fa-whatsapp"></i>
+</a>
+</li>
+<li>
+<a href="https://service.weibo.com/share/share.php?url=/pt-br/project/bibcure/&title=Bibcure" target=_blank rel=noopener class=share-btn-weibo>
+<i class="fab fa-weibo"></i>
+</a>
+</li>
+</ul>
+</div>
+<div class="media author-card content-widget-hr">
+<img class="avatar mr-3 avatar-circle" src=/pt-br/author/bruno-messias/avatar_hu8c5dc81c7296f83357bec0b4ab814f69_6046_270x270_fill_lanczos_center_3.png alt="Bruno Messias">
+<div class=media-body>
+<h5 class=card-title><a href=/>Bruno Messias</a></h5>
+<h6 class=card-subtitle>Ph.D Candidate /Software Developer</h6>
+<p class=card-text>Free-software enthusiast, researcher, and software developer. Currently, working in the field of Graphs, Complex Systems and Machine Learning.</p>
+<ul class=network-icon aria-hidden=true>
+<li>
+<a href=mailto:devmessias@gmail.com>
+<i class="fas fa-envelope"></i>
+</a>
+</li>
+<li>
+<a href=https://twitter.com/devmessias target=_blank rel=noopener>
+<i class="fab fa-twitter"></i>
+</a>
+</li>
+<li>
+<a href=https://github.com/devmessias target=_blank rel=noopener>
+<i class="fab fa-github"></i>
+</a>
+</li>
+<li>
+<a href=https://www.linkedin.com/in/bruno-messias-510553193/ target=_blank rel=noopener>
+<i class="fab fa-linkedin"></i>
+</a>
+</li>
+</ul>
+</div>
+</div>
+<section id=comments>
+<div id=disqus_thread></div>
+<script>let disqus_config=function(){};(function(){if(["localhost","127.0.0.1"].indexOf(window.location.hostname)!=-1){document.getElementById('disqus_thread').innerHTML='Disqus comments not available by default when the website is previewed locally.';return}var b=document,a=b.createElement('script');a.async=!0,a.src='https://devmessias.disqus.com/embed.js',a.setAttribute('data-timestamp',+new Date),(b.head||b.body).appendChild(a)})()</script>
+<noscript>Please enable JavaScript to view the <a href=https://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript>
+<a href=https://disqus.com class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a>
+</section>
+<div class="article-widget content-widget-hr">
+<h3>Relacionados</h3>
+<ul>
+<li><a href=/pt-br/post/nsbm_sp500_stock_market_disparity_filter/>Grafos e modelo de blocos aninhados para matrizes de correlação: clusterização do mercado de ações</a></li>
+<li><a href=/pt-br/post/python_ast_metaprogramming_with_introspection_and_decorators/>Metaprogramação em Python com ASTs: criando um decorador com introspecção</a></li>
+<li><a href=/pt-br/post/python_decorator_that_exposes_locals/>An introspective python decorator using stack frames and the inspect module</a></li>
+<li><a href=/pt-br/post/edge_graph_filtering/>Grafos e filtragem de arestas I: conceitos e confusões</a></li>
+<li><a href=/pt-br/post/investigando_processos_e_bugs_strace_lsof_no_linux/>Dissecando processos e erros no Linux com o lsof e strace: casos para DevOps/MlOps</a></li>
+</ul>
+</div>
+<div class="project-related-pages content-widget-hr">
+</div>
+</div>
+</article>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin=anonymous></script>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/4.1.4/imagesloaded.pkgd.min.js integrity="sha256-lqvxZrPLtfffUl2G/e7szqSvPBILGbwmsGE1MKlOi0Q=" crossorigin=anonymous></script>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/jquery.isotope/3.0.6/isotope.pkgd.min.js integrity="sha256-CBrpuqrMhXwcLLUd5tvQ4euBHCdh7wGlDfNz8vbu/iI=" crossorigin=anonymous></script>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js integrity="sha256-yt2kYMy0w8AbtF89WXb2P1rfjcP/HTHLT7097U8Y5b8=" crossorigin=anonymous></script>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/highlight.min.js integrity="sha256-eOgo0OtLL4cdq7RdwRUiGKLX9XsIJ7nGhWEKbohmVAQ=" crossorigin=anonymous></script>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/languages/r.min.js></script>
+<script>const code_highlighting=!0</script>
+<script>const isSiteThemeDark=!1</script>
+<script>const search_config={indexURI:"/pt-br/index.json",minLength:1,threshold:.3},i18n={no_results:"Sem resultados",placeholder:"Pesquisar...",results:"Resultados encontrados"},content_type={post:"Posts",project:"Projetos",publication:"Publicações",talk:"Palestras",slides:"Slides"}</script>
+<script id=search-hit-fuse-template type=text/x-template>
       <div class="search-hit" id="summary-{{key}}">
       <div class="search-hit-content">
         <div class="search-hit-name">
@@ -47,9 +358,55 @@ var d=document,s=d.createElement('script');s.async=true;s.src='https://'+"devmes
         </div>
       </div>
       </div>
-    </script><script src=https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.2.1/fuse.min.js integrity="sha256-VzgmKYmhsGNNN4Ph1kMW+BjoYJM2jV5i4IlFoeZA9XI=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin=anonymous></script><script id=dsq-count-scr src=https://devmessias.disqus.com/count.js async></script><script src=/js/academic.min.37431be2d92d7fb0160054761ab79602.js></script><div class=page-footer><div class=container><footer class=site-footer><p class=powered-by>Bruno Messias</p><p class=powered-by>Powered by the
+    </script>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.2.1/fuse.min.js integrity="sha256-VzgmKYmhsGNNN4Ph1kMW+BjoYJM2jV5i4IlFoeZA9XI=" crossorigin=anonymous></script>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin=anonymous></script>
+<script id=dsq-count-scr src=https://devmessias.disqus.com/count.js async></script>
+<script src=/js/academic.min.4aaf2d64e50f8e54cf66dcc54147a22e.js></script>
+<div class=page-footer>
+<div class=container>
+<footer class=site-footer>
+<p class=powered-by>
+Bruno Messias
+</p>
+<p class=powered-by>
+Powered by the
 <a href=https://sourcethemes.com/academic/ target=_blank rel=noopener>Academic theme</a> for
 <a href=https://gohugo.io target=_blank rel=noopener>Hugo</a>.
-<span class=float-right aria-hidden=true><a href=# class=back-to-top><span class=button_icon><i class="fas fa-chevron-up fa-2x"></i></span></a></span></p></footer></div></div><div id=modal class="modal fade" role=dialog><div class=modal-dialog><div class=modal-content><div class=modal-header><h5 class=modal-title>Citação</h5><button type=button class=close data-dismiss=modal aria-label=Close>
-<span aria-hidden=true>&#215;</span></button></div><div class=modal-body><pre><code class="tex hljs"></code></pre></div><div class=modal-footer><a class="btn btn-outline-primary my-1 js-copy-cite" href=# target=_blank><i class="fas fa-copy"></i>Copiar</a>
-<a class="btn btn-outline-primary my-1 js-download-cite" href=# target=_blank><i class="fas fa-download"></i>Download</a><div id=modal-error></div></div></div></div></div></body></html>
+<span class=float-right aria-hidden=true>
+<a href=# class=back-to-top>
+<span class=button_icon>
+<i class="fas fa-chevron-up fa-2x"></i>
+</span>
+</a>
+</span>
+</p>
+</footer>
+</div>
+</div>
+<div id=modal class="modal fade" role=dialog>
+<div class=modal-dialog>
+<div class=modal-content>
+<div class=modal-header>
+<h5 class=modal-title>Citação</h5>
+<button type=button class=close data-dismiss=modal aria-label=Close>
+<span aria-hidden=true>&#215;</span>
+</button>
+</div>
+<div class=modal-body>
+<pre><code class="tex hljs"></code></pre>
+</div>
+<div class=modal-footer>
+<a class="btn btn-outline-primary my-1 js-copy-cite" href=# target=_blank>
+<i class="fas fa-copy"></i> Copiar
+</a>
+<a class="btn btn-outline-primary my-1 js-download-cite" href=# target=_blank>
+<i class="fas fa-download"></i> Download
+</a>
+<div id=modal-error></div>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

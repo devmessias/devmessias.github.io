@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>ast | Bruno Messias</title><link>/tag/ast/</link><atom:link href="/tag/ast/index.xml" rel="self" type="application/rss+xml"/><description>ast</description><generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>en</language><copyright>Bruno Messias</copyright><lastBuildDate>Fri, 08 Apr 2022 00:00:00 +0000</lastBuildDate><image><url>/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_2.png</url><title>ast</title><link>/tag/ast/</link></image><item><title>Going meta with python: manipulating ASTs to create an introspective decorator at runtime</title><link>/post/python_ast_metaprogramming_with_introspection_and_decorators/</link><pubDate>Fri, 08 Apr 2022 00:00:00 +0000</pubDate><guid>/post/python_ast_metaprogramming_with_introspection_and_decorators/</guid><description>&lt;details
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>ast | Bruno Messias</title><link>/tag/ast/</link><atom:link href="/tag/ast/index.xml" rel="self" type="application/rss+xml"/><description>ast</description><generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>en</language><copyright>Bruno Messias</copyright><lastBuildDate>Fri, 08 Apr 2022 00:00:00 +0000</lastBuildDate><image><url>/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_3.png</url><title>ast</title><link>/tag/ast/</link></image><item><title>Going meta with python: manipulating ASTs to create an introspective decorator at runtime</title><link>/post/python_ast_metaprogramming_with_introspection_and_decorators/</link><pubDate>Fri, 08 Apr 2022 00:00:00 +0000</pubDate><guid>/post/python_ast_metaprogramming_with_introspection_and_decorators/</guid><description>&lt;details
 class="toc-inpage d-print-none d-none d-sm-block d-md-none " open>
 &lt;summary class="font-weight-bold">Table of Contents&lt;/summary>
 &lt;nav id="TableOfContents">
@@ -183,8 +183,8 @@ After constructing the syntax tree we can look in the guidelines book of our lan
 &lt;p>Take for example
 the sentence: &lt;em>&amp;ldquo;I drive a car to my college&amp;rdquo;&lt;/em>, the syntax tree is the following:&lt;/p>
 &lt;figure id="figure-a-syntax-tree-for-the-sentence-i-drive-a-car-to-my-college-source-geeks-for-geekssyntax-tree--natural-language-processinghttpswwwgeeksforgeeksorgsyntax-tree-natural-language-processing">
-&lt;a data-fancybox="" href="/post/python_ast_metaprogramming_with_introspection_and_decorators/ast_english_sentence_hue5b8d52ce962721ee6d0acb19268cb10_239788_0x400_resize_lanczos_2.png" data-caption="A &amp;lt;strong&amp;gt;S&amp;lt;/strong&amp;gt;yntax &amp;lt;strong&amp;gt;T&amp;lt;/strong&amp;gt;ree for the sentence: &amp;lt;em&amp;gt;I drive a car to my college&amp;lt;/em&amp;gt;. &amp;lt;strong&amp;gt;Source&amp;lt;/strong&amp;gt;:&amp;lt;a href=&amp;#34;https://www.geeksforgeeks.org/syntax-tree-natural-language-processing/&amp;#34;&amp;gt; Geeks for Geeks:Syntax Tree – Natural Language Processing.&amp;lt;/a&amp;gt;">
-&lt;img src="/post/python_ast_metaprogramming_with_introspection_and_decorators/ast_english_sentence_hue5b8d52ce962721ee6d0acb19268cb10_239788_0x400_resize_lanczos_2.png" alt="" height="400px">
+&lt;a data-fancybox="" href="/post/python_ast_metaprogramming_with_introspection_and_decorators/ast_english_sentence_hue5b8d52ce962721ee6d0acb19268cb10_239788_0x400_resize_lanczos_3.png" data-caption="A &amp;lt;strong&amp;gt;S&amp;lt;/strong&amp;gt;yntax &amp;lt;strong&amp;gt;T&amp;lt;/strong&amp;gt;ree for the sentence: &amp;lt;em&amp;gt;I drive a car to my college&amp;lt;/em&amp;gt;. &amp;lt;strong&amp;gt;Source&amp;lt;/strong&amp;gt;:&amp;lt;a href=&amp;#34;https://www.geeksforgeeks.org/syntax-tree-natural-language-processing/&amp;#34;&amp;gt; Geeks for Geeks:Syntax Tree – Natural Language Processing.&amp;lt;/a&amp;gt;">
+&lt;img src="/post/python_ast_metaprogramming_with_introspection_and_decorators/ast_english_sentence_hue5b8d52ce962721ee6d0acb19268cb10_239788_0x400_resize_lanczos_3.png" alt="" height="400px">
 &lt;/a>
 &lt;figcaption>
 A &lt;strong>S&lt;/strong>yntax &lt;strong>T&lt;/strong>ree for the sentence: &lt;em>I drive a car to my college&lt;/em>. &lt;strong>Source&lt;/strong>:&lt;a href="https://www.geeksforgeeks.org/syntax-tree-natural-language-processing/"> Geeks for Geeks:Syntax Tree – Natural Language Processing.&lt;/a>
@@ -246,7 +246,7 @@ Our solution will involve the manipulation of the AST and after that generating 
 &lt;/div>
 &lt;blockquote>
 &lt;p>A funny history from Luciano Ramalho:
-&lt;blockquote class="twitter-tweet">&lt;p lang="en" dir="ltr">In 2018 I told a CBP officer I was entering the US to speak at PyCon. He asked: &amp;quot;Is Python interpreted or compiled?&amp;quot; After a 2 second pause I said &amp;quot;Interpreted&amp;quot;. I didn&amp;#39;t give the correct answer because I didn&amp;#39;t want to extend the &amp;quot;pleasant&amp;quot; conversation. He let me in.&lt;/p>&amp;mdash; Luciano Ramalho ☔ 🐍 ⚗ ▶️😷💉💉💉 (@ramalhoorg) &lt;a href="https://twitter.com/ramalhoorg/status/1474044907585167362?ref_src=twsrc%5Etfw">December 23, 2021&lt;/a>&lt;/blockquote>
+&lt;blockquote class="twitter-tweet">&lt;p lang="en" dir="ltr">In 2018 I told a CBP officer I was entering the US to speak at PyCon. He asked: &amp;quot;Is Python interpreted or compiled?&amp;quot; After a 2 second pause I said &amp;quot;Interpreted&amp;quot;. I didn&amp;#39;t give the correct answer because I didn&amp;#39;t want to extend the &amp;quot;pleasant&amp;quot; conversation. He let me in.&lt;/p>&amp;mdash; Luciano I — Imperador do Metaverso (@ramalhoorg) &lt;a href="https://twitter.com/ramalhoorg/status/1474044907585167362?ref_src=twsrc%5Etfw">December 23, 2021&lt;/a>&lt;/blockquote>
 &lt;script async src="https://platform.twitter.com/widgets.js" charset="utf-8">&lt;/script>
 &lt;/p>
 &lt;/blockquote>
@@ -285,8 +285,8 @@ type_ignores=[])
 &lt;/code>&lt;/pre>
 &lt;p>The above output is our AST and the below image show its graph representation. Take some time looking into it to see how all our code stuff is organized.&lt;/p>
 &lt;figure >
-&lt;a data-fancybox="" href="/post/python_ast_metaprogramming_with_introspection_and_decorators/simple_ast_hudca446749283cbe6d28b67a245474890_120568_0x1000_resize_lanczos_2.png" >
-&lt;img src="/post/python_ast_metaprogramming_with_introspection_and_decorators/simple_ast_hudca446749283cbe6d28b67a245474890_120568_0x1000_resize_lanczos_2.png" alt="" height="400px">
+&lt;a data-fancybox="" href="/post/python_ast_metaprogramming_with_introspection_and_decorators/simple_ast_hudca446749283cbe6d28b67a245474890_120568_0x1000_resize_lanczos_3.png" >
+&lt;img src="/post/python_ast_metaprogramming_with_introspection_and_decorators/simple_ast_hudca446749283cbe6d28b67a245474890_120568_0x1000_resize_lanczos_3.png" alt="" height="400px">
 &lt;/a>
 &lt;/figure>
 &lt;p>Each element in the above output with an upper case letter is a &lt;strong>node&lt;/strong> (Name, BinOp, FunctionDef, etc) from the base class &lt;code>ast.Node&lt;/code>. One of the most important node types is the &lt;code>ast.Name&lt;/code>.
