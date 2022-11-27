@@ -81,8 +81,6 @@ class="toc-inpage d-print-none d-none d-sm-block d-md-none " open>
 &lt;p>Um exemplo de conjunto de dados extremamente complicado são as redes sociais. Redes sociais são conjuntos de pessoas e a existência de pelo menos relações pares a pares (hyper-grafos é um assunto para outro post) podendo ser negativas, positivas ou algo mais complicado. Cada pessoa em uma rede social pode ser identificada por um conjunto de features tais como gostos pessoais, horário de uso do sistema, etc. Representar uma rede social por pontinhos é reducionista. É para isso que grafos podem ser empregados&lt;/p>
 &lt;h3 id="grafos">Grafos&lt;/h3>
 &lt;p>Um grafo armazena objetos que têm relações pares a pares entre si. Sendo possível associar a cada objeto ou relação um outro tipo de dado genérico tais como um número real, um vetor ou mesmo outro grafo. Mas é importante ressaltar que grafos estão em todo lugar, por exemplo em matrizes de correlação. Portanto, usar grafos para analisar correlações é válido, especialmente quando muitas dessas correlações podem ou queremos que sejam descartadas.&lt;/p>
-&lt;blockquote class="twitter-tweet">&lt;p lang="pt" dir="ltr">Até onde já estudei, toda estrutura de dados pode ser representada como um grafo. Nesse sentido, podemos dizer que o grafo é a &amp;quot;mãe&amp;quot; de todas as estruturas de dados. Talvez devêssemos dar mais foco a grafos nos cursos de EDs.&lt;/p>&amp;mdash; padre kelson (@coproduto) &lt;a href="https://twitter.com/coproduto/status/1514562359007842310?ref_src=twsrc%5Etfw">April 14, 2022&lt;/a>&lt;/blockquote>
-&lt;script async src="https://platform.twitter.com/widgets.js" charset="utf-8">&lt;/script>
 &lt;h3 id="matrizes-de-correlação">Matrizes de correlação&lt;/h3>
 &lt;p>No &lt;em>OpenCode&lt;/em> matrizes de correlação já apareceram em diversos posts:&lt;/p>
 &lt;ul>
@@ -712,12 +710,8 @@ E-->F[Code Object];
 Se você não conhece os conceitos dos nomes acima não se preocupe, não precisamos de tanto aprofundamento.
 **Bytecodes são apenas uma maneira compacta de dizer ao interpretador o que o código quer que ele faça. Enquanto code objects são coisas que encapsulam esses bytecodes.**
 &lt;p>Ok, onde isso entra na minha solução? O que eu proponho fazer é manipular a AST e compilar um novo code object que será interpretado pelo cpython!&lt;/p>
-&lt;blockquote>
-&lt;p>Um história engraçada do Luciano Ramalho:
-&lt;blockquote class="twitter-tweet">&lt;p lang="en" dir="ltr">In 2018 I told a CBP officer I was entering the US to speak at PyCon. He asked: &amp;quot;Is Python interpreted or compiled?&amp;quot; After a 2 second pause I said &amp;quot;Interpreted&amp;quot;. I didn&amp;#39;t give the correct answer because I didn&amp;#39;t want to extend the &amp;quot;pleasant&amp;quot; conversation. He let me in.&lt;/p>&amp;mdash; Luciano Ramalho 1️⃣3️⃣ 🇧🇷 (@ramalhoorg) &lt;a href="https://twitter.com/ramalhoorg/status/1474044907585167362?ref_src=twsrc%5Etfw">December 23, 2021&lt;/a>&lt;/blockquote>
-&lt;script async src="https://platform.twitter.com/widgets.js" charset="utf-8">&lt;/script>
-&lt;/p>
-&lt;/blockquote>
+&lt;!-- > Um história engraçada do Luciano Ramalho:
+-->
 &lt;h2 id="extraindo-e-interpretando-asts">Extraindo e interpretando ASTs&lt;/h2>
 &lt;p>Veja o seguinte exemplo:&lt;/p>
 &lt;pre>&lt;code class="language-python">import inspect

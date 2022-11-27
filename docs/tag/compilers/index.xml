@@ -244,12 +244,8 @@ The code object is just a way to encapsulate the bytecodes extracted from the AS
 Our solution will involve the manipulation of the AST and after that generating a new code object with the related manipulated AST!
 &lt;/div>
 &lt;/div>
-&lt;blockquote>
-&lt;p>A funny history from Luciano Ramalho:
-&lt;blockquote class="twitter-tweet">&lt;p lang="en" dir="ltr">In 2018 I told a CBP officer I was entering the US to speak at PyCon. He asked: &amp;quot;Is Python interpreted or compiled?&amp;quot; After a 2 second pause I said &amp;quot;Interpreted&amp;quot;. I didn&amp;#39;t give the correct answer because I didn&amp;#39;t want to extend the &amp;quot;pleasant&amp;quot; conversation. He let me in.&lt;/p>&amp;mdash; Luciano Ramalho 1️⃣3️⃣ 🇧🇷 (@ramalhoorg) &lt;a href="https://twitter.com/ramalhoorg/status/1474044907585167362?ref_src=twsrc%5Etfw">December 23, 2021&lt;/a>&lt;/blockquote>
-&lt;script async src="https://platform.twitter.com/widgets.js" charset="utf-8">&lt;/script>
-&lt;/p>
-&lt;/blockquote>
+&lt;!-- > A funny history from Luciano Ramalho:
+> -->
 &lt;h2 id="extracting-asts-and-interpreting-them">Extracting ASTs and interpreting them&lt;/h2>
 &lt;p>Let&amp;rsquo;s see a simple example of a function and the extracted AST.&lt;/p>
 &lt;pre>&lt;code class="language-python">import inspect

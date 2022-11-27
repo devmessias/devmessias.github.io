@@ -207,8 +207,8 @@ Apr 18, 2022
 </ul>
 </nav>
 </details>
-<p>In this post I&rsquo;ll show you how the nested stochastic block model (nSBM) can be used to extract insights from correlation matrices using a combination with a filtering edge graph technique called disparity filter. I&rsquo;ll use as a case study a correlation matrix derived from the stock market data.</p>
-<p>Don&rsquo;t be afraid, you will be able to reproduce the beautiful plot presented below and understand what it means.</p>
+<p>In this post, I’ll show you how the nested stochastic block model (nSBM) can extract insights from correlation matrices using a combination with a filtering edge graph technique called disparity filter. I’ll use as a case study a correlation matrix derived from the stock market data.</p>
+<p>Don’t be afraid, you will reproduce the beautiful plot presented below and understand what it means.</p>
 <figure id=figure-what-you-will-be-able-to-accomplish-the-end-of-this-post>
 <a data-fancybox href=/post/nsbm_sp500_stock_market_disparity_filter/nsbm_final_2018-01-01_2018-06-01_hudcff6362c16284ef400b42c5fe2e1b69_266080_0x500_resize_lanczos_3.png data-caption="What you will be able to accomplish the end of this post.">
 <img data-src=/post/nsbm_sp500_stock_market_disparity_filter/nsbm_final_2018-01-01_2018-06-01_hudcff6362c16284ef400b42c5fe2e1b69_266080_0x500_resize_lanczos_3.png class=lazyload alt width=100% height=500px>
@@ -217,268 +217,381 @@ Apr 18, 2022
 What you will be able to accomplish the end of this post.
 </figcaption>
 </figure>
-<p>If you want to reproduce use a conda environment due to the <code>graph-tool</code> dependency. Besides that, check if you
-have the following packages installed:</p>
-<pre><code>matplotlib, pandas, yfinance
+<p>If you want to reproduce, use a conda environment because of the graph-tool dependency. Besides that, check if you have the following packages installed:</p>
+<pre><code>
+matplotlib, pandas, yfinance
+
 </code></pre>
 <p>Probably you will need to install the <code>igraph</code> package</p>
-<pre><code>$ pip install python-igraph
+<pre><code>
+$ pip install python-igraph
+
 </code></pre>
 <p>Now, install the <code>graph-tool</code> made by
 <a href=https://twitter.com/tiagopeixoto target=_blank rel=noopener>Tiago Peixoto</a>.</p>
-<pre><code>$ conda install -c conda-forge graph-tool
+<pre><code>
+$ conda install -c conda-forge graph-tool
+
 </code></pre>
 <p>No less important, we will need to remove weakling edges from the graph. To do so, we will use my package, <code>edgeseraser</code>. The repository of the project is available here:
 <a href=https://github.com/devmessias/edgeseraser target=_blank rel=noopener>devmessias/edgeseraser</a>. To install the <code>edgeseraser</code> run the following command:</p>
-<pre><code>$ pip install edgeseraser
+<pre><code>
+$ pip install edgeseraser
+
 </code></pre>
 <h2 id=introduction>Introduction</h2>
-<p>Exploratory data analysis allows us to gain insights or improve our choices of the next steps in the data
-science process. In some cases we can explore the data assuming that all the entities are independent of each other. What happens when it&rsquo;s not the case?</p>
+<p>Exploratory data analysis allows us to gain insights or improve our choices of the next steps in the data science process. In some cases, we can explore the data assuming that all the entities are independent of each other. What happens when it’s not the case?</p>
 <h3 id=graphs>Graphs</h3>
-<p>A graph is a data structure used to store objects (vertexes) with binary relationships. Those relationships are called edges.
-Each edge can have generic data associated with it. Like a numeric value.
-Maybe you can think that this data structure is rare in the world of data. But
-if you look carefully at the data spread on the internet, graphs are everywhere: social networks, economic transactions, correlation matrices and many more.</p>
+<p>A graph is a data structure used to store objects (vertexes) with binary relationships. Those relationships are called edges.</p>
+<p>Each edge can have generic data associated with it. Like a numeric value.</p>
+<p>Maybe you can think that this data structure is rare in the world of data. But</p>
+<p>if you look carefully at the data spread on the internet, graphs are everywhere: social networks, economic transactions, correlation matrices and many more.</p>
 <h3 id=correlation-matrices>Correlation matrices</h3>
-<p>A correlation matrix is a storing mechanism that quantifies relationships between pairs of random variables.
-Thus, a correlation matrix is at least a complete weighted graph. The main point of this
-post is to show how we can use tools of network science to analyze the correlation matrix. Ok, but maybe you&rsquo;re asking: Why do we need to do this?</p>
-<p>Correlation matrices are commonly used to discover and segment the universe of possible random variables. With this segmentation into groups (clustering) the dataset can be analyzed in a granular way. Therefore, improving our efficiency to discard unnecessary information.</p>
-<p>A widely spread way to analyze correlation matrices using graph analytics is through the use of minimum spanning trees. I won&rsquo;t go into details about this method (check the following posts
-<a href="https://hudsonthames.org/networks-with-mlfinlab-minimum-spanning-tree-mst/#:~:text=A%20Minimum%20Spanning%20Tree%20%28MST%29%20is%20a%20graph%20consisting%20of,a%20stock%20crisis%20%5B2%5D." target=_blank rel=noopener>Networks with MlFinLab: Minimum Spanning </a> and
-<a href=https://www.bcb.gov.br/pec/wps/ingl/wps351.pdf target=_blank rel=noopener>Dynamic spanning trees in stock market networks:
-The case of Asia-Pacific</a>) because I want to show how we can use a different technique that at the same time is more flexible and powerful when we want to understand the hidden group structure of a correlation matrix.</p>
-<p>This technique is called the nested stochastic block model (nSBM) and it&rsquo;s a probabilistic model that allows us to infer the hidden group structure of a graph. The nSBM is a generalization of the stochastic block model (SBM) that assumes that the graph is composed of a set of communities (groups) that are connected by a set of edges. The SBM is a generative model that allows us to generate graphs with a given number of communities. This generative model also creates those communities using parameters that describe the probability of connection between vertices residing in the same or different comunities. Although the SBM is a powerful tool to analyze the structure of a graph, it&rsquo;s not enough to infer the small communities (small groups of stocks) in our graph. To do so, we need to use the nSBM.</p>
-<p>Ok, let&rsquo;s go to the real stuff and start to code.</p>
+<p>A correlation matrix is a storing mechanism that quantifies relationships between pairs of random variables.</p>
+<p>Thus, a correlation matrix is at least a weighted graph. The main point of this post is to show how we can use tools of network science to analyze the correlation matrix. Ok, but maybe you’re asking: Why do we need to do this?</p>
+<p>Correlation matrices are commonly used to discover and segment the universe of possible random variables. With this segmentation into groups (clustering) we can analyze the dataset in a granular way. Therefore, improving our efficiency in discarding unnecessary information.</p>
+<p>A widely spread way to analyze correlation matrices using graph analytics is through the use of minimum spanning trees. I won’t go into details about this method (check the following posts
+<a href="https://hudsonthames.org/networks-with-mlfinlab-minimum-spanning-tree-mst/#:~:text=A%20Minimum%20Spanning%20Tree%20%28MST%29%20is%20a%20graph%20consisting%20of,a%20stock%20crisis%20%5B2%5D." target=_blank rel=noopener>Networks with MlFinLab: Minimum Spanning </a> and [Dynamic spanning trees in stock market networks:</p>
+<p>The case of Asia-Pacific](
+<a href=https://www.bcb.gov.br/pec/wps/ingl/wps351.pdf target=_blank rel=noopener>https://www.bcb.gov.br/pec/wps/ingl/wps351.pdf</a>)) because I want to show how we can use a different technique that at the same time is more flexible and powerful when we want to understand the hidden group structure of a correlation matrix.</p>
+<p>This technique is called the nested stochastic block model (nSBM) and it’s a probabilistic model that allows us to infer the hidden group structure of a graph. The nSBM is a generalization of the stochastic block model (SBM) that assumes that the graph is composed of a set of communities (groups) that are connected by a set of edges. The SBM is a generative model that allows us to generate graphs with several communities. This generative model also creates those communities using parameters that describe the probability of a connection between vertices living in the same or different communities. Although the SBM is a powerful tool to analyze the structure of a graph, it’s not enough to infer the small communities (small groups of stocks) in our graph. To do so, we need to use the nSBM.</p>
+<p>Ok, let’s go to the actual stuff and code.</p>
 <h2 id=downloading-and-preprocessing-the-data>Downloading and preprocessing the data</h2>
 <h3 id=closing-prices-of-the-sp-500>Closing prices of the S&P 500</h3>
-<p>Let&rsquo;s start importing what we need</p>
-<pre><code class=language-python>import yfinance as yf
+<p>Let’s import what we need</p>
+<pre><code class=language-python>
+import yfinance as yf
+
 import pandas as pd
+
 import numpy as np
+
 import matplotlib.pyplot as plt
+
 import matplotlib as mpl
+
 import igraph as ig
+
 from edgeseraser.disparity import filter_ig_graph
+
 </code></pre>
 <p>To keep things simple, I choose to use the following data available
 <a href=https://raw.githubusercontent.com/datasets/s-and-p-500-companies/master/data/constituents.csv target=_blank rel=noopener>here</a>. This data encompasses the S&P500 from a specific time with symbols and sectors like this:</p>
-<table>
-<thead>
-<tr>
-<th>Symbol</th>
-<th>Name</th>
-<th>Sector</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>MMM</td>
-<td>3M</td>
-<td>Industrials</td>
-</tr>
-<tr>
-<td>AOS</td>
-<td>A. O. Smith</td>
-<td>Industrials</td>
-</tr>
-<tr>
-<td>ABT</td>
-<td>Abbott Laboratories</td>
-<td>Health Care</td>
-</tr>
-<tr>
-<td>ABBV</td>
-<td>AbbVie</td>
-<td>Health Care</td>
-</tr>
-</tbody>
-</table>
-<pre><code class=language-python>!wget https://raw.githubusercontent.com/datasets/s-and-p-500-companies/master/data/constituents.csv
+<p>| Symbol | Name | Sector |</p>
+<p>| &mdash;&mdash; | &mdash;&mdash;&mdash;&mdash;&mdash;&mdash;- | &mdash;&mdash;&mdash;&ndash; |</p>
+<p>| MMM | 3M | Industrials |</p>
+<p>| AOS | A. O. Smith | Industrials |</p>
+<p>| ABT | Abbott Laboratories | Health Care |</p>
+<p>| ABBV | AbbVie | Health Care |</p>
+<pre><code class=language-python>
+!wget https://raw.githubusercontent.com/datasets/s-and-p-500-companies/master/data/constituents.csv
+
 </code></pre>
 <p>After downloading the data we just need to load it into a pandas dataframe.</p>
-<pre><code class=language-python>df = pd.read_csv(&quot;constituents.csv&quot;)
-all_symbols = df['Symbol'].values
-all_sectors = df['Sector'].values
-all_names = df['Name'].values
+<pre><code class=language-python>
+df = pd.read_csv(“constituents.csv”)
+
+all_symbols = df[‘Symbol’].values
+
+all_sectors = df[‘Sector’].values
+
+all_names = df[‘Name’].values
+
 </code></pre>
-<p>The following dictionaries will be used to map the symbols to sectors and names latter on</p>
-<pre><code>symbol2sector = dict(zip(all_symbols, all_sectors))
+<p>The following dictionaries will map the symbols to sectors and names later on</p>
+<pre><code>
+symbol2sector = dict(zip(all_symbols, all_sectors))
+
 symbol2name = dict(zip(all_symbols, all_names))
+
 </code></pre>
-<p>Time to download the information about each symbol. Let&rsquo;s request one semester
-of data from yahoo finance API</p>
-<pre><code class=language-python>start_date = '2018-01-01'
-end_date = '2018-06-01'
+<p>Time to download the information about each symbol. Let’s request one semester</p>
+<p>of data from yahoo finance API</p>
+<pre><code class=language-python>
+start_date = ‘2018-01-01’
+
+end_date = ‘2018-06-01’
+
 try:
+
     prices = pd.read_csv(
+
         f&quot;sp500_prices_{start_date}_{end_date}.csv&quot;, index_col=&quot;Date&quot;)
+
     tickers_available = prices.columns.values
+
 except FileNotFoundError:
 
     df = yf.download(
+
         list(all_symbols),
+
         start=start_date,
+
         end=end_date,
+
         interval=&quot;1d&quot;,
-        group_by='ticker',
+
+        group_by=’ticker’,
+
         progress=True
+
     )
+
     tickers_available = list(
+
         set([ticket for ticket, _ in df.columns.T.to_numpy()]))
+
     prices = pd.DataFrame.from_dict(
+
         {
-            ticker: df[ticker][&quot;Adj Close&quot;].to_numpy()
+
+            ticker: df[ticker][“Adj Close”].to_numpy()
+
             for ticker in tickers_available
+
         }
+
     )
+
     prices.index = df.index
+
     prices = prices.iloc[:-1]
+
     del df
+
     prices.to_csv(
+
         f&quot;sp500_prices_{start_date}_{end_date}.csv&quot;)
+
 </code></pre>
 <h3 id=returns-and-correlation-matrix>Returns and correlation matrix</h3>
-<p>We first start by computing the percentage of price changes for each stock, that is, the return of each stock.</p>
-<pre><code class=language-python>returns_all = prices.pct_change()
+<p>We first start by computing the percentage of price changes for each stock, the return of each stock.</p>
+<pre><code class=language-python>
+returns_all = prices.pct_change()
+
 # a primeira linha não faz sentido, não existe retorno no primeiro dia
+
 returns_all = returns_all.iloc[1:, :]
+
 returns_all.dropna(axis=1, thresh=len(returns_all.index)//2., inplace=True)
+
 returns_all.dropna(axis=0, inplace=True)
+
 symbols = returns_all.columns.values
+
 </code></pre>
-<p>The correlation matrix is then computed using these returns</p>
-<pre><code class=language-python># plot the correlation matrix with ticks at each item
+<p>Now, we compute the correlation matrix using the returns</p>
+<pre><code class=language-python>
+# plot the correlation matrix with ticks at each item
+
 correlation_matrix = returns_all.corr()
+
 plt.title(f&quot;Correlation matrix from {start_date} to {end_date}&quot;)
+
 plt.imshow(correlation_matrix)
+
 plt.colorbar()
-plt.savefig(&quot;correlation.png&quot;, dpi=150)
+
+plt.savefig(“correlation.png”, dpi=150)
+
 plt.clf()
+
 </code></pre>
 <figure id=figure-correlation-matrix-for-sp500-off-the-first-2018-semester-yes-its-a-mess>
-<a data-fancybox href=/post/nsbm_sp500_stock_market_disparity_filter/correlation_hu6c68fc9d1aa2b5f7307017b57ffa4d90_521823_0x500_resize_lanczos_3.png data-caption="Correlation matrix for S&amp;amp;P500 off the first 2018 semester. Yes, it&amp;rsquo;s a mess!">
+<a data-fancybox href=/post/nsbm_sp500_stock_market_disparity_filter/correlation_hu6c68fc9d1aa2b5f7307017b57ffa4d90_521823_0x500_resize_lanczos_3.png data-caption="Correlation matrix for S&amp;amp;P500 off the first 2018 semester. Yes, it’s a mess!">
 <img data-src=/post/nsbm_sp500_stock_market_disparity_filter/correlation_hu6c68fc9d1aa2b5f7307017b57ffa4d90_521823_0x500_resize_lanczos_3.png class=lazyload alt width=100% height=500px>
 </a>
 <figcaption>
-Correlation matrix for S&P500 off the first 2018 semester. Yes, it&rsquo;s a mess!
+Correlation matrix for S&P500 off the first 2018 semester. Yes, it’s a mess!
 </figcaption>
 </figure>
-<p>Ok, look into the image above. If you try to find groups of stocks that are less correlated just using visual inspection you will have a hard time. This works just for a small set of stocks. Obviously, that are another approaches like using linked cluster algorithms, but they are still hard to analyze when the number of stocks increases.</p>
+<p>Ok, look into the image above. If you try to find groups of stocks that are less correlated just using visual inspection, you will have a hard time. This works just for a small set of stocks. Obviously, that is another approach like using linked cluster algorithms, but they are still hard to analyze when the number of stocks increases.</p>
 <h3 id=removing-irrelevant-correlations-with-the-edgeseraser-library>Removing irrelevant correlations with the edgeseraser library</h3>
-<p>Our goal here is to understand the structure of the stock market communities,
-so we will keep just the matrix elements with positive values.</p>
-<pre><code class=language-python>pos_correlation = correlation_matrix.copy()
+<p>Our goal here is to understand the structure of the stock market communities,</p>
+<p>so we will keep just the matrix elements with positive values.</p>
+<pre><code class=language-python>
+pos_correlation = correlation_matrix.copy()
+
 # vamos considerar apenas as correlações positivas pois queremos
+
 # apenas as comunidade&gt;
+
 pos_correlation[pos_correlation &lt; 0.] = 0
+
 # diagonal principal é setada a 0 para evitar auto-arestas
+
 np.fill_diagonal(pos_correlation.values, 0)
+
 </code></pre>
 <p>Now, we create a weighted graph where each vertex is a stock and each positive correlation is a weight associated to the edge between two stocks.</p>
-<pre><code class=language-python>g = ig.Graph.Weighted_Adjacency(pos_correlation.values, mode='undirected')
+<pre><code class=language-python>
+g = ig.Graph.Weighted_Adjacency(pos_correlation.values, mode=’undirected’)
+
 # criamos uma feature symbol para cada vértice
-g.vs[&quot;symbol&quot;] = returns_all.columns
+
+g.vs[“symbol”] = returns_all.columns
+
 # o grafo pode estar desconectado. Portanto, extraímos a componente gigante
+
 cl = g.clusters()
+
 g = cl.giant()
+
 n_edges_before = g.ecount()
+
 </code></pre>
-<p>The graph above has too much information, which is problematic for graph analysis. So, we must first identify and keep only the relevant edges. To do so, we use the disparity filter
-available in my <code>edgeseraser</code> package.</p>
-<pre><code class=language-python>_ = filter_ig_graph(g, .25, cond=&quot;both&quot;, field=&quot;weight&quot;)
+<p>The graph above has too much information, which is problematic for graph analysis. So, we must first identify and keep only the relevant edges. To do so, we use the disparity filter.</p>
+<p>available in my <code>edgeseraser</code> package.</p>
+<pre><code class=language-python>
+_ = filter_ig_graph(g, .25, cond=&quot;both&quot;, field=&quot;weight&quot;)
+
 cl = g.clusters()
+
 g = cl.giant()
+
 n_edges_after = g.ecount()
+
 </code></pre>
-<pre><code class=language-python>print(f&quot;Percentage of edges removed: {(n_edges_before - n_edges_after)/n_edges_before*100:.2f}%&quot;)
+<pre><code class=language-python>
+print(f&quot;Percentage of edges removed: {(n_edges_before - n_edges_after)/n_edges_before*100:.2f}%&quot;)
+
 print(f&quot;Number of remained stocks: {len(symbols)}&quot;)
+
 ...
+
 Percentage of edges removed: 95.76%
+
 Number of remained stocks: 492
+
 </code></pre>
-<p>Most of the edges have been deleted and only a backbone remained in our graph. This backbone structure can now be used to extract
-insights from the stock market.</p>
+<p>We have deleted most of the edges and only a backbone remained in our graph. This backbone structure can now be used to extract.</p>
+<p>insights from the stock market.</p>
 <h2 id=nsbm-fiding-the-hierarquical-structure>nSBM: fiding the hierarquical structure</h2>
 <h3 id=converting-from-igraph-to-graph-tool>Converting from igraph to graph-tool</h3>
-<p>Here we will use the graph-tool lib to infer the hierarchical structure of the graph. Thus,
-we must first convert the graph from <code>igraph</code> to <code>graph-tool</code>. This conversion
-can be accomplished with following code</p>
-<pre><code class=language-python>import graph_tool.all as gt
+<p>Here, we will use the graph-tool lib to infer the hierarchical structure of the graph. Thus, we must first convert the graph from <code>igraph</code> to <code>graph-tool</code>. We can convert that using the following code</p>
+<pre><code class=language-python>
+import graph_tool.all as gt
 
 gnsbm = gt.Graph(directed=False)
+
 # iremos adicionar os vértices
+
 for v in g.vs:
+
     gnsbm.add_vertex()
+
 # e as arestas
+
 for e in g.es:
+
     gnsbm.add_edge(e.source, e.target)
 
 </code></pre>
 <h3 id=how-to-use-the-graph-tool-nsbm>How to use the graph-tool nSBM?</h3>
-<p>With the sparsified correlation graph that encompass the stock relationships we can ask ourselves how those relationships ties stocks together. Here we will use the nSBM to answer this.</p>
+<p>With the sparsified correlation graph that encompasses the stock relationships, we can ask ourselves how those relationships ties stocks together. Here, we will use the nSBM to answer this.</p>
 <p>The
-<a href=https://dx.doi.org/10.1103/PhysRevX.4.011047 target=_blank rel=noopener>nSBM</a>
-is an inference method that optimizes a set of parameters that defines a generative graph model for our data. In our case, to find this model for the sparsified s&p500 correlation graph we will cal the method <code>minimize_nested_blockmodel_dl</code></p>
-<pre><code class=language-python>state = gt.minimize_nested_blockmodel_dl(gnsbm)
+<a href=https://dx.doi.org/10.1103/PhysRevX.4.011047 target=_blank rel=noopener>nSBM</a></p>
+<p>is an inference method that optimizes a set of parameters that defines a generative graph model for our data. In our case, to find this model for the sparsified s&p500 correlation graph, we will cal the method <code>minimize_nested_blockmodel_dl</code></p>
+<pre><code class=language-python>
+state = gt.minimize_nested_blockmodel_dl(gnsbm)
+
 </code></pre>
-<p>The code bellow is used just to define the colors for our plot.</p>
-<pre><code class=language-python>symbols = g.vs[&quot;symbol&quot;]
+<p>We can use the code below to define the colors for our plot.</p>
+<pre><code class=language-python>
+symbols = g.vs[“symbol”]
+
 sectors = [symbol2sector[symbol] for symbol in symbols]
+
 u_sectors = np.sort(np.unique(sectors))
+
 u_colors = [plt.cm.tab10(i/len(u_sectors))
+
           for i in range(len(u_sectors))]
 
 # a primeira cor da lista era muito similar a segunda,
+
 u_colors[0] = [0, 1, 0, 1]
+
 sector2color = {sector: color for sector, color in zip(u_sectors, u_colors)}
 
-rgba = gnsbm.new_vertex_property(&quot;vector&lt;double&gt;&quot;)
-gnsbm.vertex_properties['rgba'] = rgba
+rgba = gnsbm.new_vertex_property(“vector&lt;double&gt;“)
+
+gnsbm.vertex_properties[‘rgba’] = rgba
+
 for i, symbol in enumerate(symbols):
+
     c = sector2color[symbol2sector[symbol]]
+
     rgba[i] = [c[0], c[1], c[2], .5]
+
 </code></pre>
-<p>Calling the <code>draw</code> method we create a plot with the nSBM result. You can play a
-little changing the `$\beta \in (0, 1)$ parameter to see how the things change. This parameter controls the strength of the <strong>edge-bundling</strong> algorithm.</p>
-<pre><code class=language-python>options = {
-    'output': f'nsbm_{start_date}_{end_date}.png',
-    'beta': .9,
-    'bg_color': 'w',
-   #'output_size': (1500, 1500),
-    'vertex_color': gnsbm.vertex_properties['rgba'],
-    'vertex_fill_color': gnsbm.vertex_properties['rgba'],
-    'hedge_pen_width': 2,
-    'hvertex_fill_color': np.array([0., 0., 0., .5]),
-    'hedge_color': np.array([0., 0., 0., .5]),
-    'hedge_marker_size': 20,
-    'hvertex_size':20
+<p>Calling the <code>draw</code> method, we create a plot with the nSBM result. You can play a little, changing the `$\beta \in (0, 1)$ parameter to see how the things change. This parameter controls the strength of the <strong>edge-bundling</strong> algorithm.</p>
+<pre><code class=language-python>
+options = {
+
+    ‘output’: f’nsbm_{start_date}_{end_date}.png’,
+
+    ‘beta’: .9,
+
+    ‘bg_color’: ‘w’,
+
+   #’output_size’: (1500, 1500),
+
+    ‘vertex_color’: gnsbm.vertex_properties[‘rgba’],
+
+    ‘vertex_fill_color’: gnsbm.vertex_properties[‘rgba’],
+
+    ‘hedge_pen_width’: 2,
+
+    ‘hvertex_fill_color’: np.array([0., 0., 0., .5]),
+
+    ‘hedge_color’: np.array([0., 0., 0., .5]),
+
+    ‘hedge_marker_size’: 20,
+
+    ‘hvertex_size’:20
+
 }
 
 state.draw(**options)
 
 </code></pre>
-<p>Finally, we can see the hierarchical structure obtained from our filtered graph using
-the nSBM algorithm.</p>
-<pre><code class=language-python>plt.figure(dpi=150)
-plt.title(f&quot;Sectors of the S&amp;P 500 from {start_date} to {end_date}&quot;)
+<p>Finally, we can see the hierarchical structure got from our filtered graph using</p>
+<p>the nSBM algorithm.</p>
+<pre><code class=language-python>
+plt.figure(dpi=150)
+
+plt.title(f”Sectors of the S&amp;P 500 from {start_date} to {end_date}&quot;)
+
 legend = plt.legend(
+
     [plt.Line2D([0], [0], color=c, lw=10)
+
         for c in list(sector2color.values())],
+
     list(sector2color.keys()),
+
     bbox_to_anchor=(1.05, 1),
+
     loc=2,
+
     borderaxespad=0.)
 
-plt.imshow(plt.imread(f'nsbm_{start_date}_{end_date}.png'))
-plt.xticks([])
-plt.yticks([])
-plt.axis('off')
+plt.imshow(plt.imread(f’nsbm_{start_date}_{end_date}.png’))
 
-plt.savefig(f'nsbm_final_{start_date}_{end_date}.png', bbox_inches='tight',
-            dpi=150, bbox_extra_artists=(legend,), facecolor='w', edgecolor='w')
+plt.xticks([])
+
+plt.yticks([])
+
+plt.axis(‘off’)
+
+plt.savefig(f’nsbm_final_{start_date}_{end_date}.png’, bbox_inches=’tight’,
+
+            dpi=150, bbox_extra_artists=(legend,), facecolor=’w’, edgecolor=’w’)
+
 plt.show()
+
 </code></pre>
 <figure id=figure-nsbm-result-for-the-correlation-matrix-of-sp500-returns>
 <a data-fancybox href=/post/nsbm_sp500_stock_market_disparity_filter/nsbm_final_2018-01-01_2018-06-01_hudcff6362c16284ef400b42c5fe2e1b69_266080_0x500_resize_lanczos_3.png data-caption="nSBM result for the correlation matrix of S&amp;amp;P500 returns.">
@@ -488,9 +601,9 @@ plt.show()
 nSBM result for the correlation matrix of S&P500 returns.
 </figcaption>
 </figure>
-<p>Wow, beautiful, isn&rsquo;t it? But maybe you can only see a beautiful picture and not be
-able to understand what is happening. So, let&rsquo;s try to understand what this plot is
-telling us.</p>
+<p>Wow, beautiful, isn’t it? But maybe you can only see a beautiful picture and not be</p>
+<p>able to understand what is happening. So, let’s try to understand what this plot is</p>
+<p>telling us.</p>
 <h3 id=how-to-analyze>How to analyze?</h3>
 <figure>
 <a data-fancybox href=/post/nsbm_sp500_stock_market_disparity_filter/descripition_nsbm_sp500_eng_hubc8bd3aa9dee5e4b9544c9c74b387fed_1482556_0x400_resize_lanczos_3.png>
@@ -498,17 +611,20 @@ telling us.</p>
 </a>
 </figure>
 <ul>
-<li>Each circle (leaf) represents a stock. A vertex in the original graph.</li>
-<li>Each group of leafs which resembles a broom is a community detected by the nSBM.
-Navigating backwards through the arrows we can see the hierarchical community structure. The image above shows three communities that belong to
-the same grandfather&rsquo;s community.</li>
+<li>
+<p>Each circle (leaf) represents a stock. A vertex in the original graph.</p>
+</li>
+<li>
+<p>Each group of leafs which resembles a broom is a community detected by the nSBM.</p>
+</li>
 </ul>
-<p>We can see interesting stuff in the community structure. For example, the majority of stocks related to <strong>Consumer staples</strong>, <strong>Real state</strong>, and <strong>Utilities</strong> belongs to the same community.</p>
+<p>Navigating backwards through the arrows, we can see the hierarchical community structure. The image above shows three communities that belong to the same grandfather community.</p>
+<p>We can see interesting stuff in the community structure. For example, most stocks related to <strong>Consumer staples</strong>, <strong>Real state</strong>, and <strong>Utilities</strong> belongs to the same community.</p>
 <p>What is the meaning of the edges?</p>
 <ul>
-<li>A larger number of edges between <strong>Financials</strong>, <strong>Industrials</strong> and <strong>Information technology</strong> survive the filtering technique, which indicates a strong relationship between these sectors.</li>
+<li>A larger number of edges between <strong>Financials</strong>, <strong>Industrials</strong> and <strong>Information technology</strong> survive the filtering technique, which shows a strong relationship between these sectors.</li>
 </ul>
-<p>The visual inspection of the edges relationships is meaningful only because of the use of edge bundling algorithm. Let&rsquo;s see how a weak bundling turns our job into a hard one setting $\beta = 0.5$</p>
+<p>The visual inspection of the edges relationships is meaningful only because of the use of edge bundling algorithm. Let’s see how a weak bundling turns our job into a hard one, setting $\beta = 0.5$</p>
 <figure id=figure-can-you-understand-what-is-happening-me-neither>
 <a data-fancybox href=/post/nsbm_sp500_stock_market_disparity_filter/nsbm_2018-01-01_2018-06-01_beta_0.5_hu63a031e361e4cd7a15f51f9db9995b63_1589031_0x400_resize_lanczos_3.png data-caption="Can you understand what is happening? Me neither.">
 <img src=/post/nsbm_sp500_stock_market_disparity_filter/nsbm_2018-01-01_2018-06-01_beta_0.5_hu63a031e361e4cd7a15f51f9db9995b63_1589031_0x400_resize_lanczos_3.png alt height=4200px>
@@ -517,35 +633,53 @@ the same grandfather&rsquo;s community.</li>
 Can you understand what is happening? Me neither.
 </figcaption>
 </figure>
-<p>A visual inspection is sometimes not enough, and maybe you need to create an automatic analysis, which is easy to do with the graph-tool. For example,
-to obtain a summary of the hierarchical community structure obtained by the nSBM algorithm we can call the <code>print_summary</code> method.</p>
-<pre><code class=language-python>state.print_summary()
+<p>A visual inspection is sometimes not enough, and maybe you need to create an automatic analysis, which is easy to do with the graph-tool. For example, to get a summary of the hierarchical community structure got by the nSBM algorithm, we can call the <code>print_summary</code> method.</p>
+<pre><code class=language-python>
+state.print_summary()
+
 </code></pre>
 <pre><code>l: 0, N: 483, B: 25
+
 l: 1, N: 25, B: 6
+
 l: 2, N: 6, B: 2
+
 l: 3, N: 2, B: 1
+
 l: 4, N: 1, B: 1
 </code></pre>
 <p>In the first level, we have <strong>21</strong> communities for all the <strong>11</strong> sectors.</p>
-<p>If we want to know which communities the <strong>TSLA</strong> stock belongs to, we go through
-the hierarchy in the reverse order,</p>
-<pre><code class=language-python># esse é o indice da TSLA no nosso grafo original
-symbol = &quot;TSLA&quot;
+<p>If we want to know which communities the <strong>TSLA</strong> stock belongs to, we go through</p>
+<p>the hierarchy in the reverse order,</p>
+<pre><code class=language-python>
+# esse é o indice da TSLA no nosso grafo original
+
+symbol = “TSLA”
+
 index_tesla = symbols.index(symbol)
+
 print(symbol, symbol2sector[symbol], symbol2name[symbol])
+
 r0 = state.levels[0].get_blocks()[index_tesla]
+
 r1 = state.levels[1].get_blocks()[r0]
+
 r2 = state.levels[2].get_blocks()[r1]
+
 r3 = state.levels[3].get_blocks()[r2]
+
 (r1, r2, r3)
 
 </code></pre>
-<pre><code>('TSLA', 'Consumer Discretionary', 'Tesla')
+<pre><code>
+(‘TSLA’, ‘Consumer Discretionary’, ‘Tesla’)
+
 (19, 0, 0)
+
 </code></pre>
 <h2 id=conclusion>Conclusion</h2>
-<p>The aim of this post was to give you a first impression of a metodology that combines the use of nSBM and edge filtering techniques to enhance our understanding of the correlation structure of the data, specially in the case of financial data. However, this methodology can be applied in different scenarios like
+<p>The aim of this post was to give you a first impression of a method that combines the use of nSBM and edge filtering techniques to enhance our understanding of the correlation structure of the data, especially with financial data. However, we can also use this method in different scenarios, as</p>
+<p>
 <a href=https://www.science.org/doi/10.1126/sciadv.aaq1360 target=_blank rel=noopener>topic modeling in NLP</a> and
 <a href=https://arxiv.org/abs/2110.01421 target=_blank rel=noopener>survey analysis</a>.</p>
 </div>
