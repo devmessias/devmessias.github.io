@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>mercado-de-ações | Bruno Messias</title><link>/tag/mercado-de-acoes/</link><atom:link href="/tag/mercado-de-acoes/index.xml" rel="self" type="application/rss+xml"/><description>mercado-de-ações</description><generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>en</language><copyright>Bruno Messias</copyright><lastBuildDate>Mon, 18 Apr 2022 00:00:00 +0000</lastBuildDate><image><url>/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_3.png</url><title>mercado-de-ações</title><link>/tag/mercado-de-acoes/</link></image><item><title>Correlation matrix analysis with the nested stochastic block model: extracting the hidden graph structure of stock market.</title><link>/post/nsbm_sp500_stock_market_disparity_filter/</link><pubDate>Mon, 18 Apr 2022 00:00:00 +0000</pubDate><guid>/post/nsbm_sp500_stock_market_disparity_filter/</guid><description>&lt;details
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>mercado-de-ações | Bruno Messias</title><link>/tag/mercado-de-acoes/</link><atom:link href="/tag/mercado-de-acoes/index.xml" rel="self" type="application/rss+xml"/><description>mercado-de-ações</description><generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>en</language><copyright>Bruno Messias</copyright><lastBuildDate>Mon, 18 Apr 2022 00:00:00 +0000</lastBuildDate><image><url>/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_512x512_fill_lanczos_center_3.png</url><title>mercado-de-ações</title><link>/tag/mercado-de-acoes/</link></image><item><title>Correlation matrix analysis with the nested stochastic block model:the hidden graph structure of stock market.</title><link>/post/nsbm_sp500_stock_market_disparity_filter/</link><pubDate>Mon, 18 Apr 2022 00:00:00 +0000</pubDate><guid>/post/nsbm_sp500_stock_market_disparity_filter/</guid><description>&lt;details
 class="toc-inpage d-print-none d-none d-sm-block d-md-none " open>
 &lt;summary class="font-weight-bold">Table of Contents&lt;/summary>
 &lt;nav id="TableOfContents">
@@ -33,13 +33,10 @@ class="toc-inpage d-print-none d-none d-sm-block d-md-none " open>
 &lt;/details>
 &lt;p>In this post, I’ll show you how the nested stochastic block model (nSBM) can extract insights from correlation matrices using a combination with a filtering edge graph technique called disparity filter. I’ll use as a case study a correlation matrix derived from the stock market data.&lt;/p>
 &lt;p>Don’t be afraid, you will reproduce the beautiful plot presented below and understand what it means.&lt;/p>
-&lt;figure id="figure-what-you-will-be-able-to-accomplish-the-end-of-this-post">
-&lt;a data-fancybox="" href="/post/nsbm_sp500_stock_market_disparity_filter/nsbm_final_2018-01-01_2018-06-01_hudcff6362c16284ef400b42c5fe2e1b69_266080_0x500_resize_lanczos_3.png" data-caption="What you will be able to accomplish the end of this post.">
+&lt;figure >
+&lt;a data-fancybox="" href="/post/nsbm_sp500_stock_market_disparity_filter/nsbm_final_2018-01-01_2018-06-01_hudcff6362c16284ef400b42c5fe2e1b69_266080_0x500_resize_lanczos_3.png" >
 &lt;img data-src="/post/nsbm_sp500_stock_market_disparity_filter/nsbm_final_2018-01-01_2018-06-01_hudcff6362c16284ef400b42c5fe2e1b69_266080_0x500_resize_lanczos_3.png" class="lazyload" alt="" width="100%" height="500px">
 &lt;/a>
-&lt;figcaption>
-What you will be able to accomplish the end of this post.
-&lt;/figcaption>
 &lt;/figure>
 &lt;p>If you want to reproduce, use a conda environment because of the graph-tool dependency. Besides that, check if you have the following packages installed:&lt;/p>
 &lt;pre>&lt;code>

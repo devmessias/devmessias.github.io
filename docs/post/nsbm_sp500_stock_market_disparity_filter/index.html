@@ -29,7 +29,7 @@
 <meta property="twitter:creator" content="@devmessias">
 <meta property="og:site_name" content="Bruno Messias">
 <meta property="og:url" content="/post/nsbm_sp500_stock_market_disparity_filter/">
-<meta property="og:title" content="Correlation matrix analysis with the nested stochastic block model: extracting the hidden graph structure of stock market. | Bruno Messias">
+<meta property="og:title" content="Correlation matrix analysis with the nested stochastic block model:the hidden graph structure of stock market. | Bruno Messias">
 <meta property="og:description" content="How to extract insights of huge correlation matrices? Here I'll show you how a comunity detection methdod in graphs can help us in this task.">
 <meta property="twitter:image" content="https://devmessias.github.io/img/nested_stochastic_block_model_sp500_twitter.png">
 <meta property="og:image" content="https://devmessias.github.io/img/nested_stochastic_block_model_sp500_twitter.png">
@@ -38,8 +38,8 @@
 <meta property="og:locale" content="en">
 <meta property="article:published_time" content="2022-04-18T00:00:00+00:00">
 <meta property="article:modified_time" content="2022-04-18T00:00:00+00:00">
-<script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"/post/nsbm_sp500_stock_market_disparity_filter/"},"headline":"Correlation matrix analysis with the nested stochastic block model: extracting the hidden graph structure of stock market.","datePublished":"2022-04-18T00:00:00Z","dateModified":"2022-04-18T00:00:00Z","author":{"@type":"Person","name":"Bruno Messias"},"publisher":{"@type":"Organization","name":"Bruno Messias","logo":{"@type":"ImageObject","url":"/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_192x192_fill_lanczos_center_3.png"}},"description":"How to extract insights of huge correlation matrices? Here I'll show you how a comunity detection methdod in graphs can help us in this task."}</script>
-<title>Correlation matrix analysis with the nested stochastic block model: extracting the hidden graph structure of stock market. | Bruno Messias</title>
+<script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"/post/nsbm_sp500_stock_market_disparity_filter/"},"headline":"Correlation matrix analysis with the nested stochastic block model:the hidden graph structure of stock market.","datePublished":"2022-04-18T00:00:00Z","dateModified":"2022-04-18T00:00:00Z","author":{"@type":"Person","name":"Bruno Messias"},"publisher":{"@type":"Organization","name":"Bruno Messias","logo":{"@type":"ImageObject","url":"/images/icon_hucd6a3d413e7b81060a1d462b35f64cf9_5018_192x192_fill_lanczos_center_3.png"}},"description":"How to extract insights of huge correlation matrices? Here I'll show you how a comunity detection methdod in graphs can help us in this task."}</script>
+<title>Correlation matrix analysis with the nested stochastic block model:the hidden graph structure of stock market. | Bruno Messias</title>
 </head>
 <body id=top class=page-wrapper data-spy=scroll data-offset=70 data-target=#TableOfContents>
 <aside class=search-results id=search>
@@ -120,7 +120,7 @@
 <div class="row flex-xl-nowrap">
 <div class="col-12 col-md-10 offset-md-2">
 <div class=bg-overlay-img style=--bg-url:url(/post/nsbm_sp500_stock_market_disparity_filter/nested_stochastic_block_model_sp500_hudcff6362c16284ef400b42c5fe2e1b69_266080_0x200_resize_lanczos_3.png)>
-<h1 class=text-left>Correlation matrix analysis with the nested stochastic block model: extracting the hidden graph structure of stock market.</h1>
+<h1 class=text-left>Correlation matrix analysis with the nested stochastic block model:the hidden graph structure of stock market.</h1>
 <div class=article-metadata>
 <span class=article-date>
 Apr 18, 2022
@@ -209,13 +209,10 @@ Apr 18, 2022
 </details>
 <p>In this post, I’ll show you how the nested stochastic block model (nSBM) can extract insights from correlation matrices using a combination with a filtering edge graph technique called disparity filter. I’ll use as a case study a correlation matrix derived from the stock market data.</p>
 <p>Don’t be afraid, you will reproduce the beautiful plot presented below and understand what it means.</p>
-<figure id=figure-what-you-will-be-able-to-accomplish-the-end-of-this-post>
-<a data-fancybox href=/post/nsbm_sp500_stock_market_disparity_filter/nsbm_final_2018-01-01_2018-06-01_hudcff6362c16284ef400b42c5fe2e1b69_266080_0x500_resize_lanczos_3.png data-caption="What you will be able to accomplish the end of this post.">
+<figure>
+<a data-fancybox href=/post/nsbm_sp500_stock_market_disparity_filter/nsbm_final_2018-01-01_2018-06-01_hudcff6362c16284ef400b42c5fe2e1b69_266080_0x500_resize_lanczos_3.png>
 <img data-src=/post/nsbm_sp500_stock_market_disparity_filter/nsbm_final_2018-01-01_2018-06-01_hudcff6362c16284ef400b42c5fe2e1b69_266080_0x500_resize_lanczos_3.png class=lazyload alt width=100% height=500px>
 </a>
-<figcaption>
-What you will be able to accomplish the end of this post.
-</figcaption>
 </figure>
 <p>If you want to reproduce, use a conda environment because of the graph-tool dependency. Besides that, check if you have the following packages installed:</p>
 <pre><code>
@@ -695,32 +692,32 @@ r3 = state.levels[3].get_blocks()[r2]
 <h5 class=text-center>Share this page if you like it</h5>
 <ul class=share>
 <li>
-<a href="https://twitter.com/intent/tweet?url=/post/nsbm_sp500_stock_market_disparity_filter/&text=Correlation%20matrix%20analysis%20with%20the%20nested%20stochastic%20block%20model:%20extracting%20the%20hidden%20graph%20structure%20of%20stock%20market." target=_blank rel=noopener class=share-btn-twitter>
+<a href="https://twitter.com/intent/tweet?url=/post/nsbm_sp500_stock_market_disparity_filter/&text=Correlation%20matrix%20analysis%20with%20the%20nested%20stochastic%20block%20model:the%20hidden%20graph%20structure%20of%20stock%20market." target=_blank rel=noopener class=share-btn-twitter>
 <i class="fab fa-twitter"></i>
 </a>
 </li>
 <li>
-<a href="https://www.facebook.com/sharer.php?u=/post/nsbm_sp500_stock_market_disparity_filter/&t=Correlation%20matrix%20analysis%20with%20the%20nested%20stochastic%20block%20model:%20extracting%20the%20hidden%20graph%20structure%20of%20stock%20market." target=_blank rel=noopener class=share-btn-facebook>
+<a href="https://www.facebook.com/sharer.php?u=/post/nsbm_sp500_stock_market_disparity_filter/&t=Correlation%20matrix%20analysis%20with%20the%20nested%20stochastic%20block%20model:the%20hidden%20graph%20structure%20of%20stock%20market." target=_blank rel=noopener class=share-btn-facebook>
 <i class="fab fa-facebook"></i>
 </a>
 </li>
 <li>
-<a href="mailto:?subject=Correlation%20matrix%20analysis%20with%20the%20nested%20stochastic%20block%20model:%20extracting%20the%20hidden%20graph%20structure%20of%20stock%20market.&body=/post/nsbm_sp500_stock_market_disparity_filter/" target=_blank rel=noopener class=share-btn-email>
+<a href="mailto:?subject=Correlation%20matrix%20analysis%20with%20the%20nested%20stochastic%20block%20model:the%20hidden%20graph%20structure%20of%20stock%20market.&body=/post/nsbm_sp500_stock_market_disparity_filter/" target=_blank rel=noopener class=share-btn-email>
 <i class="fas fa-envelope"></i>
 </a>
 </li>
 <li>
-<a href="https://www.linkedin.com/shareArticle?url=/post/nsbm_sp500_stock_market_disparity_filter/&title=Correlation%20matrix%20analysis%20with%20the%20nested%20stochastic%20block%20model:%20extracting%20the%20hidden%20graph%20structure%20of%20stock%20market." target=_blank rel=noopener class=share-btn-linkedin>
+<a href="https://www.linkedin.com/shareArticle?url=/post/nsbm_sp500_stock_market_disparity_filter/&title=Correlation%20matrix%20analysis%20with%20the%20nested%20stochastic%20block%20model:the%20hidden%20graph%20structure%20of%20stock%20market." target=_blank rel=noopener class=share-btn-linkedin>
 <i class="fab fa-linkedin-in"></i>
 </a>
 </li>
 <li>
-<a href="whatsapp://send?text=Correlation%20matrix%20analysis%20with%20the%20nested%20stochastic%20block%20model:%20extracting%20the%20hidden%20graph%20structure%20of%20stock%20market.%20/post/nsbm_sp500_stock_market_disparity_filter/" target=_blank rel=noopener class=share-btn-whatsapp>
+<a href="whatsapp://send?text=Correlation%20matrix%20analysis%20with%20the%20nested%20stochastic%20block%20model:the%20hidden%20graph%20structure%20of%20stock%20market.%20/post/nsbm_sp500_stock_market_disparity_filter/" target=_blank rel=noopener class=share-btn-whatsapp>
 <i class="fab fa-whatsapp"></i>
 </a>
 </li>
 <li>
-<a href="https://service.weibo.com/share/share.php?url=/post/nsbm_sp500_stock_market_disparity_filter/&title=Correlation%20matrix%20analysis%20with%20the%20nested%20stochastic%20block%20model:%20extracting%20the%20hidden%20graph%20structure%20of%20stock%20market." target=_blank rel=noopener class=share-btn-weibo>
+<a href="https://service.weibo.com/share/share.php?url=/post/nsbm_sp500_stock_market_disparity_filter/&title=Correlation%20matrix%20analysis%20with%20the%20nested%20stochastic%20block%20model:the%20hidden%20graph%20structure%20of%20stock%20market." target=_blank rel=noopener class=share-btn-weibo>
 <i class="fab fa-weibo"></i>
 </a>
 </li>
